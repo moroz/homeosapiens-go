@@ -3,3 +3,14 @@ go = "1.25.3"
 "go:github.com/cortesi/modd/cmd/modd" = "latest"
 "go:github.com/pressly/goose/v3/cmd/goose" = "latest"
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "latest"
+
+[env]
+PGDATABASE = "homeosapiens_dev"
+DATABASE_URL = "postgres://postgres:postgres@localhost:5432/{{ env.PGDATABASE }}"
+GOOSE_DBSTRING = "{{ env.DATABASE_URL }}"
+GOOSE_DRIVER = "postgres"
+GOOSE_MIGRATION_DIR = "db/migrations"
+SECRET_KEY_BASE = "YhTVeJ58o+vuYEvASxp68UMydUhvMsAOQZkCmlEeAE/IVJ/WkpjXS0+spVyWttR0ZMs0aKbbx+jkqV7oD9Lp+w=="
+
+[tasks."db:seed"]
+run = "psql $DATABASE_URL -f db/seeds.sql"
