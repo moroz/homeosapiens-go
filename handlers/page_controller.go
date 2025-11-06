@@ -24,7 +24,7 @@ func (c *pageController) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := pages.Index(events).Render(w); err != nil {
+	if err := pages.Index(r.Context(), events).Render(w); err != nil {
 		msg := fmt.Sprintf("Error rendering page: %s", err)
 		log.Print(msg)
 		http.Error(w, msg, 500)

@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/handlers"
+	"github.com/moroz/homeosapiens-go/i18n"
 )
 
 func main() {
@@ -16,6 +17,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := handlers.Router(db)
+	bundle, err := i18n.InitBundle()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	r := handlers.Router(db, bundle)
 	log.Fatal(http.ListenAndServe(":3000", r))
 }

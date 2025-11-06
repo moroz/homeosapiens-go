@@ -7,6 +7,7 @@ tool github.com/a-h/templ/cmd/templ
 require (
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/jackc/pgx/v5 v5.7.6
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/shopspring/decimal v1.4.0
 	maragu.dev/gomponents v1.2.0
 )
