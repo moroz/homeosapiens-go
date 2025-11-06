@@ -1,0 +1,21 @@
+{
+  "name": "homeosapiens-go",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.20.0",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "tailwindcss": "^4.1.16"
+  },
+  "scripts": {
+    "watch": "tailwindcss -i ./assets/css/input.css -o ./assets/dist/bundle.css --watch=always",
+    "build": "tailwindcss -i ./assets/css/input.css -o ./assets/dist/bundle.css --minify"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
