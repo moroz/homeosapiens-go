@@ -9,6 +9,9 @@ prettier = "latest"
 
 [env]
 PGDATABASE = "homeosapiens_dev"
+PGUSER = "postgres"
+PGPASSWORD = "postgres"
+PGHOST = "localhost"
 DATABASE_URL = "postgres://postgres:postgres@localhost:5432/{{ env.PGDATABASE }}"
 GOOSE_DBSTRING = "{{ env.DATABASE_URL }}"
 GOOSE_DRIVER = "postgres"
@@ -17,3 +20,12 @@ SECRET_KEY_BASE = "YhTVeJ58o+vuYEvASxp68UMydUhvMsAOQZkCmlEeAE/IVJ/WkpjXS0+spVyWt
 
 [tasks."db:seed"]
 run = "psql $DATABASE_URL -f db/seeds.sql"
+
+[tasks."db:setup"]
+run = """
+#!/usr/bin/env -S bash -euo pipefail
+
+createdb $PGDATABASE || true
+goose up
+mise r db:seed
+"""

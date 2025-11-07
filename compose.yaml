@@ -1,0 +1,14 @@
+services:
+  pg:
+    image: postgres:18
+    restart: unless-stopped
+    ports:
+      - 5433:5432
+    volumes:
+      - data:/var/lib/postgresql/18/docker
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+volumes:
+  data: {}

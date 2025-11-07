@@ -13,7 +13,7 @@ import (
 func Index(ctx context.Context, events []*queries.Event) Node {
 	localizer := ctx.Value("localizer").(*i18n.Localizer)
 
-	return layout.Layout("Events", Div(
+	return layout.Layout(ctx, "Events", Div(
 		Class("grid gap-4 container mx-auto"),
 		H2(
 			Text(localizer.MustLocalize(&i18n.LocalizeConfig{

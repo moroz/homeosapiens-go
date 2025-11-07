@@ -1,5 +1,30 @@
 {
   "HelloWorld": {
     "other": "Test"
+  },
+  "languages": {
+    "pl": "polski",
+    "en": "English"
+  },
+  "header": {
+    "nav": {
+      "sign_in": {
+        "other": "Sign in"
+      },
+      "events": {
+        "other": "Events"
+      },
+      "videos": {
+        "other": "Watch"
+      },
+      "my_products": {
+        "other": "My products"
+      }
+    }
+  },
+  "locale_switcher": {
+    "switch_to": {
+      "other": "Przełącz na {{ .Language }}"
+    }
   }
 }

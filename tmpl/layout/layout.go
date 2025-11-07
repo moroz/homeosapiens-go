@@ -1,13 +1,14 @@
 package layout
 
 import (
-	"fmt"
+	"context"
 
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
 
-func Layout(title string, children ...Node) Node {
+func Layout(ctx context.Context, title string, children ...Node) Node {
 	return HTML(
 		Head(
 			Meta(Charset("UTF-8")),
@@ -30,12 +31,12 @@ func Layout(title string, children ...Node) Node {
 		),
 		Body(
 			Class("flex flex-col min-h-screen"),
-			AppHeader(), Main(Class("flex-1"), Group(children)), AppFooter(),
+			AppHeader(ctx), Main(Class("flex-1"), Group(children)), AppFooter(),
 		),
 	)
 }
 
-func NavLink(href string, text string) Node {
+func NavLink(href string, text string, children ...Node) Node {
 	return Li(
 		A(
 			Class("inline-flex items-center rounded-sm px-3 font-semibold text-primary transition hover:bg-slate-200 h-full"),
@@ -44,11 +45,36 @@ func NavLink(href string, text string) Node {
 	)
 }
 
-func LanguageSwitcher(baseUrl string, locale string) Node {
-	return NavLink(fmt.Sprintf("%s?lang=%s", baseUrl, locale), locale)
+func LanguageSwitcher(ctx context.Context, baseUrl string, locale string) Node {
+	localizer := ctx.Value("localizer").(*i18n.Localizer)
+
+	langName := localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "languages." + locale,
+			Other: locale,
+		},
+	})
+	title := localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "locale_switcher.switch_to",
+			Other: "Przełącz na {{ .Language }}",
+		},
+		TemplateData: map[string]string{
+			"Language": langName,
+		},
+	})
+
+	return Li(
+		A(
+			Class("inline-flex items-center rounded-sm px-3 font-semibold text-primary transition hover:bg-slate-200 h-full uppercase"),
+			Href(baseUrl+"?lang="+locale), Text(locale), Title(title), Aria("label", title),
+		),
+	)
 }
 
-func AppHeader() Node {
+func AppHeader(ctx context.Context) Node {
+	localizer := ctx.Value("localizer").(*i18n.Localizer)
+
 	return Header(
 		Class("h-20 border-b-2"),
 		Div(Class("container mx-auto flex justify-between h-full items-center"),
@@ -62,10 +88,25 @@ func AppHeader() Node {
 				Class("h-full"),
 				Ul(
 					Class("flex gap-2 py-4 h-full"),
-					LanguageSwitcher("/", "pl"),
-					NavLink("/events", "Events"),
-					NavLink("/videos", "Watch"),
-					NavLink("/dashboard", "My products"),
+					LanguageSwitcher(ctx, "/", "pl"),
+					NavLink("/events", localizer.MustLocalize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID:    "header.nav.events",
+							Other: "Events",
+						},
+					})),
+					NavLink("/videos", localizer.MustLocalize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID:    "header.nav.videos",
+							Other: "Watch",
+						},
+					})),
+					NavLink("/dashboard", localizer.MustLocalize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID:    "header.nav.my_products",
+							Other: "My Products",
+						},
+					})),
 				),
 			),
 		),
