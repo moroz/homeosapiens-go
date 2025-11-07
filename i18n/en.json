@@ -1,6 +1,6 @@
 {
-  "HelloWorld": {
-    "other": "Test"
+  "countries": {
+    "PL": "Poland"
   },
   "languages": {
     "pl": "polski",
@@ -25,6 +25,15 @@
   "locale_switcher": {
     "switch_to": {
       "other": "Przełącz na {{ .Language }}"
+    }
+  },
+  "common": {
+    "hosts": {
+      "salutation": {
+        "dr": {
+          "other": "Dr."
+        }
+      }
     }
   }
 }

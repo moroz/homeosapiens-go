@@ -1,13 +1,14 @@
 -- name: ListEvents :many
-select e.*, v.*
+select e.*,
+v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
 from events e
 left join venues v on e.venue_id = v.id
 order by e.starts_at desc;
 
 -- name: ListHostsForEvents :many
-select h.*, a.object_key profile_picture_url
+select eh.event_id, h.*, a.object_key profile_picture_url
 from hosts h
 join events_hosts eh on eh.host_id = h.id
 left join assets a on h.profile_picture_id = a.id
-where eh.event_id = any(@EventIDs)
+where eh.event_id = any(@EventIDs::uuid[])
 order by eh.host_id, eh.position;

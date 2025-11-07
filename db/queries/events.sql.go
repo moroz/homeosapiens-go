@@ -13,7 +13,8 @@ import (
 )
 
 const listEvents = `-- name: ListEvents :many
-select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id, v.id, v.name_en, v.name_pl, v.street, v.city_en, v.city_pl, v.postal_code, v.country_code, v.inserted_at, v.updated_at
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id,
+v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
 from events e
 left join venues v on e.venue_id = v.id
 order by e.starts_at desc
@@ -34,16 +35,10 @@ type ListEventsRow struct {
 	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
 	VenueID           pgtype.UUID      `json:"venueId"`
-	ID_2              pgtype.UUID      `json:"id2"`
-	NameEn            *string          `json:"nameEn"`
-	NamePl            *string          `json:"namePl"`
-	Street            *string          `json:"street"`
-	CityEn            *string          `json:"cityEn"`
-	CityPl            *string          `json:"cityPl"`
-	PostalCode        *string          `json:"postalCode"`
-	CountryCode       *string          `json:"countryCode"`
-	InsertedAt_2      pgtype.Timestamp `json:"insertedAt2"`
-	UpdatedAt_2       pgtype.Timestamp `json:"updatedAt2"`
+	VenueStreet       *string          `json:"venueStreet"`
+	VenueCityEn       *string          `json:"venueCityEn"`
+	VenueCityPl       *string          `json:"venueCityPl"`
+	VenueCountryCode  *string          `json:"venueCountryCode"`
 }
 
 func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
@@ -70,16 +65,10 @@ func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
 			&i.InsertedAt,
 			&i.UpdatedAt,
 			&i.VenueID,
-			&i.ID_2,
-			&i.NameEn,
-			&i.NamePl,
-			&i.Street,
-			&i.CityEn,
-			&i.CityPl,
-			&i.PostalCode,
-			&i.CountryCode,
-			&i.InsertedAt_2,
-			&i.UpdatedAt_2,
+			&i.VenueStreet,
+			&i.VenueCityEn,
+			&i.VenueCityPl,
+			&i.VenueCountryCode,
 		); err != nil {
 			return nil, err
 		}
@@ -92,15 +81,16 @@ func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
 }
 
 const listHostsForEvents = `-- name: ListHostsForEvents :many
-select h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, a.object_key profile_picture_url
+select eh.event_id, h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, a.object_key profile_picture_url
 from hosts h
 join events_hosts eh on eh.host_id = h.id
 left join assets a on h.profile_picture_id = a.id
-where eh.event_id = any($1)
+where eh.event_id = any($1::uuid[])
 order by eh.host_id, eh.position
 `
 
 type ListHostsForEventsRow struct {
+	EventID           pgtype.UUID      `json:"eventId"`
 	ID                pgtype.UUID      `json:"id"`
 	Salutation        *string          `json:"salutation"`
 	GivenName         string           `json:"givenName"`
@@ -111,7 +101,7 @@ type ListHostsForEventsRow struct {
 	ProfilePictureUrl *string          `json:"profilePictureUrl"`
 }
 
-func (q *Queries) ListHostsForEvents(ctx context.Context, eventids pgtype.UUID) ([]*ListHostsForEventsRow, error) {
+func (q *Queries) ListHostsForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*ListHostsForEventsRow, error) {
 	rows, err := q.db.Query(ctx, listHostsForEvents, eventids)
 	if err != nil {
 		return nil, err
@@ -121,6 +111,7 @@ func (q *Queries) ListHostsForEvents(ctx context.Context, eventids pgtype.UUID) 
 	for rows.Next() {
 		var i ListHostsForEventsRow
 		if err := rows.Scan(
+			&i.EventID,
 			&i.ID,
 			&i.Salutation,
 			&i.GivenName,

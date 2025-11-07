@@ -13,7 +13,7 @@ func Layout(ctx context.Context, title string, children ...Node) Node {
 		Head(
 			Meta(Charset("UTF-8")),
 			Meta(Name("viewport"), Content("width=device-width, initial-scale=1")),
-			Title(title),
+			TitleEl(Text(title+" | Homeo sapiens")),
 			Link(Rel("stylesheet"), Href("/assets/bundle.css")),
 			Link(
 				Rel("preconnect"),
