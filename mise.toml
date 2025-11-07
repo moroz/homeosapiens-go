@@ -29,3 +29,11 @@ createdb $PGDATABASE || true
 goose up
 mise r db:seed
 """
+
+[tasks."db:reset"]
+run = """
+#!/usr/bin/env -S bash -euo pipefail
+
+dropdb $PGDATABASE
+mise r db:setup
+"""
