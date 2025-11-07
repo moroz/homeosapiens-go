@@ -7,21 +7,54 @@ package queries
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 const listEvents = `-- name: ListEvents :many
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at from events order by starts_at desc
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id, v.id, v.name_en, v.name_pl, v.street, v.city_en, v.city_pl, v.postal_code, v.country_code, v.inserted_at, v.updated_at
+from events e
+left join venues v on e.venue_id = v.id
+order by e.starts_at desc
 `
 
-func (q *Queries) ListEvents(ctx context.Context) ([]*Event, error) {
+type ListEventsRow struct {
+	ID                pgtype.UUID      `json:"id"`
+	TitleEn           string           `json:"titleEn"`
+	TitlePl           string           `json:"titlePl"`
+	StartsAt          pgtype.Timestamp `json:"startsAt"`
+	EndsAt            pgtype.Timestamp `json:"endsAt"`
+	IsVirtual         bool             `json:"isVirtual"`
+	DescriptionEn     string           `json:"descriptionEn"`
+	DescriptionPl     *string          `json:"descriptionPl"`
+	EventType         EventType        `json:"eventType"`
+	BasePriceAmount   *decimal.Decimal `json:"basePriceAmount"`
+	BasePriceCurrency *string          `json:"basePriceCurrency"`
+	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
+	VenueID           pgtype.UUID      `json:"venueId"`
+	ID_2              pgtype.UUID      `json:"id2"`
+	NameEn            *string          `json:"nameEn"`
+	NamePl            *string          `json:"namePl"`
+	Street            *string          `json:"street"`
+	CityEn            *string          `json:"cityEn"`
+	CityPl            *string          `json:"cityPl"`
+	PostalCode        *string          `json:"postalCode"`
+	CountryCode       *string          `json:"countryCode"`
+	InsertedAt_2      pgtype.Timestamp `json:"insertedAt2"`
+	UpdatedAt_2       pgtype.Timestamp `json:"updatedAt2"`
+}
+
+func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
 	rows, err := q.db.Query(ctx, listEvents)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Event
+	var items []*ListEventsRow
 	for rows.Next() {
-		var i Event
+		var i ListEventsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.TitleEn,
@@ -36,6 +69,66 @@ func (q *Queries) ListEvents(ctx context.Context) ([]*Event, error) {
 			&i.BasePriceCurrency,
 			&i.InsertedAt,
 			&i.UpdatedAt,
+			&i.VenueID,
+			&i.ID_2,
+			&i.NameEn,
+			&i.NamePl,
+			&i.Street,
+			&i.CityEn,
+			&i.CityPl,
+			&i.PostalCode,
+			&i.CountryCode,
+			&i.InsertedAt_2,
+			&i.UpdatedAt_2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listHostsForEvents = `-- name: ListHostsForEvents :many
+select h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, a.object_key profile_picture_url
+from hosts h
+join events_hosts eh on eh.host_id = h.id
+left join assets a on h.profile_picture_id = a.id
+where eh.event_id = any($1)
+order by eh.host_id, eh.position
+`
+
+type ListHostsForEventsRow struct {
+	ID                pgtype.UUID      `json:"id"`
+	Salutation        *string          `json:"salutation"`
+	GivenName         string           `json:"givenName"`
+	FamilyName        string           `json:"familyName"`
+	ProfilePictureID  pgtype.UUID      `json:"profilePictureId"`
+	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
+	ProfilePictureUrl *string          `json:"profilePictureUrl"`
+}
+
+func (q *Queries) ListHostsForEvents(ctx context.Context, eventids pgtype.UUID) ([]*ListHostsForEventsRow, error) {
+	rows, err := q.db.Query(ctx, listHostsForEvents, eventids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListHostsForEventsRow
+	for rows.Next() {
+		var i ListHostsForEventsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Salutation,
+			&i.GivenName,
+			&i.FamilyName,
+			&i.ProfilePictureID,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.ProfilePictureUrl,
 		); err != nil {
 			return nil, err
 		}

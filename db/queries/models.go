@@ -54,6 +54,101 @@ func (ns NullEventType) Value() (driver.Value, error) {
 	return string(ns.EventType), nil
 }
 
+type PriceRuleType string
+
+const (
+	PriceRuleTypeBase         PriceRuleType = "Base"
+	PriceRuleTypeDiscountCode PriceRuleType = "DiscountCode"
+	PriceRuleTypeEarlyBird    PriceRuleType = "EarlyBird"
+)
+
+func (e *PriceRuleType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PriceRuleType(s)
+	case string:
+		*e = PriceRuleType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PriceRuleType: %T", src)
+	}
+	return nil
+}
+
+type NullPriceRuleType struct {
+	PriceRuleType PriceRuleType `json:"priceRuleType"`
+	Valid         bool          `json:"valid"` // Valid is true if PriceRuleType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPriceRuleType) Scan(value interface{}) error {
+	if value == nil {
+		ns.PriceRuleType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PriceRuleType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPriceRuleType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PriceRuleType), nil
+}
+
+type PriceType string
+
+const (
+	PriceTypeFixed              PriceType = "Fixed"
+	PriceTypePercentage         PriceType = "Percentage"
+	PriceTypeDiscountFixed      PriceType = "DiscountFixed"
+	PriceTypeDiscountPercentage PriceType = "DiscountPercentage"
+)
+
+func (e *PriceType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PriceType(s)
+	case string:
+		*e = PriceType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PriceType: %T", src)
+	}
+	return nil
+}
+
+type NullPriceType struct {
+	PriceType PriceType `json:"priceType"`
+	Valid     bool      `json:"valid"` // Valid is true if PriceType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPriceType) Scan(value interface{}) error {
+	if value == nil {
+		ns.PriceType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PriceType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPriceType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PriceType), nil
+}
+
+type Asset struct {
+	ID               pgtype.UUID      `json:"id"`
+	ObjectKey        string           `json:"objectKey"`
+	OriginalFilename *string          `json:"originalFilename"`
+	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
+}
+
 type Event struct {
 	ID                pgtype.UUID      `json:"id"`
 	TitleEn           string           `json:"titleEn"`
@@ -68,4 +163,53 @@ type Event struct {
 	BasePriceCurrency *string          `json:"basePriceCurrency"`
 	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
+	VenueID           pgtype.UUID      `json:"venueId"`
+}
+
+type EventPrice struct {
+	ID            pgtype.UUID      `json:"id"`
+	EventID       pgtype.UUID      `json:"eventId"`
+	PriceType     PriceType        `json:"priceType"`
+	RuleType      PriceRuleType    `json:"ruleType"`
+	PriceAmount   decimal.Decimal  `json:"priceAmount"`
+	PriceCurrency string           `json:"priceCurrency"`
+	DiscountCode  *string          `json:"discountCode"`
+	Priority      int32            `json:"priority"`
+	IsActive      bool             `json:"isActive"`
+	ValidFrom     pgtype.Timestamp `json:"validFrom"`
+	ValidUntil    pgtype.Timestamp `json:"validUntil"`
+	CreatedAt     pgtype.Timestamp `json:"createdAt"`
+	UpdatedAt     pgtype.Timestamp `json:"updatedAt"`
+}
+
+type EventsHost struct {
+	ID         pgtype.UUID      `json:"id"`
+	EventID    pgtype.UUID      `json:"eventId"`
+	HostID     pgtype.UUID      `json:"hostId"`
+	Position   int32            `json:"position"`
+	InsertedAt pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
+}
+
+type Host struct {
+	ID               pgtype.UUID      `json:"id"`
+	Salutation       *string          `json:"salutation"`
+	GivenName        string           `json:"givenName"`
+	FamilyName       string           `json:"familyName"`
+	ProfilePictureID pgtype.UUID      `json:"profilePictureId"`
+	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
+}
+
+type Venue struct {
+	ID          pgtype.UUID      `json:"id"`
+	NameEn      string           `json:"nameEn"`
+	NamePl      *string          `json:"namePl"`
+	Street      string           `json:"street"`
+	CityEn      string           `json:"cityEn"`
+	CityPl      *string          `json:"cityPl"`
+	PostalCode  *string          `json:"postalCode"`
+	CountryCode string           `json:"countryCode"`
+	InsertedAt  pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
 }
