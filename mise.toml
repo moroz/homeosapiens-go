@@ -18,6 +18,12 @@ GOOSE_DRIVER = "postgres"
 GOOSE_MIGRATION_DIR = "db/migrations"
 SECRET_KEY_BASE = "YhTVeJ58o+vuYEvASxp68UMydUhvMsAOQZkCmlEeAE/IVJ/WkpjXS0+spVyWttR0ZMs0aKbbx+jkqV7oD9Lp+w=="
 
+[tasks."deploy.staging"]
+run = """
+jj bookmark set -r @- staging
+jj git push --allow-new -r @-
+"""
+
 [tasks."db:seed"]
 run = "psql $DATABASE_URL -f db/seeds.sql"
 

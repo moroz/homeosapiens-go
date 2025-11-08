@@ -1,0 +1,39 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - NODE_VERSION=25
+      - GO_VERSION=1.25.3
+      - GOOSE_VERSION=3.26.0
+      - echo Signing in to Dockerhub...
+      - echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - docker pull alpine:latest
+      - docker pull node:$NODE_VERSION-alpine
+      - docker pull go:$GO_VERSION-alpine
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - ECR_BASE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+      - BACKEND_URI="$ECR_BASE_URI/homeosapiens-backend"
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building Docker image for backend
+      - docker build -t $BACKEND_URI:$IMAGE_TAG --cache-from $BACKEND_URI:$ENV --build-arg BUILDKIT_INLINE_CACHE=1 -f Courses/Dockerfile .
+      - docker tag $BACKEND_URI:$IMAGE_TAG $BACKEND_URI:$ENV
+
+  post_build:
+    commands:
+      - docker push $BACKEND_URI:$IMAGE_TAG
+      - docker push $BACKEND_URI:$ENV
+
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/restart-docker-services.sh
+  name: "phoenix-docker-$GIT_BRANCH-$(date +%Y-%m-%d)"
+  discard-paths: yes

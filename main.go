@@ -23,5 +23,5 @@ func main() {
 	}
 
 	r := handlers.Router(db, bundle)
-	log.Fatal(http.ListenAndServe(":3000", r))
+	log.Fatal(http.ListenAndServe(":"+config.AppPort, r))
 }

@@ -23,5 +23,15 @@ func MustGetenvBase64(name string) []byte {
 	return bytes
 }
 
+func GetEnvWithDefault(name, defaultValue string) string {
+	val := os.Getenv(name)
+	if val == "" {
+		return defaultValue
+	}
+	return val
+}
+
 var DatabaseUrl = MustGetenv("DATABASE_URL")
 var SecretKeyBase = MustGetenvBase64("SECRET_KEY_BASE")
+
+var AppPort = GetEnvWithDefault("PORT", "3000")
