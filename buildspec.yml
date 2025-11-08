@@ -23,7 +23,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building Docker image for backend
-      - docker build -t $BACKEND_URI:$IMAGE_TAG --cache-from $BACKEND_URI:$ENV --build-arg BUILDKIT_INLINE_CACHE=1 -f Courses/Dockerfile .
+      - docker build -t $BACKEND_URI:$IMAGE_TAG --cache-from $BACKEND_URI:$ENV --build-arg BUILDKIT_INLINE_CACHE=1 .
       - docker tag $BACKEND_URI:$IMAGE_TAG $BACKEND_URI:$ENV
 
   post_build:
