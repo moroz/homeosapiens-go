@@ -34,6 +34,14 @@
           "other": "Dr."
         }
       }
+    },
+    "events": {
+      "event_type": {
+        "seminar": "Seminar",
+        "webinar": "Webinar"
+      },
+      "free": "Free",
+      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}"
     }
   }
 }

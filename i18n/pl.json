@@ -36,6 +36,14 @@
           "other": "dr"
         }
       }
+    },
+    "events": {
+      "event_type": {
+        "seminar": "Seminarium",
+        "webinar": "Webinar"
+      },
+      "free": "Bezpłatne",
+      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}"
     }
   }
 }

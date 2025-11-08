@@ -78,20 +78,43 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			P(
-				Text(string(e.EventType)),
+				Text(helpers.TranslateEventType(localizer, e.EventType)),
 				Text(", "),
 				Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, "Europe/Warsaw", lang)),
 			),
 
+			P(
+				Raw(
+					localizer.MustLocalize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID:    "common.events.hosts",
+							Other: "Hosts: {{ .Hosts }}.",
+						},
+						TemplateData: map[string]string{
+							"Hosts": helpers.FormatHosts(localizer, e.Hosts),
+						},
+					}),
+				),
+			),
+
 			Iff(e.BasePriceAmount != nil, func() Node {
-				text := fmt.Sprintf("%s %s", e.BasePriceAmount, *e.BasePriceCurrency)
-				return Text(text)
+				return Text(helpers.FormatPrice(*e.BasePriceAmount, *e.BasePriceCurrency, lang))
 			}),
+
+			If(e.BasePriceAmount == nil, Text(
+				localizer.MustLocalize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID:    "common.events.free",
+						Other: "Free",
+					},
+				}),
+			)),
 
 			Ul(
 				Map(e.Prices, func(price *queries.EventPrice) Node {
-					text := fmt.Sprintf("%s %s", price.PriceAmount, price.PriceCurrency)
-					return Li(Text(text))
+					return Li(Text(
+						helpers.FormatPrice(price.PriceAmount, price.PriceCurrency, lang),
+					))
 				}),
 			),
 		),
