@@ -21,7 +21,7 @@ func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	return Div(
 		Class("flex w-35 flex-col items-center overflow-hidden rounded-lg border-2 bg-primary"),
 		Div(
-			Class("aspect-square overflow-hidden"),
+			Class("aspect-square overflow-hidden w-full"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
 				url := fmt.Sprintf("%s/%s", AssetCdnBaseUrl, *host.ProfilePictureUrl)
 
@@ -44,15 +44,28 @@ func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	)
 }
 
-func eventCard(localizer *i18n.Localizer, e *services.EventListDto) Node {
+func eventCard(ctx context.Context, e *services.EventListDto) Node {
+	localizer := ctx.Value("localizer").(*i18n.Localizer)
+	lang := ctx.Value("lang").(string)
+
+	title := e.TitleEn
+	if lang == "pl" {
+		title = e.TitlePl
+	}
+
 	return Article(
 		Class("flex justify-between rounded-lg border-2 bg-slate-100 p-6"),
 		Header(
 			Span(
 				Class("mb-2 inline-flex items-center gap-1 rounded border-2 border-black bg-white px-2 py-1 text-sm font-semibold text-primary"),
 				Iff(e.VenueID.Valid, func() Node {
+					city := *e.VenueCityEn
+					if lang == "pl" && e.VenueCityPl != nil {
+						city = *e.VenueCityPl
+					}
+
 					return Text(
-						fmt.Sprintf("%s, %s", *e.VenueCityEn, helpers.TranslateCountry(localizer, *e.VenueCountryCode)),
+						fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(localizer, *e.VenueCountryCode)),
 					)
 				}),
 				If(e.IsVirtual && e.VenueID.Valid, Text(" + ")),
@@ -61,7 +74,25 @@ func eventCard(localizer *i18n.Localizer, e *services.EventListDto) Node {
 
 			H3(
 				Class("text-4xl font-bold text-primary"),
-				Text(e.TitleEn),
+				Text(title),
+			),
+
+			P(
+				Text(string(e.EventType)),
+				Text(", "),
+				Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, "Europe/Warsaw", lang)),
+			),
+
+			Iff(e.BasePriceAmount != nil, func() Node {
+				text := fmt.Sprintf("%s %s", e.BasePriceAmount, *e.BasePriceCurrency)
+				return Text(text)
+			}),
+
+			Ul(
+				Map(e.Prices, func(price *queries.EventPrice) Node {
+					text := fmt.Sprintf("%s %s", price.PriceAmount, price.PriceCurrency)
+					return Li(Text(text))
+				}),
 			),
 		),
 
@@ -72,12 +103,10 @@ func eventCard(localizer *i18n.Localizer, e *services.EventListDto) Node {
 }
 
 func Index(ctx context.Context, events []*services.EventListDto) Node {
-	localizer := ctx.Value("localizer").(*i18n.Localizer)
-
 	return layout.Layout(ctx, "Events", Div(
 		Class("grid gap-4 container mx-auto mt-4"),
 		Map(events, func(e *services.EventListDto) Node {
-			return eventCard(localizer, e)
+			return eventCard(ctx, e)
 		}),
 	))
 }

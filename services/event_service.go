@@ -17,7 +17,8 @@ func NewEventService(db queries.DBTX) *EventService {
 
 type EventListDto struct {
 	*queries.ListEventsRow
-	Hosts []*queries.ListHostsForEventsRow
+	Hosts  []*queries.ListHostsForEventsRow
+	Prices []*queries.EventPrice
 }
 
 func (s *EventService) ListEvents(ctx context.Context) ([]*EventListDto, error) {
@@ -41,11 +42,22 @@ func (s *EventService) ListEvents(ctx context.Context) ([]*EventListDto, error) 
 		hostMap[row.EventID] = append(hostMap[row.EventID], row)
 	}
 
+	prices, err := queries.New(s.db).ListPricesForEvents(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	priceMap := make(map[pgtype.UUID][]*queries.EventPrice)
+	for _, row := range prices {
+		priceMap[row.EventID] = append(priceMap[row.EventID], row)
+	}
+
 	var result []*EventListDto
 	for _, event := range events {
 		result = append(result, &EventListDto{
 			ListEventsRow: event,
 			Hosts:         hostMap[event.ID],
+			Prices:        priceMap[event.ID],
 		})
 	}
 

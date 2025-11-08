@@ -130,3 +130,43 @@ func (q *Queries) ListHostsForEvents(ctx context.Context, eventids []pgtype.UUID
 	}
 	return items, nil
 }
+
+const listPricesForEvents = `-- name: ListPricesForEvents :many
+select p.id, p.event_id, p.price_type, p.rule_type, p.price_amount, p.price_currency, p.discount_code, p.priority, p.is_active, p.valid_from, p.valid_until, p.created_at, p.updated_at from event_prices p
+where p.event_id = any($1::uuid[])
+order by p.event_id, p.priority
+`
+
+func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*EventPrice, error) {
+	rows, err := q.db.Query(ctx, listPricesForEvents, eventids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*EventPrice
+	for rows.Next() {
+		var i EventPrice
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventID,
+			&i.PriceType,
+			&i.RuleType,
+			&i.PriceAmount,
+			&i.PriceCurrency,
+			&i.DiscountCode,
+			&i.Priority,
+			&i.IsActive,
+			&i.ValidFrom,
+			&i.ValidUntil,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

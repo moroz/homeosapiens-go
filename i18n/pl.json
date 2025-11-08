@@ -1,0 +1,41 @@
+{
+  "countries": {
+    "PL": {
+      "other": "Polska"
+    }
+  },
+  "languages": {
+    "pl": "polski",
+    "en": "English"
+  },
+  "header": {
+    "nav": {
+      "sign_in": {
+        "other": "Logowanie"
+      },
+      "events": {
+        "other": "Wydarzenia"
+      },
+      "videos": {
+        "other": "Wideo"
+      },
+      "my_products": {
+        "other": "Moje produkty"
+      }
+    }
+  },
+  "locale_switcher": {
+    "switch_to": {
+      "other": "Switch to {{ .Language }}"
+    }
+  },
+  "common": {
+    "hosts": {
+      "salutation": {
+        "dr": {
+          "other": "dr"
+        }
+      }
+    }
+  }
+}

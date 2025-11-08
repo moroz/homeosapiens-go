@@ -15,7 +15,7 @@ func InitBundle() (*i18n.Bundle, error) {
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
-	for _, lang := range []string{"pl", "en"} {
+	for _, lang := range SupportedLocales {
 		if _, err := bundle.LoadMessageFileFS(LocaleFS, lang+".json"); err != nil {
 			return nil, err
 		}

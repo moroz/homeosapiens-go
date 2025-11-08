@@ -74,6 +74,11 @@ func LanguageSwitcher(ctx context.Context, baseUrl string, locale string) Node {
 
 func AppHeader(ctx context.Context) Node {
 	localizer := ctx.Value("localizer").(*i18n.Localizer)
+	lang := ctx.Value("lang").(string)
+	otherLocale := "pl"
+	if lang == "pl" {
+		otherLocale = "en"
+	}
 
 	return Header(
 		Class("h-20 border-b-2"),
@@ -88,7 +93,7 @@ func AppHeader(ctx context.Context) Node {
 				Class("h-full"),
 				Ul(
 					Class("flex gap-2 py-4 h-full"),
-					LanguageSwitcher(ctx, "/", "pl"),
+					LanguageSwitcher(ctx, "/", otherLocale),
 					NavLink("/events", localizer.MustLocalize(&i18n.LocalizeConfig{
 						DefaultMessage: &i18n.Message{
 							ID:    "header.nav.events",

@@ -12,3 +12,8 @@ join events_hosts eh on eh.host_id = h.id
 left join assets a on h.profile_picture_id = a.id
 where eh.event_id = any(@EventIDs::uuid[])
 order by eh.host_id, eh.position;
+
+-- name: ListPricesForEvents :many
+select p.* from event_prices p
+where p.event_id = any(@EventIDs::uuid[])
+order by p.event_id, p.priority;
