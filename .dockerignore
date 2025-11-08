@@ -1,0 +1,43 @@
+# Binaries
+/server
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Node modules
+node_modules/
+
+# Built assets (will be built in Docker)
+assets/dist/
+
+# Development files
+.git/
+.gitignore
+*.md
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Development tools config
+mise.toml
+modd.conf

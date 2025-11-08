@@ -9,6 +9,26 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: homeosapiens_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres@pg:5432/homeosapiens_dev?sslmode=disable"
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+    depends_on:
+      pg:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   data: {}
