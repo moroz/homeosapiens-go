@@ -42,8 +42,10 @@
         "seminar": "Seminarium",
         "webinar": "Webinar"
       },
+      "participation_cost": "Koszt udziału:",
       "free": "Bezpłatne",
-      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}"
+      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
+      "learn_more": "Więcej informacji…"
     }
   }
 }

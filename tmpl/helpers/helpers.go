@@ -24,10 +24,10 @@ func TranslateSalutation(localizer *i18n.Localizer, salutation *string) string {
 		return ""
 	}
 
-	translated, err := localizer.Localize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+	translated, err := localizer.LocalizeMessage(&i18n.Message{
 		ID:    *salutation,
 		Other: *salutation,
-	}})
+	})
 
 	if err != nil {
 		return *salutation + " "
@@ -37,11 +37,9 @@ func TranslateSalutation(localizer *i18n.Localizer, salutation *string) string {
 }
 
 func TranslateEventType(localizer *i18n.Localizer, eventType queries.EventType) string {
-	translated, _ := localizer.Localize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "common.events.event_type." + string(eventType),
-			Other: string(eventType),
-		},
+	translated, _ := localizer.LocalizeMessage(&i18n.Message{
+		ID:    "common.events.event_type." + string(eventType),
+		Other: string(eventType),
 	})
 
 	return translated

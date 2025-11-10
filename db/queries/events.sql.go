@@ -13,7 +13,7 @@ import (
 )
 
 const listEvents = `-- name: ListEvents :many
-select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id,
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id, e.slug,
 v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
 from events e
 left join venues v on e.venue_id = v.id
@@ -35,6 +35,7 @@ type ListEventsRow struct {
 	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
 	VenueID           pgtype.UUID      `json:"venueId"`
+	Slug              string           `json:"slug"`
 	VenueStreet       *string          `json:"venueStreet"`
 	VenueCityEn       *string          `json:"venueCityEn"`
 	VenueCityPl       *string          `json:"venueCityPl"`
@@ -65,6 +66,7 @@ func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
 			&i.InsertedAt,
 			&i.UpdatedAt,
 			&i.VenueID,
+			&i.Slug,
 			&i.VenueStreet,
 			&i.VenueCityEn,
 			&i.VenueCityPl,

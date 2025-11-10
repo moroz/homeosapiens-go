@@ -41,7 +41,8 @@
         "webinar": "Webinar"
       },
       "free": "Free",
-      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}"
+      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
+      "learn_more": "Learn more…"
     }
   }
 }

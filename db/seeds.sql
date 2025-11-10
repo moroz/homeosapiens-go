@@ -18,11 +18,12 @@ VALUES
     ('0199c2f2-528b-7e88-96e3-5e5088333a8e', 'IOR Hotel', 'Hotel IOR', 'Poznań', NULL, 'PL', 'ul. Węgorka 20', '60-318');
 
 -- Insert events
-INSERT INTO events (id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, venue_id, base_price_amount, base_price_currency)
+INSERT INTO events (id, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, venue_id, base_price_amount, base_price_currency)
 VALUES
     ('0199c2f2-528b-7e88-96e3-5e5088333a8c',
      'To Perfect the Art of Homeopathy',
      'Udoskonalić kunszt homeopatyczny',
+     'to-perfect-the-art-of-homeopathy',
      '2025-05-30 14:00:00+00',
      '2025-05-31 08:00:00+00',
      true,
@@ -34,6 +35,7 @@ VALUES
     ('0199c2fa-7e9d-72f6-ada1-88b5d04d9a58',
      'To Perfect the Art of Homeopathy 2',
      'Udoskonalić kunszt homeopatyczny 2',
+     'to-perfect-the-art-of-homeopathy-2',
      '2025-10-24 14:00:00+00',
      '2025-10-26 11:30:00+00',
      true,

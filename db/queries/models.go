@@ -164,6 +164,7 @@ type Event struct {
 	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
 	VenueID           pgtype.UUID      `json:"venueId"`
+	Slug              string           `json:"slug"`
 }
 
 type EventPrice struct {

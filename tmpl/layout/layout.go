@@ -31,7 +31,7 @@ func Layout(ctx context.Context, title string, children ...Node) Node {
 		),
 		Body(
 			Class("flex flex-col min-h-screen"),
-			AppHeader(ctx), Main(Class("flex-1"), Group(children)), AppFooter(),
+			AppHeader(ctx), Main(Class("flex-1 bg-slate-100"), Group(children)), AppFooter(),
 		),
 	)
 }

@@ -19,7 +19,7 @@ func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
 	return Div(
-		Class("flex w-35 flex-col items-center overflow-hidden rounded-lg border-2 bg-primary"),
+		Class("flex w-35 flex-col items-center overflow-hidden rounded-lg border-2 bg-primary h-min"),
 		Div(
 			Class("aspect-square overflow-hidden w-full"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
@@ -33,7 +33,7 @@ func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 			}),
 		),
 		Footer(
-			Class("flex h-10 items-center justify-center text-center text-white"),
+			Class("flex h-10 items-center justify-center text-center text-white w-full"),
 			Span(
 				Text(salutation),
 				Strong(
@@ -53,11 +53,14 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 		title = e.TitlePl
 	}
 
+	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
+
 	return Article(
-		Class("flex justify-between rounded-lg border-2 bg-slate-100 p-6"),
+		Class("flex justify-between rounded-lg border-2 bg-white p-6 gap-6"),
 		Header(
+			Class("flex flex-col flex-1 items-start"),
 			Span(
-				Class("mb-2 inline-flex items-center gap-1 rounded border-2 border-black bg-white px-2 py-1 text-sm font-semibold text-primary"),
+				Class("mb-2 inline-flex items-center gap-1 rounded border-2 border-black bg-white px-2 py-1 text-sm font-semibold text-primary justify-self-start"),
 				Iff(e.VenueID.Valid, func() Node {
 					city := *e.VenueCityEn
 					if lang == "pl" && e.VenueCityPl != nil {
@@ -74,7 +77,10 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 
 			H3(
 				Class("text-4xl font-bold text-primary"),
-				Text(title),
+				A(
+					Href(eventUrl),
+					Text(title),
+				),
 			),
 
 			P(
@@ -97,31 +103,26 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 				),
 			),
 
-			Iff(e.BasePriceAmount != nil, func() Node {
-				return Text(helpers.FormatPrice(*e.BasePriceAmount, *e.BasePriceCurrency, lang))
-			}),
+			Div(
+				Class("mt-6 flex gap-4 items-center"),
+				A(
+					Href(eventUrl),
+					Class("button"),
+					Text(localizer.MustLocalizeMessage(&i18n.Message{
+						ID:    "common.events.learn_more",
+						Other: "Learn more…",
+					})),
+				),
 
-			If(e.BasePriceAmount == nil, Text(
-				localizer.MustLocalize(&i18n.LocalizeConfig{
-					DefaultMessage: &i18n.Message{
-						ID:    "common.events.free",
-						Other: "Free",
-					},
-				}),
-			)),
-
-			Ul(
-				Map(e.Prices, func(price *queries.EventPrice) Node {
-					return Li(Text(
-						helpers.FormatPrice(price.PriceAmount, price.PriceCurrency, lang),
-					))
-				}),
+				formatEventPrice(ctx, e),
 			),
 		),
 
-		Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
-			return hostCard(localizer, host)
-		}),
+		Div(Class("flex items-center gap-6"),
+			Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
+				return hostCard(localizer, host)
+			}),
+		),
 	)
 }
 
@@ -132,4 +133,30 @@ func Index(ctx context.Context, events []*services.EventListDto) Node {
 			return eventCard(ctx, e)
 		}),
 	))
+}
+
+func formatEventPrice(ctx context.Context, e *services.EventListDto) Node {
+	localizer := ctx.Value("localizer").(*i18n.Localizer)
+	lang := ctx.Value("lang").(string)
+
+	label := localizer.MustLocalizeMessage(&i18n.Message{
+		ID:    "common.events.participation_cost",
+		Other: "Participation cost:",
+	})
+
+	var priceFormatted string
+	if e.BasePriceAmount == nil {
+		priceFormatted = localizer.MustLocalizeMessage(&i18n.Message{
+			ID:    "common.events.free",
+			Other: "Free",
+		})
+	} else {
+		priceFormatted = helpers.FormatPrice(*e.BasePriceAmount, *e.BasePriceCurrency, lang)
+	}
+
+	return Div(
+		Class("grid leading-tight"),
+		Span(Class("font-semibold"), Text(label)),
+		Span(Class("text-lg"), Text(priceFormatted)),
+	)
 }

@@ -1,24 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: var(--color-indigo-50);
-  --color-primary-100: var(--color-indigo-100);
-  --color-primary-200: var(--color-indigo-200);
-  --color-primary-300: var(--color-indigo-300);
-  --color-primary-400: var(--color-indigo-400);
-  --color-primary-500: var(--color-indigo-500);
-  --color-primary-600: var(--color-indigo-600);
-  --color-primary-700: var(--color-indigo-700);
-  --color-primary-800: var(--color-indigo-800);
-  --color-primary-900: var(--color-indigo-900);
+	--color-primary-50: var(--color-indigo-50);
+	--color-primary-100: var(--color-indigo-100);
+	--color-primary-200: var(--color-indigo-200);
+	--color-primary-300: var(--color-indigo-300);
+	--color-primary-400: var(--color-indigo-400);
+	--color-primary-500: var(--color-indigo-500);
+	--color-primary-600: var(--color-indigo-600);
+	--color-primary-700: var(--color-indigo-700);
+	--color-primary-800: var(--color-indigo-800);
+	--color-primary-900: var(--color-indigo-900);
 
-  --font-sans: "DM Sans", system-ui, sans-serif;
-  --color-primary: var(--color-blue-900);
+	--font-sans: "DM Sans", system-ui, sans-serif;
+	--color-primary: var(--color-blue-900);
 
-  --spacing-header: calc(70 / 4 * var(--spacing));
+	--spacing-header: calc(70 / 4 * var(--spacing));
 
-  --breakpoint-2xl: 72rem;
-  --breakpoint-xl: 64rem;
+	--breakpoint-2xl: 72rem;
+	--breakpoint-xl: 64rem;
 
-  --shadow-solid: 4px 4px 0px 0px black;
+	--shadow-solid: 4px 4px 0px 0px black;
+}
+
+@layer components {
+	.button {
+		@apply inline-flex rounded-sm bg-primary px-4 py-2 font-bold text-white transition-colors hover:bg-primary-800;
+	}
 }
