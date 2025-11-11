@@ -8,7 +8,7 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func Layout(ctx context.Context, title string, children ...Node) Node {
+func RootLayout(ctx context.Context, title string, children ...Node) Node {
 	return HTML(
 		Head(
 			Meta(Charset("UTF-8")),
@@ -17,10 +17,14 @@ func Layout(ctx context.Context, title string, children ...Node) Node {
 			Link(Rel("stylesheet"), Href("/assets/bundle.css")),
 			fonts(),
 		),
-		Body(
-			Class("flex flex-col min-h-screen"),
-			AppHeader(ctx), Main(Class("flex-1 bg-slate-100 pt-24"), Group(children)), AppFooter(),
-		),
+		Body(Group(children)),
+	)
+}
+
+func Layout(ctx context.Context, title string, children ...Node) Node {
+	return RootLayout(ctx, title,
+		Class("flex flex-col min-h-screen"),
+		AppHeader(ctx), Main(Class("flex-1 bg-slate-100 pt-24"), Group(children)), AppFooter(),
 	)
 }
 

@@ -27,6 +27,9 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	events := EventController(db)
 	r.Get("/events/{slug}", events.Show)
 
+	sessions := SessionController(db)
+	r.Get("/sign-in", sessions.New)
+
 	r.Handle("/assets/*", MultiDirFileServer("assets/dist", "assets/static"))
 
 	return r

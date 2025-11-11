@@ -7,6 +7,7 @@ package queries
 import (
 	"database/sql/driver"
 	"fmt"
+	"net/netip"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
@@ -200,6 +201,32 @@ type Host struct {
 	ProfilePictureID pgtype.UUID      `json:"profilePictureId"`
 	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
+}
+
+type User struct {
+	ID           pgtype.UUID      `json:"id"`
+	Email        string           `json:"email"`
+	Salutation   *string          `json:"salutation"`
+	GivenName    string           `json:"givenName"`
+	FamilyName   string           `json:"familyName"`
+	Country      *string          `json:"country"`
+	Profession   *string          `json:"profession"`
+	Organization *string          `json:"organization"`
+	Company      *string          `json:"company"`
+	PasswordHash *string          `json:"passwordHash"`
+	LastLoginAt  pgtype.Timestamp `json:"lastLoginAt"`
+	LastLoginIp  *netip.Addr      `json:"lastLoginIp"`
+	InsertedAt   pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt    pgtype.Timestamp `json:"updatedAt"`
+}
+
+type UserToken struct {
+	ID         pgtype.UUID      `json:"id"`
+	UserID     pgtype.UUID      `json:"userId"`
+	Context    string           `json:"context"`
+	Token      []byte           `json:"token"`
+	InsertedAt pgtype.Timestamp `json:"insertedAt"`
+	ValidUntil pgtype.Timestamp `json:"validUntil"`
 }
 
 type Venue struct {

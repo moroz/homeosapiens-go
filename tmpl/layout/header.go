@@ -49,6 +49,10 @@ func AppHeader(ctx context.Context) Node {
 						ID:    "header.nav.my_products",
 						Other: "My Products",
 					})),
+					NavLink("/sign-in", localizer.MustLocalizeMessage(&i18n.Message{
+						ID:    "header.nav.sign_in",
+						Other: "Sign in",
+					})),
 				),
 			),
 		),
