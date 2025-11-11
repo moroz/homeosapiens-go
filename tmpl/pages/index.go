@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
@@ -12,8 +13,6 @@ import (
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
-
-const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 
 func Index(ctx context.Context, events []*services.EventListDto) Node {
 	return layout.Layout(ctx, "Events", Div(
@@ -32,7 +31,7 @@ func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 		Div(
 			Class("aspect-square overflow-hidden w-full"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
-				url := fmt.Sprintf("%s/%s", AssetCdnBaseUrl, *host.ProfilePictureUrl)
+				url := fmt.Sprintf("%s/%s", config.AssetCdnBaseUrl, *host.ProfilePictureUrl)
 
 				return Img(
 					Src(url),

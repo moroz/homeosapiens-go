@@ -6,17 +6,20 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/securecookie"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-func Router(db queries.DBTX, bundle *i18n.Bundle) http.Handler {
+func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
-	r.Use(AddI18NBundle(bundle))
+	r.Use(FetchSession(store, config.SessionCookieName))
+	r.Use(LocaleMiddleware(bundle, store))
 
 	pages := PageController(db)
 	r.Get("/", pages.Index)
@@ -29,6 +32,8 @@ func Router(db queries.DBTX, bundle *i18n.Bundle) http.Handler {
 	return r
 }
 
+// MultiDirFileServer handles requests for static assets backed by multiple directories.
+// TODO: Make this development-only
 func MultiDirFileServer(dirs ...string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path

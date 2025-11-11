@@ -9,6 +9,7 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/handlers"
 	"github.com/moroz/homeosapiens-go/i18n"
+	"github.com/moroz/securecookie"
 )
 
 func main() {
@@ -22,6 +23,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := handlers.Router(db, bundle)
-	log.Fatal(http.ListenAndServe(":"+config.AppPort, r))
+	sessionStore, err := securecookie.NewStore(config.SessionKey)
+
+	r := handlers.Router(db, bundle, sessionStore)
+	listenOn := ":" + config.AppPort
+	log.Printf("Listening on %s", listenOn)
+	log.Fatal(http.ListenAndServe(listenOn, r))
 }
