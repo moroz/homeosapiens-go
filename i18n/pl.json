@@ -1,51 +1,70 @@
 {
-  "countries": {
-    "PL": {
-      "other": "Polska"
-    }
-  },
-  "languages": {
-    "pl": "polski",
-    "en": "English"
-  },
-  "header": {
-    "nav": {
-      "sign_in": {
-        "other": "Logowanie"
-      },
-      "events": {
-        "other": "Wydarzenia"
-      },
-      "videos": {
-        "other": "Wideo"
-      },
-      "my_products": {
-        "other": "Moje produkty"
-      }
-    }
-  },
-  "locale_switcher": {
-    "switch_to": {
-      "other": "Switch to {{ .Language }}"
-    }
-  },
-  "common": {
-    "hosts": {
-      "salutation": {
-        "dr": {
-          "other": "dr"
-        }
-      }
-    },
-    "events": {
-      "event_type": {
-        "seminar": "Seminarium",
-        "webinar": "Webinar"
-      },
-      "participation_cost": "Koszt udziału:",
-      "free": "Bezpłatne",
-      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
-      "learn_more": "Więcej informacji…"
-    }
-  }
+	"countries": {
+		"PL": {
+			"other": "Polska"
+		}
+	},
+	"languages": {
+		"pl": "polski",
+		"en": "English"
+	},
+	"header": {
+		"nav": {
+			"sign_in": {
+				"other": "Logowanie"
+			},
+			"events": {
+				"other": "Wydarzenia"
+			},
+			"videos": {
+				"other": "Wideo"
+			},
+			"my_products": {
+				"other": "Moje produkty"
+			}
+		}
+	},
+	"locale_switcher": {
+		"switch_to": {
+			"other": "Switch to {{ .Language }}"
+		}
+	},
+	"common": {
+		"hosts": {
+			"salutation": {
+				"dr": {
+					"other": "dr"
+				}
+			}
+		},
+		"events": {
+			"event_type": {
+				"seminar": "Seminarium",
+				"webinar": "Webinar"
+			},
+			"participation_cost": "Koszt udziału:",
+			"free": "Bezpłatne",
+			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
+			"learn_more": "Więcej informacji…"
+		}
+	},
+	"sessions": {
+		"new": {
+			"email": {
+				"other": "Email:"
+			},
+			"password": {
+				"other": "Hasło:"
+			},
+			"submit": {
+				"other": "Zaloguj się"
+			},
+			"header": {
+				"other": "Logowanie"
+			},
+			"no_account_yet_html": {
+				"other": "Nie masz jeszcze konta? <a href=\"/sign-up\">Zarejestruj się</a>"
+			}
+		}
+	}
 }

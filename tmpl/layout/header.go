@@ -8,6 +8,16 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
+func logo(class string) Node {
+	return SVG(
+		Attr("viewbox", "0 0 1538 361"),
+		Class(class),
+		El("use",
+			Href("/assets/logo.svg"),
+		),
+	)
+}
+
 func AppHeader(ctx context.Context) Node {
 	localizer := ctx.Value("localizer").(*i18n.Localizer)
 	lang := ctx.Value("lang").(string)
@@ -23,13 +33,7 @@ func AppHeader(ctx context.Context) Node {
 				A(
 					Class("text-primary no-underline transition-colors hover:text-primary-hover text-4xl font-bold outline"),
 					Href("/"),
-					SVG(
-						Attr("viewbox", "0 0 1538 361"),
-						Class("h-15"),
-						El("use",
-							Href("/assets/logo.svg"),
-						),
-					),
+					logo("h-15"),
 				),
 			),
 			Nav(

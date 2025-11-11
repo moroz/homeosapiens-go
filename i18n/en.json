@@ -1,48 +1,58 @@
 {
-  "countries": {
-    "PL": "Poland"
-  },
-  "languages": {
-    "pl": "polski",
-    "en": "English"
-  },
-  "header": {
-    "nav": {
-      "sign_in": {
-        "other": "Sign in"
-      },
-      "events": {
-        "other": "Events"
-      },
-      "videos": {
-        "other": "Watch"
-      },
-      "my_products": {
-        "other": "My products"
-      }
-    }
-  },
-  "locale_switcher": {
-    "switch_to": {
-      "other": "Przełącz na {{ .Language }}"
-    }
-  },
-  "common": {
-    "hosts": {
-      "salutation": {
-        "dr": {
-          "other": "Dr."
-        }
-      }
-    },
-    "events": {
-      "event_type": {
-        "seminar": "Seminar",
-        "webinar": "Webinar"
-      },
-      "free": "Free",
-      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
-      "learn_more": "Learn more…"
-    }
-  }
+	"countries": {
+		"PL": "Poland"
+	},
+	"languages": {
+		"pl": "polski",
+		"en": "English"
+	},
+	"header": {
+		"nav": {
+			"sign_in": {
+				"other": "Sign in"
+			},
+			"events": {
+				"other": "Events"
+			},
+			"videos": {
+				"other": "Watch"
+			},
+			"my_products": {
+				"other": "My products"
+			}
+		}
+	},
+	"locale_switcher": {
+		"switch_to": {
+			"other": "Przełącz na {{ .Language }}"
+		}
+	},
+	"common": {
+		"hosts": {
+			"salutation": {
+				"dr": {
+					"other": "Dr."
+				}
+			}
+		},
+		"events": {
+			"event_type": {
+				"seminar": "Seminar",
+				"webinar": "Webinar"
+			},
+			"free": "Free",
+			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
+			"learn_more": "Learn more…"
+		}
+	},
+	"sessions": {
+		"new": {
+			"email": {
+				"other": "Email:"
+			},
+			"password": {
+				"other": "Password:"
+			}
+		}
+	}
 }

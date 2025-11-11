@@ -46,7 +46,7 @@ func fonts() Node {
 	}
 }
 
-func NavLink(href string, text string, children ...Node) Node {
+func NavLink(href string, text string) Node {
 	return Li(
 		A(
 			Class("inline-flex items-center rounded-sm px-3 font-semibold text-primary transition hover:bg-slate-200 h-full"),
