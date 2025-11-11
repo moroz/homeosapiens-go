@@ -12,9 +12,40 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const getEventBySlug = `-- name: GetEventBySlug :one
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id, e.slug
+from events e
+left join venues v on e.venue_id = v.id
+where e.slug = $1::text
+`
+
+func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, error) {
+	row := q.db.QueryRow(ctx, getEventBySlug, slug)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.VenueID,
+		&i.Slug,
+	)
+	return &i, err
+}
+
 const listEvents = `-- name: ListEvents :many
-select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id, e.slug,
-v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
+select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
+       e.venue_id, e.event_type, e.starts_at, e.ends_at,
+       v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
 from events e
 left join venues v on e.venue_id = v.id
 order by e.starts_at desc
@@ -22,20 +53,16 @@ order by e.starts_at desc
 
 type ListEventsRow struct {
 	ID                pgtype.UUID      `json:"id"`
+	Slug              string           `json:"slug"`
 	TitleEn           string           `json:"titleEn"`
 	TitlePl           string           `json:"titlePl"`
-	StartsAt          pgtype.Timestamp `json:"startsAt"`
-	EndsAt            pgtype.Timestamp `json:"endsAt"`
 	IsVirtual         bool             `json:"isVirtual"`
-	DescriptionEn     string           `json:"descriptionEn"`
-	DescriptionPl     *string          `json:"descriptionPl"`
-	EventType         EventType        `json:"eventType"`
 	BasePriceAmount   *decimal.Decimal `json:"basePriceAmount"`
 	BasePriceCurrency *string          `json:"basePriceCurrency"`
-	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
 	VenueID           pgtype.UUID      `json:"venueId"`
-	Slug              string           `json:"slug"`
+	EventType         EventType        `json:"eventType"`
+	StartsAt          pgtype.Timestamp `json:"startsAt"`
+	EndsAt            pgtype.Timestamp `json:"endsAt"`
 	VenueStreet       *string          `json:"venueStreet"`
 	VenueCityEn       *string          `json:"venueCityEn"`
 	VenueCityPl       *string          `json:"venueCityPl"`
@@ -53,20 +80,16 @@ func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
 		var i ListEventsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Slug,
 			&i.TitleEn,
 			&i.TitlePl,
-			&i.StartsAt,
-			&i.EndsAt,
 			&i.IsVirtual,
-			&i.DescriptionEn,
-			&i.DescriptionPl,
-			&i.EventType,
 			&i.BasePriceAmount,
 			&i.BasePriceCurrency,
-			&i.InsertedAt,
-			&i.UpdatedAt,
 			&i.VenueID,
-			&i.Slug,
+			&i.EventType,
+			&i.StartsAt,
+			&i.EndsAt,
 			&i.VenueStreet,
 			&i.VenueCityEn,
 			&i.VenueCityPl,

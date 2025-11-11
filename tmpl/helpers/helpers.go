@@ -54,6 +54,15 @@ func FormatDate(date time.Time, locale string) string {
 	}
 }
 
+func FormatDateTime(ts time.Time, locale string) string {
+	switch locale {
+	case "pl":
+		return ts.Format("02.01.2006 15:04")
+	default:
+		return ts.Format("02 Jan, 2006, 03:04 PM")
+	}
+}
+
 func FormatDateRange(start, end time.Time, tz string, locale string) string {
 	if tz == "" {
 		tz = "Europe/Warsaw"

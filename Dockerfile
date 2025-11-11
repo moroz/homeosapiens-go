@@ -59,6 +59,7 @@ COPY --from=go-builder /app/i18n/*.json ./i18n/
 COPY --from=go-builder /app/assets/dist ./assets/dist
 COPY --from=go-builder /app/db/migrations ./db/migrations
 COPY --from=go-builder /app/scripts/entrypoint.sh ./
+COPY assets/static ./assets/static
 
 # Expose port
 EXPOSE 3000

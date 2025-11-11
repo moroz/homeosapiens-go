@@ -12,8 +12,9 @@
 	--color-primary-800: var(--color-indigo-800);
 	--color-primary-900: var(--color-indigo-900);
 
-	--font-sans: "DM Sans", system-ui, sans-serif;
+	--font-sans: "IBM Plex Sans", system-ui, sans-serif;
 	--color-primary: var(--color-blue-900);
+    --color-primary-hover: var(--color-blue-700);
 
 	--spacing-header: calc(70 / 4 * var(--spacing));
 
@@ -23,8 +24,19 @@
 	--shadow-solid: 4px 4px 0px 0px black;
 }
 
+@layer base {
+    body {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
 @layer components {
+
 	.button {
-		@apply inline-flex rounded-sm bg-primary px-4 py-2 font-bold text-white transition-colors hover:bg-primary-800;
+		@apply inline-flex rounded-sm bg-primary px-4 py-2 font-bold text-white transition-colors hover:bg-primary-hover;
+	}
+
+	.card {
+		@apply bg-white border-2 rounded-lg p-6;
 	}
 }

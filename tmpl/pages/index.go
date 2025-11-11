@@ -15,6 +15,15 @@ import (
 
 const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 
+func Index(ctx context.Context, events []*services.EventListDto) Node {
+	return layout.Layout(ctx, "Events", Div(
+		Class("grid gap-4 container mx-auto"),
+		Map(events, func(e *services.EventListDto) Node {
+			return eventCard(ctx, e)
+		}),
+	))
+}
+
 func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) Node {
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
@@ -56,7 +65,7 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
 
 	return Article(
-		Class("flex justify-between rounded-lg border-2 bg-white p-6 gap-6"),
+		Class("flex justify-between gap-6 card"),
 		Header(
 			Class("flex flex-col flex-1 items-start"),
 			Span(
@@ -78,6 +87,7 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 			H3(
 				Class("text-4xl font-bold text-primary"),
 				A(
+					Class("hover:text-primary-hover hover:underline underline-offset-3 decoration-2 transition-colors"),
 					Href(eventUrl),
 					Text(title),
 				),
@@ -124,15 +134,6 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 			}),
 		),
 	)
-}
-
-func Index(ctx context.Context, events []*services.EventListDto) Node {
-	return layout.Layout(ctx, "Events", Div(
-		Class("grid gap-4 container mx-auto mt-4"),
-		Map(events, func(e *services.EventListDto) Node {
-			return eventCard(ctx, e)
-		}),
-	))
 }
 
 func formatEventPrice(ctx context.Context, e *services.EventListDto) Node {

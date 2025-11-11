@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -20,8 +21,26 @@ func Router(db queries.DBTX, bundle *i18n.Bundle) http.Handler {
 	pages := PageController(db)
 	r.Get("/", pages.Index)
 
-	fs := http.FileServer(http.Dir("assets/dist"))
-	r.Handle("/assets/*", http.StripPrefix("/assets/", fs))
+	events := EventController(db)
+	r.Get("/events/{slug}", events.Show)
+
+	r.Handle("/assets/*", MultiDirFileServer("assets/dist", "assets/static"))
 
 	return r
+}
+
+func MultiDirFileServer(dirs ...string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		for _, d := range dirs {
+			stripped, _ := strings.CutPrefix(path, "/assets/")
+			f, err := http.Dir(d).Open(stripped)
+			if err == nil {
+				f.Close()
+				http.StripPrefix("/assets/", http.FileServer(http.Dir(d))).ServeHTTP(w, r)
+				return
+			}
+		}
+		http.NotFound(w, r)
+	})
 }
