@@ -64,6 +64,9 @@
 			},
 			"no_account_yet_html": {
 				"other": "Nie masz jeszcze konta? <a href=\"/sign-up\">Zarejestruj się</a>"
+			},
+			"invalid_email_password_combination": {
+				"other": "Nieprawidłowy email lub hasło."
 			}
 		}
 	}

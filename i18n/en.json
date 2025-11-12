@@ -52,6 +52,18 @@
 			},
 			"password": {
 				"other": "Password:"
+			},
+			"submit": {
+				"other": "Submit"
+			},
+			"header": {
+				"other": "Sign in"
+			},
+			"no_account_yet_html": {
+				"other": "No account yet? <a href=\"/sign-up\">Sign up</a>"
+			},
+			"invalid_email_password_combination": {
+				"other": "Invalid email/password combination."
 			}
 		}
 	}

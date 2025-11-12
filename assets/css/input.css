@@ -36,7 +36,7 @@
 
 @layer components {
 	.button {
-		@apply inline-flex items-center justify-center rounded-sm bg-primary px-4 py-2 text-center font-bold text-white transition-colors hover:bg-primary-hover;
+		@apply inline-flex cursor-pointer items-center justify-center rounded-sm bg-primary px-4 py-2 text-center font-bold text-white transition-colors hover:bg-primary-hover;
 	}
 
 	.card {

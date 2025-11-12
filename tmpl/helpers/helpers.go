@@ -101,7 +101,7 @@ func FormatPrice(amount decimal.Decimal, currencyCode string, locale string) str
 			return fmt.Sprintf(format, amount.String())
 		}
 	}
-	return fmt.Sprintf("%s %s", currencyCode)
+	return fmt.Sprintf("%s %s", currencyCode, amount)
 }
 
 func FormatHostName(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) string {

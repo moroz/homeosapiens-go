@@ -10,7 +10,7 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func New(ctx context.Context) Node {
+func New(ctx context.Context, email string, msg string) Node {
 	l := ctx.Value("localizer").(*i18n.Localizer)
 	title := l.MustLocalizeMessage(&i18n.Message{
 		ID: "sessions.new.header",
@@ -19,6 +19,10 @@ func New(ctx context.Context) Node {
 	return layout.AuthLayout(ctx, title,
 		Form(
 			Class("grid gap-4"),
+			Method("POST"),
+			Action("/sessions"),
+
+			If(msg != "", Div(Class("px-4 py-3 border-2 text-red-900 rounded-sm bg-red-100 mt-4"), Text(msg))),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{

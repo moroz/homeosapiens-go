@@ -14,7 +14,7 @@ import (
 func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := r.Context().Value("session").(*SessionData)
+			session := r.Context().Value(config.SessionContextName).(*SessionData)
 
 			langParam := r.FormValue("lang")
 			header := r.Header.Get("Accept-Language")
@@ -32,10 +32,15 @@ func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next
 	}
 }
 
-func storePreferredLangInSession(w http.ResponseWriter, session *SessionData, store securecookie.Store, newValue string) {
-	session.Lang = newValue
-	asJson, _ := json.Marshal(session)
-	cookie, _ := store.EncryptCookie(asJson)
+func SaveSession(w http.ResponseWriter, store securecookie.Store, session *SessionData) error {
+	asJson, err := json.Marshal(session)
+	if err != nil {
+		return err
+	}
+	cookie, err := store.EncryptCookie(asJson)
+	if err != nil {
+		return err
+	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     config.SessionCookieName,
 		Value:    cookie,
@@ -43,6 +48,12 @@ func storePreferredLangInSession(w http.ResponseWriter, session *SessionData, st
 		Secure:   true,
 		HttpOnly: true,
 	})
+	return nil
+}
+
+func storePreferredLangInSession(w http.ResponseWriter, session *SessionData, store securecookie.Store, newValue string) {
+	session.Lang = newValue
+	_ = SaveSession(w, store, session)
 }
 
 type SessionData struct {

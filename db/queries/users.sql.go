@@ -7,6 +7,8 @@ package queries
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getUserByAccessToken = `-- name: GetUserByAccessToken :one
@@ -60,6 +62,84 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 		&i.LastLoginIp,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const insertUser = `-- name: InsertUser :one
+insert into users (email, salutation, given_name, family_name, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at
+`
+
+type InsertUserParams struct {
+	Email        string  `json:"email"`
+	Salutation   *string `json:"salutation"`
+	GivenName    string  `json:"givenName"`
+	FamilyName   string  `json:"familyName"`
+	Country      *string `json:"country"`
+	Profession   *string `json:"profession"`
+	Organization *string `json:"organization"`
+	Company      *string `json:"company"`
+	PasswordHash *string `json:"passwordHash"`
+}
+
+func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User, error) {
+	row := q.db.QueryRow(ctx, insertUser,
+		arg.Email,
+		arg.Salutation,
+		arg.GivenName,
+		arg.FamilyName,
+		arg.Country,
+		arg.Profession,
+		arg.Organization,
+		arg.Company,
+		arg.PasswordHash,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Salutation,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const insertUserToken = `-- name: InsertUserToken :one
+insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $3, $4) returning id, user_id, context, token, inserted_at, valid_until
+`
+
+type InsertUserTokenParams struct {
+	UserID     pgtype.UUID      `json:"userId"`
+	Context    string           `json:"context"`
+	Token      []byte           `json:"token"`
+	ValidUntil pgtype.Timestamp `json:"validUntil"`
+}
+
+func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParams) (*UserToken, error) {
+	row := q.db.QueryRow(ctx, insertUserToken,
+		arg.UserID,
+		arg.Context,
+		arg.Token,
+		arg.ValidUntil,
+	)
+	var i UserToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Context,
+		&i.Token,
+		&i.InsertedAt,
+		&i.ValidUntil,
 	)
 	return &i, err
 }
