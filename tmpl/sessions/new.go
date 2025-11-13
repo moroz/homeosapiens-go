@@ -22,7 +22,7 @@ func New(ctx context.Context, email string, msg string) Node {
 			Method("POST"),
 			Action("/sessions"),
 
-			If(msg != "", Div(Class("px-4 py-3 border-2 text-red-900 rounded-sm bg-red-100 mt-4"), Text(msg))),
+			If(msg != "", Div(Class("mt-4 rounded-sm border-2 bg-red-100 px-4 py-3 text-red-900"), Text(msg))),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
@@ -42,11 +42,11 @@ func New(ctx context.Context, email string, msg string) Node {
 				ID:   "password",
 			}),
 
-			Button(Type("submit"), Class("button w-full h-10 text-lg"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.submit"}))),
+			Button(Type("submit"), Class("button h-10 w-full text-lg"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.submit"}))),
 		),
 
 		Footer(
-			Class("text-center mt-4"),
+			Class("mt-4 text-center"),
 			Raw(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.no_account_yet_html"})),
 		),
 	)

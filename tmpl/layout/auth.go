@@ -10,15 +10,15 @@ import (
 func AuthLayout(ctx context.Context, title string, children ...Node) Node {
 	return RootLayout(ctx, title,
 		Div(
-			Class("bg-slate-100 grid place-items-center h-screen gap-4"),
+			Class("grid h-screen place-items-center gap-4 bg-slate-100"),
 			Div(
-				Class("flex flex-col gap-4 items-center -mt-25"),
+				Class("-mt-25 flex flex-col items-center gap-4"),
 				A(Href("/"), Class("text-primary hover:text-primary-hover transition-colors"),
 					logo("h-15"),
 				),
 				Div(Class("card w-100"),
 					H2(
-						Class("text-3xl text-primary font-semibold text-center"),
+						Class("text-primary text-center text-3xl font-semibold"),
 						Text(title),
 					),
 					Group(children),

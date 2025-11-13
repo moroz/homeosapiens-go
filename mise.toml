@@ -72,3 +72,6 @@ export GOOSE_DBSTRING=$TEST_DATABASE_URL
 mise r db:test:prepare
 go test -v ./...
 """
+
+[tasks.format]
+run = "scripts/format-classes.mjs tmpl/**/*.go"

@@ -25,7 +25,7 @@ func RootLayout(ctx context.Context, title string, children ...Node) Node {
 
 func Layout(ctx context.Context, title string, children ...Node) Node {
 	return RootLayout(ctx, title,
-		Class("flex flex-col min-h-screen"),
+		Class("flex min-h-screen flex-col"),
 		AppHeader(ctx), Main(Class("flex-1 bg-slate-100 pt-24"), Group(children)), AppFooter(),
 	)
 }
@@ -51,7 +51,7 @@ func fonts() Node {
 func NavLink(href string, text string) Node {
 	return Li(
 		A(
-			Class("inline-flex items-center rounded-sm px-3 font-semibold text-primary transition hover:bg-slate-200 h-full"),
+			Class("text-primary inline-flex h-full items-center rounded-sm px-3 font-semibold transition hover:bg-slate-200"),
 			Href(href), Text(text),
 		),
 	)
@@ -68,18 +68,18 @@ func LanguageSwitcher(ctx context.Context, baseUrl string) Node {
 
 	return Li(
 		A(
-			Class("inline-flex items-center gap-1 uppercase rounded-sm px-3 font-semibold text-primary transition hover:bg-slate-200 h-full"),
+			Class("text-primary inline-flex h-full items-center gap-1 rounded-sm px-3 font-semibold uppercase transition hover:bg-slate-200"),
 			Href(baseUrl+"?lang="+otherLocale), Title(tooltip), Aria("label", tooltip),
-			I(Class("w-5 h-5"), Data("lucide", "languages")),
+			I(Class("h-5 w-5"), Data("lucide", "languages")),
 			Text(activeLocale),
 		),
 	)
 }
 
 func AppFooter() Node {
-	return Footer(Class("border-t-2 h-30"),
+	return Footer(Class("h-30 border-t-2"),
 		Div(
-			Class("container mx-auto text-center h-full flex items-center justify-center"),
+			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(
 				Raw("&copy; 2024&ndash;2025 by Wydawnictwo Homeo Sapiens. All rights reserved."),
 			),

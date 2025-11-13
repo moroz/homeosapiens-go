@@ -26,11 +26,11 @@ func AppHeader(ctx context.Context) Node {
 	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
 	return Header(
-		Class("h-20 border-b-2 fixed inset-0 bg-white z-10"),
-		Div(Class("container mx-auto flex justify-between h-full items-center"),
+		Class("fixed inset-0 z-10 h-20 border-b-2 bg-white"),
+		Div(Class("container mx-auto flex h-full items-center justify-between"),
 			H1(
 				A(
-					Class("text-primary no-underline transition-colors hover:text-primary-hover text-4xl font-bold outline"),
+					Class("text-primary hover:text-primary-hover text-4xl font-bold no-underline outline transition-colors"),
 					Href("/"),
 					logo("h-15"),
 				),
@@ -38,7 +38,7 @@ func AppHeader(ctx context.Context) Node {
 			Nav(
 				Class("h-full"),
 				Ul(
-					Class("flex gap-1 py-4 h-full"),
+					Class("flex h-full gap-1 py-4"),
 					NavLink("/", l.MustLocalizeMessage(&i18n.Message{
 						ID: "header.nav.home",
 					})),

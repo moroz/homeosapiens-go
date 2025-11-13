@@ -16,7 +16,7 @@ import (
 
 func Index(ctx context.Context, events []*services.EventListDto) Node {
 	return layout.Layout(ctx, "Events", Div(
-		Class("grid gap-4 container mx-auto"),
+		Class("container mx-auto grid gap-4"),
 		Map(events, func(e *services.EventListDto) Node {
 			return eventCard(ctx, e)
 		}),
@@ -27,9 +27,9 @@ func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
 	return Div(
-		Class("flex w-35 flex-col items-center overflow-hidden rounded-lg border-2 bg-primary h-min"),
+		Class("bg-primary flex h-min w-35 flex-col items-center overflow-hidden rounded-lg border-2"),
 		Div(
-			Class("aspect-square overflow-hidden w-full"),
+			Class("aspect-square w-full overflow-hidden"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
 				url := fmt.Sprintf("%s/%s", config.AssetCdnBaseUrl, *host.ProfilePictureUrl)
 
@@ -41,7 +41,7 @@ func hostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 			}),
 		),
 		Footer(
-			Class("flex h-10 items-center justify-center text-center text-white w-full"),
+			Class("flex h-10 w-full items-center justify-center text-center text-white"),
 			Span(
 				Text(salutation),
 				Strong(
@@ -64,11 +64,11 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
 
 	return Article(
-		Class("flex justify-between gap-6 card"),
+		Class("card flex justify-between gap-6"),
 		Header(
-			Class("flex flex-col flex-1 items-start"),
+			Class("flex flex-1 flex-col items-start"),
 			Span(
-				Class("mb-2 inline-flex items-center gap-1 rounded border-2 border-black bg-white px-2 py-1 text-sm font-semibold text-primary justify-self-start"),
+				Class("text-primary mb-2 inline-flex items-center gap-1 justify-self-start rounded border-2 border-black bg-white px-2 py-1 text-sm font-semibold"),
 				Iff(e.VenueID.Valid, func() Node {
 					city := *e.VenueCityEn
 					if lang == "pl" && e.VenueCityPl != nil {
@@ -84,9 +84,9 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			H3(
-				Class("text-4xl font-bold text-primary"),
+				Class("text-primary text-4xl font-bold"),
 				A(
-					Class("hover:text-primary-hover hover:underline underline-offset-3 decoration-2 transition-colors"),
+					Class("hover:text-primary-hover decoration-2 underline-offset-3 transition-colors hover:underline"),
 					Href(eventUrl),
 					Text(title),
 				),
@@ -113,7 +113,7 @@ func eventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			Div(
-				Class("mt-6 flex gap-4 items-center"),
+				Class("mt-6 flex items-center gap-4"),
 				A(
 					Href(eventUrl),
 					Class("button"),
