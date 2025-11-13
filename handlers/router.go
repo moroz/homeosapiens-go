@@ -32,6 +32,9 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Get("/sign-in", sessions.New)
 	r.Post("/sessions", sessions.Create)
 
+	videos := VideoController()
+	r.Get("/videos", videos.Index)
+
 	r.Handle("/assets/*", MultiDirFileServer("assets/dist", "assets/static"))
 
 	return r

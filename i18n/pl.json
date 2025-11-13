@@ -10,6 +10,9 @@
 	},
 	"header": {
 		"nav": {
+			"home": {
+				"other": "Strona główna"
+			},
 			"sign_in": {
 				"other": "Logowanie"
 			},
@@ -26,7 +29,7 @@
 	},
 	"locale_switcher": {
 		"switch_to": {
-			"other": "Switch to {{ .Language }}"
+			"other": "Switch to English"
 		}
 	},
 	"common": {

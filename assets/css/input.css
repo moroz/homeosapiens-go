@@ -18,8 +18,8 @@
 
 	--spacing-header: calc(70 / 4 * var(--spacing));
 
-	--breakpoint-2xl: 72rem;
-	--breakpoint-xl: 64rem;
+	--breakpoint-2xl: 64rem;
+	--breakpoint-xl: 60rem;
 
 	--shadow-solid: 4px 4px 0px 0px black;
 }

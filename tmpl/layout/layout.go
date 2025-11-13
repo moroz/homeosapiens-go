@@ -16,6 +16,8 @@ func RootLayout(ctx context.Context, title string, children ...Node) Node {
 			TitleEl(Text(title+" | Homeo sapiens")),
 			Link(Rel("stylesheet"), Href("/assets/bundle.css")),
 			fonts(),
+			Script(Src("https://unpkg.com/lucide@latest"), Type("module")),
+			Script(Type("module"), Text("lucide.createIcons();")),
 		),
 		Body(Group(children)),
 	)
@@ -55,29 +57,21 @@ func NavLink(href string, text string) Node {
 	)
 }
 
-func LanguageSwitcher(ctx context.Context, baseUrl string, locale string) Node {
-	localizer := ctx.Value("localizer").(*i18n.Localizer)
-
-	langName := localizer.MustLocalize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "languages." + locale,
-			Other: locale,
-		},
-	})
-	title := localizer.MustLocalize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "locale_switcher.switch_to",
-			Other: "Przełącz na {{ .Language }}",
-		},
-		TemplateData: map[string]string{
-			"Language": langName,
-		},
-	})
+func LanguageSwitcher(ctx context.Context, baseUrl string) Node {
+	activeLocale := ctx.Value("lang").(string)
+	l := ctx.Value("localizer").(*i18n.Localizer)
+	otherLocale := "en"
+	if activeLocale == "en" {
+		otherLocale = "pl"
+	}
+	tooltip := l.MustLocalizeMessage(&i18n.Message{ID: "locale_switcher.switch_to"})
 
 	return Li(
 		A(
-			Class("inline-flex items-center rounded-sm px-3 font-semibold text-primary transition hover:bg-slate-200 h-full uppercase"),
-			Href(baseUrl+"?lang="+locale), Text(locale), Title(title), Aria("label", title),
+			Class("inline-flex items-center gap-1 uppercase rounded-sm px-3 font-semibold text-primary transition hover:bg-slate-200 h-full"),
+			Href(baseUrl+"?lang="+otherLocale), Title(tooltip), Aria("label", tooltip),
+			I(Class("w-5 h-5"), Data("lucide", "languages")),
+			Text(activeLocale),
 		),
 	)
 }

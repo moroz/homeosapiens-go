@@ -36,6 +36,17 @@ func TranslateSalutation(localizer *i18n.Localizer, salutation *string) string {
 	return translated + " "
 }
 
+func TranslateLanguage(lang string) string {
+	switch lang {
+	case "pl":
+		return "polski"
+	case "en":
+		return "English"
+	default:
+		return lang
+	}
+}
+
 func TranslateEventType(localizer *i18n.Localizer, eventType queries.EventType) string {
 	translated, _ := localizer.LocalizeMessage(&i18n.Message{
 		ID:    "common.events.event_type." + string(eventType),

@@ -23,11 +23,6 @@ func logo(class string) Node {
 
 func AppHeader(ctx context.Context) Node {
 	l := ctx.Value("localizer").(*i18n.Localizer)
-	lang := ctx.Value("lang").(string)
-	otherLocale := "pl"
-	if lang == "pl" {
-		otherLocale = "en"
-	}
 	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
 	return Header(
@@ -43,23 +38,22 @@ func AppHeader(ctx context.Context) Node {
 			Nav(
 				Class("h-full"),
 				Ul(
-					Class("flex gap-2 py-4 h-full"),
-					LanguageSwitcher(ctx, "/", otherLocale),
+					Class("flex gap-1 py-4 h-full"),
+					NavLink("/", l.MustLocalizeMessage(&i18n.Message{
+						ID: "header.nav.home",
+					})),
 					NavLink("/events", l.MustLocalizeMessage(&i18n.Message{
-						ID:    "header.nav.events",
-						Other: "Events",
+						ID: "header.nav.events",
 					})),
 					NavLink("/videos", l.MustLocalizeMessage(&i18n.Message{
-						ID:    "header.nav.videos",
-						Other: "Watch",
+						ID: "header.nav.videos",
 					})),
 					NavLink("/dashboard", l.MustLocalizeMessage(&i18n.Message{
-						ID:    "header.nav.my_products",
-						Other: "My Products",
+						ID: "header.nav.my_products",
 					})),
+					LanguageSwitcher(ctx, "/"),
 					If(user == nil, NavLink("/sign-in", l.MustLocalizeMessage(&i18n.Message{
-						ID:    "header.nav.sign_in",
-						Other: "Sign in",
+						ID: "header.nav.sign_in",
 					}))),
 					Iff(user != nil, func() Node {
 						return Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), components.Avatar(user))

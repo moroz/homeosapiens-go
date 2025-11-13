@@ -14,6 +14,12 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+func handleRenderingError(w http.ResponseWriter, err error) {
+	msg := fmt.Sprintf("Error rendering page: %s", err)
+	log.Print(msg)
+	http.Error(w, msg, 500)
+}
+
 type sessionController struct {
 	userService      *services.UserService
 	userTokenService *services.UserTokenService
@@ -30,9 +36,7 @@ func SessionController(db queries.DBTX, sessionStore securecookie.Store) *sessio
 
 func (c *sessionController) New(w http.ResponseWriter, r *http.Request) {
 	if err := sessions.New(r.Context(), "", "").Render(w); err != nil {
-		msg := fmt.Sprintf("Error rendering page: %s", err)
-		log.Print(msg)
-		http.Error(w, msg, 500)
+		handleRenderingError(w, err)
 	}
 }
 

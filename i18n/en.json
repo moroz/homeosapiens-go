@@ -11,6 +11,9 @@
 			"sign_in": {
 				"other": "Sign in"
 			},
+			"home": {
+				"other": "Home"
+			},
 			"events": {
 				"other": "Events"
 			},
@@ -24,7 +27,7 @@
 	},
 	"locale_switcher": {
 		"switch_to": {
-			"other": "Przełącz na {{ .Language }}"
+			"other": "Przełącz na język polski"
 		}
 	},
 	"common": {
