@@ -85,6 +85,7 @@ func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler 
 			}
 
 			ctx := context.WithValue(r.Context(), config.CurrentUserContextName, user)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }

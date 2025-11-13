@@ -12,6 +12,7 @@ type InputFieldOptions struct {
 	Type       string
 	Error      string
 	HelperText string
+	Value      string
 }
 
 func InputField(opts *InputFieldOptions) Node {
@@ -28,7 +29,7 @@ func InputField(opts *InputFieldOptions) Node {
 	return Div(
 		Class("input-field"),
 		Label(For(opts.ID), Class("label"), Text(opts.Label)),
-		Input(Class("input"), Type(inputType), Name(opts.Name), ID(id)),
+		Input(Class("input"), Type(inputType), Name(opts.Name), ID(id), Value(opts.Value)),
 		If(opts.Error != "", Span(
 			Class("error-explanation"),
 			Text(opts.Error),

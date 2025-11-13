@@ -19,6 +19,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(FetchSession(store, config.SessionCookieName))
+	r.Use(FetchUserFromSession(db))
 	r.Use(LocaleMiddleware(bundle, store))
 
 	pages := PageController(db)

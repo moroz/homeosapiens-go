@@ -57,8 +57,7 @@ fi
 
 export TEST_DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:5432/$TEST_DATABASE
 export GOOSE_DBSTRING=$TEST_DATABASE_URL
-dropdb --if-exists $TEST_DATABASE
-createdb $TEST_DATABASE
+createdb $TEST_DATABASE || true
 goose up
 psql $GOOSE_DBSTRING -f db/seeds.sql
 """

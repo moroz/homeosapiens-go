@@ -28,8 +28,9 @@ func New(ctx context.Context, email string, msg string) Node {
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "sessions.new.email",
 				}),
-				Name: "email",
-				ID:   "email",
+				Name:  "email",
+				ID:    "email",
+				Value: email,
 			}),
 
 			components.InputField(&components.InputFieldOptions{
