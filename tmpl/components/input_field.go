@@ -15,10 +15,20 @@ type InputFieldOptions struct {
 }
 
 func InputField(opts *InputFieldOptions) Node {
+	id := opts.Name
+	if opts.ID != "" {
+		id = opts.ID
+	}
+
+	inputType := "text"
+	if opts.Type != "" {
+		inputType = opts.Type
+	}
+
 	return Div(
 		Class("input-field"),
 		Label(For(opts.ID), Class("label"), Text(opts.Label)),
-		Input(Class("input"), Type(opts.Type)),
+		Input(Class("input"), Type(inputType), Name(opts.Name), ID(id)),
 		If(opts.Error != "", Span(
 			Class("error-explanation"),
 			Text(opts.Error),

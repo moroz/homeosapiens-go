@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/securecookie"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
@@ -65,8 +66,25 @@ func FetchSession(sessionStore securecookie.Store, cookieName string) func(next 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			session := decodeSessionFromRequest(sessionStore, cookieName, r)
-			ctx := context.WithValue(r.Context(), "session", &session)
+			ctx := context.WithValue(r.Context(), config.SessionContextName, &session)
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			session := r.Context().Value(config.SessionContextName).(*SessionData)
+			var (
+				user *queries.User
+			)
+
+			if session.AccessToken != nil {
+				user, _ = queries.New(db).GetUserByAccessToken(r.Context(), session.AccessToken)
+			}
+
+			ctx := context.WithValue(r.Context(), config.CurrentUserContextName, user)
 		})
 	}
 }

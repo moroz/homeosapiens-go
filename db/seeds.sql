@@ -1,7 +1,11 @@
 -- db/seeds.sql
 begin;
 
-truncate events, hosts, assets, venues, events_hosts, event_prices cascade;
+truncate users, events, hosts, assets, venues, events_hosts, event_prices cascade;
+
+-- Insert users (password: foobar)
+insert into users (email, given_name, family_name, country, password_hash)
+values ('hs@example.com', 'Example', 'User', 'PL', '$argon2id$v=19$m=65536,t=3,p=4$UmLWk8g2gyeMfbUeT/dNYA$O8vcKtOwz//7Ih0+drRV5ZPPWD9dKwyfvhabaX9QfKY');
 
 -- Insert assets
 INSERT INTO assets (id, object_key, original_filename)
