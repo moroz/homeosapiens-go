@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -37,8 +36,18 @@ func (c *eventController) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := events.Show(r.Context(), event).Render(w); err != nil {
-		msg := fmt.Sprintf("Error rendering page: %s", err)
-		log.Print(msg)
-		http.Error(w, msg, 500)
+		handleRenderingError(w, err)
+	}
+}
+
+func (c *eventController) Index(w http.ResponseWriter, r *http.Request) {
+	rows, err := c.eventService.ListEvents(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	if err := events.Index(r.Context(), rows).Render(w); err != nil {
+		handleRenderingError(w, err)
 	}
 }

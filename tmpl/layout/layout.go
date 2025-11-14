@@ -26,7 +26,15 @@ func RootLayout(ctx context.Context, title string, children ...Node) Node {
 func Layout(ctx context.Context, title string, children ...Node) Node {
 	return RootLayout(ctx, title,
 		Class("flex min-h-screen flex-col"),
-		AppHeader(ctx), Main(Class("flex-1 bg-slate-100 pt-24"), Group(children)), AppFooter(),
+		AppHeader(ctx),
+		Main(
+			Class("flex-1 bg-slate-100 pt-24"),
+			Div(
+				Class("container mx-auto"),
+				Group(children),
+			),
+		),
+		AppFooter(),
 	)
 }
 

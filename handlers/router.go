@@ -26,6 +26,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Get("/", pages.Index)
 
 	events := EventController(db)
+	r.Get("/events", events.Index)
 	r.Get("/events/{slug}", events.Show)
 
 	sessions := SessionController(db, store)
@@ -34,6 +35,9 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 
 	videos := VideoController()
 	r.Get("/videos", videos.Index)
+
+	dashboard := DashboardController(db)
+	r.Get("/dashboard", dashboard.Index)
 
 	r.Handle("/assets/*", MultiDirFileServer("assets/dist", "assets/static"))
 

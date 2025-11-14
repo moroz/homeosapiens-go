@@ -19,7 +19,7 @@ func Show(ctx context.Context, event *services.EventDetailsDto) Node {
 	}
 
 	return layout.Layout(ctx, event.TitleEn, Div(
-		Class("card container mx-auto"),
+		Class("card"),
 		H2(
 			Class("text-primary text-4xl font-bold"),
 			Text(title),
