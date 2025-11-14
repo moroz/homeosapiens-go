@@ -3,8 +3,8 @@
 package layout
 
 import (
-	"log"
 	"encoding/json"
+	"log"
 	"os"
 
 	. "maragu.dev/gomponents"
@@ -13,7 +13,7 @@ import (
 
 const IsProd = true
 
-const ManifestPath = "assets/.vite/manifest.json"
+const ManifestPath = "assets/dist/.vite/manifest.json"
 
 var manifest ViteManifest
 

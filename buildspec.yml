@@ -4,7 +4,7 @@ phases:
   install:
     commands:
       - NODE_VERSION=25
-      - GO_VERSION=1.25.3
+      - GO_VERSION=1.25.4
       - GOOSE_VERSION=3.26.0
       - echo Signing in to Dockerhub...
       - echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin

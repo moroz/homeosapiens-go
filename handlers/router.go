@@ -40,28 +40,29 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Get("/dashboard", dashboard.Index)
 
 	if config.IsProd {
-		r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dists/assets"))))
+		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
+		r.Handle("/assets/*", CacheControlMiddleware(fileServer))
 	} else {
-		r.Handle("/assets/*", MultiDirFileServer("assets/public", "assets/static"))
+		r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/public/assets"))))
 	}
 
 	return r
 }
 
-// MultiDirFileServer handles requests for static assets backed by multiple directories.
-// TODO: Make this development-only
-func MultiDirFileServer(dirs ...string) http.Handler {
+// CacheControlMiddleware adds cache-control headers based on file patterns
+func CacheControlMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		for _, d := range dirs {
-			stripped, _ := strings.CutPrefix(path, "/assets/")
-			f, err := http.Dir(d).Open(stripped)
-			if err == nil {
-				f.Close()
-				http.StripPrefix("/assets/", http.FileServer(http.Dir(d))).ServeHTTP(w, r)
-				return
-			}
+
+		// Cache versioned assets (containing hash in filename) for 1 year
+		if strings.Contains(path, "-") && (strings.HasSuffix(path, ".js") ||
+			strings.HasSuffix(path, ".css") || strings.HasSuffix(path, ".woff2")) {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			// Short cache for other assets
+			w.Header().Set("Cache-Control", "public, max-age=3600")
 		}
-		http.NotFound(w, r)
+
+		next.ServeHTTP(w, r)
 	})
 }
