@@ -47,6 +47,7 @@ func MustDeriveKey(base []byte, info string, lengthInBytes int) []byte {
 var DatabaseUrl = MustGetenv("DATABASE_URL")
 var SecretKeyBase = MustGetenvBase64("SECRET_KEY_BASE")
 var SessionKey = MustDeriveKey(SecretKeyBase, "Sessions", 32)
+var IsProd = os.Getenv("GO_ENV") == "prod"
 
 var AppPort = GetEnvWithDefault("PORT", "3000")
 

@@ -39,7 +39,11 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	dashboard := DashboardController(db)
 	r.Get("/dashboard", dashboard.Index)
 
-	r.Handle("/assets/*", MultiDirFileServer("assets/public", "assets/static"))
+	if config.IsProd {
+		r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dists/assets"))))
+	} else {
+		r.Handle("/assets/*", MultiDirFileServer("assets/public", "assets/static"))
+	}
 
 	return r
 }

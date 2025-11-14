@@ -14,7 +14,7 @@ RUN npm i -g pnpm
 RUN pnpm install --frozen-lockfile
 
 # Copy CSS assets and build
-COPY assets/ ./assets/
+COPY assets/ ./
 COPY tmpl ./tmpl
 RUN pnpm run build
 
@@ -33,11 +33,8 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Copy built CSS from node-builder
-COPY --from=node-builder /app/assets/dist ./assets/dist
-
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server -tags PROD .
 
 # Final stage
 FROM alpine:latest
@@ -56,10 +53,9 @@ WORKDIR /app
 
 COPY --from=go-builder /app/server ./
 COPY --from=go-builder /app/i18n/*.json ./i18n/
-COPY --from=go-builder /app/assets/dist ./assets/dist
+COPY --from=node-builder /app/dist ./assets/dist
 COPY --from=go-builder /app/db/migrations ./db/migrations
 COPY --from=go-builder /app/scripts/entrypoint.sh ./
-COPY assets/static ./assets/static
 
 # Expose port
 EXPOSE 3000

@@ -25,6 +25,7 @@ services:
     environment:
       DATABASE_URL: "postgres://postgres:postgres@pg:5432/homeosapiens_dev?sslmode=disable"
       SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+      GO_ENV: prod
     depends_on:
       pg:
         condition: service_healthy
