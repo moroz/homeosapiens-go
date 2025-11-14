@@ -1,79 +1,59 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@config "../tailwind.config.js";
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@theme {
+	--color-primary-50: var(--color-indigo-50);
+	--color-primary-100: var(--color-indigo-100);
+	--color-primary-200: var(--color-indigo-200);
+	--color-primary-300: var(--color-indigo-300);
+	--color-primary-400: var(--color-indigo-400);
+	--color-primary-500: var(--color-indigo-500);
+	--color-primary-600: var(--color-indigo-600);
+	--color-primary-700: var(--color-indigo-700);
+	--color-primary-800: var(--color-indigo-800);
+	--color-primary-900: var(--color-indigo-900);
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+	--font-sans: "IBM Plex Sans", system-ui, sans-serif;
+	--color-primary: var(--color-blue-900);
+	--color-primary-hover: var(--color-blue-700);
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+	--spacing-header: calc(70 / 4 * var(--spacing));
+
+	--breakpoint-2xl: 64rem;
+	--breakpoint-xl: 60rem;
+
+	--shadow-solid: 4px 4px 0px 0px black;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+@layer base {
+	body {
+		font-variant-numeric: tabular-nums;
+	}
+
+	a:not([class]) {
+		@apply text-primary hover:text-primary-hover underline underline-offset-2 transform-content;
+	}
 }
 
-.card {
-  padding: 2em;
-}
+@layer components {
+	.button {
+		@apply bg-primary hover:bg-primary-hover inline-flex cursor-pointer items-center justify-center rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
+	}
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+	.card {
+		@apply rounded-lg border-2 bg-white p-6;
+	}
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+	.input-field {
+		@apply grid gap-1;
+	}
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+	.input {
+		@apply h-10 rounded-sm border-2 px-2;
+	}
+
+	.label {
+		@apply font-semibold;
+	}
 }

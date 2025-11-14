@@ -7,14 +7,14 @@ FROM node:${NODE_VERSION}-alpine AS node-builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY assets/package.json assets/pnpm-lock.yaml ./
 
 # Install pnpm and dependencies
 RUN npm i -g pnpm
 RUN pnpm install --frozen-lockfile
 
 # Copy CSS assets and build
-COPY assets/css ./assets/css
+COPY assets/ ./assets/
 COPY tmpl ./tmpl
 RUN pnpm run build
 

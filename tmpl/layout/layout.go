@@ -14,7 +14,7 @@ func RootLayout(ctx context.Context, title string, children ...Node) Node {
 			Meta(Charset("UTF-8")),
 			Meta(Name("viewport"), Content("width=device-width, initial-scale=1")),
 			TitleEl(Text(title+" | Homeo sapiens")),
-			Link(Rel("stylesheet"), Href("/assets/bundle.css")),
+			AssetEntryPoint(),
 			fonts(),
 			Script(Src("https://unpkg.com/lucide@latest"), Type("module")),
 			Script(Type("module"), Text("lucide.createIcons();")),
