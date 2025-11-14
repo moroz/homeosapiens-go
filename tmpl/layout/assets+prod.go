@@ -23,7 +23,7 @@ func AssetEntryPoint() Node {
 	return Group{
 		Script(Type("module"), Src(entry.File)),
 		Map(entry.Css, func(css string) Node {
-			return Link(Rel("stylesheet"), Href(css))
+			return Link(Rel("stylesheet"), Href("/"+css))
 		}),
 	}
 }
