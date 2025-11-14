@@ -45,6 +45,10 @@ func New(ctx context.Context, email string, msg string) Node {
 			Button(Type("submit"), Class("button h-10 w-full text-lg"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.submit"}))),
 		),
 
+		Hr(Class("my-4")),
+
+		A(Class("button w-full"), Href("/oauth/google/redirect"), Text("Sign in with Google")),
+
 		Footer(
 			Class("mt-4 text-center"),
 			Raw(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.no_account_yet_html"})),

@@ -39,6 +39,9 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	dashboard := DashboardController(db)
 	r.Get("/dashboard", dashboard.Index)
 
+	oauth2 := OAuth2Controller(store)
+	r.Get("/oauth/google/redirect", oauth2.GoogleRedirect)
+
 	if config.IsProd {
 		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
 		r.Handle("/assets/*", CacheControlMiddleware(fileServer))

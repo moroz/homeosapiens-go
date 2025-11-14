@@ -58,8 +58,9 @@ func storePreferredLangInSession(w http.ResponseWriter, session *SessionData, st
 }
 
 type SessionData struct {
-	AccessToken []byte `json:"access_token,omitempty"`
-	Lang        string `json:"lang,omitempty"`
+	AccessToken []byte         `json:"access_token,omitempty"`
+	Lang        string         `json:"lang,omitempty"`
+	Data        map[string]any `json:"data,omitempty"`
 }
 
 func FetchSession(sessionStore securecookie.Store, cookieName string) func(next http.Handler) http.Handler {
@@ -102,5 +103,9 @@ func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string
 	}
 
 	_ = json.Unmarshal(bytes, &data)
+
+	if data.Data == nil {
+		data.Data = make(map[string]any)
+	}
 	return
 }
