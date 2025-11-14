@@ -47,8 +47,8 @@ RUN apk --no-cache add ca-certificates tzdata curl
 RUN /bin/sh -c 'set -ex && \
     ARCH=$(uname -m); \
     case "$ARCH" in \
-      x86_64) ARCH=amd64 ;; \
       aarch64) ARCH=arm64 ;; \
+      *) ;; \
     esac; \
     curl --output /usr/local/bin/goose -LJO https://github.com/pressly/goose/releases/download/v$GOOSE_VERSION/goose_linux_$ARCH; \
     chmod +x /usr/local/bin/goose'
