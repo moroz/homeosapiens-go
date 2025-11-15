@@ -13,6 +13,7 @@
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tsconfig/svelte": "^5.0.5",
     "@types/node": "^24.10.0",
+    "@types/video.js": "^7.3.58",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "svelte": "^5.43.5",
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.17",
+    "video.js": "^8.23.4"
   }
 }

@@ -33,7 +33,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Get("/sign-in", sessions.New)
 	r.Post("/sessions", sessions.Create)
 
-	videos := VideoController()
+	videos := VideoController(db)
 	r.Get("/videos", videos.Index)
 
 	dashboard := DashboardController(db)

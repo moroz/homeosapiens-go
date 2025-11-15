@@ -66,4 +66,7 @@ VALUES
 INSERT INTO event_prices (event_id, price_amount, price_currency, rule_type, discount_code, priority)
 VALUES
     ('0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', 500.00000000, 'PLN', 'DiscountCode', 'wshlif', 20);
+
+insert into videos (id, provider, title_en, title_pl, slug, object_key)
+values ('019a8668-bb4f-7c9c-b9b8-3f274de96566', 'cloudfront', 'Day 1, Part 1', 'Dzień 1, Część 1', 'day-1-part-1', '/videos/p1_hevc.mp4');
 commit;

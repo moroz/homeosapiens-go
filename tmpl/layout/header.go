@@ -16,7 +16,7 @@ func logo(class string) Node {
 		Attr("viewbox", "0 0 1538 361"),
 		Class(class),
 		El("use",
-			Href("/assets/logo.svg"),
+			Href("/assets/logo.svg#logo"),
 		),
 	)
 }
@@ -30,7 +30,7 @@ func AppHeader(ctx context.Context) Node {
 		Div(Class("container mx-auto flex h-full items-center justify-between"),
 			H1(
 				A(
-					Class("text-primary hover:text-primary-hover text-4xl font-bold no-underline outline transition-colors"),
+					Class("text-primary hover:text-primary-hover text-4xl font-bold no-underline transition-colors"),
 					Href("/"),
 					logo("h-15"),
 				),

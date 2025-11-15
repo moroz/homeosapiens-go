@@ -142,6 +142,48 @@ func (ns NullPriceType) Value() (driver.Value, error) {
 	return string(ns.PriceType), nil
 }
 
+type VideoProvider string
+
+const (
+	VideoProviderYoutube    VideoProvider = "youtube"
+	VideoProviderCloudfront VideoProvider = "cloudfront"
+)
+
+func (e *VideoProvider) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = VideoProvider(s)
+	case string:
+		*e = VideoProvider(s)
+	default:
+		return fmt.Errorf("unsupported scan type for VideoProvider: %T", src)
+	}
+	return nil
+}
+
+type NullVideoProvider struct {
+	VideoProvider VideoProvider `json:"videoProvider"`
+	Valid         bool          `json:"valid"` // Valid is true if VideoProvider is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullVideoProvider) Scan(value interface{}) error {
+	if value == nil {
+		ns.VideoProvider, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.VideoProvider.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullVideoProvider) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.VideoProvider), nil
+}
+
 type Asset struct {
 	ID               pgtype.UUID      `json:"id"`
 	ObjectKey        string           `json:"objectKey"`
@@ -240,4 +282,16 @@ type Venue struct {
 	CountryCode string           `json:"countryCode"`
 	InsertedAt  pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
+}
+
+type Video struct {
+	ID         pgtype.UUID      `json:"id"`
+	Provider   VideoProvider    `json:"provider"`
+	IsPublic   bool             `json:"isPublic"`
+	TitleEn    string           `json:"titleEn"`
+	TitlePl    string           `json:"titlePl"`
+	Slug       string           `json:"slug"`
+	ObjectKey  string           `json:"objectKey"`
+	InsertedAt pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
 }
