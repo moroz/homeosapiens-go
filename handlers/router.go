@@ -41,6 +41,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 
 	oauth2 := OAuth2Controller(store)
 	r.Get("/oauth/google/redirect", oauth2.GoogleRedirect)
+	r.Get("/oauth/google/callback", oauth2.GoogleCallback)
 
 	if config.IsProd {
 		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))

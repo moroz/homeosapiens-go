@@ -15,13 +15,15 @@ import (
 func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := r.Context().Value(config.SessionContextName).(*SessionData)
+			session := r.Context().Value(config.SessionContextName).(SessionData)
 
 			langParam := r.FormValue("lang")
 			header := r.Header.Get("Accept-Language")
-			lang := i18n.ResolveLocale(langParam, session.Lang, header)
+			langFromSession, _ := session["lang"].(string)
 
-			if langParam != "" && session.Lang != langParam {
+			lang := i18n.ResolveLocale(langParam, langFromSession, header)
+
+			if langParam != "" && langFromSession != langParam {
 				storePreferredLangInSession(w, session, store, langParam)
 			}
 
@@ -33,7 +35,7 @@ func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next
 	}
 }
 
-func SaveSession(w http.ResponseWriter, store securecookie.Store, session *SessionData) error {
+func SaveSession(w http.ResponseWriter, store securecookie.Store, session SessionData) error {
 	asJson, err := json.Marshal(session)
 	if err != nil {
 		return err
@@ -52,22 +54,18 @@ func SaveSession(w http.ResponseWriter, store securecookie.Store, session *Sessi
 	return nil
 }
 
-func storePreferredLangInSession(w http.ResponseWriter, session *SessionData, store securecookie.Store, newValue string) {
-	session.Lang = newValue
+func storePreferredLangInSession(w http.ResponseWriter, session SessionData, store securecookie.Store, newValue string) {
+	session["lang"] = newValue
 	_ = SaveSession(w, store, session)
 }
 
-type SessionData struct {
-	AccessToken []byte         `json:"access_token,omitempty"`
-	Lang        string         `json:"lang,omitempty"`
-	Data        map[string]any `json:"data,omitempty"`
-}
+type SessionData map[string]any
 
 func FetchSession(sessionStore securecookie.Store, cookieName string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			session := decodeSessionFromRequest(sessionStore, cookieName, r)
-			ctx := context.WithValue(r.Context(), config.SessionContextName, &session)
+			ctx := context.WithValue(r.Context(), config.SessionContextName, session)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
@@ -76,13 +74,13 @@ func FetchSession(sessionStore securecookie.Store, cookieName string) func(next 
 func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := r.Context().Value(config.SessionContextName).(*SessionData)
+			session := r.Context().Value(config.SessionContextName).(SessionData)
 			var (
 				user *queries.User
 			)
 
-			if session.AccessToken != nil {
-				user, _ = queries.New(db).GetUserByAccessToken(r.Context(), session.AccessToken)
+			if token, ok := session["access_token"].([]byte); ok {
+				user, _ = queries.New(db).GetUserByAccessToken(r.Context(), token)
 			}
 
 			ctx := context.WithValue(r.Context(), config.CurrentUserContextName, user)
@@ -91,21 +89,20 @@ func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler 
 	}
 }
 
-func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string, r *http.Request) (data SessionData) {
+func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string, r *http.Request) SessionData {
+	result := make(SessionData)
+
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
-		return
+		return result
 	}
 
 	bytes, err := sessionStore.DecryptCookie(cookie.Value)
 	if err != nil {
-		return
+		return result
 	}
 
-	_ = json.Unmarshal(bytes, &data)
+	_ = json.Unmarshal(bytes, &result)
 
-	if data.Data == nil {
-		data.Data = make(map[string]any)
-	}
-	return
+	return result
 }

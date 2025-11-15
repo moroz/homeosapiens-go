@@ -73,9 +73,9 @@ func (c *sessionController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionData := r.Context().Value(config.SessionContextName).(*SessionData)
-	sessionData.AccessToken = token.Token
-	if err := SaveSession(w, c.sessionStore, sessionData); err != nil {
+	session := r.Context().Value(config.SessionContextName).(SessionData)
+	session["access_token"] = token.Token
+	if err := SaveSession(w, c.sessionStore, session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		http.Error(w, err.Error(), 500)
 		return
