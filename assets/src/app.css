@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@import "video.js";
+@import "video.js/dist/video-js.css";
+@import "@videojs/themes/dist/fantasy/index.css";
 @config "../tailwind.config.js";
 
 @theme {

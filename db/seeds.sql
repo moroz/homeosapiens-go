@@ -1,7 +1,7 @@
 -- db/seeds.sql
 begin;
 
-truncate users, events, hosts, assets, venues, events_hosts, event_prices cascade;
+truncate users, events, hosts, assets, venues, events_hosts, event_prices, videos cascade;
 
 -- Insert users (password: foobar)
 insert into users (email, given_name, family_name, country, password_hash)
@@ -75,8 +75,8 @@ values
 insert into video_sources (id, video_id, content_type, codec, object_key)
 values
 ('019a8ba6-c5ae-7f6f-becb-94b6957a52b2', '019a8668-bb4f-7c9c-b9b8-3f274de96566', 'video/mp4', 'hev1', '/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/hevc_1080.mp4'),
-('019a8ba7-d04b-77ec-92c6-f76b6ec0e7ea', '019a8668-bb4f-7c9c-b9b8-3f274de96566', 'video/webm', null, '/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/webm_1080.webm'),
+('019a8ba7-d04b-77ec-92c6-f76b6ec0e7ea', '019a8668-bb4f-7c9c-b9b8-3f274de96566', 'video/webm', 'vp9,opus', '/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/webm_1080.webm'),
 ('019a8bab-135e-7321-9857-f74d2dcda427', '019a8ba5-fe29-7af8-bf54-b8d96af38461', 'video/mp4', 'hev1', '/videos/019a8ba5-fe29-7af8-bf54-b8d96af38461/hevc_1080.mp4'),
-('019a8bab-bc67-76f9-bf80-902043c922e6', '019a8ba5-fe29-7af8-bf54-b8d96af38461', 'video/webm', null, '/videos/019a8ba5-fe29-7af8-bf54-b8d96af38461/webm_1080.webm');
+('019a8bab-bc67-76f9-bf80-902043c922e6', '019a8ba5-fe29-7af8-bf54-b8d96af38461', 'video/webm', 'vp9,opus', '/videos/019a8ba5-fe29-7af8-bf54-b8d96af38461/webm_1080.webm');
 
 commit;
