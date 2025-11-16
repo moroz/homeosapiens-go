@@ -7,10 +7,47 @@ package queries
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const listVideoSourcesForVideos = `-- name: ListVideoSourcesForVideos :many
+select id, content_type, codec, video_id, object_key, inserted_at, updated_at from video_sources vs
+where vs.video_id = any($1::uuid[])
+order by vs.video_id, vs.id
+`
+
+func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoids []pgtype.UUID) ([]*VideoSource, error) {
+	rows, err := q.db.Query(ctx, listVideoSourcesForVideos, videoids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*VideoSource
+	for rows.Next() {
+		var i VideoSource
+		if err := rows.Scan(
+			&i.ID,
+			&i.ContentType,
+			&i.Codec,
+			&i.VideoID,
+			&i.ObjectKey,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listVideos = `-- name: ListVideos :many
-select id, provider, is_public, title_en, title_pl, slug, object_key, inserted_at, updated_at from videos order by id desc
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at from videos v
+order by v.id desc
 `
 
 func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
@@ -29,7 +66,6 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 			&i.TitleEn,
 			&i.TitlePl,
 			&i.Slug,
-			&i.ObjectKey,
 			&i.InsertedAt,
 			&i.UpdatedAt,
 		); err != nil {

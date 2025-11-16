@@ -291,7 +291,16 @@ type Video struct {
 	TitleEn    string           `json:"titleEn"`
 	TitlePl    string           `json:"titlePl"`
 	Slug       string           `json:"slug"`
-	ObjectKey  string           `json:"objectKey"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
+}
+
+type VideoSource struct {
+	ID          pgtype.UUID      `json:"id"`
+	ContentType string           `json:"contentType"`
+	Codec       *string          `json:"codec"`
+	VideoID     pgtype.UUID      `json:"videoId"`
+	ObjectKey   string           `json:"objectKey"`
+	InsertedAt  pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
 }

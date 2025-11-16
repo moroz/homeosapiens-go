@@ -1,0 +1,61 @@
+package services
+
+import (
+	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/moroz/homeosapiens-go/db/queries"
+)
+
+type VideoService struct {
+	db queries.DBTX
+}
+
+func NewVideoService(db queries.DBTX) *VideoService {
+	return &VideoService{db}
+}
+
+type VideoListDto struct {
+	*queries.Video
+	Sources []*queries.VideoSource
+}
+
+func (s *VideoService) ListVideosWithSources(ctx context.Context) ([]*VideoListDto, error) {
+	videos, err := queries.New(s.db).ListVideos(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var ids []pgtype.UUID
+	for _, v := range videos {
+		ids = append(ids, v.ID)
+	}
+
+	sources, err := s.preloadSourcesForVideos(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*VideoListDto
+	for _, v := range videos {
+		result = append(result, &VideoListDto{
+			Video:   v,
+			Sources: sources[v.ID],
+		})
+	}
+
+	return result, nil
+}
+
+func (s *VideoService) preloadSourcesForVideos(ctx context.Context, ids []pgtype.UUID) (map[pgtype.UUID][]*queries.VideoSource, error) {
+	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make(map[pgtype.UUID][]*queries.VideoSource)
+	for _, row := range sources {
+		result[row.VideoID] = append(result[row.VideoID], row)
+	}
+	return result, nil
+}
