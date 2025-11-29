@@ -58,7 +58,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 		Header(
 			Class("flex flex-1 flex-col items-start"),
 			Span(
-				Class("text-primary mb-2 inline-flex items-center gap-1 justify-self-start rounded border-2 border-black bg-white px-2 py-1 text-sm font-semibold"),
+				Class("text-white bg-secondary mb-2 inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold"),
 				Iff(e.VenueID.Valid, func() Node {
 					city := *e.VenueCityEn
 					if lang == "pl" && e.VenueCityPl != nil {
