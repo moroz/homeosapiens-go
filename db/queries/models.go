@@ -246,20 +246,21 @@ type Host struct {
 }
 
 type User struct {
-	ID           pgtype.UUID      `json:"id"`
-	Email        string           `json:"email"`
-	Salutation   *string          `json:"salutation"`
-	GivenName    string           `json:"givenName"`
-	FamilyName   string           `json:"familyName"`
-	Country      *string          `json:"country"`
-	Profession   *string          `json:"profession"`
-	Organization *string          `json:"organization"`
-	Company      *string          `json:"company"`
-	PasswordHash *string          `json:"passwordHash"`
-	LastLoginAt  pgtype.Timestamp `json:"lastLoginAt"`
-	LastLoginIp  *netip.Addr      `json:"lastLoginIp"`
-	InsertedAt   pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt    pgtype.Timestamp `json:"updatedAt"`
+	ID             pgtype.UUID      `json:"id"`
+	Email          string           `json:"email"`
+	Salutation     *string          `json:"salutation"`
+	GivenName      string           `json:"givenName"`
+	FamilyName     string           `json:"familyName"`
+	Country        *string          `json:"country"`
+	Profession     *string          `json:"profession"`
+	Organization   *string          `json:"organization"`
+	Company        *string          `json:"company"`
+	PasswordHash   *string          `json:"passwordHash"`
+	LastLoginAt    pgtype.Timestamp `json:"lastLoginAt"`
+	LastLoginIp    *netip.Addr      `json:"lastLoginIp"`
+	InsertedAt     pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt      pgtype.Timestamp `json:"updatedAt"`
+	ProfilePicture *string          `json:"profilePicture"`
 }
 
 type UserToken struct {

@@ -12,3 +12,10 @@ insert into users (email, salutation, given_name, family_name, country, professi
 
 -- name: InsertUserToken :one
 insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $3, $4) returning *;
+
+-- name: FindOrCreateUserFromClaims :one
+insert into users (email, given_name, family_name, profile_picture)
+values ($1, $2, $3, $4)
+on conflict (email) do update
+set email = excluded.email, given_name = excluded.given_name, family_name = excluded.family_name, profile_picture = excluded.profile_picture, updated_at = now() at time zone 'utc'
+returning *;

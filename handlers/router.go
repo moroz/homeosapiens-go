@@ -39,7 +39,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	dashboard := DashboardController(db)
 	r.Get("/dashboard", dashboard.Index)
 
-	oauth2 := OAuth2Controller(store)
+	oauth2 := OAuth2Controller(store, db)
 	r.Get("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.Get("/oauth/google/callback", oauth2.GoogleCallback)
 

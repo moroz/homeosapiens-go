@@ -7,6 +7,7 @@ import (
 
 	"github.com/alexedwards/argon2id"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/types"
 )
 
 type UserService struct {
@@ -38,4 +39,13 @@ func (s *UserService) AuthenticateUserByEmailPassword(ctx context.Context, email
 		return nil, fmt.Errorf(tmpl, err)
 	}
 	return user, nil
+}
+
+func (s *UserService) FindOrCreateUserFromClaims(ctx context.Context, claims *types.GoogleIDTokenClaims) (*queries.User, error) {
+	return queries.New(s.db).FindOrCreateUserFromClaims(ctx, &queries.FindOrCreateUserFromClaimsParams{
+		Email:          claims.Email,
+		GivenName:      claims.GivenName,
+		FamilyName:     claims.FamilyName,
+		ProfilePicture: &claims.Avatar,
+	})
 }

@@ -11,8 +11,51 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
+insert into users (email, given_name, family_name, profile_picture)
+values ($1, $2, $3, $4)
+on conflict (email) do update
+set email = excluded.email, given_name = excluded.given_name, family_name = excluded.family_name, profile_picture = excluded.profile_picture, updated_at = now() at time zone 'utc'
+returning id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture
+`
+
+type FindOrCreateUserFromClaimsParams struct {
+	Email          string  `json:"email"`
+	GivenName      string  `json:"givenName"`
+	FamilyName     string  `json:"familyName"`
+	ProfilePicture *string `json:"profilePicture"`
+}
+
+func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCreateUserFromClaimsParams) (*User, error) {
+	row := q.db.QueryRow(ctx, findOrCreateUserFromClaims,
+		arg.Email,
+		arg.GivenName,
+		arg.FamilyName,
+		arg.ProfilePicture,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Salutation,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.ProfilePicture,
+	)
+	return &i, err
+}
+
 const getUserByAccessToken = `-- name: GetUserByAccessToken :one
-select u.id, u.email, u.salutation, u.given_name, u.family_name, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at from user_tokens ut
+select u.id, u.email, u.salutation, u.given_name, u.family_name, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > (now() at time zone 'utc')
 and ut.token = $1::bytea and ut.context = 'access'
@@ -36,12 +79,13 @@ func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User
 		&i.LastLoginIp,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+		&i.ProfilePicture,
 	)
 	return &i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at from users where email = $1
+select id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture from users where email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
@@ -62,12 +106,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 		&i.LastLoginIp,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+		&i.ProfilePicture,
 	)
 	return &i, err
 }
 
 const insertUser = `-- name: InsertUser :one
-insert into users (email, salutation, given_name, family_name, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at
+insert into users (email, salutation, given_name, family_name, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture
 `
 
 type InsertUserParams struct {
@@ -110,6 +155,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		&i.LastLoginIp,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+		&i.ProfilePicture,
 	)
 	return &i, err
 }

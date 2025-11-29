@@ -8,6 +8,7 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/securecookie"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -15,7 +16,7 @@ import (
 func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := r.Context().Value(config.SessionContextName).(SessionData)
+			session := r.Context().Value(config.SessionContextName).(types.SessionData)
 
 			langParam := r.FormValue("lang")
 			header := r.Header.Get("Accept-Language")
@@ -35,7 +36,7 @@ func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next
 	}
 }
 
-func SaveSession(w http.ResponseWriter, store securecookie.Store, session SessionData) error {
+func SaveSession(w http.ResponseWriter, store securecookie.Store, session types.SessionData) error {
 	asJson, err := json.Marshal(session)
 	if err != nil {
 		return err
@@ -54,12 +55,10 @@ func SaveSession(w http.ResponseWriter, store securecookie.Store, session Sessio
 	return nil
 }
 
-func storePreferredLangInSession(w http.ResponseWriter, session SessionData, store securecookie.Store, newValue string) {
+func storePreferredLangInSession(w http.ResponseWriter, session types.SessionData, store securecookie.Store, newValue string) {
 	session["lang"] = newValue
 	_ = SaveSession(w, store, session)
 }
-
-type SessionData map[string]any
 
 func FetchSession(sessionStore securecookie.Store, cookieName string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -74,7 +73,7 @@ func FetchSession(sessionStore securecookie.Store, cookieName string) func(next 
 func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := r.Context().Value(config.SessionContextName).(SessionData)
+			session := r.Context().Value(config.SessionContextName).(types.SessionData)
 			var (
 				user *queries.User
 			)
@@ -89,8 +88,8 @@ func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler 
 	}
 }
 
-func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string, r *http.Request) SessionData {
-	result := make(SessionData)
+func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string, r *http.Request) types.SessionData {
+	result := make(types.SessionData)
 
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {

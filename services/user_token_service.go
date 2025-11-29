@@ -10,6 +10,7 @@ import (
 )
 
 const TokenLength = 32
+const UserTokenDefaultValidity = 24 * time.Hour
 
 type UserTokenService struct {
 	db queries.DBTX
