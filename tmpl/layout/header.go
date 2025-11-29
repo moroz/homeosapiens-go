@@ -56,7 +56,9 @@ func AppHeader(ctx context.Context) Node {
 						ID: "header.nav.sign_in",
 					}))),
 					Iff(user != nil, func() Node {
-						return Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), components.Avatar(user))
+						title := user.GivenName + " " + user.FamilyName
+
+						return Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(user))
 					}),
 				),
 			),

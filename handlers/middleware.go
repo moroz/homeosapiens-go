@@ -1,8 +1,9 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/gob"
 	"net/http"
 
 	"github.com/moroz/homeosapiens-go/config"
@@ -37,11 +38,12 @@ func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next
 }
 
 func SaveSession(w http.ResponseWriter, store securecookie.Store, session types.SessionData) error {
-	asJson, err := json.Marshal(session)
+	buf := bytes.NewBuffer(nil)
+	err := gob.NewEncoder(buf).Encode(session)
 	if err != nil {
 		return err
 	}
-	cookie, err := store.EncryptCookie(asJson)
+	cookie, err := store.EncryptCookie(buf.Bytes())
 	if err != nil {
 		return err
 	}
@@ -96,12 +98,12 @@ func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string
 		return result
 	}
 
-	bytes, err := sessionStore.DecryptCookie(cookie.Value)
+	binary, err := sessionStore.DecryptCookie(cookie.Value)
 	if err != nil {
 		return result
 	}
 
-	_ = json.Unmarshal(bytes, &result)
+	_ = gob.NewDecoder(bytes.NewBuffer(binary)).Decode(&result)
 
 	return result
 }

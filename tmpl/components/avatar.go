@@ -7,6 +7,13 @@ import (
 )
 
 func Avatar(user *queries.User) Node {
+	if user.ProfilePicture != nil {
+		return Div(
+			Class("inline-flex aspect-square h-10 rounded-full overflow-hidden"),
+			Img(Src(*user.ProfilePicture)),
+		)
+	}
+
 	initials := user.GivenName[0:1] + user.FamilyName[0:1]
 
 	return Div(
