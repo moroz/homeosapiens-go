@@ -96,10 +96,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 				Class("mb-4"),
 				Raw(
 					localizer.MustLocalize(&i18n.LocalizeConfig{
-						DefaultMessage: &i18n.Message{
-							ID:    "common.events.hosts",
-							Other: "Hosts: {{ .Hosts }}.",
-						},
+						MessageID: "common.events.hosts",
 						TemplateData: map[string]string{
 							"Hosts": helpers.FormatHosts(localizer, e.Hosts),
 						},
@@ -109,7 +106,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 
 			Div(
 				If(isFuture, A(
-					Href(eventUrl),
+					Href(eventUrl+"/register"),
 					Class("button secondary px-6"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "common.events.sign_up",

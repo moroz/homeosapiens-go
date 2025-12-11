@@ -51,7 +51,14 @@ func New(ctx context.Context, email string, msg string) Node {
 
 		Footer(
 			Class("mt-4 text-center"),
-			Raw(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.no_account_yet_html"})),
+			Raw(
+				l.MustLocalize(&i18n.LocalizeConfig{
+					MessageID: "sessions.new.no_account_yet_html",
+					TemplateData: map[string]string{
+						"Path": "/sign-up",
+					},
+				}),
+			),
 		),
 	)
 }

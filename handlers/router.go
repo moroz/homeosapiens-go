@@ -30,10 +30,16 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Get("/events", events.Index)
 	r.Get("/events/{slug}", events.Show)
 
+	eventRegistrations := EventRegistrationController(db)
+	r.Get("/events/{slug}/register", eventRegistrations.New)
+
 	sessions := SessionController(db, store)
 	r.Get("/sign-in", sessions.New)
 	r.Post("/sessions", sessions.Create)
 	r.Get("/sign-out", sessions.Delete)
+
+	userRegistrations := UserRegistrationController(db)
+	r.Get("/sign-up", userRegistrations.New)
 
 	prefs := PreferencesController(store)
 	r.Post("/api/v1/prefs/timezone", prefs.SaveTimezone)

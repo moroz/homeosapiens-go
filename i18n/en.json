@@ -46,8 +46,33 @@
       "password": "Password:",
       "submit": "Submit",
       "header": "Sign in",
-      "no_account_yet_html": "No account yet? <a href=\"/sign-up\">Sign up</a>",
+      "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
       "invalid_email_password_combination": "Invalid email/password combination."
+    }
+  },
+  "event_registrations": {
+    "new": {
+      "title": "Sign up for event: {{ .Title }}",
+      "heading": "Sign up for event"
+    }
+  },
+  "user_registrations": {
+    "new": {
+      "title": "Sign up",
+      "already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
+      "submit": "Sign up",
+      "form": {
+        "labels": {
+          "email": "Email:",
+          "password": "Create password:",
+          "password_confirmation": "Confirm password:"
+        }
+      }
+    }
+  },
+  "components": {
+    "input_field": {
+      "optional": "(optional)"
     }
   }
 }

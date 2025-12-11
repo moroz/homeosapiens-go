@@ -49,29 +49,45 @@
       "participation_cost": "Koszt udziału:",
       "free": "Bezpłatne",
       "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
-      "learn_more": "Więcej informacji…"
+      "learn_more": "Więcej informacji…",
+      "sign_up": "Rejestracja"
     }
   },
   "sessions": {
     "new": {
-      "email": {
-        "other": "Email:"
-      },
-      "password": {
-        "other": "Hasło:"
-      },
-      "submit": {
-        "other": "Zaloguj się"
-      },
-      "header": {
-        "other": "Logowanie"
-      },
-      "no_account_yet_html": {
-        "other": "Nie masz jeszcze konta? <a href=\"/sign-up\">Zarejestruj się</a>"
-      },
-      "invalid_email_password_combination": {
-        "other": "Nieprawidłowy email lub hasło."
+      "email": "Email:",
+      "password": "Hasło:",
+      "submit": "Zaloguj się",
+      "header": "Logowanie",
+      "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
+      "invalid_email_password_combination": "Nieprawidłowy email lub hasło."
+    }
+  },
+  "event_registrations": {
+    "new": {
+      "title": "Rejestracja na wydarzenie: {{ .Title }}",
+      "heading": "Rejestracja na wydarzenie"
+    }
+  },
+  "user_registrations": {
+    "new": {
+      "title": "Rejestracja",
+      "already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
+      "submit": "Zarejestruj się",
+      "form": {
+        "labels": {
+          "email": "Email:",
+          "password": "Utwórz hasło:",
+          "password_confirmation": "Powtórz hasło:",
+          "give_name": "Imię:",
+          "family_name": "Nazwisko:"
+        }
       }
+    }
+  },
+  "components": {
+    "input_field": {
+      "optional": "(opcjonalne)"
     }
   }
 }
