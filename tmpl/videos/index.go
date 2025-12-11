@@ -16,8 +16,8 @@ func Index(ctx context.Context, videos []*services.VideoListDto) Node {
 	lang := ctx.Value("lang").(string)
 
 	return layout.Layout(ctx, "Videos",
-		H2(Class("text-4xl font-bold text-primary"), Text("Videos")),
-		Div(Class("grid gap-6 mt-6 mb-12"),
+		H2(Class("text-primary text-4xl font-bold"), Text("Videos")),
+		Div(Class("mt-6 mb-12 grid gap-6"),
 			Map(videos, func(video *services.VideoListDto) Node {
 				title := video.TitleEn
 				if lang == "pl" {

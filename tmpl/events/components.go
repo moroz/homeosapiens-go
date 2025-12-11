@@ -20,13 +20,13 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	return Div(
 		Class("bg-primary flex h-min w-42 flex-col items-center overflow-hidden rounded-lg border-2"),
 		Div(
-			Class("aspect-square w-full overflow-hidden relative"),
+			Class("relative aspect-square w-full overflow-hidden"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
 				url := fmt.Sprintf("%s/%s", config.AssetCdnBaseUrl, *host.ProfilePictureUrl)
 
 				return Img(
 					Src(url),
-					Class("absolute inset-0 w-full h-full object-cover"),
+					Class("absolute inset-0 h-full w-full object-cover"),
 					Alt(fmt.Sprintf("Profile picture of %s%s %s", salutation, host.GivenName, host.FamilyName)),
 				)
 			}),
@@ -61,7 +61,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 		Header(
 			Class("flex flex-1 flex-col items-start"),
 			Span(
-				Class("text-white bg-secondary mb-2 inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold"),
+				Class("bg-secondary mb-2 inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-white"),
 				Iff(e.VenueID.Valid, func() Node {
 					city := *e.VenueCityEn
 					if lang == "pl" && e.VenueCityPl != nil {

@@ -27,12 +27,12 @@ func UserHeader(ctx context.Context) Node {
 	l := ctx.Value("localizer").(*i18n.Localizer)
 
 	return Div(
-		Class("relative user-dropdown"),
+		Class("user-dropdown relative"),
 		Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(user)),
 		Div(
-			Class("absolute bottom-0 border bg-white rounded-sm -translate-x-1/2 translate-y-full left-1/2 flex flex-col shadow overflow-hidden dropdown hidden border-slate-400"),
+			Class("dropdown absolute bottom-0 left-1/2 flex hidden -translate-x-1/2 translate-y-full flex-col overflow-hidden rounded-sm border border-slate-400 bg-white shadow"),
 			Div(
-				Class("flex items-center px-3 py-2 gap-4 justify-between"),
+				Class("flex items-center justify-between gap-4 px-3 py-2"),
 				components.Avatar(user),
 				Div(
 					Class("flex flex-col text-right"),
@@ -42,7 +42,7 @@ func UserHeader(ctx context.Context) Node {
 			),
 			A(
 				Href("/sign-out"),
-				Class("inline-flex text-center items-center justify-center h-10 cursor-pointer hover:bg-slate-100 border-t border-slate-400 transition"),
+				Class("inline-flex h-10 cursor-pointer items-center justify-center border-t border-slate-400 text-center transition hover:bg-slate-100"),
 				Text(l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.user_dropdown.sign_out",
 				})),

@@ -9,7 +9,7 @@ import (
 func Avatar(user *queries.User) Node {
 	if user.ProfilePicture != nil {
 		return Div(
-			Class("inline-flex aspect-square h-10 rounded-full overflow-hidden"),
+			Class("inline-flex aspect-square h-10 overflow-hidden rounded-full"),
 			Img(Src(*user.ProfilePicture)),
 		)
 	}
