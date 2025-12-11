@@ -2,6 +2,7 @@ package layout
 
 import (
 	"context"
+	"time"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
@@ -9,6 +10,8 @@ import (
 )
 
 func RootLayout(ctx context.Context, title string, children ...Node) Node {
+	tz := ctx.Value("timezone").(*time.Location)
+
 	return HTML(
 		Head(
 			Meta(Charset("UTF-8")),
@@ -18,6 +21,7 @@ func RootLayout(ctx context.Context, title string, children ...Node) Node {
 			fonts(),
 			Script(Src("https://unpkg.com/lucide@latest"), Type("module")),
 			Script(Type("module"), Text("lucide.createIcons();")),
+			Meta(Name("user-timezone"), Content(tz.String())),
 		),
 		Body(Group(children)),
 	)

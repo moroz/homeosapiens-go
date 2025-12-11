@@ -22,3 +22,15 @@ document.querySelectorAll(".user-dropdown").forEach((el) => {
 		}, 500);
 	});
 });
+
+async function setTimezone() {
+	const localTz = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const storedTz = document.querySelector("meta[name=user-timezone]")?.getAttribute("content");
+	if (localTz === storedTz || !localTz) return;
+
+	const qs = new URLSearchParams({ tz: localTz }).toString();
+
+	fetch(`/api/v1/prefs/timezone?${qs}`, { method: "POST", credentials: "include" });
+}
+
+setTimezone();

@@ -53,6 +53,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 	}
 
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
+	tz := ctx.Value("timezone").(*time.Location)
 
 	isFuture := e.StartsAt.Time.After(time.Now())
 
@@ -88,7 +89,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			P(
 				Text(helpers.TranslateEventType(localizer, e.EventType)),
 				Text(", "),
-				Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, "Europe/Warsaw", lang)),
+				Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, tz, lang)),
 			),
 
 			P(

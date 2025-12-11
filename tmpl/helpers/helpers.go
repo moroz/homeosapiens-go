@@ -65,25 +65,22 @@ func FormatDate(date time.Time, locale string) string {
 	}
 }
 
-func FormatDateTime(ts time.Time, locale string) string {
+func FormatDateTime(ts time.Time, tz *time.Location, locale string) string {
+	tzName := fmt.Sprintf(" (%s)", tz)
+
 	switch locale {
 	case "pl":
-		return ts.Format("02.01.2006 15:04")
+		return ts.In(tz).Format("02.01.2006 15:04") + tzName
 	default:
-		return ts.Format("02 Jan, 2006, 03:04 PM")
+		return ts.In(tz).Format("02 Jan, 2006, 03:04 PM") + tzName
 	}
 }
 
-func FormatDateRange(start, end time.Time, tz string, locale string) string {
-	if tz == "" {
-		tz = "Europe/Warsaw"
-	}
-	timezone, _ := time.LoadLocation(tz)
-
-	start = start.In(timezone)
-	end = end.In(timezone)
-	d1, m1, y1 := start.In(timezone).Date()
-	d2, m2, y2 := end.In(timezone).Date()
+func FormatDateRange(start, end time.Time, tz *time.Location, locale string) string {
+	start = start.In(tz)
+	end = end.In(tz)
+	d1, m1, y1 := start.In(tz).Date()
+	d2, m2, y2 := end.In(tz).Date()
 
 	if d1 == d2 && m1 == m2 && y1 == y2 {
 		return FormatDate(start, locale)

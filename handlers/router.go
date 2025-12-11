@@ -19,6 +19,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(FetchSession(store, config.SessionCookieName))
+	r.Use(FetchPreferredTimezone)
 	r.Use(FetchUserFromSession(db))
 	r.Use(LocaleMiddleware(bundle, store))
 
@@ -33,6 +34,9 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Get("/sign-in", sessions.New)
 	r.Post("/sessions", sessions.Create)
 	r.Get("/sign-out", sessions.Delete)
+
+	prefs := PreferencesController(store)
+	r.Post("/api/v1/prefs/timezone", prefs.SaveTimezone)
 
 	videos := VideoController(db)
 	r.Get("/videos", videos.Index)

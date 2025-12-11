@@ -32,8 +32,8 @@ VALUES
      'A Series of Critical Cardiac Cases',
      'Seria krytycznych problemów kardiologicznych',
      'a-series-of-critical-cardiac-cases',
-     '2025-12-13 17:00:00+01',
-     '2025-12-13 18:30:00+01',
+     '2025-12-13 16:00:00+00',
+     '2025-12-13 17:30:00+00',
      true,
      'Dear Homeopathic Friends, 
 

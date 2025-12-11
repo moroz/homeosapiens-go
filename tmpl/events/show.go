@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"time"
 
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
@@ -12,6 +13,7 @@ import (
 
 func Show(ctx context.Context, event *services.EventDetailsDto) Node {
 	lang := ctx.Value("lang").(string)
+	tz := ctx.Value("timezone").(*time.Location)
 
 	title := event.TitleEn
 	if lang == "pl" {
@@ -27,10 +29,10 @@ func Show(ctx context.Context, event *services.EventDetailsDto) Node {
 		Div(
 			Class("grid"),
 			Time(
-				Text(helpers.FormatDateTime(event.StartsAt.Time, lang)),
+				Text(helpers.FormatDateTime(event.StartsAt.Time, tz, lang)),
 			),
 			Time(
-				Text(helpers.FormatDateTime(event.EndsAt.Time, lang)),
+				Text(helpers.FormatDateTime(event.EndsAt.Time, tz, lang)),
 			),
 		),
 	))

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/gob"
 	"net/http"
+	"time"
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -90,6 +91,23 @@ func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func FetchPreferredTimezone(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session := r.Context().Value(config.SessionContextName).(types.SessionData)
+		tz, _ := time.LoadLocation("Europe/Warsaw")
+		tzSet := false
+		if tzFromSession, ok := session["tz"].(string); ok && tzFromSession != "" {
+			if loaded, err := time.LoadLocation(tzFromSession); err == nil {
+				tz = loaded
+				tzSet = true
+			}
+		}
+		ctx := context.WithValue(r.Context(), "timezone", tz)
+		ctx = context.WithValue(ctx, "tzset", tzSet)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string, r *http.Request) types.SessionData {
