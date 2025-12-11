@@ -66,13 +66,11 @@ func FormatDate(date time.Time, locale string) string {
 }
 
 func FormatDateTime(ts time.Time, tz *time.Location, locale string) string {
-	tzName := fmt.Sprintf(" (%s)", tz)
-
 	switch locale {
 	case "pl":
-		return ts.In(tz).Format("02.01.2006 15:04") + tzName
+		return ts.In(tz).Format("02.01.2006 15:04 (UTC-07:00)")
 	default:
-		return ts.In(tz).Format("02 Jan, 2006, 03:04 PM") + tzName
+		return ts.In(tz).Format("02 Jan, 2006, 03:04 PM (UTC-07:00)")
 	}
 }
 
