@@ -117,7 +117,11 @@ func FormatPrice(amount decimal.Decimal, currencyCode string, locale string) str
 
 func FormatHostName(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) string {
 	salutation := TranslateSalutation(localizer, host.Salutation)
-	return fmt.Sprintf("%s%s %s", salutation, host.GivenName, host.FamilyName)
+	country := ""
+	if host.Country != nil && *host.Country != "" {
+		country = " (" + TranslateCountry(localizer, *host.Country) + ")"
+	}
+	return fmt.Sprintf("%s%s %s%s", salutation, host.GivenName, host.FamilyName, country)
 }
 
 func FormatHosts(localizer *i18n.Localizer, hosts []*queries.ListHostsForEventsRow) string {

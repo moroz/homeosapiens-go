@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -17,15 +18,15 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
 	return Div(
-		Class("bg-primary flex h-min w-35 flex-col items-center overflow-hidden rounded-lg border-2"),
+		Class("bg-primary flex h-min w-42 flex-col items-center overflow-hidden rounded-lg border-2"),
 		Div(
-			Class("aspect-square w-full overflow-hidden"),
+			Class("aspect-square w-full overflow-hidden relative"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
 				url := fmt.Sprintf("%s/%s", config.AssetCdnBaseUrl, *host.ProfilePictureUrl)
 
 				return Img(
 					Src(url),
-					Class("scale-120"),
+					Class("absolute inset-0 w-full h-full object-cover"),
 					Alt(fmt.Sprintf("Profile picture of %s%s %s", salutation, host.GivenName, host.FamilyName)),
 				)
 			}),
@@ -53,6 +54,8 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
 
+	isFuture := e.StartsAt.Time.After(time.Now())
+
 	return Article(
 		Class("card flex justify-between gap-6"),
 		Header(
@@ -74,7 +77,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			H3(
-				Class("text-primary text-4xl font-bold"),
+				Class("text-primary text-3xl font-bold"),
 				A(
 					Class("hover:text-primary-hover decoration-2 underline-offset-3 transition-colors hover:underline"),
 					Href(eventUrl),
@@ -89,6 +92,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			P(
+				Class("mb-4"),
 				Raw(
 					localizer.MustLocalize(&i18n.LocalizeConfig{
 						DefaultMessage: &i18n.Message{
@@ -103,7 +107,15 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			Div(
-				Class("mt-6 flex items-center gap-4"),
+				If(isFuture, A(
+					Href(eventUrl),
+					Class("button secondary px-6"),
+					Text(localizer.MustLocalizeMessage(&i18n.Message{
+						ID: "common.events.sign_up",
+					})),
+				)),
+
+				Class("mt-auto flex items-center gap-4"),
 				A(
 					Href(eventUrl),
 					Class("button"),

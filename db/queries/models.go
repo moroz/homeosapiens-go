@@ -295,6 +295,7 @@ type Host struct {
 	ProfilePictureID pgtype.UUID      `json:"profilePictureId"`
 	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
+	Country          *string          `json:"country"`
 }
 
 type User struct {

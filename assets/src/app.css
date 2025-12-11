@@ -16,6 +16,7 @@
 	--color-primary-900: var(--color-indigo-900);
 
 	--color-secondary: var(--color-purple-800);
+	--color-secondary-hover: var(--color-purple-700);
 
 	--font-sans: "IBM Plex Sans", system-ui, sans-serif;
 	--color-primary: var(--color-blue-900);
@@ -42,6 +43,10 @@
 @layer components {
 	.button {
 		@apply bg-primary hover:bg-primary-hover inline-flex cursor-pointer items-center justify-center rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
+
+    &.secondary {
+      @apply bg-secondary hover:bg-secondary-hover;
+    }
 	}
 
 	.card {

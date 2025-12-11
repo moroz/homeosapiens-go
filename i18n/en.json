@@ -1,6 +1,8 @@
 {
   "countries": {
-    "PL": "Poland"
+    "PL": "Poland",
+    "ZA": "South Africa",
+    "IN": "India"
   },
   "languages": {
     "pl": "polski",
@@ -8,39 +10,23 @@
   },
   "header": {
     "nav": {
-      "sign_in": {
-        "other": "Sign in"
-      },
-      "home": {
-        "other": "Home"
-      },
-      "events": {
-        "other": "Events"
-      },
-      "videos": {
-        "other": "Watch"
-      },
-      "my_products": {
-        "other": "My products"
-      }
+      "sign_in": "Sign in",
+      "home": "Home",
+      "events": "Events",
+      "videos": "Watch",
+      "my_products": "My products"
     },
     "user_dropdown": {
-      "sign_out": {
-        "other": "Sign out"
-      }
+      "sign_out": "Sign out"
     }
   },
   "locale_switcher": {
-    "switch_to": {
-      "other": "Przełącz na język polski"
-    }
+    "switch_to": "Przełącz na język polski"
   },
   "common": {
     "hosts": {
       "salutation": {
-        "dr": {
-          "other": "Dr."
-        }
+        "dr": "Dr."
       }
     },
     "events": {
@@ -50,29 +36,18 @@
       },
       "free": "Free",
       "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
-      "learn_more": "Learn more…"
+      "learn_more": "Learn more…",
+      "sign_up": "Sign up"
     }
   },
   "sessions": {
     "new": {
-      "email": {
-        "other": "Email:"
-      },
-      "password": {
-        "other": "Password:"
-      },
-      "submit": {
-        "other": "Submit"
-      },
-      "header": {
-        "other": "Sign in"
-      },
-      "no_account_yet_html": {
-        "other": "No account yet? <a href=\"/sign-up\">Sign up</a>"
-      },
-      "invalid_email_password_combination": {
-        "other": "Invalid email/password combination."
-      }
+      "email": "Email:",
+      "password": "Password:",
+      "submit": "Submit",
+      "header": "Sign in",
+      "no_account_yet_html": "No account yet? <a href=\"/sign-up\">Sign up</a>",
+      "invalid_email_password_combination": "Invalid email/password combination."
     }
   }
 }

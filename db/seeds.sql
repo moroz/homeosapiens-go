@@ -11,11 +11,13 @@ values
 
 -- Insert assets
 INSERT INTO assets (id, object_key, original_filename)
-VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8b', 'cm7uqj3q500mglz8z2dqy8sdz.webp', 'cm7uqj3q500mglz8z2dqy8sdz.webp');
+VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8b', 'cm7uqj3q500mglz8z2dqy8sdz.webp', 'cm7uqj3q500mglz8z2dqy8sdz.webp'),
+('019b0c7c-c3c4-71c3-a630-7b33a847ca2a', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg');
 
 -- Insert hosts
-INSERT INTO hosts (id, salutation, given_name, family_name, profile_picture_id)
-VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8a', 'common.hosts.salutation.dr', 'Sanjay', 'Modi', '0199c2f2-528b-7e88-96e3-5e5088333a8b');
+INSERT INTO hosts (id, salutation, given_name, family_name, profile_picture_id, country)
+VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8a', 'common.hosts.salutation.dr', 'Sanjay', 'Modi', '0199c2f2-528b-7e88-96e3-5e5088333a8b', 'IN'),
+('019b0c71-fde2-76b7-8c71-21c2e9ea23a5', 'common.hosts.salutation.dr', 'Herman', 'Jeggels', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a', 'ZA');
 
 -- Insert venues
 INSERT INTO venues (id, name_en, name_pl, city_en, city_pl, country_code, street, postal_code)
@@ -26,6 +28,26 @@ VALUES
 -- Insert events
 INSERT INTO events (id, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, venue_id, base_price_amount, base_price_currency)
 VALUES
+    ('019b0c80-a410-7728-ab6b-c1eff529dfd1',
+     'A Series of Critical Cardiac Cases',
+     'Seria krytycznych problemów kardiologicznych',
+     'a-series-of-critical-cardiac-cases',
+     '2025-12-13 17:00:00+01',
+     '2025-12-13 18:30:00+01',
+     true,
+     'Dear Homeopathic Friends, 
+
+We are happy to invite you to the next Homeo sapiens Academy webinar. Experienced clinician and homeopath Dr. Herman Jeggels from Cape Town, South Africa will discuss homeopathic treatment in advanced circulatory pathology. He will present documented cases of infective endocarditis, complete AV block and heart failure.
+
+The webinar will be hosted on December 13th 10.00am CET (Poland) / 2.30pm IST (India) / 11:00am SAST (South Africa).
+
+The webinar is free of charge. It will be held in English with consecutive translation to Polish.
+
+It will be held on Zoom via our website (you need to register using email address and a password).',
+  null,
+  null,
+  null),
+
     ('0199c2f2-528b-7e88-96e3-5e5088333a8c',
      'To Perfect the Art of Homeopathy',
      'Udoskonalić kunszt homeopatyczny',
@@ -58,7 +80,8 @@ Online mode will also available (through Zoom). The lectures will be held in Eng
 INSERT INTO events_hosts (event_id, host_id, position)
 VALUES
     ('0199c2f2-528b-7e88-96e3-5e5088333a8c', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 0),
-    ('0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 0);
+    ('0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 0),
+    ('019b0c80-a410-7728-ab6b-c1eff529dfd1', '019b0c71-fde2-76b7-8c71-21c2e9ea23a5', 0);
 
 INSERT INTO event_registrations (event_id, user_id, attending_in_person, is_host)
 select e.id, u.id, true, true

@@ -106,7 +106,7 @@ func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
 }
 
 const listHostsForEvents = `-- name: ListHostsForEvents :many
-select eh.event_id, h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, a.object_key profile_picture_url
+select eh.event_id, h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, h.country, a.object_key profile_picture_url
 from hosts h
 join events_hosts eh on eh.host_id = h.id
 left join assets a on h.profile_picture_id = a.id
@@ -123,6 +123,7 @@ type ListHostsForEventsRow struct {
 	ProfilePictureID  pgtype.UUID      `json:"profilePictureId"`
 	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
+	Country           *string          `json:"country"`
 	ProfilePictureUrl *string          `json:"profilePictureUrl"`
 }
 
@@ -144,6 +145,7 @@ func (q *Queries) ListHostsForEvents(ctx context.Context, eventids []pgtype.UUID
 			&i.ProfilePictureID,
 			&i.InsertedAt,
 			&i.UpdatedAt,
+			&i.Country,
 			&i.ProfilePictureUrl,
 		); err != nil {
 			return nil, err

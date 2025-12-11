@@ -1,8 +1,8 @@
 {
   "countries": {
-    "PL": {
-      "other": "Polska"
-    }
+    "PL": "Polska",
+    "ZA": "RPA",
+    "IN": "Indie"
   },
   "languages": {
     "pl": "polski",
@@ -10,12 +10,8 @@
   },
   "header": {
     "nav": {
-      "home": {
-        "other": "Strona główna"
-      },
-      "sign_in": {
-        "other": "Logowanie"
-      },
+      "home": "Strona główna",
+      "sign_in": "Logowanie",
       "events": {
         "other": "Wydarzenia"
       },
