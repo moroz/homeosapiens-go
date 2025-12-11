@@ -21,6 +21,36 @@ func logo(class string) Node {
 	)
 }
 
+func UserHeader(ctx context.Context) Node {
+	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
+	title := user.GivenName + " " + user.FamilyName
+	l := ctx.Value("localizer").(*i18n.Localizer)
+
+	return Div(
+		Class("relative user-dropdown"),
+		Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(user)),
+		Div(
+			Class("absolute bottom-0 border bg-white rounded-sm -translate-x-1/2 translate-y-full left-1/2 flex flex-col shadow overflow-hidden dropdown hidden border-slate-400"),
+			Div(
+				Class("flex items-center px-3 py-2 gap-4 justify-between"),
+				components.Avatar(user),
+				Div(
+					Class("flex flex-col text-right"),
+					Strong(Text(title)),
+					Span(Text(user.Email)),
+				),
+			),
+			A(
+				Href("/sign-out"),
+				Class("inline-flex text-center items-center justify-center h-10 cursor-pointer hover:bg-slate-100 border-t border-slate-400 transition"),
+				Text(l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.user_dropdown.sign_out",
+				})),
+			),
+		),
+	)
+}
+
 func AppHeader(ctx context.Context) Node {
 	l := ctx.Value("localizer").(*i18n.Localizer)
 	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
@@ -56,9 +86,7 @@ func AppHeader(ctx context.Context) Node {
 						ID: "header.nav.sign_in",
 					}))),
 					Iff(user != nil, func() Node {
-						title := user.GivenName + " " + user.FamilyName
-
-						return Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(user))
+						return UserHeader(ctx)
 					}),
 				),
 			),

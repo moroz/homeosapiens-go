@@ -36,3 +36,7 @@ func (s *UserTokenService) IssueAccessTokenForUser(ctx context.Context, user *qu
 		},
 	})
 }
+
+func (s *UserTokenService) DeleteToken(ctx context.Context, token []byte) (bool, error) {
+	return queries.New(s.db).DeleteUserToken(ctx, token)
+}

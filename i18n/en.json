@@ -1,73 +1,78 @@
 {
-	"countries": {
-		"PL": "Poland"
-	},
-	"languages": {
-		"pl": "polski",
-		"en": "English"
-	},
-	"header": {
-		"nav": {
-			"sign_in": {
-				"other": "Sign in"
-			},
-			"home": {
-				"other": "Home"
-			},
-			"events": {
-				"other": "Events"
-			},
-			"videos": {
-				"other": "Watch"
-			},
-			"my_products": {
-				"other": "My products"
-			}
-		}
-	},
-	"locale_switcher": {
-		"switch_to": {
-			"other": "Przełącz na język polski"
-		}
-	},
-	"common": {
-		"hosts": {
-			"salutation": {
-				"dr": {
-					"other": "Dr."
-				}
-			}
-		},
-		"events": {
-			"event_type": {
-				"seminar": "Seminar",
-				"webinar": "Webinar"
-			},
-			"free": "Free",
-			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
-			"learn_more": "Learn more…"
-		}
-	},
-	"sessions": {
-		"new": {
-			"email": {
-				"other": "Email:"
-			},
-			"password": {
-				"other": "Password:"
-			},
-			"submit": {
-				"other": "Submit"
-			},
-			"header": {
-				"other": "Sign in"
-			},
-			"no_account_yet_html": {
-				"other": "No account yet? <a href=\"/sign-up\">Sign up</a>"
-			},
-			"invalid_email_password_combination": {
-				"other": "Invalid email/password combination."
-			}
-		}
-	}
+  "countries": {
+    "PL": "Poland"
+  },
+  "languages": {
+    "pl": "polski",
+    "en": "English"
+  },
+  "header": {
+    "nav": {
+      "sign_in": {
+        "other": "Sign in"
+      },
+      "home": {
+        "other": "Home"
+      },
+      "events": {
+        "other": "Events"
+      },
+      "videos": {
+        "other": "Watch"
+      },
+      "my_products": {
+        "other": "My products"
+      }
+    },
+    "user_dropdown": {
+      "sign_out": {
+        "other": "Sign out"
+      }
+    }
+  },
+  "locale_switcher": {
+    "switch_to": {
+      "other": "Przełącz na język polski"
+    }
+  },
+  "common": {
+    "hosts": {
+      "salutation": {
+        "dr": {
+          "other": "Dr."
+        }
+      }
+    },
+    "events": {
+      "event_type": {
+        "seminar": "Seminar",
+        "webinar": "Webinar"
+      },
+      "free": "Free",
+      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
+      "learn_more": "Learn more…"
+    }
+  },
+  "sessions": {
+    "new": {
+      "email": {
+        "other": "Email:"
+      },
+      "password": {
+        "other": "Password:"
+      },
+      "submit": {
+        "other": "Submit"
+      },
+      "header": {
+        "other": "Sign in"
+      },
+      "no_account_yet_html": {
+        "other": "No account yet? <a href=\"/sign-up\">Sign up</a>"
+      },
+      "invalid_email_password_combination": {
+        "other": "Invalid email/password combination."
+      }
+    }
+  }
 }

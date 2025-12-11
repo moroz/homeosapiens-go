@@ -84,3 +84,21 @@ func (c *sessionController) Create(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
+func (c *sessionController) Delete(w http.ResponseWriter, r *http.Request) {
+	session := r.Context().Value(config.SessionContextName).(types.SessionData)
+	token, ok := session["access_token"].([]byte)
+	if ok && token != nil {
+		if _, err := c.UserTokenService.DeleteToken(r.Context(), token); err != nil {
+			log.Printf("Error deleting user token: %s", err)
+		}
+	}
+	delete(session, "access_token")
+	if err := SaveSession(w, c.sessionStore, session); err != nil {
+		log.Printf("Error serializing session cookie: %s", err)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}

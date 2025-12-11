@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const deleteUserToken = `-- name: DeleteUserToken :one
+delete from user_tokens where token = $1 returning true
+`
+
+func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, error) {
+	row := q.db.QueryRow(ctx, deleteUserToken, token)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
 insert into users (email, given_name, family_name, profile_picture)
 values ($1, $2, $3, $4)

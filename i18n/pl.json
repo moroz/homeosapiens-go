@@ -1,76 +1,81 @@
 {
-	"countries": {
-		"PL": {
-			"other": "Polska"
-		}
-	},
-	"languages": {
-		"pl": "polski",
-		"en": "English"
-	},
-	"header": {
-		"nav": {
-			"home": {
-				"other": "Strona główna"
-			},
-			"sign_in": {
-				"other": "Logowanie"
-			},
-			"events": {
-				"other": "Wydarzenia"
-			},
-			"videos": {
-				"other": "Wideo"
-			},
-			"my_products": {
-				"other": "Moje produkty"
-			}
-		}
-	},
-	"locale_switcher": {
-		"switch_to": {
-			"other": "Switch to English"
-		}
-	},
-	"common": {
-		"hosts": {
-			"salutation": {
-				"dr": {
-					"other": "dr"
-				}
-			}
-		},
-		"events": {
-			"event_type": {
-				"seminar": "Seminarium",
-				"webinar": "Webinar"
-			},
-			"participation_cost": "Koszt udziału:",
-			"free": "Bezpłatne",
-			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
-			"learn_more": "Więcej informacji…"
-		}
-	},
-	"sessions": {
-		"new": {
-			"email": {
-				"other": "Email:"
-			},
-			"password": {
-				"other": "Hasło:"
-			},
-			"submit": {
-				"other": "Zaloguj się"
-			},
-			"header": {
-				"other": "Logowanie"
-			},
-			"no_account_yet_html": {
-				"other": "Nie masz jeszcze konta? <a href=\"/sign-up\">Zarejestruj się</a>"
-			},
-			"invalid_email_password_combination": {
-				"other": "Nieprawidłowy email lub hasło."
-			}
-		}
-	}
+  "countries": {
+    "PL": {
+      "other": "Polska"
+    }
+  },
+  "languages": {
+    "pl": "polski",
+    "en": "English"
+  },
+  "header": {
+    "nav": {
+      "home": {
+        "other": "Strona główna"
+      },
+      "sign_in": {
+        "other": "Logowanie"
+      },
+      "events": {
+        "other": "Wydarzenia"
+      },
+      "videos": {
+        "other": "Wideo"
+      },
+      "my_products": {
+        "other": "Moje produkty"
+      }
+    },
+    "user_dropdown": {
+      "sign_out": {
+        "other": "Wyloguj się"
+      }
+    }
+  },
+  "locale_switcher": {
+    "switch_to": {
+      "other": "Switch to English"
+    }
+  },
+  "common": {
+    "hosts": {
+      "salutation": {
+        "dr": {
+          "other": "dr"
+        }
+      }
+    },
+    "events": {
+      "event_type": {
+        "seminar": "Seminarium",
+        "webinar": "Webinar"
+      },
+      "participation_cost": "Koszt udziału:",
+      "free": "Bezpłatne",
+      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
+      "learn_more": "Więcej informacji…"
+    }
+  },
+  "sessions": {
+    "new": {
+      "email": {
+        "other": "Email:"
+      },
+      "password": {
+        "other": "Hasło:"
+      },
+      "submit": {
+        "other": "Zaloguj się"
+      },
+      "header": {
+        "other": "Logowanie"
+      },
+      "no_account_yet_html": {
+        "other": "Nie masz jeszcze konta? <a href=\"/sign-up\">Zarejestruj się</a>"
+      },
+      "invalid_email_password_combination": {
+        "other": "Nieprawidłowy email lub hasło."
+      }
+    }
+  }
 }
