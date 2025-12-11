@@ -37,7 +37,7 @@ func UserHeader(ctx context.Context) Node {
 				Div(
 					Class("flex flex-col text-right"),
 					Strong(Text(title)),
-					Span(Text(user.Email)),
+					Span(Class("text-sm"), Text(user.Email)),
 				),
 			),
 			A(

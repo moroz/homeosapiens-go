@@ -81,7 +81,9 @@ func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler 
 			)
 
 			if token, ok := session["access_token"].([]byte); ok {
-				user, _ = queries.New(db).GetUserByAccessToken(r.Context(), token)
+				if u, err := queries.New(db).GetUserByAccessToken(r.Context(), token); err == nil {
+					user = u
+				}
 			}
 
 			ctx := context.WithValue(r.Context(), config.CurrentUserContextName, user)

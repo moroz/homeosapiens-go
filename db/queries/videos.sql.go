@@ -46,7 +46,7 @@ func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoids []pgty
 }
 
 const listVideos = `-- name: ListVideos :many
-select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at from videos v
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, event_id from videos v
 order by v.id desc
 `
 
@@ -68,6 +68,7 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 			&i.Slug,
 			&i.InsertedAt,
 			&i.UpdatedAt,
+			&i.EventID,
 		); err != nil {
 			return nil, err
 		}

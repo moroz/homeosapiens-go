@@ -1,11 +1,13 @@
 -- db/seeds.sql
 begin;
 
-truncate users, events, hosts, assets, venues, events_hosts, event_prices, videos cascade;
+truncate users, events, hosts, assets, venues, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources;
 
 -- Insert users (password: foobar)
-insert into users (email, given_name, family_name, country, password_hash)
-values ('hs@example.com', 'Example', 'User', 'PL', '$argon2id$v=19$m=65536,t=3,p=4$UmLWk8g2gyeMfbUeT/dNYA$O8vcKtOwz//7Ih0+drRV5ZPPWD9dKwyfvhabaX9QfKY');
+insert into users (email, given_name, family_name, country, password_hash, user_role)
+values
+('hs@example.com', 'Admin', 'User', 'PL', '$argon2id$v=19$m=65536,t=3,p=4$UmLWk8g2gyeMfbUeT/dNYA$O8vcKtOwz//7Ih0+drRV5ZPPWD9dKwyfvhabaX9QfKY', 'Administrator'),
+('sanjay.modi@example.com', 'Sanjay', 'Modi', 'IN', '$argon2id$v=19$m=65536,t=3,p=4$f5fbSJdEp0k$NPC3gfGOz0doHVAOx/MBAyv9VXIR6TNXDw4h+5tzVTk', 'Regular');
 
 -- Insert assets
 INSERT INTO assets (id, object_key, original_filename)
@@ -58,6 +60,11 @@ VALUES
     ('0199c2f2-528b-7e88-96e3-5e5088333a8c', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 0),
     ('0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 0);
 
+INSERT INTO event_registrations (event_id, user_id, attending_in_person, is_host)
+select e.id, u.id, true, true
+from events e, users u
+where u.email = 'sanjay.modi@example.com';
+
 -- Insert event prices
 INSERT INTO event_prices (event_id, price_amount, price_currency, rule_type, valid_until, priority)
 VALUES
@@ -67,10 +74,10 @@ INSERT INTO event_prices (event_id, price_amount, price_currency, rule_type, dis
 VALUES
     ('0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', 500.00000000, 'PLN', 'DiscountCode', 'wshlif', 20);
 
-insert into videos (id, provider, title_en, title_pl, slug)
+insert into videos (id, event_id, provider, title_en, title_pl, slug)
 values
-('019a8668-bb4f-7c9c-b9b8-3f274de96566', 'cloudfront', 'Day 1, Part 1', 'Dzień 1, Część 1', 'day-1-part-1'),
-('019a8ba5-fe29-7af8-bf54-b8d96af38461', 'cloudfront', 'Day 1, Part 2', 'Dzień 1, Część 1', 'day-1-part-2');
+('019a8668-bb4f-7c9c-b9b8-3f274de96566', '0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', 'cloudfront', 'Day 1, Part 1', 'Dzień 1, Część 1', 'day-1-part-1'),
+('019a8ba5-fe29-7af8-bf54-b8d96af38461', '0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', 'cloudfront', 'Day 1, Part 2', 'Dzień 1, Część 1', 'day-1-part-2');
 
 insert into video_sources (id, video_id, content_type, codec, object_key)
 values
