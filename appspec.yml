@@ -9,4 +9,3 @@ hooks:
   AfterInstall:
     - location: restart-docker-services.sh
       runas: deploy
-

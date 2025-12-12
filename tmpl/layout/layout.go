@@ -89,7 +89,7 @@ func LanguageSwitcher(ctx context.Context, baseUrl string) Node {
 }
 
 func AppFooter() Node {
-	return Footer(Class("h-30 border-t-2"),
+	return Footer(Class("h-30 border-t shadow"),
 		Div(
 			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(

@@ -41,10 +41,16 @@ func InputField(opts *InputFieldOptions) Node {
 		Label(For(opts.ID), Class("label"),
 			Text(opts.Label),
 
-			If(opts.Localizer == nil && opts.Required,
+			If(opts.Required,
 				Span(
-					Class("text-red-700"),
-					Text(" *"),
+					Aria("hidden", "true"),
+					Class("text-red-700 inline-block ml-1"),
+					Iff(opts.Localizer != nil, func() Node {
+						return TitleAttr(opts.Localizer.MustLocalizeMessage(&i18n.Message{
+							ID: "components.input_field.required",
+						}))
+					}),
+					Text("*"),
 				),
 			),
 

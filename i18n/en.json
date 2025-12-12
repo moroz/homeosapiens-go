@@ -65,14 +65,17 @@
         "labels": {
           "email": "Email:",
           "password": "Create password:",
-          "password_confirmation": "Confirm password:"
+          "password_confirmation": "Confirm password:",
+          "given_name": "Given name:",
+          "family_name": "Family name:"
         }
       }
     }
   },
   "components": {
     "input_field": {
-      "optional": "(optional)"
+      "optional": "(optional)",
+      "required": "required field"
     }
   }
 }

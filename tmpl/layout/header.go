@@ -30,7 +30,7 @@ func UserHeader(ctx context.Context) Node {
 		Class("user-dropdown relative"),
 		Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(user)),
 		Div(
-			Class("dropdown absolute bottom-0 left-1/2 flex hidden -translate-x-1/2 translate-y-full flex-col overflow-hidden rounded-sm border border-slate-400 bg-white shadow"),
+			Class("dropdown absolute bottom-0 left-1/2 flex hidden -translate-x-1/2 translate-y-full flex-col overflow-hidden rounded-sm border border-slate-500 bg-white shadow"),
 			Div(
 				Class("flex items-center justify-between gap-4 px-3 py-2"),
 				components.Avatar(user),
@@ -56,7 +56,7 @@ func AppHeader(ctx context.Context) Node {
 	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
 	return Header(
-		Class("fixed inset-0 z-10 h-20 border-b-2 bg-white"),
+		Class("fixed inset-0 z-10 h-20 border-b shadow bg-white"),
 		Div(Class("container mx-auto flex h-full items-center justify-between"),
 			H1(
 				A(

@@ -79,7 +79,7 @@
           "email": "Email:",
           "password": "Utwórz hasło:",
           "password_confirmation": "Powtórz hasło:",
-          "give_name": "Imię:",
+          "given_name": "Imię:",
           "family_name": "Nazwisko:"
         }
       }
@@ -87,7 +87,8 @@
   },
   "components": {
     "input_field": {
-      "optional": "(opcjonalne)"
+      "optional": "(opcjonalne)",
+      "required": "wymagane pole"
     }
   }
 }

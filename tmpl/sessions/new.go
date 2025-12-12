@@ -28,18 +28,24 @@ func New(ctx context.Context, email string, msg string) Node {
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "sessions.new.email",
 				}),
-				Name:  "email",
-				ID:    "email",
-				Value: email,
+				Name:         "email",
+				ID:           "email",
+				Value:        email,
+				Required:     true,
+				Autocomplete: "email",
+				Localizer:    l,
 			}),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "sessions.new.password",
 				}),
-				Name: "password",
-				Type: "password",
-				ID:   "password",
+				Name:         "password",
+				Type:         "password",
+				ID:           "password",
+				Autocomplete: "current-password",
+				Required:     true,
+				Localizer:    l,
 			}),
 
 			Button(Type("submit"), Class("button h-10 w-full text-lg"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.submit"}))),
@@ -47,7 +53,7 @@ func New(ctx context.Context, email string, msg string) Node {
 
 		Hr(Class("my-4")),
 
-		A(Class("button w-full"), Href("/oauth/google/redirect"), Text("Sign in with Google")),
+		A(Class("button w-full outline"), Href("/oauth/google/redirect"), Text("Sign in with Google")),
 
 		Footer(
 			Class("mt-4 text-center"),

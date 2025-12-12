@@ -44,13 +44,17 @@
 	.button {
 		@apply bg-primary hover:bg-primary-hover inline-flex cursor-pointer items-center justify-center rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
 
-    &.secondary {
-      @apply bg-secondary hover:bg-secondary-hover;
-    }
+		&.secondary {
+			@apply bg-secondary hover:bg-secondary-hover;
+		}
+
+		&.outline {
+			@apply border-primary text-primary border bg-white shadow hover:bg-slate-100;
+		}
 	}
 
 	.card {
-		@apply rounded-lg border-2 bg-white p-6;
+		@apply rounded-lg border bg-white p-6 shadow;
 	}
 
 	.input-field {
@@ -58,7 +62,7 @@
 	}
 
 	.input {
-		@apply h-10 rounded-sm border-2 px-2;
+		@apply h-10 rounded-sm border px-2 shadow;
 	}
 
 	.label {

@@ -51,7 +51,7 @@ func New(ctx context.Context) Node {
 				}),
 				Name:         "password_confirmation",
 				ID:           "password_confirmation",
-				Type:         "password_confirmation",
+				Type:         "password",
 				Autocomplete: "new-password",
 				Required:     true,
 			}),
@@ -62,8 +62,19 @@ func New(ctx context.Context) Node {
 				}),
 				Name:         "given_name",
 				ID:           "given_name",
-				Type:         "given_name",
+				Type:         "text",
 				Autocomplete: "given-name",
+				Required:     true,
+			}),
+
+			components.InputField(&components.InputFieldOptions{
+				Label: l.MustLocalizeMessage(&i18n.Message{
+					ID: "user_registrations.new.form.labels.family_name",
+				}),
+				Name:         "family_name",
+				ID:           "family_name",
+				Type:         "text",
+				Autocomplete: "family-name",
 				Required:     true,
 			}),
 
