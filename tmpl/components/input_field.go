@@ -44,7 +44,7 @@ func InputField(opts *InputFieldOptions) Node {
 			If(opts.Required,
 				Span(
 					Aria("hidden", "true"),
-					Class("text-red-700 inline-block ml-1"),
+					Class("ml-1 inline-block text-red-700"),
 					Iff(opts.Localizer != nil, func() Node {
 						return TitleAttr(opts.Localizer.MustLocalizeMessage(&i18n.Message{
 							ID: "components.input_field.required",

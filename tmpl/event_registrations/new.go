@@ -38,7 +38,7 @@ func New(ctx context.Context, event *services.EventDetailsDto) Node {
 				),
 
 				H2(
-					Class("text-primary font-bold text-4xl"),
+					Class("text-primary text-4xl font-bold"),
 					Text(title),
 				),
 			),

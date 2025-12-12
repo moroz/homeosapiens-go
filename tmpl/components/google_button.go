@@ -7,7 +7,7 @@ import (
 
 func GoogleButton(text string) Node {
 	return A(
-		Class("button w-full outline flex gap-[10px] my-4"),
+		Class("button my-4 flex w-full gap-[10px] outline"),
 		Href("/oauth/google/redirect"),
 		Img(Src("/assets/google.svg")),
 		Text(text),
