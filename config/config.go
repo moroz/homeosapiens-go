@@ -64,3 +64,6 @@ const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 const SessionCookieName = "_hs_session"
 const SessionContextName = "session"
 const CurrentUserContextName = "current_user"
+
+const MinPasswordLength = 8
+const MaxPasswordLength = 128

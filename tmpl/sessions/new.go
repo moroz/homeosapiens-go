@@ -17,6 +17,10 @@ func New(ctx context.Context, email string, msg string) Node {
 	})
 
 	return layout.AuthLayout(ctx, title,
+		components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{
+			ID: "sessions.new.sign_in_with_google",
+		})),
+		Hr(Class("my-6")),
 		Form(
 			Class("grid gap-4"),
 			Method("POST"),
@@ -50,10 +54,6 @@ func New(ctx context.Context, email string, msg string) Node {
 
 			Button(Type("submit"), Class("button h-10 w-full text-lg"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.submit"}))),
 		),
-
-		Hr(Class("my-4")),
-
-		A(Class("button w-full outline"), Href("/oauth/google/redirect"), Text("Sign in with Google")),
 
 		Footer(
 			Class("mt-4 text-center"),

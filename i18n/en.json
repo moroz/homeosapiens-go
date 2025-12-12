@@ -47,7 +47,8 @@
       "submit": "Submit",
       "header": "Sign in",
       "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
-      "invalid_email_password_combination": "Invalid email/password combination."
+      "invalid_email_password_combination": "Invalid email/password combination.",
+      "sign_in_with_google": "Sign in with Google"
     }
   },
   "event_registrations": {
@@ -61,6 +62,7 @@
       "title": "Sign up",
       "already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
       "submit": "Sign up",
+      "sign_up_with_google": "Sign up with Google",
       "form": {
         "labels": {
           "email": "Email:",
@@ -68,6 +70,9 @@
           "password_confirmation": "Confirm password:",
           "given_name": "Given name:",
           "family_name": "Family name:"
+        },
+        "helper_text": {
+          "password": "{{ .Min }}–{{ .Max }} characters"
         }
       }
     }

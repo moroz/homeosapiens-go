@@ -20,7 +20,7 @@
 
 	--font-sans: "IBM Plex Sans", system-ui, sans-serif;
 	--color-primary: var(--color-blue-900);
-	--color-primary-hover: var(--color-blue-700);
+	--color-primary-hover: var(--color-blue-800);
 
 	--spacing-header: calc(70 / 4 * var(--spacing));
 

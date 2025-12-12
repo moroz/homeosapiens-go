@@ -70,12 +70,18 @@ func InputField(opts *InputFieldOptions) Node {
 			ID(id),
 			Value(opts.Value),
 			If(opts.Autocomplete != "", AutoComplete(opts.Autocomplete)),
+			If(opts.HelperText != "", Aria("describedby", opts.ID+"-helper")),
 			If(opts.Autofocus, AutoFocus()),
 			If(opts.Required, Required()),
 		),
 		If(opts.Error != "", Span(
 			Class("error-explanation"),
 			Text(opts.Error),
+		)),
+		If(opts.HelperText != "", Span(
+			Class("helper-text"),
+			ID(opts.ID+"-helper"),
+			Text(opts.HelperText),
 		)),
 	)
 }

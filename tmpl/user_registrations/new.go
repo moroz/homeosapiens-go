@@ -2,7 +2,9 @@ package userregistrations
 
 import (
 	"context"
+	"strconv"
 
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -18,6 +20,11 @@ func New(ctx context.Context) Node {
 	})
 
 	return layout.AuthLayout(ctx, pageTitle,
+		components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{
+			ID: "user_registrations.new.sign_up_with_google",
+		})),
+		Hr(Class("my-4")),
+
 		Form(
 			Class("grid gap-4"),
 			Method("POST"),
@@ -43,6 +50,13 @@ func New(ctx context.Context) Node {
 				Type:         "password",
 				Autocomplete: "new-password",
 				Required:     true,
+				HelperText: l.MustLocalize(&i18n.LocalizeConfig{
+					MessageID: "user_registrations.new.form.helper_text.password",
+					TemplateData: map[string]string{
+						"Min": strconv.Itoa(config.MinPasswordLength),
+						"Max": strconv.Itoa(config.MaxPasswordLength),
+					},
+				}),
 			}),
 
 			components.InputField(&components.InputFieldOptions{

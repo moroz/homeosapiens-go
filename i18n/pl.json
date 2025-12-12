@@ -60,7 +60,8 @@
       "submit": "Zaloguj się",
       "header": "Logowanie",
       "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
-      "invalid_email_password_combination": "Nieprawidłowy email lub hasło."
+      "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
+      "sign_in_with_google": "Zaloguj się przez Google"
     }
   },
   "event_registrations": {
@@ -74,6 +75,7 @@
       "title": "Rejestracja",
       "already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
       "submit": "Zarejestruj się",
+      "sign_up_with_google": "Zarejestruj się przez Google",
       "form": {
         "labels": {
           "email": "Email:",
@@ -81,6 +83,9 @@
           "password_confirmation": "Powtórz hasło:",
           "given_name": "Imię:",
           "family_name": "Nazwisko:"
+        },
+        "helper_text": {
+          "password": "{{ .Min }}–{{ .Max }} znaków"
         }
       }
     }
