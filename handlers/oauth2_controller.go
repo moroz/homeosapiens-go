@@ -29,18 +29,13 @@ type oauth2Controller struct {
 }
 
 func OAuth2Controller(store securecookie.Store, db queries.DBTX) *oauth2Controller {
-	baseUrl := "http://" + config.PublicHost
-	if config.IsProd {
-		baseUrl = "https://" + config.PublicHost
-	}
-
 	return &oauth2Controller{
 		store,
 		&oauth2.Config{
 			ClientID:     config.GoogleClientId,
 			ClientSecret: config.GoogleClientSecret,
 			Endpoint:     google.Endpoint,
-			RedirectURL:  baseUrl + "/oauth/google/callback",
+			RedirectURL:  config.PublicUrl + "/oauth/google/callback",
 			Scopes:       []string{"email", "profile"},
 		},
 		services.NewUserService(db),

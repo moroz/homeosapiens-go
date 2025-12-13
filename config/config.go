@@ -58,7 +58,7 @@ var SessionKey = MustDeriveKey(SecretKeyBase, "Sessions", 32)
 var IsProd = os.Getenv("GO_ENV") == "prod"
 var GoogleClientId = RequireInProduction("GOOGLE_CLIENT_ID")
 var GoogleClientSecret = RequireInProduction("GOOGLE_CLIENT_SECRET")
-var PublicHost = GetEnvWithDefault("PUBLIC_HOST", "localhost:3000")
+var PublicUrl = GetEnvWithDefault("PUBLIC_URL", "http://localhost:3000")
 
 const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 const SessionCookieName = "_hs_session"
