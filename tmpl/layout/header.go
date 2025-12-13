@@ -72,9 +72,6 @@ func AppHeader(ctx context.Context) Node {
 					NavLink("/", l.MustLocalizeMessage(&i18n.Message{
 						ID: "header.nav.home",
 					})),
-					NavLink("/events", l.MustLocalizeMessage(&i18n.Message{
-						ID: "header.nav.events",
-					})),
 					NavLink("/videos", l.MustLocalizeMessage(&i18n.Message{
 						ID: "header.nav.videos",
 					})),

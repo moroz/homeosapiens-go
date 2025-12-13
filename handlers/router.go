@@ -28,7 +28,6 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Get("/", pages.Index)
 
 	events := EventController(db)
-	r.Get("/events", events.Index)
 	r.Get("/events/{slug}", events.Show)
 
 	eventRegistrations := EventRegistrationController(db)
