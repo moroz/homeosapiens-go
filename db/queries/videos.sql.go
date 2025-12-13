@@ -11,6 +11,42 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const listPublicVideos = `-- name: ListPublicVideos :many
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, event_id from videos v
+where is_public = true
+order by v.id desc
+`
+
+func (q *Queries) ListPublicVideos(ctx context.Context) ([]*Video, error) {
+	rows, err := q.db.Query(ctx, listPublicVideos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.Provider,
+			&i.IsPublic,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.Slug,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.EventID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listVideoSourcesForVideos = `-- name: ListVideoSourcesForVideos :many
 select id, content_type, codec, video_id, object_key, inserted_at, updated_at from video_sources vs
 where vs.video_id = any($1::uuid[])
@@ -46,12 +82,50 @@ func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoids []pgty
 }
 
 const listVideos = `-- name: ListVideos :many
-select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, event_id from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.event_id from videos v
 order by v.id desc
 `
 
 func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 	rows, err := q.db.Query(ctx, listVideos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.Provider,
+			&i.IsPublic,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.Slug,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.EventID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listVideosForUser = `-- name: ListVideosForUser :many
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.event_id from videos v
+where v.is_public = true
+   or v.id in (select v.id from videos v join event_registrations er on v.event_id = er.event_id
+               where er.user_id = $1::uuid)
+   or exists (select 1 from users u where u.id = $1::uuid and u.user_role = 'Administrator')
+`
+
+func (q *Queries) ListVideosForUser(ctx context.Context, userid pgtype.UUID) ([]*Video, error) {
+	rows, err := q.db.Query(ctx, listVideosForUser, userid)
 	if err != nil {
 		return nil, err
 	}

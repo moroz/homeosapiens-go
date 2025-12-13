@@ -1,12 +1,12 @@
 -- db/seeds.sql
 begin;
 
-truncate users, events, hosts, assets, venues, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources;
+truncate events, hosts, assets, venues, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources;
 
 -- Insert users (password: foobar)
 insert into users (email, given_name, family_name, country, password_hash, user_role)
 values
-('hs@example.com', 'Admin', 'User', 'PL', '$argon2id$v=19$m=65536,t=3,p=4$UmLWk8g2gyeMfbUeT/dNYA$O8vcKtOwz//7Ih0+drRV5ZPPWD9dKwyfvhabaX9QfKY', 'Administrator'),
+('karol@moroz.dev', 'Karol', 'Moroz', 'PL', '$argon2id$v=19$m=65536,t=3,p=4$UmLWk8g2gyeMfbUeT/dNYA$O8vcKtOwz//7Ih0+drRV5ZPPWD9dKwyfvhabaX9QfKY', 'Administrator'),
 ('sanjay.modi@example.com', 'Sanjay', 'Modi', 'IN', '$argon2id$v=19$m=65536,t=3,p=4$f5fbSJdEp0k$NPC3gfGOz0doHVAOx/MBAyv9VXIR6TNXDw4h+5tzVTk', 'Regular');
 
 -- Insert assets

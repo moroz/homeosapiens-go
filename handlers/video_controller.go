@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/videos"
@@ -22,7 +23,9 @@ func VideoController(db queries.DBTX) *videoController {
 }
 
 func (c *videoController) Index(w http.ResponseWriter, r *http.Request) {
-	data, err := c.videoService.ListVideosWithSources(r.Context())
+	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
+
+	data, err := c.videoService.ListVideosWithSources(r.Context(), user)
 	if err != nil {
 		log.Print(err)
 		http.Error(w, err.Error(), 500)

@@ -20,8 +20,15 @@ type VideoListDto struct {
 	Sources []*queries.VideoSource
 }
 
-func (s *VideoService) ListVideosWithSources(ctx context.Context) ([]*VideoListDto, error) {
-	videos, err := queries.New(s.db).ListVideos(ctx)
+func (s *VideoService) ListVideosWithSources(ctx context.Context, user *queries.User) ([]*VideoListDto, error) {
+	var videos []*queries.Video
+	var err error
+
+	if user == nil {
+		videos, err = queries.New(s.db).ListPublicVideos(ctx)
+	} else {
+		videos, err = queries.New(s.db).ListVideosForUser(ctx, user.ID)
+	}
 	if err != nil {
 		return nil, err
 	}
