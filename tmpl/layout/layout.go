@@ -2,6 +2,7 @@ package layout
 
 import (
 	"context"
+	"net/url"
 	"time"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -69,7 +70,7 @@ func NavLink(href string, text string) Node {
 	)
 }
 
-func LanguageSwitcher(ctx context.Context, baseUrl string) Node {
+func LanguageSwitcher(ctx context.Context) Node {
 	activeLocale := ctx.Value("lang").(string)
 	l := ctx.Value("localizer").(*i18n.Localizer)
 	otherLocale := "en"
@@ -77,6 +78,7 @@ func LanguageSwitcher(ctx context.Context, baseUrl string) Node {
 		otherLocale = "pl"
 	}
 	tooltip := l.MustLocalizeMessage(&i18n.Message{ID: "locale_switcher.switch_to"})
+	baseUrl := ctx.Value("url").(*url.URL).Path
 
 	return Li(
 		A(

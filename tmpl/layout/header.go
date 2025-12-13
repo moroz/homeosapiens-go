@@ -81,7 +81,7 @@ func AppHeader(ctx context.Context) Node {
 					NavLink("/dashboard", l.MustLocalizeMessage(&i18n.Message{
 						ID: "header.nav.my_products",
 					})),
-					LanguageSwitcher(ctx, "/"),
+					LanguageSwitcher(ctx),
 					If(user == nil, NavLink("/sign-in", l.MustLocalizeMessage(&i18n.Message{
 						ID: "header.nav.sign_in",
 					}))),

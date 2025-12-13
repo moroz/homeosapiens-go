@@ -20,6 +20,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Use(middleware.Logger)
 	r.Use(FetchSession(store, config.SessionCookieName))
 	r.Use(FetchPreferredTimezone)
+	r.Use(StoreRequestUrlInContext)
 	r.Use(FetchUserFromSession(db))
 	r.Use(LocaleMiddleware(bundle, store))
 
