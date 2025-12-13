@@ -44,11 +44,11 @@ func MustDeriveKey(base []byte, info string, lengthInBytes int) []byte {
 	return buf
 }
 
-func RequireInProduction(name string) string {
+func RequireInProduction(name string, defaultValue string) string {
 	if IsProd {
 		return MustGetenv(name)
 	}
-	return os.Getenv(name)
+	return GetEnvWithDefault(name, defaultValue)
 }
 
 var AppPort = GetEnvWithDefault("PORT", "3000")
@@ -56,9 +56,9 @@ var DatabaseUrl = MustGetenv("DATABASE_URL")
 var SecretKeyBase = MustGetenvBase64("SECRET_KEY_BASE")
 var SessionKey = MustDeriveKey(SecretKeyBase, "Sessions", 32)
 var IsProd = os.Getenv("GO_ENV") == "prod"
-var GoogleClientId = RequireInProduction("GOOGLE_CLIENT_ID")
-var GoogleClientSecret = RequireInProduction("GOOGLE_CLIENT_SECRET")
-var PublicUrl = GetEnvWithDefault("PUBLIC_URL", "http://localhost:3000")
+var GoogleClientId = RequireInProduction("GOOGLE_CLIENT_ID", "")
+var GoogleClientSecret = RequireInProduction("GOOGLE_CLIENT_SECRET", "")
+var PublicUrl = RequireInProduction("PUBLIC_URL", "http://localhost:3000")
 
 const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 const SessionCookieName = "_hs_session"
