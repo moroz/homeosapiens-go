@@ -23,7 +23,7 @@ func logo(class string) Node {
 
 func UserHeader(ctx context.Context) Node {
 	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
-	title := user.GivenName + " " + user.FamilyName
+	title := user.GivenName.String() + " " + user.FamilyName.String()
 	l := ctx.Value("localizer").(*i18n.Localizer)
 
 	return Div(
@@ -37,7 +37,7 @@ func UserHeader(ctx context.Context) Node {
 				Div(
 					Class("flex flex-col text-right"),
 					Strong(Text(title)),
-					Span(Class("text-sm"), Text(user.Email)),
+					Span(Class("text-sm"), Text(user.Email.String())),
 				),
 			),
 			A(

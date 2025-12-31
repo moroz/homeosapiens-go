@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/netip"
 
+	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
@@ -299,22 +300,23 @@ type Host struct {
 }
 
 type User struct {
-	ID             pgtype.UUID      `json:"id"`
-	Email          string           `json:"email"`
-	Salutation     *string          `json:"salutation"`
-	GivenName      string           `json:"givenName"`
-	FamilyName     string           `json:"familyName"`
-	Country        *string          `json:"country"`
-	Profession     *string          `json:"profession"`
-	Organization   *string          `json:"organization"`
-	Company        *string          `json:"company"`
-	PasswordHash   *string          `json:"passwordHash"`
-	LastLoginAt    pgtype.Timestamp `json:"lastLoginAt"`
-	LastLoginIp    *netip.Addr      `json:"lastLoginIp"`
-	InsertedAt     pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt      pgtype.Timestamp `json:"updatedAt"`
-	ProfilePicture *string          `json:"profilePicture"`
-	UserRole       UserRole         `json:"userRole"`
+	ID             pgtype.UUID               `json:"id"`
+	Salutation     *string                   `json:"salutation"`
+	Country        *string                   `json:"country"`
+	Profession     *string                   `json:"profession"`
+	Organization   *string                   `json:"organization"`
+	Company        *string                   `json:"company"`
+	PasswordHash   *string                   `json:"passwordHash"`
+	LastLoginAt    pgtype.Timestamp          `json:"lastLoginAt"`
+	LastLoginIp    *netip.Addr               `json:"lastLoginIp"`
+	InsertedAt     pgtype.Timestamp          `json:"insertedAt"`
+	UpdatedAt      pgtype.Timestamp          `json:"updatedAt"`
+	ProfilePicture *string                   `json:"profilePicture"`
+	UserRole       UserRole                  `json:"userRole"`
+	Email          sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash      []byte                    `json:"emailHash"`
+	GivenName      sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName     sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
 }
 
 type UserToken struct {

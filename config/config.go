@@ -67,3 +67,6 @@ const CurrentUserContextName = "current_user"
 
 const MinPasswordLength = 8
 const MaxPasswordLength = 128
+
+var DatabaseEncryptionKey = MustDeriveKey(SecretKeyBase, "ColumnLevelEncryption", 32)
+var DatabaseHMACKey = MustDeriveKey(SecretKeyBase, "DatabaseHMAC", 32)

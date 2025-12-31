@@ -8,6 +8,7 @@ package queries
 import (
 	"context"
 
+	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -23,23 +24,25 @@ func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, erro
 }
 
 const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
-insert into users (email, given_name, family_name, profile_picture)
-values ($1, $2, $3, $4)
-on conflict (email) do update
-set email = excluded.email, given_name = excluded.given_name, family_name = excluded.family_name, profile_picture = excluded.profile_picture, updated_at = now() at time zone 'utc'
-returning id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture)
+values ($1, $2, $3, $4, $5)
+on conflict (email_hash) do update
+set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now() at time zone 'utc'
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted
 `
 
 type FindOrCreateUserFromClaimsParams struct {
-	Email          string  `json:"email"`
-	GivenName      string  `json:"givenName"`
-	FamilyName     string  `json:"familyName"`
-	ProfilePicture *string `json:"profilePicture"`
+	Email          sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash      []byte                    `json:"emailHash"`
+	GivenName      sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName     sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	ProfilePicture *string                   `json:"profilePicture"`
 }
 
 func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCreateUserFromClaimsParams) (*User, error) {
 	row := q.db.QueryRow(ctx, findOrCreateUserFromClaims,
 		arg.Email,
+		arg.EmailHash,
 		arg.GivenName,
 		arg.FamilyName,
 		arg.ProfilePicture,
@@ -47,10 +50,7 @@ func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCre
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Salutation,
-		&i.GivenName,
-		&i.FamilyName,
 		&i.Country,
 		&i.Profession,
 		&i.Organization,
@@ -62,12 +62,16 @@ func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCre
 		&i.UpdatedAt,
 		&i.ProfilePicture,
 		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return &i, err
 }
 
 const getUserByAccessToken = `-- name: GetUserByAccessToken :one
-select u.id, u.email, u.salutation, u.given_name, u.family_name, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role from user_tokens ut
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > (now() at time zone 'utc')
 and ut.token = $1::bytea and ut.context = 'access'
@@ -78,10 +82,7 @@ func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Salutation,
-		&i.GivenName,
-		&i.FamilyName,
 		&i.Country,
 		&i.Profession,
 		&i.Organization,
@@ -93,23 +94,24 @@ func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User
 		&i.UpdatedAt,
 		&i.ProfilePicture,
 		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return &i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role from users where email = $1
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted from users where email_hash = $1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	row := q.db.QueryRow(ctx, getUserByEmail, email)
+func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, emailHash)
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Salutation,
-		&i.GivenName,
-		&i.FamilyName,
 		&i.Country,
 		&i.Profession,
 		&i.Organization,
@@ -121,29 +123,35 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 		&i.UpdatedAt,
 		&i.ProfilePicture,
 		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return &i, err
 }
 
 const insertUser = `-- name: InsertUser :one
-insert into users (email, salutation, given_name, family_name, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, email, salutation, given_name, family_name, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role
+insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted
 `
 
 type InsertUserParams struct {
-	Email        string  `json:"email"`
-	Salutation   *string `json:"salutation"`
-	GivenName    string  `json:"givenName"`
-	FamilyName   string  `json:"familyName"`
-	Country      *string `json:"country"`
-	Profession   *string `json:"profession"`
-	Organization *string `json:"organization"`
-	Company      *string `json:"company"`
-	PasswordHash *string `json:"passwordHash"`
+	Email        sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash    []byte                    `json:"emailHash"`
+	Salutation   *string                   `json:"salutation"`
+	GivenName    sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName   sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	Country      *string                   `json:"country"`
+	Profession   *string                   `json:"profession"`
+	Organization *string                   `json:"organization"`
+	Company      *string                   `json:"company"`
+	PasswordHash *string                   `json:"passwordHash"`
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User, error) {
 	row := q.db.QueryRow(ctx, insertUser,
 		arg.Email,
+		arg.EmailHash,
 		arg.Salutation,
 		arg.GivenName,
 		arg.FamilyName,
@@ -156,10 +164,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Salutation,
-		&i.GivenName,
-		&i.FamilyName,
 		&i.Country,
 		&i.Profession,
 		&i.Organization,
@@ -171,6 +176,10 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		&i.UpdatedAt,
 		&i.ProfilePicture,
 		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return &i, err
 }

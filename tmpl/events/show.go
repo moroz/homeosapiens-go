@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/moroz/homeosapiens-go/services"
@@ -35,5 +36,6 @@ func Show(ctx context.Context, event *services.EventDetailsDto) Node {
 				Text(helpers.FormatDateTime(event.EndsAt.Time, tz, lang)),
 			),
 		),
+		A(Href(fmt.Sprintf("/events/%s/register", event.Slug)), Text("Register")),
 	))
 }

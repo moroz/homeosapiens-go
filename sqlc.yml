@@ -15,6 +15,10 @@ sql:
         json_tags_case_style: camel
         initialisms:
           - id
+        rename:
+          given_name_encrypted: "GivenName"
+          family_name_encrypted: "FamilyName"
+          email_encrypted: "Email"
         overrides:
           - db_type: "public.citext"
             go_type: "string"
@@ -29,3 +33,18 @@ sql:
             go_type:
               import: "github.com/shopspring/decimal"
               type: "Decimal"
+          - column: "users.family_name_encrypted"
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              package: "sqlcrypter"
+          - column: "users.given_name_encrypted"
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              package: "sqlcrypter"
+          - column: "users.email_encrypted"
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              package: "sqlcrypter"

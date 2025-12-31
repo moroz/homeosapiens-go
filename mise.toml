@@ -27,7 +27,7 @@ jj git push --allow-new -r @-
 """
 
 [tasks."db:seed"]
-run = "psql $DATABASE_URL -f db/seeds.sql"
+run = "cd db/seeds && go run ."
 
 [tasks."db:setup"]
 run = """
@@ -59,7 +59,8 @@ export TEST_DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:5432/$TEST_DATAB
 export GOOSE_DBSTRING=$TEST_DATABASE_URL
 createdb $TEST_DATABASE || true
 goose up
-psql $GOOSE_DBSTRING -f db/seeds.sql
+cd db/seeds
+env DATABASE_URL=$TEST_DATABASE_URL go run .
 """
 
 [tasks.test]

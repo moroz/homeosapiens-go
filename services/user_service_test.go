@@ -5,9 +5,11 @@ import (
 	"testing"
 
 	"github.com/alexedwards/argon2id"
+	"github.com/bincyber/go-sqlcrypter"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,9 +28,10 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 	require.NoError(t, err)
 
 	user, err := queries.New(db).InsertUser(t.Context(), &queries.InsertUserParams{
-		Email:        "user@example.com",
-		GivenName:    "Example",
-		FamilyName:   "User",
+		Email:        sqlcrypter.NewEncryptedBytes("user@example.com"),
+		EmailHash:    crypto.HashEmail("user@example.com"),
+		GivenName:    sqlcrypter.NewEncryptedBytes("Example"),
+		FamilyName:   sqlcrypter.NewEncryptedBytes("User"),
 		PasswordHash: &hash,
 	})
 	require.NoError(t, err)
@@ -60,7 +63,7 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 		}
 
 		for _, pass := range passwords {
-			actual, err := subject.AuthenticateUserByEmailPassword(t.Context(), user.Email, pass)
+			actual, err := subject.AuthenticateUserByEmailPassword(t.Context(), user.Email.String(), pass)
 			assert.Nil(t, actual)
 			assert.ErrorIs(t, err, services.ErrInvalidPassword)
 		}
