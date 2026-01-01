@@ -3,16 +3,6 @@ begin;
 
 truncate events, hosts, assets, venues, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources;
 
--- Insert assets
-INSERT INTO assets (id, object_key, original_filename)
-VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8b', 'cm7uqj3q500mglz8z2dqy8sdz.webp', 'cm7uqj3q500mglz8z2dqy8sdz.webp'),
-('019b0c7c-c3c4-71c3-a630-7b33a847ca2a', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg');
-
--- Insert hosts
-INSERT INTO hosts (id, salutation, given_name, family_name, profile_picture_id, country)
-VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8a', 'common.hosts.salutation.dr', 'Sanjay', 'Modi', '0199c2f2-528b-7e88-96e3-5e5088333a8b', 'IN'),
-('019b0c71-fde2-76b7-8c71-21c2e9ea23a5', 'common.hosts.salutation.dr', 'Herman', 'Jeggels', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a', 'ZA');
-
 -- Insert venues
 INSERT INTO venues (id, name_en, name_pl, city_en, city_pl, country_code, street, postal_code)
 VALUES

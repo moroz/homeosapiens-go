@@ -76,3 +76,12 @@ go test -v ./...
 
 [tasks.format]
 run = "scripts/format-classes.mjs tmpl/**/*.go"
+
+[tasks."seeds:build"]
+description = "Builds the seed program for use in production"
+run = """
+#!/usr/bin/env -S bash -euo pipefail
+
+cd db/seeds
+GOOS=linux GOARCH=amd64 go build .
+"""
