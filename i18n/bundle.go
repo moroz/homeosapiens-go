@@ -8,7 +8,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-//go:embed *.json
+//go:embed en.json pl.json
 var LocaleFS embed.FS
 
 func InitBundle() (*i18n.Bundle, error) {

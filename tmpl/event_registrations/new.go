@@ -3,6 +3,7 @@ package eventregistrations
 import (
 	"context"
 
+	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
@@ -12,6 +13,24 @@ import (
 
 	. "maragu.dev/gomponents/html"
 )
+
+func CountrySelect(lang string) Node {
+	options := countries.OrderedByEnglish
+	if lang == "pl" {
+		options = countries.OrderedByPolish
+	}
+
+	return Div(Select(
+		Map(options, func(option *countries.CountryOption) Node {
+			label := option.LabelEn
+			if lang == "pl" {
+				label = option.LabelPl
+			}
+
+			return Option(Value(option.Value), Text(label))
+		}),
+	))
+}
 
 func New(ctx context.Context, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams) Node {
 	lang := ctx.Value("lang").(string)
@@ -61,6 +80,7 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 						Autocomplete: "family-name",
 						Required:     true,
 					}),
+					CountrySelect(lang),
 				),
 			),
 		),
