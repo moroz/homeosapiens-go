@@ -27,7 +27,7 @@ const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture)
 values ($1, $2, $3, $4, $5)
 on conflict (email_hash) do update
-set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now() at time zone 'utc'
+set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now()
 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted
 `
 
@@ -210,6 +210,54 @@ func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParam
 		&i.Token,
 		&i.InsertedAt,
 		&i.ValidUntil,
+	)
+	return &i, err
+}
+
+const upsertUserFromSeedData = `-- name: UpsertUserFromSeedData :one
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash)
+values ($1, $2, $3, $4, $5, $6)
+on conflict (email_hash) do update set updated_at = now()
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted
+`
+
+type UpsertUserFromSeedDataParams struct {
+	Email        sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash    []byte                    `json:"emailHash"`
+	GivenName    sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName   sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	Country      *string                   `json:"country"`
+	PasswordHash *string                   `json:"passwordHash"`
+}
+
+func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFromSeedDataParams) (*User, error) {
+	row := q.db.QueryRow(ctx, upsertUserFromSeedData,
+		arg.Email,
+		arg.EmailHash,
+		arg.GivenName,
+		arg.FamilyName,
+		arg.Country,
+		arg.PasswordHash,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.ProfilePicture,
+		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
 	)
 	return &i, err
 }

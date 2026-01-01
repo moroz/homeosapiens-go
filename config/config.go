@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/alexedwards/argon2id"
 	"golang.org/x/crypto/hkdf"
 )
 
@@ -49,6 +50,26 @@ func RequireInProduction(name string, defaultValue string) string {
 		return MustGetenv(name)
 	}
 	return GetEnvWithDefault(name, defaultValue)
+}
+
+func ResolveArgon2Params() *argon2id.Params {
+	if IsProd {
+		return &argon2id.Params{
+			Memory:      64 * 1024,
+			Iterations:  1,
+			Parallelism: 1,
+			SaltLength:  16,
+			KeyLength:   16,
+		}
+	}
+
+	return &argon2id.Params{
+		Memory:      16 * 1024,
+		Iterations:  1,
+		Parallelism: 1,
+		SaltLength:  16,
+		KeyLength:   16,
+	}
 }
 
 var AppPort = GetEnvWithDefault("PORT", "3000")

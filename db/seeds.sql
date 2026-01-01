@@ -3,13 +3,6 @@ begin;
 
 truncate events, hosts, assets, venues, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources;
 
--- Insert users (password: foobar)
-insert into users (email, given_name, family_name, country, password_hash, user_role)
-values
-('karol@moroz.dev', 'Karol', 'Moroz', 'PL', '$argon2id$v=19$m=65536,t=3,p=4$UmLWk8g2gyeMfbUeT/dNYA$O8vcKtOwz//7Ih0+drRV5ZPPWD9dKwyfvhabaX9QfKY', 'Administrator'),
-('sanjay.modi@example.com', 'Sanjay', 'Modi', 'IN', '$argon2id$v=19$m=65536,t=3,p=4$f5fbSJdEp0k$NPC3gfGOz0doHVAOx/MBAyv9VXIR6TNXDw4h+5tzVTk', 'Regular')
-ON CONFLICT (email) DO UPDATE SET given_name = excluded.given_name, family_name = excluded.given_name, user_role = excluded.user_role;
-
 -- Insert assets
 INSERT INTO assets (id, object_key, original_filename)
 VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8b', 'cm7uqj3q500mglz8z2dqy8sdz.webp', 'cm7uqj3q500mglz8z2dqy8sdz.webp'),

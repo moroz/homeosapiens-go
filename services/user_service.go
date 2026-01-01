@@ -7,6 +7,7 @@ import (
 
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/types"
@@ -42,6 +43,22 @@ func (s *UserService) AuthenticateUserByEmailPassword(ctx context.Context, email
 		return nil, fmt.Errorf(tmpl, err)
 	}
 	return user, nil
+}
+
+func (s *UserService) CreateUser(ctx context.Context, params *types.CreateUserParams) (*queries.User, error) {
+	passwordHash, err := argon2id.CreateHash(params.Password, config.ResolveArgon2Params())
+	if err != nil {
+		return nil, err
+	}
+
+	return queries.New(s.db).UpsertUserFromSeedData(ctx, &queries.UpsertUserFromSeedDataParams{
+		Email:        sqlcrypter.NewEncryptedBytes(params.Email),
+		EmailHash:    crypto.HashEmail(params.Email),
+		GivenName:    sqlcrypter.NewEncryptedBytes(params.GivenName),
+		FamilyName:   sqlcrypter.NewEncryptedBytes(params.FamilyName),
+		Country:      &params.Country,
+		PasswordHash: &passwordHash,
+	})
 }
 
 func (s *UserService) FindOrCreateUserFromClaims(ctx context.Context, claims *types.GoogleIDTokenClaims) (*queries.User, error) {
