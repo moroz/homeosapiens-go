@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 const upsertAsset = `-- name: UpsertAsset :one
@@ -31,6 +32,160 @@ func (q *Queries) UpsertAsset(ctx context.Context, arg *UpsertAssetParams) (*Ass
 		&i.ObjectKey,
 		&i.OriginalFilename,
 		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const upsertEvent = `-- name: UpsertEvent :one
+INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, venue_id, base_price_amount, base_price_currency)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+ON CONFLICT (id) DO UPDATE SET
+    event_type = excluded.event_type,
+    title_en = excluded.title_en,
+    title_pl = excluded.title_pl,
+    slug = excluded.slug,
+    starts_at = excluded.starts_at,
+    ends_at = excluded.ends_at,
+    is_virtual = excluded.is_virtual,
+    description_en = excluded.description_en,
+    description_pl = excluded.description_pl,
+    venue_id = excluded.venue_id,
+    base_price_amount = excluded.base_price_amount,
+    base_price_currency = excluded.base_price_currency,
+    updated_at = now()
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug
+`
+
+type UpsertEventParams struct {
+	ID                pgtype.UUID      `json:"id"`
+	EventType         EventType        `json:"eventType"`
+	TitleEn           string           `json:"titleEn"`
+	TitlePl           string           `json:"titlePl"`
+	Slug              string           `json:"slug"`
+	StartsAt          pgtype.Timestamp `json:"startsAt"`
+	EndsAt            pgtype.Timestamp `json:"endsAt"`
+	IsVirtual         bool             `json:"isVirtual"`
+	DescriptionEn     string           `json:"descriptionEn"`
+	DescriptionPl     *string          `json:"descriptionPl"`
+	VenueID           pgtype.UUID      `json:"venueId"`
+	BasePriceAmount   *decimal.Decimal `json:"basePriceAmount"`
+	BasePriceCurrency *string          `json:"basePriceCurrency"`
+}
+
+func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Event, error) {
+	row := q.db.QueryRow(ctx, upsertEvent,
+		arg.ID,
+		arg.EventType,
+		arg.TitleEn,
+		arg.TitlePl,
+		arg.Slug,
+		arg.StartsAt,
+		arg.EndsAt,
+		arg.IsVirtual,
+		arg.DescriptionEn,
+		arg.DescriptionPl,
+		arg.VenueID,
+		arg.BasePriceAmount,
+		arg.BasePriceCurrency,
+	)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.VenueID,
+		&i.Slug,
+	)
+	return &i, err
+}
+
+const upsertEventHost = `-- name: UpsertEventHost :one
+INSERT INTO events_hosts (event_id, host_id, position)
+VALUES ($1, $2, $3)
+ON CONFLICT (event_id, host_id) DO UPDATE SET
+    position = excluded.position,
+    updated_at = now()
+returning id, event_id, host_id, position, inserted_at, updated_at
+`
+
+type UpsertEventHostParams struct {
+	EventID  pgtype.UUID `json:"eventId"`
+	HostID   pgtype.UUID `json:"hostId"`
+	Position int32       `json:"position"`
+}
+
+func (q *Queries) UpsertEventHost(ctx context.Context, arg *UpsertEventHostParams) (*EventsHost, error) {
+	row := q.db.QueryRow(ctx, upsertEventHost, arg.EventID, arg.HostID, arg.Position)
+	var i EventsHost
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.HostID,
+		&i.Position,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const upsertEventPrice = `-- name: UpsertEventPrice :one
+INSERT INTO event_prices (event_id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+on conflict do nothing
+returning id, event_id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until, created_at, updated_at
+`
+
+type UpsertEventPriceParams struct {
+	EventID       pgtype.UUID      `json:"eventId"`
+	PriceType     PriceType        `json:"priceType"`
+	RuleType      PriceRuleType    `json:"ruleType"`
+	PriceAmount   decimal.Decimal  `json:"priceAmount"`
+	PriceCurrency string           `json:"priceCurrency"`
+	DiscountCode  *string          `json:"discountCode"`
+	Priority      int32            `json:"priority"`
+	IsActive      bool             `json:"isActive"`
+	ValidFrom     pgtype.Timestamp `json:"validFrom"`
+	ValidUntil    pgtype.Timestamp `json:"validUntil"`
+}
+
+func (q *Queries) UpsertEventPrice(ctx context.Context, arg *UpsertEventPriceParams) (*EventPrice, error) {
+	row := q.db.QueryRow(ctx, upsertEventPrice,
+		arg.EventID,
+		arg.PriceType,
+		arg.RuleType,
+		arg.PriceAmount,
+		arg.PriceCurrency,
+		arg.DiscountCode,
+		arg.Priority,
+		arg.IsActive,
+		arg.ValidFrom,
+		arg.ValidUntil,
+	)
+	var i EventPrice
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.PriceType,
+		&i.RuleType,
+		&i.PriceAmount,
+		&i.PriceCurrency,
+		&i.DiscountCode,
+		&i.Priority,
+		&i.IsActive,
+		&i.ValidFrom,
+		&i.ValidUntil,
+		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return &i, err
@@ -71,6 +226,149 @@ func (q *Queries) UpsertHost(ctx context.Context, arg *UpsertHostParams) (*Host,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.Country,
+	)
+	return &i, err
+}
+
+const upsertVenue = `-- name: UpsertVenue :one
+INSERT INTO venues (id, name_en, name_pl, street, city_en, city_pl, postal_code, country_code)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+ON CONFLICT (id) DO UPDATE SET
+    name_en = excluded.name_en,
+    name_pl = excluded.name_pl,
+    street = excluded.street,
+    city_en = excluded.city_en,
+    city_pl = excluded.city_pl,
+    postal_code = excluded.postal_code,
+    country_code = excluded.country_code,
+    updated_at = now()
+returning id, name_en, name_pl, street, city_en, city_pl, postal_code, country_code, inserted_at, updated_at
+`
+
+type UpsertVenueParams struct {
+	ID          pgtype.UUID `json:"id"`
+	NameEn      string      `json:"nameEn"`
+	NamePl      *string     `json:"namePl"`
+	Street      string      `json:"street"`
+	CityEn      string      `json:"cityEn"`
+	CityPl      *string     `json:"cityPl"`
+	PostalCode  *string     `json:"postalCode"`
+	CountryCode string      `json:"countryCode"`
+}
+
+func (q *Queries) UpsertVenue(ctx context.Context, arg *UpsertVenueParams) (*Venue, error) {
+	row := q.db.QueryRow(ctx, upsertVenue,
+		arg.ID,
+		arg.NameEn,
+		arg.NamePl,
+		arg.Street,
+		arg.CityEn,
+		arg.CityPl,
+		arg.PostalCode,
+		arg.CountryCode,
+	)
+	var i Venue
+	err := row.Scan(
+		&i.ID,
+		&i.NameEn,
+		&i.NamePl,
+		&i.Street,
+		&i.CityEn,
+		&i.CityPl,
+		&i.PostalCode,
+		&i.CountryCode,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const upsertVideo = `-- name: UpsertVideo :one
+INSERT INTO videos (id, event_id, provider, title_en, title_pl, slug, is_public)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (id) DO UPDATE SET
+    event_id = excluded.event_id,
+    provider = excluded.provider,
+    title_en = excluded.title_en,
+    title_pl = excluded.title_pl,
+    slug = excluded.slug,
+    is_public = excluded.is_public,
+    updated_at = now()
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, event_id
+`
+
+type UpsertVideoParams struct {
+	ID       pgtype.UUID   `json:"id"`
+	EventID  pgtype.UUID   `json:"eventId"`
+	Provider VideoProvider `json:"provider"`
+	TitleEn  string        `json:"titleEn"`
+	TitlePl  string        `json:"titlePl"`
+	Slug     string        `json:"slug"`
+	IsPublic bool          `json:"isPublic"`
+}
+
+func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Video, error) {
+	row := q.db.QueryRow(ctx, upsertVideo,
+		arg.ID,
+		arg.EventID,
+		arg.Provider,
+		arg.TitleEn,
+		arg.TitlePl,
+		arg.Slug,
+		arg.IsPublic,
+	)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.IsPublic,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.Slug,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.EventID,
+	)
+	return &i, err
+}
+
+const upsertVideoSource = `-- name: UpsertVideoSource :one
+INSERT INTO video_sources (id, video_id, content_type, codec, object_key)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (id) DO UPDATE SET
+    video_id = excluded.video_id,
+    content_type = excluded.content_type,
+    codec = excluded.codec,
+    object_key = excluded.object_key,
+    updated_at = now()
+returning id, content_type, codec, video_id, object_key, inserted_at, updated_at
+`
+
+type UpsertVideoSourceParams struct {
+	ID          pgtype.UUID `json:"id"`
+	VideoID     pgtype.UUID `json:"videoId"`
+	ContentType string      `json:"contentType"`
+	Codec       *string     `json:"codec"`
+	ObjectKey   string      `json:"objectKey"`
+}
+
+func (q *Queries) UpsertVideoSource(ctx context.Context, arg *UpsertVideoSourceParams) (*VideoSource, error) {
+	row := q.db.QueryRow(ctx, upsertVideoSource,
+		arg.ID,
+		arg.VideoID,
+		arg.ContentType,
+		arg.Codec,
+		arg.ObjectKey,
+	)
+	var i VideoSource
+	err := row.Scan(
+		&i.ID,
+		&i.ContentType,
+		&i.Codec,
+		&i.VideoID,
+		&i.ObjectKey,
+		&i.InsertedAt,
+		&i.UpdatedAt,
 	)
 	return &i, err
 }
