@@ -95,7 +95,7 @@ func AppFooter() Node {
 		Div(
 			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(
-				Raw("&copy; 2024&ndash;2025 by Wydawnictwo Homeo Sapiens. All rights reserved."),
+				Raw("&copy; 2024&ndash;2026 by Wydawnictwo Homeo Sapiens. All rights reserved."),
 			),
 		),
 	)
