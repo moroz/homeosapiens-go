@@ -59,7 +59,6 @@ COPY --from=go-builder /app/server ./
 COPY --from=go-builder /app/i18n/*.json ./i18n/
 COPY --from=node-builder /app/dist ./assets/dist
 COPY --from=go-builder /app/db/migrations ./db/migrations
-COPY --from=go-builder /app/db/seeds.sql ./db/
 COPY --from=go-builder /app/scripts/entrypoint.sh ./
 
 # Expose port
