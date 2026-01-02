@@ -38,7 +38,7 @@ func InputField(opts *InputFieldOptions) Node {
 
 	return Div(
 		Class(class),
-		Label(For(opts.ID), Class("label"),
+		Label(For(id), Class("label"),
 			Text(opts.Label),
 
 			If(opts.Required,
@@ -70,7 +70,7 @@ func InputField(opts *InputFieldOptions) Node {
 			ID(id),
 			Value(opts.Value),
 			If(opts.Autocomplete != "", AutoComplete(opts.Autocomplete)),
-			If(opts.HelperText != "", Aria("describedby", opts.ID+"-helper")),
+			If(opts.HelperText != "", Aria("describedby", id+"-helper")),
 			If(opts.Autofocus, AutoFocus()),
 			If(opts.Required, Required()),
 		),

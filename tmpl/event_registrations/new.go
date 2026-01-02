@@ -16,20 +16,47 @@ import (
 
 func CountrySelect(lang string) Node {
 	options := countries.OrderedByEnglish
+	popular := countries.PopularRegionsEnglish
 	if lang == "pl" {
 		options = countries.OrderedByPolish
+		popular = countries.PopularRegionsPolish
 	}
 
-	return Div(Select(
-		Map(options, func(option *countries.CountryOption) Node {
-			label := option.LabelEn
-			if lang == "pl" {
-				label = option.LabelPl
-			}
+	var combined []components.SelectOption
+	for _, o := range popular {
+		label := o.LabelEn
+		if lang == "pl" {
+			label = o.LabelPl
+		}
 
-			return Option(Value(option.Value), Text(label))
-		}),
-	))
+		combined = append(combined, components.SelectOption{
+			Label: label,
+			Value: o.Value,
+		})
+	}
+
+	combined = append(combined, components.SelectOption{
+		Label: "---",
+		Value: "",
+	})
+
+	for _, o := range options {
+		label := o.LabelEn
+		if lang == "pl" {
+			label = o.LabelPl
+		}
+
+		combined = append(combined, components.SelectOption{
+			Label: label,
+			Value: o.Value,
+		})
+	}
+
+	return components.SelectComponent(&components.SelectOptions{
+		ID:      "country",
+		Label:   "Country:",
+		Options: combined,
+	})
 }
 
 func New(ctx context.Context, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams) Node {

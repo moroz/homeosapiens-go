@@ -1,0 +1,73 @@
+package components
+
+import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
+)
+
+type SelectOptions struct {
+	Label        string
+	Name         string
+	ID           string
+	Value        string
+	Required     bool
+	Autocomplete string
+	Options      []SelectOption
+	Localizer    *i18n.Localizer
+}
+
+type SelectOption struct {
+	Label string
+	Value string
+}
+
+func SelectComponent(opts *SelectOptions) Node {
+	id := opts.Name
+	if opts.ID != "" {
+		id = opts.ID
+	}
+
+	class := "input-field"
+	if opts.Required {
+		class += " required"
+	}
+
+	return Div(
+		Class(class),
+		Label(
+			For(id), Class("label"),
+			Text(opts.Label),
+
+			If(opts.Required,
+				Span(
+					Aria("hidden", "true"),
+					Class("ml-1 inline-block text-red-700"),
+					Iff(opts.Localizer != nil, func() Node {
+						return Title(opts.Localizer.MustLocalizeMessage(&i18n.Message{
+							ID: "components.input_field.required",
+						}))
+					}),
+					Text("*"),
+				),
+			),
+
+			Div(
+				Class("wrapper relative"),
+
+				Select(
+					ID(id),
+					Name(opts.Name),
+					Class("h-10 w-full rounded-sm border px-2 font-normal shadow pr-8 appearance-none"),
+					If(opts.Autocomplete != "", AutoComplete(opts.Autocomplete)),
+
+					Map(opts.Options, func(option SelectOption) Node {
+						return Option(Value(option.Value), If(option.Value == opts.Value, Selected()), Text(option.Label))
+					}),
+				),
+
+				Div(Class("h-5 w-5 absolute right-1 top-1/2 -translate-y-1/2 text-slate-600"), Data("lucide", "chevron-down")),
+			),
+		),
+	)
+}
