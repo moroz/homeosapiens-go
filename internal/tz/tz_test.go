@@ -14,11 +14,13 @@ func TestGuessRegionByTimezone(t *testing.T) {
 	}{
 		{"TW", "Asia/Taipei"},
 		{"IN", "Asia/Kolkata"},
+		{"PK", "Asia/Karachi"},
 		{"PL", "Europe/Warsaw"},
 		{"CN", "Asia/Shanghai"},
 		{"HK", "Asia/Hong_Kong"},
 		{"MO", "Asia/Macau"},
 		{"US", "America/New_York"},
+		{"US", "America/Los_Angeles"},
 		{"ZA", "Africa/Johannesburg"},
 	}
 
