@@ -5,13 +5,14 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
 
 func RootLayout(ctx context.Context, title string, children ...Node) Node {
-	tz := ctx.Value("timezone").(*time.Location)
+	tz := ctx.Value(config.LocationContextName).(*time.Location)
 
 	return HTML(
 		Head(

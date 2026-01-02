@@ -14,32 +14,8 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func CountrySelect(lang string) Node {
-	options := countries.OrderedByEnglish
-	popular := countries.PopularRegionsEnglish
-	if lang == "pl" {
-		options = countries.OrderedByPolish
-		popular = countries.PopularRegionsPolish
-	}
-
+func mapOptions(options []*countries.CountryOption, lang string) []components.SelectOption {
 	var combined []components.SelectOption
-	for _, o := range popular {
-		label := o.LabelEn
-		if lang == "pl" {
-			label = o.LabelPl
-		}
-
-		combined = append(combined, components.SelectOption{
-			Label: label,
-			Value: o.Value,
-		})
-	}
-
-	combined = append(combined, components.SelectOption{
-		Label: "---",
-		Value: "",
-	})
-
 	for _, o := range options {
 		label := o.LabelEn
 		if lang == "pl" {
@@ -51,12 +27,27 @@ func CountrySelect(lang string) Node {
 			Value: o.Value,
 		})
 	}
+	return combined
+}
 
-	return components.SelectComponent(&components.SelectOptions{
-		ID:      "country",
-		Label:   "Country:",
-		Options: combined,
+func buildCountryOptions(lang string) []components.SelectOption {
+	options := countries.OrderedByEnglish
+	popular := countries.PopularRegionsEnglish
+	if lang == "pl" {
+		options = countries.OrderedByPolish
+		popular = countries.PopularRegionsPolish
+	}
+
+	var combined []components.SelectOption
+	combined = mapOptions(popular, lang)
+
+	combined = append(combined, components.SelectOption{
+		Label: "---",
+		Value: "",
 	})
+
+	all := mapOptions(options, lang)
+	return append(combined, all...)
 }
 
 func New(ctx context.Context, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams) Node {
@@ -73,6 +64,8 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 			"Title": title,
 		},
 	})
+
+	countryOptions := buildCountryOptions(lang)
 
 	return layout.Layout(ctx, pageTitle,
 		Div(
@@ -107,7 +100,14 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 						Autocomplete: "family-name",
 						Required:     true,
 					}),
-					CountrySelect(lang),
+					components.SelectComponent(&components.SelectOptions{
+						Label:        "Country:",
+						Name:         "country",
+						Value:        params.Country,
+						Autocomplete: "country",
+						Options:      countryOptions,
+						Required:     true,
+					}),
 				),
 			),
 		),
