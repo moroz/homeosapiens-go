@@ -1,54 +1,23 @@
-#!/usr/bin/env -S deno run --allow-write
+#!/usr/bin/env -S deno run --allow-write --allow-read
 
 import path from "node:path";
-
-function isCountry(isoCode: string): boolean {
-  const intl = new Intl.DisplayNames("en", { type: "region" });
-  const formatted = intl.of(isoCode);
-  return Boolean(formatted && formatted !== isoCode);
-}
-
-function isException(isoCode: string): boolean {
-  const exceptions = [
-    "BU",
-    "DD",
-    "DY",
-    "EU",
-    "EZ",
-    "FX",
-    "RS",
-    "SU",
-    "UK",
-    "NH",
-    "HV",
-    "RH",
-    "AN",
-    "VN",
-    "TP",
-    "CQ",
-    "UN",
-    "YD",
-    "YU",
-    "ZR",
-    "ZZ",
-  ];
-
-  return (
-    (isoCode >= "QM" && isoCode <= "QZ") ||
-    (isoCode >= "XA" && isoCode <= "XZ") ||
-    exceptions.includes(isoCode)
-  );
-}
+import { fromFileUrl } from "https://deno.land/std@0.208.0/path/mod.ts";
 
 const codes: string[] = [];
 
-for (let x = 0; x < 26; x++) {
-  for (let y = 0; y < 26; y++) {
-    const code = String.fromCharCode(65 + x) + String.fromCharCode(65 + y);
-    if (isCountry(code) && !isException(code)) {
-      codes.push(code);
-    }
-  }
+const isoCodeFilePath = path.join(
+  path.dirname(fromFileUrl(Deno.mainModule)),
+  "iso3166.tab",
+);
+
+const isoCodeFile = await Deno.readTextFile(isoCodeFilePath);
+const lines = isoCodeFile.split("\n");
+
+for (const line of lines) {
+  if (line.startsWith("#")) continue;
+
+  const code = line.split(/\s+/)[0];
+  code && codes.push(code);
 }
 
 function formatCountry(locale: string, isoCode: string): string {
@@ -62,20 +31,11 @@ const options = codes.map((iso) => ({
 }));
 
 const json = JSON.stringify(options, null, 2);
-const resolved = path.join(
-  path.resolve(process.cwd()),
-  "internal/countries/countries.json",
+const resolved = path.resolve(
+  path.join(
+    path.dirname(fromFileUrl(Deno.mainModule)),
+    "../internal/countries/countries.json",
+  ),
 );
-
-const duplicates = {};
-
-for (const entry of options) {
-  if (duplicates[entry.labelPl] && duplicates[entry.labelPl] !== entry.value) {
-    console.log(duplicates[entry.labelPl], entry.value, entry.labelPl);
-    continue;
-  }
-
-  duplicates[entry.labelPl] = entry.value;
-}
 
 await Deno.writeTextFile(resolved, json);

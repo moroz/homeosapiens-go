@@ -270,13 +270,17 @@ type EventPrice struct {
 }
 
 type EventRegistration struct {
-	ID                pgtype.UUID      `json:"id"`
-	EventID           pgtype.UUID      `json:"eventId"`
-	UserID            pgtype.UUID      `json:"userId"`
-	AttendingInPerson bool             `json:"attendingInPerson"`
-	IsHost            bool             `json:"isHost"`
-	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
+	ID                pgtype.UUID               `json:"id"`
+	EventID           pgtype.UUID               `json:"eventId"`
+	UserID            pgtype.UUID               `json:"userId"`
+	AttendingInPerson bool                      `json:"attendingInPerson"`
+	IsHost            bool                      `json:"isHost"`
+	InsertedAt        pgtype.Timestamp          `json:"insertedAt"`
+	UpdatedAt         pgtype.Timestamp          `json:"updatedAt"`
+	GivenName         sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName        sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	Email             sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	Country           string                    `json:"country"`
 }
 
 type EventsHost struct {

@@ -12,6 +12,7 @@ type CreateEventRegistrationParams struct {
 	Email      string
 	Country    string
 	Profession string
+	Company    string
 }
 
 var EmailValidationRegexp = regexp.MustCompile(`^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$`)

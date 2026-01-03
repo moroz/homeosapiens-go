@@ -71,3 +71,7 @@ func buildRegistrationParams(user *queries.User, location *tz.TimezoneGuess) *ty
 
 	return &params
 }
+
+func (c *eventRegistrationController) Create(w http.ResponseWriter, r *http.Request) {
+
+}

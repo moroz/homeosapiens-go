@@ -1,10 +1,5 @@
 [
   {
-    "value": "AC",
-    "labelPl": "Wyspa Wniebowstąpienia",
-    "labelEn": "Ascension Island"
-  },
-  {
     "value": "AD",
     "labelPl": "Andora",
     "labelEn": "Andorra"
@@ -250,19 +245,9 @@
     "labelEn": "Colombia"
   },
   {
-    "value": "CP",
-    "labelPl": "Wyspa Clippertona",
-    "labelEn": "Clipperton Island"
-  },
-  {
     "value": "CR",
     "labelPl": "Kostaryka",
     "labelEn": "Costa Rica"
-  },
-  {
-    "value": "CS",
-    "labelPl": "Serbia",
-    "labelEn": "Serbia"
   },
   {
     "value": "CU",
@@ -300,11 +285,6 @@
     "labelEn": "Germany"
   },
   {
-    "value": "DG",
-    "labelPl": "Diego Garcia",
-    "labelEn": "Diego Garcia"
-  },
-  {
     "value": "DJ",
     "labelPl": "Dżibuti",
     "labelEn": "Djibouti"
@@ -328,11 +308,6 @@
     "value": "DZ",
     "labelPl": "Algieria",
     "labelEn": "Algeria"
-  },
-  {
-    "value": "EA",
-    "labelPl": "Ceuta i Melilla",
-    "labelEn": "Ceuta & Melilla"
   },
   {
     "value": "EC",
@@ -523,11 +498,6 @@
     "value": "HU",
     "labelPl": "Węgry",
     "labelEn": "Hungary"
-  },
-  {
-    "value": "IC",
-    "labelPl": "Wyspy Kanaryjskie",
-    "labelEn": "Canary Islands"
   },
   {
     "value": "ID",
@@ -975,6 +945,11 @@
     "labelEn": "Romania"
   },
   {
+    "value": "RS",
+    "labelPl": "Serbia",
+    "labelEn": "Serbia"
+  },
+  {
     "value": "RU",
     "labelPl": "Rosja",
     "labelEn": "Russia"
@@ -1088,11 +1063,6 @@
     "value": "SZ",
     "labelPl": "Eswatini",
     "labelEn": "Eswatini"
-  },
-  {
-    "value": "TA",
-    "labelPl": "Tristan da Cunha",
-    "labelEn": "Tristan da Cunha"
   },
   {
     "value": "TC",
@@ -1215,11 +1185,6 @@
     "labelEn": "St Vincent & the Grenadines"
   },
   {
-    "value": "VD",
-    "labelPl": "Wietnam",
-    "labelEn": "Vietnam"
-  },
-  {
     "value": "VE",
     "labelPl": "Wenezuela",
     "labelEn": "Venezuela"
@@ -1233,6 +1198,11 @@
     "value": "VI",
     "labelPl": "Wyspy Dziewicze Stanów Zjednoczonych",
     "labelEn": "US Virgin Islands"
+  },
+  {
+    "value": "VN",
+    "labelPl": "Wietnam",
+    "labelEn": "Vietnam"
   },
   {
     "value": "VU",
