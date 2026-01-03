@@ -101,33 +101,53 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 				Form(
 					Class("mt-6 space-y-2"),
 					components.InputField(&components.InputFieldOptions{
-						Label:        "Email:",
+						Label: l.MustLocalizeMessage(&i18n.Message{
+							ID: "event_registrations.new.form.labels.email",
+						}),
 						Name:         "email",
 						Value:        params.Email,
 						Autocomplete: "email",
 						Required:     true,
+						Localizer:    l,
 					}),
 					components.InputField(&components.InputFieldOptions{
-						Label:        "Given name:",
+						Label: l.MustLocalizeMessage(&i18n.Message{
+							ID: "event_registrations.new.form.labels.given_name",
+						}),
 						Name:         "given_name",
 						Value:        params.GivenName,
 						Autocomplete: "given-name",
 						Required:     true,
+						Localizer:    l,
 					}),
 					components.InputField(&components.InputFieldOptions{
-						Label:        "Family name:",
+						Label: l.MustLocalizeMessage(&i18n.Message{
+							ID: "event_registrations.new.form.labels.family_name",
+						}),
 						Name:         "family_name",
 						Value:        params.FamilyName,
 						Autocomplete: "family-name",
 						Required:     true,
+						Localizer:    l,
 					}),
 					components.SelectComponent(&components.SelectOptions{
-						Label:        "Country:",
+						Label: l.MustLocalizeMessage(&i18n.Message{
+							ID: "event_registrations.new.form.labels.country",
+						}),
 						Name:         "country",
 						Value:        params.Country,
 						Autocomplete: "country",
 						Options:      countryOptions,
 						Required:     true,
+						Localizer:    l,
+					}),
+					components.InputField(&components.InputFieldOptions{
+						Label: l.MustLocalizeMessage(&i18n.Message{
+							ID: "event_registrations.new.form.labels.profession",
+						}),
+						Name:      "profession",
+						Value:     params.Profession,
+						Localizer: l,
 					}),
 				),
 			),

@@ -68,7 +68,16 @@
     "new": {
       "title": "Rejestracja na wydarzenie: {{ .Title }}",
       "heading": "Rejestracja na wydarzenie",
-      "continue_with_google": "Zarejestruj się przy użyciu konta Google"
+      "continue_with_google": "Zarejestruj się przy użyciu konta Google",
+      "form": {
+        "labels": {
+          "email": "Email:",
+          "given_name": "Imię:",
+          "family_name": "Nazwisko:",
+          "profession": "Zawód:",
+          "country": "Kraj lub region:"
+        }
+      }
     }
   },
   "user_registrations": {

@@ -55,7 +55,16 @@
     "new": {
       "title": "Sign up for event: {{ .Title }}",
       "heading": "Sign up for event",
-      "continue_with_google": "Continue with Google"
+      "continue_with_google": "Continue with Google",
+      "form": {
+        "labels": {
+          "email": "Email:",
+          "given_name": "Given name:",
+          "family_name": "Family name:",
+          "country": "Country or region:",
+          "profession": "Profession:"
+        }
+      }
     }
   },
   "user_registrations": {
