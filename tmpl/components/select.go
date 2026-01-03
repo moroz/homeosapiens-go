@@ -33,6 +33,9 @@ func SelectComponent(opts *SelectOptions) Node {
 		class += " required"
 	}
 
+	// Only render Selected() for the first matching value
+	var selectedFound bool
+
 	return Div(
 		Class(class),
 		Label(
@@ -58,15 +61,18 @@ func SelectComponent(opts *SelectOptions) Node {
 				Select(
 					ID(id),
 					Name(opts.Name),
-					Class("h-10 w-full rounded-sm border px-2 font-normal shadow pr-8 appearance-none"),
+					Class("h-10 w-full appearance-none rounded-sm border px-2 pr-8 font-normal shadow"),
 					If(opts.Autocomplete != "", AutoComplete(opts.Autocomplete)),
 
 					Map(opts.Options, func(option SelectOption) Node {
-						return Option(Value(option.Value), If(option.Value == opts.Value, Selected()), Text(option.Label))
+						return Option(Value(option.Value), Iff(option.Value == opts.Value && !selectedFound, func() Node {
+							selectedFound = true
+							return Selected()
+						}), Text(option.Label))
 					}),
 				),
 
-				Div(Class("h-5 w-5 absolute right-1 top-1/2 -translate-y-1/2 text-slate-600"), Data("lucide", "chevron-down")),
+				Div(Class("absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2 text-slate-600"), Data("lucide", "chevron-down")),
 			),
 		),
 	)

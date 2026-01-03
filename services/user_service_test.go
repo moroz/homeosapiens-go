@@ -24,6 +24,8 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 	db, err := initDB(t.Context())
 	require.NoError(t, err)
 
+	db.Exec(t.Context(), "truncate users cascade")
+
 	hash, err := argon2id.CreateHash("foobar", argon2id.DefaultParams)
 	require.NoError(t, err)
 

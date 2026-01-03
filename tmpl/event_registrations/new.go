@@ -2,7 +2,10 @@ package eventregistrations
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
@@ -65,6 +68,8 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 		},
 	})
 
+	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
+	currentPath := fmt.Sprintf("/events/%s/register", event.Slug)
 	countryOptions := buildCountryOptions(lang)
 
 	return layout.Layout(ctx, pageTitle,
@@ -83,9 +88,25 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 					Text(title),
 				),
 			),
+
+			Iff(user == nil, func() Node {
+				return Section(
+					components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{
+						ID: "event_registrations.new.continue_with_google",
+					}), currentPath),
+				)
+			}),
+
 			Main(
 				Form(
 					Class("mt-6 space-y-2"),
+					components.InputField(&components.InputFieldOptions{
+						Label:        "Email:",
+						Name:         "email",
+						Value:        params.Email,
+						Autocomplete: "email",
+						Required:     true,
+					}),
 					components.InputField(&components.InputFieldOptions{
 						Label:        "Given name:",
 						Name:         "given_name",

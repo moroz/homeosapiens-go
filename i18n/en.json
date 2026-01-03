@@ -54,7 +54,8 @@
   "event_registrations": {
     "new": {
       "title": "Sign up for event: {{ .Title }}",
-      "heading": "Sign up for event"
+      "heading": "Sign up for event",
+      "continue_with_google": "Continue with Google"
     }
   },
   "user_registrations": {

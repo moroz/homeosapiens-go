@@ -44,6 +44,7 @@ func OAuth2Controller(store securecookie.Store, db queries.DBTX) *oauth2Controll
 }
 
 const OAuth2SessionKey = "auth_state"
+const RedirectBackUrlSessionKey = "redirect_back"
 
 func (c *oauth2Controller) GoogleRedirect(w http.ResponseWriter, r *http.Request) {
 	if c.config.ClientID == "" {
@@ -52,10 +53,15 @@ func (c *oauth2Controller) GoogleRedirect(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	redirectTo := r.URL.Query().Get("ref")
+
 	var state = make([]byte, 4)
 	_, _ = rand.Read(state)
 	session := r.Context().Value(config.SessionContextName).(types.SessionData)
 	session[OAuth2SessionKey] = hex.EncodeToString(state)
+	if redirectTo != "" {
+		session[RedirectBackUrlSessionKey] = redirectTo
+	}
 	if err := SaveSession(w, c.sessionStore, session); err != nil {
 		log.Printf("Error persisting session: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -130,13 +136,19 @@ func (c *oauth2Controller) GoogleCallback(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	redirectBackUrl, ok := session[RedirectBackUrlSessionKey].(string)
+	if !ok {
+		redirectBackUrl = "/"
+	}
+
 	session["access_token"] = userToken.Token
-	delete(session, "state")
+	delete(session, OAuth2SessionKey)
+	delete(session, RedirectBackUrlSessionKey)
 	if err := SaveSession(w, c.sessionStore, session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, redirectBackUrl, http.StatusFound)
 }

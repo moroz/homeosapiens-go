@@ -65,7 +65,7 @@ func buildRegistrationParams(user *queries.User, location *tz.TimezoneGuess) *ty
 		}
 	}
 
-	if location.Found {
+	if params.Country == "" && location.Found {
 		params.Country = location.IsoCode
 	}
 

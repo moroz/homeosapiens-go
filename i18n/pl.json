@@ -67,7 +67,8 @@
   "event_registrations": {
     "new": {
       "title": "Rejestracja na wydarzenie: {{ .Title }}",
-      "heading": "Rejestracja na wydarzenie"
+      "heading": "Rejestracja na wydarzenie",
+      "continue_with_google": "Zarejestruj się przy użyciu konta Google"
     }
   },
   "user_registrations": {
