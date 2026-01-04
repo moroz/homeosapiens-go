@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/moroz/homeosapiens-go/config"
@@ -39,8 +40,8 @@ func (c *eventRegistrationController) New(w http.ResponseWriter, r *http.Request
 		return
 	}
 	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
-	location := r.Context().Value(config.TimezoneNameContextName).(string)
-	countryGuess := tz.GuessRegionByTimezone(location)
+	location := r.Context().Value(config.LocationContextName).(*time.Location)
+	countryGuess := tz.GuessRegionByTimezone(location.String())
 	params := buildRegistrationParams(user, countryGuess)
 
 	if err := eventregistrations.New(r.Context(), event, params).Render(w); err != nil {

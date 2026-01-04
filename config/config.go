@@ -86,7 +86,6 @@ const SessionCookieName = "_hs_session"
 const SessionContextName = "session"
 const LocationContextName = "timezone"
 const TimezoneSetContextName = "tzset"
-const TimezoneNameContextName = "tzname"
 const CurrentUserContextName = "current_user"
 
 const MinPasswordLength = 8
