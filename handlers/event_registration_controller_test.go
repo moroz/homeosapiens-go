@@ -67,6 +67,7 @@ func TestRegisterForEvent(t *testing.T) {
 	t.Run("when not signed in", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("POST", "/event_registrations", bytes.NewBufferString(form.Encode()))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		router.ServeHTTP(w, req)
 
 		assert.GreaterOrEqual(t, w.Code, 200)

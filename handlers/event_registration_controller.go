@@ -20,12 +20,14 @@ import (
 var decoder = schema.NewDecoder()
 
 type eventRegistrationController struct {
-	eventService *services.EventService
+	eventService             *services.EventService
+	eventRegistrationService *services.EventRegistrationService
 }
 
 func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 	return &eventRegistrationController{
-		eventService: services.NewEventService(db),
+		eventService:             services.NewEventService(db),
+		eventRegistrationService: services.NewEventRegistrationService(db),
 	}
 }
 
@@ -88,10 +90,15 @@ func (c *eventRegistrationController) Create(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	event, err := c.eventService.GetEventById(r.Context(), params.EventID)
-	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		handleError(w, err, 404)
+	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
+
+	result, err := c.eventRegistrationService.CreateEventRegistration(r.Context(), user, &params)
+	_ = result
+
+	if err != nil {
+		handleError(w, err, 422)
 		return
 	}
+
 	w.WriteHeader(204)
 }

@@ -100,7 +100,7 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 			Main(
 				Form(
 					Class("mt-6 space-y-2"),
-					Input(Type("hidden"), Name("event"))
+					Input(Type("hidden"), Name("event_id"), Value(event.Event.ID.String())),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
 							ID: "event_registrations.new.form.labels.email",

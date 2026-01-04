@@ -70,3 +70,12 @@ func (s *UserService) FindOrCreateUserFromClaims(ctx context.Context, claims *ty
 		ProfilePicture: &claims.Avatar,
 	})
 }
+
+func (s *UserService) FindOrCreateUserFromEventRegistrationParams(ctx context.Context, params *types.CreateEventRegistrationParams) (*queries.User, error) {
+	return queries.New(s.db).FindOrCreateUserFromClaims(ctx, &queries.FindOrCreateUserFromClaimsParams{
+		Email:      sqlcrypter.NewEncryptedBytes(params.Email),
+		EmailHash:  crypto.HashEmail(params.Email),
+		GivenName:  sqlcrypter.NewEncryptedBytes(params.GivenName),
+		FamilyName: sqlcrypter.NewEncryptedBytes(params.FamilyName),
+	})
+}
