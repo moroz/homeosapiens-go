@@ -21,7 +21,7 @@ func AssetEntryPoint() Node {
 	entry := manifest["index.html"]
 
 	return Group{
-		Script(Type("module"), Src(entry.File)),
+		Script(Type("module"), Src("/"+entry.File)),
 		Map(entry.Css, func(css string) Node {
 			return Link(Rel("stylesheet"), Href("/"+css))
 		}),
