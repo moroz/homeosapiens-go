@@ -30,6 +30,8 @@
 	--shadow-solid: 4px 4px 0px 0px black;
 }
 
+@variant mobile (@media screen and (max-width: 30rem));
+
 @layer base {
 	body {
 		font-variant-numeric: tabular-nums;

@@ -31,10 +31,10 @@ func RootLayout(ctx context.Context, title string, children ...Node) Node {
 
 func Layout(ctx context.Context, title string, children ...Node) Node {
 	return RootLayout(ctx, title,
-		Class("flex min-h-screen flex-col"),
+		Class("flex min-h-screen flex-col max-w-full overflow-x-hidden"),
 		AppHeader(ctx),
 		Main(
-			Class("flex-1 bg-slate-100 pt-24"),
+			Class("flex-1 bg-slate-100 pt-26 pb-6"),
 			Div(
 				Class("container mx-auto"),
 				Group(children),

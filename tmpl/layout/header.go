@@ -57,16 +57,17 @@ func AppHeader(ctx context.Context) Node {
 
 	return Header(
 		Class("fixed inset-0 z-10 h-20 border-b bg-white shadow"),
-		Div(Class("container mx-auto flex h-full items-center justify-between"),
+		Div(Class("container mx-auto flex h-full items-center justify-between mobile:px-2"),
 			H1(
 				A(
 					Class("text-primary hover:text-primary-hover text-4xl font-bold no-underline transition-colors"),
 					Href("/"),
-					logo("h-15"),
+					logo("h-15 mobile:h-12"),
 				),
 			),
+			Div(Class("not-mobile:hidden"), El("tilt-burger", Attr("size", "lg"))),
 			Nav(
-				Class("h-full"),
+				Class("h-full mobile:hidden"),
 				Ul(
 					Class("flex h-full gap-1 py-4"),
 					NavLink("/", l.MustLocalizeMessage(&i18n.Message{

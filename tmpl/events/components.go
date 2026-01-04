@@ -127,7 +127,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 		),
 
-		Div(Class("flex items-center gap-6"),
+		Div(Class("flex items-center gap-6 mobile:hidden"),
 			Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
 				return HostCard(localizer, host)
 			}),
