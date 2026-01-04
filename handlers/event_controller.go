@@ -23,7 +23,7 @@ func EventController(db queries.DBTX) *eventController {
 
 func (c *eventController) Show(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
-	event, err := c.eventService.GetEventBySlug(r.Context(), slug)
+	event, err := c.eventService.GetEventDetailsBySlug(r.Context(), slug)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "Not found", 404)
 		return

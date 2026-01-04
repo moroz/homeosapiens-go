@@ -23,8 +23,8 @@ insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $
 delete from user_tokens where token = $1 returning true;
 
 -- name: FindOrCreateUserFromClaims :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture)
-values ($1, $2, $3, $4, $5)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, email_confirmed_at)
+values ($1, $2, $3, $4, $5, now())
 on conflict (email_hash) do update
-set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now()
+set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
 returning *;

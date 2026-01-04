@@ -13,9 +13,9 @@ import (
 )
 
 const insertEventRegistration = `-- name: InsertEventRegistration :one
-insert into event_registrations (event_id, user_id, is_host, given_name_encrypted, family_name_encrypted, email_encrypted, country, attending_in_person)
-values ($1, $2, $3, $4, $5, $6, $7, $8)
-returning id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country
+insert into event_registrations (event_id, user_id, is_host, given_name_encrypted, family_name_encrypted, email_encrypted, country, attending_in_person, email_confirmed_at)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+returning id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at
 `
 
 type InsertEventRegistrationParams struct {
@@ -27,6 +27,7 @@ type InsertEventRegistrationParams struct {
 	Email             sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
 	Country           string                    `json:"country"`
 	AttendingInPerson bool                      `json:"attendingInPerson"`
+	EmailConfirmedAt  pgtype.Timestamp          `json:"emailConfirmedAt"`
 }
 
 func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventRegistrationParams) (*EventRegistration, error) {
@@ -39,6 +40,7 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 		arg.Email,
 		arg.Country,
 		arg.AttendingInPerson,
+		arg.EmailConfirmedAt,
 	)
 	var i EventRegistration
 	err := row.Scan(
@@ -53,6 +55,7 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 		&i.FamilyName,
 		&i.Email,
 		&i.Country,
+		&i.EmailConfirmedAt,
 	)
 	return &i, err
 }

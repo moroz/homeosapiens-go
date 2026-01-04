@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
@@ -17,12 +16,7 @@ func NewEventService(db queries.DBTX) *EventService {
 }
 
 func (s *EventService) GetEventById(ctx context.Context, id string) (*queries.Event, error) {
-	uuid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-
-	return queries.New(s.db).GetEventById(ctx, pgtype.UUID{Valid: true, Bytes: uuid})
+	return queries.New(s.db).GetEventById(ctx, id)
 }
 
 type EventListDto struct {
@@ -71,18 +65,30 @@ type EventDetailsDto struct {
 	Hosts  []*queries.ListHostsForEventsRow
 }
 
-func (s *EventService) GetEventBySlug(ctx context.Context, slug string) (*EventDetailsDto, error) {
-	var dto EventDetailsDto
-
-	q := queries.New(s.db)
-	event, err := q.GetEventBySlug(ctx, slug)
+func (s *EventService) GetEventDetailsById(ctx context.Context, eventId string) (*EventDetailsDto, error) {
+	event, err := queries.New(s.db).GetEventById(ctx, eventId)
 	if err != nil {
 		return nil, err
 	}
+
+	return s.GetEventDetailsForEvent(ctx, event)
+}
+
+func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string) (*EventDetailsDto, error) {
+	event, err := queries.New(s.db).GetEventBySlug(ctx, slug)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.GetEventDetailsForEvent(ctx, event)
+}
+
+func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queries.Event) (*EventDetailsDto, error) {
+	var dto EventDetailsDto
 	dto.Event = event
 
 	if event.VenueID.Valid {
-		venue, err := q.GetVenueById(ctx, event.VenueID)
+		venue, err := queries.New(s.db).GetVenueById(ctx, event.VenueID)
 		if err != nil {
 			return nil, err
 		}
@@ -102,6 +108,7 @@ func (s *EventService) GetEventBySlug(ctx context.Context, slug string) (*EventD
 	dto.Hosts = hosts[event.ID]
 
 	return &dto, nil
+
 }
 
 func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID][]*queries.ListHostsForEventsRow, error) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/countries"
@@ -53,7 +54,7 @@ func buildCountryOptions(lang string) []components.SelectOption {
 	return append(combined, all...)
 }
 
-func New(ctx context.Context, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams) Node {
+func New(ctx context.Context, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams, validationErrors validation.Errors) Node {
 	lang := ctx.Value("lang").(string)
 	title := event.TitleEn
 	if lang == "pl" {

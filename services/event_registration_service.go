@@ -25,12 +25,7 @@ func NewEventRegistrationService(db queries.DBTX) *EventRegistrationService {
 	}
 }
 
-func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, params *types.CreateEventRegistrationParams) (*queries.EventRegistration, error) {
-	event, err := s.eventService.GetEventById(ctx, params.EventID)
-	if err != nil {
-		return nil, fmt.Errorf("CreateEventRegistration: %w", err)
-	}
-
+func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event, params *types.CreateEventRegistrationParams) (*queries.EventRegistration, error) {
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("CreateEventRegistration: validation failed: %w", err)
 	}
@@ -49,12 +44,13 @@ func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, 
 	}
 
 	registration, err := queries.New(s.db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
-		EventID:    event.ID,
-		UserID:     user.ID,
-		GivenName:  sqlcrypter.NewEncryptedBytes(params.GivenName),
-		FamilyName: sqlcrypter.NewEncryptedBytes(params.FamilyName),
-		Email:      sqlcrypter.NewEncryptedBytes(params.Email),
-		Country:    params.Country,
+		EventID:          event.ID,
+		UserID:           user.ID,
+		GivenName:        sqlcrypter.NewEncryptedBytes(params.GivenName),
+		FamilyName:       sqlcrypter.NewEncryptedBytes(params.FamilyName),
+		Email:            sqlcrypter.NewEncryptedBytes(params.Email),
+		Country:          params.Country,
+		EmailConfirmedAt: user.EmailConfirmedAt,
 	})
 
 	if err := tx.Commit(ctx); err != nil {

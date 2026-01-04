@@ -24,11 +24,11 @@ func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, erro
 }
 
 const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture)
-values ($1, $2, $3, $4, $5)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, email_confirmed_at)
+values ($1, $2, $3, $4, $5, now())
 on conflict (email_hash) do update
-set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now()
-returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted
+set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at
 `
 
 type FindOrCreateUserFromClaimsParams struct {
@@ -66,12 +66,13 @@ func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCre
 		&i.EmailHash,
 		&i.GivenName,
 		&i.FamilyName,
+		&i.EmailConfirmedAt,
 	)
 	return &i, err
 }
 
 const getUserByAccessToken = `-- name: GetUserByAccessToken :one
-select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted from user_tokens ut
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > (now() at time zone 'utc')
 and ut.token = $1::bytea and ut.context = 'access'
@@ -98,12 +99,13 @@ func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User
 		&i.EmailHash,
 		&i.GivenName,
 		&i.FamilyName,
+		&i.EmailConfirmedAt,
 	)
 	return &i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted from users where email_hash = $1
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at from users where email_hash = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, error) {
@@ -127,12 +129,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, 
 		&i.EmailHash,
 		&i.GivenName,
 		&i.FamilyName,
+		&i.EmailConfirmedAt,
 	)
 	return &i, err
 }
 
 const insertUser = `-- name: InsertUser :one
-insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted
+insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at
 `
 
 type InsertUserParams struct {
@@ -180,6 +183,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		&i.EmailHash,
 		&i.GivenName,
 		&i.FamilyName,
+		&i.EmailConfirmedAt,
 	)
 	return &i, err
 }
@@ -218,7 +222,7 @@ const upsertUserFromSeedData = `-- name: UpsertUserFromSeedData :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash)
 values ($1, $2, $3, $4, $5, $6)
 on conflict (email_hash) do update set updated_at = now()
-returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at
 `
 
 type UpsertUserFromSeedDataParams struct {
@@ -258,6 +262,7 @@ func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFro
 		&i.EmailHash,
 		&i.GivenName,
 		&i.FamilyName,
+		&i.EmailConfirmedAt,
 	)
 	return &i, err
 }

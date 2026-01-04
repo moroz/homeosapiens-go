@@ -13,10 +13,10 @@ import (
 )
 
 const getEventById = `-- name: GetEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug from events where id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug from events where id = ($1::text)::uuid
 `
 
-func (q *Queries) GetEventById(ctx context.Context, id pgtype.UUID) (*Event, error) {
+func (q *Queries) GetEventById(ctx context.Context, id string) (*Event, error) {
 	row := q.db.QueryRow(ctx, getEventById, id)
 	var i Event
 	err := row.Scan(
@@ -40,10 +40,7 @@ func (q *Queries) GetEventById(ctx context.Context, id pgtype.UUID) (*Event, err
 }
 
 const getEventBySlug = `-- name: GetEventBySlug :one
-select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id, e.slug
-from events e
-left join venues v on e.venue_id = v.id
-where e.slug = $1::text
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug from events where slug = $1::text
 `
 
 func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, error) {

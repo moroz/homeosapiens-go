@@ -1,5 +1,8 @@
 -- name: GetEventById :one
-select * from events where id = $1;
+select * from events where id = (@id::text)::uuid;
+
+-- name: GetEventBySlug :one
+select * from events where slug = @slug::text;
 
 -- name: ListEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
@@ -21,9 +24,3 @@ order by eh.host_id, eh.position;
 select p.* from event_prices p
 where p.event_id = any(@EventIDs::uuid[])
 order by p.event_id, p.priority;
-
--- name: GetEventBySlug :one
-select e.*
-from events e
-left join venues v on e.venue_id = v.id
-where e.slug = @slug::text;

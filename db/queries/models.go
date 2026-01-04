@@ -281,6 +281,7 @@ type EventRegistration struct {
 	FamilyName        sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
 	Email             sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
 	Country           string                    `json:"country"`
+	EmailConfirmedAt  pgtype.Timestamp          `json:"emailConfirmedAt"`
 }
 
 type EventsHost struct {
@@ -304,23 +305,24 @@ type Host struct {
 }
 
 type User struct {
-	ID             pgtype.UUID               `json:"id"`
-	Salutation     *string                   `json:"salutation"`
-	Country        *string                   `json:"country"`
-	Profession     *string                   `json:"profession"`
-	Organization   *string                   `json:"organization"`
-	Company        *string                   `json:"company"`
-	PasswordHash   *string                   `json:"passwordHash"`
-	LastLoginAt    pgtype.Timestamp          `json:"lastLoginAt"`
-	LastLoginIp    *netip.Addr               `json:"lastLoginIp"`
-	InsertedAt     pgtype.Timestamp          `json:"insertedAt"`
-	UpdatedAt      pgtype.Timestamp          `json:"updatedAt"`
-	ProfilePicture *string                   `json:"profilePicture"`
-	UserRole       UserRole                  `json:"userRole"`
-	Email          sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
-	EmailHash      []byte                    `json:"emailHash"`
-	GivenName      sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
-	FamilyName     sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	ID               pgtype.UUID               `json:"id"`
+	Salutation       *string                   `json:"salutation"`
+	Country          *string                   `json:"country"`
+	Profession       *string                   `json:"profession"`
+	Organization     *string                   `json:"organization"`
+	Company          *string                   `json:"company"`
+	PasswordHash     *string                   `json:"passwordHash"`
+	LastLoginAt      pgtype.Timestamp          `json:"lastLoginAt"`
+	LastLoginIp      *netip.Addr               `json:"lastLoginIp"`
+	InsertedAt       pgtype.Timestamp          `json:"insertedAt"`
+	UpdatedAt        pgtype.Timestamp          `json:"updatedAt"`
+	ProfilePicture   *string                   `json:"profilePicture"`
+	UserRole         UserRole                  `json:"userRole"`
+	Email            sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash        []byte                    `json:"emailHash"`
+	GivenName        sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName       sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	EmailConfirmedAt pgtype.Timestamp          `json:"emailConfirmedAt"`
 }
 
 type UserToken struct {

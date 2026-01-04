@@ -3,11 +3,13 @@ package handlers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/gorilla/schema"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -33,7 +35,7 @@ func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 
 func (c *eventRegistrationController) New(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
-	event, err := c.eventService.GetEventBySlug(r.Context(), slug)
+	event, err := c.eventService.GetEventDetailsBySlug(r.Context(), slug)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		log.Printf("Event with the slug: %s not found", slug)
 		http.Error(w, "Not Found", 404)
@@ -48,8 +50,9 @@ func (c *eventRegistrationController) New(w http.ResponseWriter, r *http.Request
 	location := r.Context().Value(config.LocationContextName).(*time.Location)
 	countryGuess := tz.GuessRegionByTimezone(location.String())
 	params := buildRegistrationParams(user, countryGuess)
+	validationErrors := make(validation.Errors)
 
-	if err := eventregistrations.New(r.Context(), event, params).Render(w); err != nil {
+	if err := eventregistrations.New(r.Context(), event, params, validationErrors).Render(w); err != nil {
 		handleRenderingError(w, err)
 	}
 }
@@ -90,15 +93,36 @@ func (c *eventRegistrationController) Create(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
-
-	result, err := c.eventRegistrationService.CreateEventRegistration(r.Context(), user, &params)
-	_ = result
-
-	if err != nil {
-		handleError(w, err, 422)
+	event, err := c.eventService.GetEventById(r.Context(), params.EventID)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		handleError(w, err, 404)
 		return
 	}
 
-	w.WriteHeader(204)
+	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
+	result, err := c.eventRegistrationService.CreateEventRegistration(r.Context(), user, event, &params)
+
+	if err == nil {
+		http.Redirect(w, r, fmt.Sprintf("/events/%s", result.EventID), http.StatusFound)
+		return
+	}
+
+	var validationErrors validation.Errors
+	ok := errors.As(err, &validationErrors)
+	if ok {
+		dto, err := c.eventService.GetEventDetailsForEvent(r.Context(), event)
+		if err != nil {
+			handleError(w, err, 500)
+		}
+
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		if err := eventregistrations.New(r.Context(), dto, &params, validationErrors).Render(w); err != nil {
+			handleRenderingError(w, err)
+		}
+	}
+
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
 }

@@ -71,6 +71,6 @@ func TestRegisterForEvent(t *testing.T) {
 		router.ServeHTTP(w, req)
 
 		assert.GreaterOrEqual(t, w.Code, 200)
-		assert.Less(t, w.Code, 300)
+		assert.Less(t, w.Code, 400)
 	})
 }
