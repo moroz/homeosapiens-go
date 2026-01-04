@@ -56,7 +56,7 @@
 	}
 
 	.card {
-		@apply rounded-lg border bg-white p-6 shadow;
+		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 rounded border bg-white p-6 shadow;
 	}
 
 	.input-field {
@@ -69,5 +69,13 @@
 
 	.label {
 		@apply font-semibold;
+	}
+
+	.hamburger-menu {
+		@apply fixed inset-0 bg-white transition-all;
+
+		&:not(.open) {
+			@apply pointer-events-none opacity-0;
+		}
 	}
 }

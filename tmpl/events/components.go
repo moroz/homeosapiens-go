@@ -78,7 +78,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			H3(
-				Class("text-primary text-3xl font-bold"),
+				Class("text-primary text-3xl font-bold mobile:text-xl mobile:leading-tight"),
 				A(
 					Class("hover:text-primary-hover decoration-2 underline-offset-3 transition-colors hover:underline"),
 					Href(eventUrl),

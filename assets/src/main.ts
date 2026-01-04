@@ -1,7 +1,7 @@
 import "./app.css";
 
 import videojs from "video.js";
-import "vanilla-hamburger";
+import "vanilla-hamburger/fade-burger.js";
 
 document.querySelectorAll(".video-js").forEach((el) => {
 	videojs(el, { controls: true, fluid: true });
@@ -35,3 +35,10 @@ async function setTimezone() {
 }
 
 setTimezone();
+
+document.querySelector("#hamburger-toggle")?.addEventListener("click", () => {
+	const menu = document.querySelector(".hamburger-menu");
+	if (!menu) return;
+
+	menu.classList.toggle("open");
+});

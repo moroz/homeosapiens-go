@@ -15,7 +15,7 @@ func Index(ctx context.Context, events []*services.EventListDto) Node {
 
 func EventList(ctx context.Context, events []*services.EventListDto) Node {
 	return Div(
-		Class("mb-8 grid gap-4"),
+		Class("space-y-4"),
 		Map(events, func(e *services.EventListDto) Node {
 			return EventCard(ctx, e)
 		}),

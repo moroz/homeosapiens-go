@@ -62,15 +62,6 @@ func fonts() Node {
 	}
 }
 
-func NavLink(href string, text string) Node {
-	return Li(
-		A(
-			Class("text-primary inline-flex h-full items-center rounded-sm px-3 font-semibold transition hover:bg-slate-200"),
-			Href(href), Text(text),
-		),
-	)
-}
-
 func LanguageSwitcher(ctx context.Context) Node {
 	activeLocale := ctx.Value("lang").(string)
 	l := ctx.Value("localizer").(*i18n.Localizer)
@@ -96,7 +87,7 @@ func AppFooter() Node {
 		Div(
 			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(
-				Raw("&copy; 2024&ndash;2026 by Wydawnictwo Homeo Sapiens. All rights reserved."),
+				Raw("&copy; 2024&ndash;2026 by Wydawnictwo Homeo Sapiens.<br/>All rights reserved."),
 			),
 		),
 	)

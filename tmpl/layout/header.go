@@ -51,43 +51,98 @@ func UserHeader(ctx context.Context) Node {
 	)
 }
 
-func AppHeader(ctx context.Context) Node {
+func NavLink(href string, text string) Node {
+	return Li(
+		A(
+			Class("text-primary inline-flex h-full items-center rounded-sm px-3 font-semibold transition hover:bg-slate-200"),
+			Href(href), Text(text),
+		),
+	)
+}
+
+func desktopNav(ctx context.Context) Node {
 	l := ctx.Value("localizer").(*i18n.Localizer)
 	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
+	return Nav(
+		Class("h-full mobile:hidden"),
+		Ul(
+			Class("flex h-full gap-1 py-4"),
+			NavLink("/", l.MustLocalizeMessage(&i18n.Message{
+				ID: "header.nav.home",
+			})),
+			NavLink("/videos", l.MustLocalizeMessage(&i18n.Message{
+				ID: "header.nav.videos",
+			})),
+			NavLink("/dashboard", l.MustLocalizeMessage(&i18n.Message{
+				ID: "header.nav.my_products",
+			})),
+			LanguageSwitcher(ctx),
+			If(user == nil, NavLink("/sign-in", l.MustLocalizeMessage(&i18n.Message{
+				ID: "header.nav.sign_in",
+			}))),
+			Iff(user != nil, func() Node {
+				return UserHeader(ctx)
+			}),
+		),
+	)
+}
+
+func hamburgerTrigger() Node {
+	return El("fade-burger", Attr("size", "lg"), Class("z-10 text-primary"), ID("hamburger-toggle"))
+}
+
+func HamburgerItem(href string, text string) Node {
+	return Li(
+		A(
+			Href(href),
+			Class("text-primary w-full h-12 text-center font-semibold flex items-center justify-center text-lg hover:bg-slate-100"),
+			Text(text),
+		),
+	)
+}
+
+func mobileNav(ctx context.Context) Node {
+	l := ctx.Value("localizer").(*i18n.Localizer)
+	//user := ctx.Value(config.CurrentUserContextName).(*queries.User)
+
+	return Div(
+		Class("not-mobile:hidden z-10"),
+		hamburgerTrigger(),
+		Nav(
+			Class("hamburger-menu pt-20"),
+			// Fake header for shadow
+			Div(Class("absolute top-0 left-0 right-0 h-20 border-b bg-white shadow")),
+			Ul(
+				Class("hamburger-items space-y-1 my-4"),
+				HamburgerItem("/", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.home",
+				})),
+				HamburgerItem("/videos", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.videos",
+				})),
+				HamburgerItem("/dashboard", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.my_products",
+				})),
+			),
+		),
+	)
+}
+
+func AppHeader(ctx context.Context) Node {
 	return Header(
 		Class("fixed inset-0 z-10 h-20 border-b bg-white shadow"),
 		Div(Class("container mx-auto flex h-full items-center justify-between mobile:px-2"),
 			H1(
+				Class("z-20"),
 				A(
 					Class("text-primary hover:text-primary-hover text-4xl font-bold no-underline transition-colors"),
 					Href("/"),
 					logo("h-15 mobile:h-12"),
 				),
 			),
-			Div(Class("not-mobile:hidden"), El("tilt-burger", Attr("size", "lg"))),
-			Nav(
-				Class("h-full mobile:hidden"),
-				Ul(
-					Class("flex h-full gap-1 py-4"),
-					NavLink("/", l.MustLocalizeMessage(&i18n.Message{
-						ID: "header.nav.home",
-					})),
-					NavLink("/videos", l.MustLocalizeMessage(&i18n.Message{
-						ID: "header.nav.videos",
-					})),
-					NavLink("/dashboard", l.MustLocalizeMessage(&i18n.Message{
-						ID: "header.nav.my_products",
-					})),
-					LanguageSwitcher(ctx),
-					If(user == nil, NavLink("/sign-in", l.MustLocalizeMessage(&i18n.Message{
-						ID: "header.nav.sign_in",
-					}))),
-					Iff(user != nil, func() Node {
-						return UserHeader(ctx)
-					}),
-				),
-			),
+			mobileNav(ctx),
+			desktopNav(ctx),
 		),
 	)
 }
