@@ -72,5 +72,11 @@ func TestRegisterForEvent(t *testing.T) {
 
 		assert.GreaterOrEqual(t, w.Code, 200)
 		assert.Less(t, w.Code, 400)
+
+		registration, err := queries.New(db).GetLastEventRegistration(t.Context())
+		assert.NoError(t, err)
+
+		assert.Equal(t, params.Email, registration.Email.String())
+		assert.False(t, registration.EmailConfirmedAt.Valid)
 	})
 }

@@ -12,6 +12,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getLastEventRegistration = `-- name: GetLastEventRegistration :one
+select id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at from event_registrations order by id desc limit 1
+`
+
+// Only for testing
+func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistration, error) {
+	row := q.db.QueryRow(ctx, getLastEventRegistration)
+	var i EventRegistration
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.UserID,
+		&i.AttendingInPerson,
+		&i.IsHost,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.Email,
+		&i.Country,
+		&i.EmailConfirmedAt,
+	)
+	return &i, err
+}
+
 const insertEventRegistration = `-- name: InsertEventRegistration :one
 insert into event_registrations (event_id, user_id, is_host, given_name_encrypted, family_name_encrypted, email_encrypted, country, attending_in_person, email_confirmed_at)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)

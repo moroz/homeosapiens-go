@@ -100,10 +100,9 @@ func (c *eventRegistrationController) Create(w http.ResponseWriter, r *http.Requ
 	}
 
 	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
-	result, err := c.eventRegistrationService.CreateEventRegistration(r.Context(), user, event, &params)
-
+	_, err = c.eventRegistrationService.CreateEventRegistration(r.Context(), user, event, &params)
 	if err == nil {
-		http.Redirect(w, r, fmt.Sprintf("/events/%s", result.EventID), http.StatusFound)
+		http.Redirect(w, r, fmt.Sprintf("/events/%s", event.Slug), http.StatusFound)
 		return
 	}
 

@@ -100,6 +100,8 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 
 			Main(
 				Form(
+					Method("POST"),
+					Action("/event_registrations"),
 					Class("mt-6 space-y-2"),
 					Input(Type("hidden"), Name("event_id"), Value(event.Event.ID.String())),
 					components.InputField(&components.InputFieldOptions{
@@ -151,6 +153,7 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 						Value:     params.Profession,
 						Localizer: l,
 					}),
+					Button(Type("submit"), Class("button h-10 w-full text-lg mt-2"), Text("Submit")),
 				),
 			),
 		),
