@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
@@ -13,6 +14,15 @@ type EventService struct {
 
 func NewEventService(db queries.DBTX) *EventService {
 	return &EventService{db}
+}
+
+func (s *EventService) GetEventById(ctx context.Context, id string) (*queries.Event, error) {
+	uuid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return queries.New(s.db).GetEventById(ctx, pgtype.UUID{Valid: true, Bytes: uuid})
 }
 
 type EventListDto struct {

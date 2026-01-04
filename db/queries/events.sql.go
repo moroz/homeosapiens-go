@@ -12,6 +12,33 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const getEventById = `-- name: GetEventById :one
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug from events where id = $1
+`
+
+func (q *Queries) GetEventById(ctx context.Context, id pgtype.UUID) (*Event, error) {
+	row := q.db.QueryRow(ctx, getEventById, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.VenueID,
+		&i.Slug,
+	)
+	return &i, err
+}
+
 const getEventBySlug = `-- name: GetEventBySlug :one
 select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.venue_id, e.slug
 from events e

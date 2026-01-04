@@ -1,3 +1,6 @@
+-- name: GetEventById :one
+select * from events where id = $1;
+
 -- name: ListEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
        e.venue_id, e.event_type, e.starts_at, e.ends_at,

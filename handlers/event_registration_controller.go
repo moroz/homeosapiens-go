@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/schema"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/tz"
@@ -16,19 +17,21 @@ import (
 	"github.com/moroz/homeosapiens-go/types"
 )
 
+var decoder = schema.NewDecoder()
+
 type eventRegistrationController struct {
-	*services.EventService
+	eventService *services.EventService
 }
 
 func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 	return &eventRegistrationController{
-		EventService: services.NewEventService(db),
+		eventService: services.NewEventService(db),
 	}
 }
 
 func (c *eventRegistrationController) New(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
-	event, err := c.EventService.GetEventBySlug(r.Context(), slug)
+	event, err := c.eventService.GetEventBySlug(r.Context(), slug)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		log.Printf("Event with the slug: %s not found", slug)
 		http.Error(w, "Not Found", 404)
@@ -74,5 +77,21 @@ func buildRegistrationParams(user *queries.User, location *tz.TimezoneGuess) *ty
 }
 
 func (c *eventRegistrationController) Create(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		handleError(w, err, 400)
+		return
+	}
 
+	var params types.CreateEventRegistrationParams
+	if err := decoder.Decode(&params, r.PostForm); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	event, err := c.eventService.GetEventById(r.Context(), params.EventID)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		handleError(w, err, 404)
+		return
+	}
+	w.WriteHeader(204)
 }

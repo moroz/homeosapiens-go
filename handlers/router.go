@@ -32,6 +32,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 
 	eventRegistrations := EventRegistrationController(db)
 	r.Get("/events/{slug}/register", eventRegistrations.New)
+	r.Post("/event_registrations", eventRegistrations.Create)
 
 	sessions := SessionController(db, store)
 	r.Get("/sign-in", sessions.New)

@@ -15,6 +15,12 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+func handleError(w http.ResponseWriter, err error, code int) {
+	msg := fmt.Sprintf("Error: %s", err)
+	log.Print(msg)
+	http.Error(w, msg, code)
+}
+
 func handleRenderingError(w http.ResponseWriter, err error) {
 	msg := fmt.Sprintf("Error rendering page: %s", err)
 	log.Print(msg)
