@@ -65,7 +65,7 @@ func desktopNav(ctx context.Context) Node {
 	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
 	return Nav(
-		Class("h-full mobile:hidden"),
+		Class("mobile:hidden h-full"),
 		Ul(
 			Class("flex h-full gap-1 py-4"),
 			NavLink("/", l.MustLocalizeMessage(&i18n.Message{
@@ -89,14 +89,14 @@ func desktopNav(ctx context.Context) Node {
 }
 
 func hamburgerTrigger() Node {
-	return El("fade-burger", Attr("size", "lg"), Class("z-10 text-primary"), ID("hamburger-toggle"))
+	return El("fade-burger", Attr("size", "lg"), Class("text-primary z-10"), ID("hamburger-toggle"))
 }
 
 func HamburgerItem(href string, text string) Node {
 	return Li(
 		A(
 			Href(href),
-			Class("text-primary w-full h-12 text-center font-semibold flex items-center justify-center text-lg hover:bg-slate-100"),
+			Class("text-primary flex h-12 w-full items-center justify-center text-center text-lg font-semibold hover:bg-slate-100"),
 			Text(text),
 		),
 	)
@@ -112,9 +112,9 @@ func mobileNav(ctx context.Context) Node {
 		Nav(
 			Class("hamburger-menu pt-20"),
 			// Fake header for shadow
-			Div(Class("absolute top-0 left-0 right-0 h-20 border-b bg-white shadow")),
+			Div(Class("absolute top-0 right-0 left-0 h-20 border-b bg-white shadow")),
 			Ul(
-				Class("hamburger-items space-y-1 my-4"),
+				Class("hamburger-items my-4 space-y-1"),
 				HamburgerItem("/", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.home",
 				})),
@@ -132,7 +132,7 @@ func mobileNav(ctx context.Context) Node {
 func AppHeader(ctx context.Context) Node {
 	return Header(
 		Class("fixed inset-0 z-10 h-20 border-b bg-white shadow"),
-		Div(Class("container mx-auto flex h-full items-center justify-between mobile:px-2"),
+		Div(Class("mobile:px-2 container mx-auto flex h-full items-center justify-between"),
 			H1(
 				Class("z-20"),
 				A(

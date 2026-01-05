@@ -20,7 +20,7 @@ func googleRedirectPath(redirectTo string) string {
 
 func GoogleButton(text, redirectTo string) Node {
 	return A(
-		Class("button my-4 flex w-full gap-[10px] outline"),
+		Class("button font-fallback my-4 flex w-full gap-2.5 outline"),
 		Href(googleRedirectPath(redirectTo)),
 		Img(Src("/assets/google.svg")),
 		Text(text),

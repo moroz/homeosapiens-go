@@ -87,6 +87,7 @@ const SessionContextName = "session"
 const LocationContextName = "timezone"
 const TimezoneSetContextName = "tzset"
 const CurrentUserContextName = "current_user"
+const LangContextName = "lang"
 
 const MinPasswordLength = 8
 const MaxPasswordLength = 128

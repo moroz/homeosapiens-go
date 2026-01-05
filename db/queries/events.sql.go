@@ -265,3 +265,46 @@ func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []pgtype.UUI
 	}
 	return items, nil
 }
+
+const listVenuesForEvents = `-- name: ListVenuesForEvents :many
+select e.id as event_id, v.id, v.name_en, v.name_pl, v.street, v.city_en, v.city_pl, v.postal_code, v.country_code, v.inserted_at, v.updated_at from events e
+join venues v on e.venue_id = v.id
+where e.id = any($1::uuid[])
+`
+
+type ListVenuesForEventsRow struct {
+	EventID pgtype.UUID `json:"eventId"`
+	Venue   Venue       `json:"venue"`
+}
+
+func (q *Queries) ListVenuesForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*ListVenuesForEventsRow, error) {
+	rows, err := q.db.Query(ctx, listVenuesForEvents, eventids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListVenuesForEventsRow
+	for rows.Next() {
+		var i ListVenuesForEventsRow
+		if err := rows.Scan(
+			&i.EventID,
+			&i.Venue.ID,
+			&i.Venue.NameEn,
+			&i.Venue.NamePl,
+			&i.Venue.Street,
+			&i.Venue.CityEn,
+			&i.Venue.CityPl,
+			&i.Venue.PostalCode,
+			&i.Venue.CountryCode,
+			&i.Venue.InsertedAt,
+			&i.Venue.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

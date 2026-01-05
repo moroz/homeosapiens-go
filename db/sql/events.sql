@@ -29,3 +29,8 @@ order by p.event_id, p.priority;
 select er.* from event_registrations er
 where er.event_id = any(@EventIDs::uuid[])
 and er.user_id = @UserID::uuid;
+
+-- name: ListVenuesForEvents :many
+select e.id as event_id, sqlc.embed(v) from events e
+join venues v on e.venue_id = v.id
+where e.id = any(@EventIDs::uuid[]);

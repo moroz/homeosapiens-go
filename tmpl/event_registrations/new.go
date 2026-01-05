@@ -55,7 +55,7 @@ func buildCountryOptions(lang string) []components.SelectOption {
 }
 
 func New(ctx context.Context, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams, validationErrors validation.Errors) Node {
-	lang := ctx.Value("lang").(string)
+	lang := ctx.Value(config.LangContextName).(string)
 	title := event.TitleEn
 	if lang == "pl" {
 		title = event.TitlePl
@@ -153,7 +153,7 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 						Value:     params.Profession,
 						Localizer: l,
 					}),
-					Button(Type("submit"), Class("button h-10 w-full text-lg mt-2"), Text("Submit")),
+					Button(Type("submit"), Class("button mt-2 h-10 w-full text-lg"), Text("Submit")),
 				),
 			),
 		),

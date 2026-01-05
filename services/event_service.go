@@ -25,6 +25,7 @@ type EventListDto struct {
 	Hosts             []*queries.ListHostsForEventsRow
 	Prices            []*queries.EventPrice
 	EventRegistration *queries.EventRegistration
+	Venue             *queries.Venue
 }
 
 func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*EventListDto, error) {
@@ -53,6 +54,11 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 		return nil, err
 	}
 
+	venues, err := s.preloadVenuesForEvents(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
 	var result []*EventListDto
 	for _, event := range events {
 		result = append(result, &EventListDto{
@@ -60,6 +66,7 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 			Hosts:             hosts[event.ID],
 			Prices:            prices[event.ID],
 			EventRegistration: registrations[event.ID],
+			Venue:             venues[event.ID],
 		})
 	}
 
@@ -172,4 +179,17 @@ func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, e
 		resultMap[row.EventID] = row
 	}
 	return resultMap, nil
+}
+
+func (s *EventService) preloadVenuesForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID]*queries.Venue, error) {
+	venues, err := queries.New(s.db).ListVenuesForEvents(ctx, eventIds)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[pgtype.UUID]*queries.Venue)
+	for _, row := range venues {
+		result[row.EventID] = &row.Venue
+	}
+	return result, nil
 }

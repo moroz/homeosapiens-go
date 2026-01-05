@@ -13,7 +13,7 @@ import (
 )
 
 func Index(ctx context.Context, videos []*services.VideoListDto) Node {
-	lang := ctx.Value("lang").(string)
+	lang := ctx.Value(config.LangContextName).(string)
 
 	return layout.Layout(ctx, "Videos",
 		H2(Class("text-primary text-4xl font-bold"), Text("Videos")),

@@ -96,5 +96,9 @@
       "optional": "(optional)",
       "required": "required field"
     }
-  }
+  },
+	"events": {
+		"starts_at": "Starts at:",
+		"ends_at": "Ends at:"
+	}
 }

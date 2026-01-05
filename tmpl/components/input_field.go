@@ -56,7 +56,7 @@ func InputField(opts *InputFieldOptions) Node {
 
 			Iff(opts.Localizer != nil && !opts.Required, func() Node {
 				return Span(
-					Class("text-slate-600 text-sm"),
+					Class("text-sm text-slate-600"),
 					Text(" "),
 					Text(opts.Localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "components.input_field.optional",

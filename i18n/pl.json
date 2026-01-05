@@ -109,5 +109,9 @@
       "optional": "(opcjonalne)",
       "required": "wymagane pole"
     }
-  }
+  },
+	"events": {
+		"starts_at": "Data i godzina rozpoczęcia:",
+		"ends_at": "Data i godzina zakończenia:"
+	}
 }

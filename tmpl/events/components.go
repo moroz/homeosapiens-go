@@ -14,21 +14,21 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func EventLocationBadge(e *services.EventListDto, l *i18n.Localizer, lang string) Node {
+func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer, lang string) Node {
 	return Span(
-		Class("bg-secondary inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-white font-fallback"),
-		Iff(e.VenueID.Valid, func() Node {
-			city := *e.VenueCityEn
-			if lang == "pl" && e.VenueCityPl != nil {
-				city = *e.VenueCityPl
+		Class("bg-secondary font-fallback inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-white"),
+		Iff(venue != nil, func() Node {
+			city := venue.CityEn
+			if lang == "pl" && venue.CityPl != nil {
+				city = *venue.CityPl
 			}
 
 			return Text(
-				fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(l, *e.VenueCountryCode)),
+				fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(l, venue.CountryCode)),
 			)
 		}),
-		If(e.IsVirtual && e.VenueID.Valid, Text(" + ")),
-		If(e.IsVirtual, Text("Online")),
+		If(isVirtual && venue != nil, Text(" + ")),
+		If(isVirtual, Text("Online")),
 	)
 }
 
@@ -63,7 +63,7 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 
 func EventCard(ctx context.Context, e *services.EventListDto) Node {
 	localizer := ctx.Value("localizer").(*i18n.Localizer)
-	lang := ctx.Value("lang").(string)
+	lang := ctx.Value(config.LangContextName).(string)
 
 	title := e.TitleEn
 	if lang == "pl" {
@@ -80,8 +80,8 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 		Header(
 			Class("flex flex-1 flex-col items-start"),
 			Div(
-				Class("flex gap-2 items-center mb-2"),
-				EventLocationBadge(e, localizer, lang),
+				Class("mb-2 flex items-center gap-2"),
+				EventLocationBadge(e.IsVirtual, e.Venue, localizer, lang),
 				Iff(e.EventRegistration != nil, func() Node {
 					messageKey := "common.events.attendance_badge.past"
 					if isFuture {
@@ -89,7 +89,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 					}
 
 					return Span(
-						Class("text-sm text-white bg-green-900 justify-center items-center inline-flex py-1 px-2 font-semibold rounded gap-1 font-fallback"),
+						Class("font-fallback inline-flex items-center justify-center gap-1 rounded bg-green-900 px-2 py-1 text-sm font-semibold text-white"),
 						I(Class("h-4 w-4"), Data("lucide", "user-star")),
 						Text(localizer.MustLocalizeMessage(&i18n.Message{
 							ID: messageKey,
@@ -99,7 +99,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 
 			H3(
-				Class("text-primary text-3xl font-bold mobile:text-xl mobile:leading-tight"),
+				Class("text-primary mobile:text-xl mobile:leading-tight text-3xl font-bold"),
 				A(
 					Class("hover:text-primary-hover decoration-2 underline-offset-3 transition-colors hover:underline"),
 					Href(eventUrl),
@@ -148,7 +148,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			),
 		),
 
-		Div(Class("flex items-center gap-6 mobile:hidden"),
+		Div(Class("mobile:hidden flex items-center gap-6"),
 			Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
 				return HostCard(localizer, host)
 			}),
@@ -158,7 +158,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 
 func formatEventPrice(ctx context.Context, e *services.EventListDto) Node {
 	localizer := ctx.Value("localizer").(*i18n.Localizer)
-	lang := ctx.Value("lang").(string)
+	lang := ctx.Value(config.LangContextName).(string)
 
 	label := localizer.MustLocalizeMessage(&i18n.Message{
 		ID:    "common.events.participation_cost",

@@ -13,8 +13,10 @@ import (
 
 func RootLayout(ctx context.Context, title string, children ...Node) Node {
 	tz := ctx.Value(config.LocationContextName).(*time.Location)
+	lang := ctx.Value(config.LangContextName).(string)
 
 	return HTML(
+		Lang(lang),
 		Head(
 			Meta(Charset("UTF-8")),
 			Meta(Name("viewport"), Content("width=device-width, initial-scale=1")),
@@ -31,7 +33,7 @@ func RootLayout(ctx context.Context, title string, children ...Node) Node {
 
 func Layout(ctx context.Context, title string, children ...Node) Node {
 	return RootLayout(ctx, title,
-		Class("flex min-h-screen flex-col max-w-full overflow-x-hidden"),
+		Class("flex min-h-screen max-w-full flex-col overflow-x-hidden"),
 		AppHeader(ctx),
 		Main(
 			Class("flex-1 bg-slate-100 pt-26 pb-6"),
@@ -56,14 +58,14 @@ func fonts() Node {
 			CrossOrigin(""),
 		),
 		Link(
-			Href("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=fallback"),
+			Href("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"),
 			Rel("stylesheet"),
 		),
 	}
 }
 
 func LanguageSwitcher(ctx context.Context) Node {
-	activeLocale := ctx.Value("lang").(string)
+	activeLocale := ctx.Value(config.LangContextName).(string)
 	l := ctx.Value("localizer").(*i18n.Localizer)
 	otherLocale := "en"
 	if activeLocale == "en" {

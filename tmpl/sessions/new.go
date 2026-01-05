@@ -52,7 +52,7 @@ func New(ctx context.Context, email string, msg string) Node {
 				Localizer:    l,
 			}),
 
-			Button(Type("submit"), Class("button h-10 w-full text-lg"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.submit"}))),
+			Button(Type("submit"), Class("button font-fallback h-10 w-full text-lg"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.submit"}))),
 		),
 
 		Footer(

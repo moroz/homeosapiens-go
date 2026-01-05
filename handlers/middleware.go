@@ -32,7 +32,7 @@ func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next
 
 			localizer := goi18n.NewLocalizer(bundle, lang)
 			ctx := context.WithValue(r.Context(), "localizer", localizer)
-			ctx = context.WithValue(ctx, "lang", lang)
+			ctx = context.WithValue(ctx, config.LangContextName, lang)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
