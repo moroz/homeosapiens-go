@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/pages"
@@ -20,7 +21,8 @@ func PageController(db queries.DBTX) *pageController {
 }
 
 func (c *pageController) Index(w http.ResponseWriter, r *http.Request) {
-	events, err := c.eventService.ListEvents(r.Context())
+	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
+	events, err := c.eventService.ListEvents(r.Context(), user)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

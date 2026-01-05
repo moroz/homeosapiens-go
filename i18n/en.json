@@ -34,6 +34,10 @@
         "seminar": "Seminar",
         "webinar": "Webinar"
       },
+			"attendance_badge": {
+				"past": "Attended",
+				"upcoming": "You are attending"
+			},
       "free": "Free",
       "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
       "learn_more": "Learn more…",

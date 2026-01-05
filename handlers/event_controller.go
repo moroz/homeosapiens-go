@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/events"
@@ -23,7 +24,8 @@ func EventController(db queries.DBTX) *eventController {
 
 func (c *eventController) Show(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
-	event, err := c.eventService.GetEventDetailsBySlug(r.Context(), slug)
+	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
+	event, err := c.eventService.GetEventDetailsBySlug(r.Context(), slug, user)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		http.Error(w, "Not found", 404)
 		return

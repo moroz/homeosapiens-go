@@ -14,6 +14,24 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
+func EventLocationBadge(e *services.EventListDto, l *i18n.Localizer, lang string) Node {
+	return Span(
+		Class("bg-secondary inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-white font-fallback"),
+		Iff(e.VenueID.Valid, func() Node {
+			city := *e.VenueCityEn
+			if lang == "pl" && e.VenueCityPl != nil {
+				city = *e.VenueCityPl
+			}
+
+			return Text(
+				fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(l, *e.VenueCountryCode)),
+			)
+		}),
+		If(e.IsVirtual && e.VenueID.Valid, Text(" + ")),
+		If(e.IsVirtual, Text("Online")),
+	)
+}
+
 func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) Node {
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
@@ -61,20 +79,23 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 		Class("card flex justify-between gap-6"),
 		Header(
 			Class("flex flex-1 flex-col items-start"),
-			Span(
-				Class("bg-secondary mb-2 inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-white"),
-				Iff(e.VenueID.Valid, func() Node {
-					city := *e.VenueCityEn
-					if lang == "pl" && e.VenueCityPl != nil {
-						city = *e.VenueCityPl
+			Div(
+				Class("flex gap-2 items-center mb-2"),
+				EventLocationBadge(e, localizer, lang),
+				Iff(e.EventRegistration != nil, func() Node {
+					messageKey := "common.events.attendance_badge.past"
+					if isFuture {
+						messageKey = "common.events.attendance_badge.upcoming"
 					}
 
-					return Text(
-						fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(localizer, *e.VenueCountryCode)),
+					return Span(
+						Class("text-sm text-white bg-green-900 justify-center items-center inline-flex py-1 px-2 font-semibold rounded gap-1 font-fallback"),
+						I(Class("h-4 w-4"), Data("lucide", "user-star")),
+						Text(localizer.MustLocalizeMessage(&i18n.Message{
+							ID: messageKey,
+						})),
 					)
 				}),
-				If(e.IsVirtual && e.VenueID.Valid, Text(" + ")),
-				If(e.IsVirtual, Text("Online")),
 			),
 
 			H3(
@@ -116,7 +137,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 				Class("mt-auto flex items-center gap-4"),
 				A(
 					Href(eventUrl),
-					Class("button"),
+					Class("button font-fallback"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID:    "common.events.learn_more",
 						Other: "Learn more…",

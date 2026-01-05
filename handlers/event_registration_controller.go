@@ -35,7 +35,8 @@ func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 
 func (c *eventRegistrationController) New(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
-	event, err := c.eventService.GetEventDetailsBySlug(r.Context(), slug)
+	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
+	event, err := c.eventService.GetEventDetailsBySlug(r.Context(), slug, user)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		log.Printf("Event with the slug: %s not found", slug)
 		http.Error(w, "Not Found", 404)
@@ -46,7 +47,6 @@ func (c *eventRegistrationController) New(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
 	location := r.Context().Value(config.LocationContextName).(*time.Location)
 	countryGuess := tz.GuessRegionByTimezone(location.String())
 	params := buildRegistrationParams(user, countryGuess)
@@ -109,7 +109,7 @@ func (c *eventRegistrationController) Create(w http.ResponseWriter, r *http.Requ
 	var validationErrors validation.Errors
 	ok := errors.As(err, &validationErrors)
 	if ok {
-		dto, err := c.eventService.GetEventDetailsForEvent(r.Context(), event)
+		dto, err := c.eventService.GetEventDetailsForEvent(r.Context(), event, user)
 		if err != nil {
 			handleError(w, err, 500)
 		}

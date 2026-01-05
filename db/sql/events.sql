@@ -24,3 +24,8 @@ order by eh.host_id, eh.position;
 select p.* from event_prices p
 where p.event_id = any(@EventIDs::uuid[])
 order by p.event_id, p.priority;
+
+-- name: ListEventRegistrationsForUserForEvents :many
+select er.* from event_registrations er
+where er.event_id = any(@EventIDs::uuid[])
+and er.user_id = @UserID::uuid;

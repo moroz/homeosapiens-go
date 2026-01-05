@@ -66,6 +66,50 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 	return &i, err
 }
 
+const listEventRegistrationsForUserForEvents = `-- name: ListEventRegistrationsForUserForEvents :many
+select er.id, er.event_id, er.user_id, er.attending_in_person, er.is_host, er.inserted_at, er.updated_at, er.given_name_encrypted, er.family_name_encrypted, er.email_encrypted, er.country, er.email_confirmed_at from event_registrations er
+where er.event_id = any($1::uuid[])
+and er.user_id = $2::uuid
+`
+
+type ListEventRegistrationsForUserForEventsParams struct {
+	Eventids []pgtype.UUID `json:"eventids"`
+	Userid   pgtype.UUID   `json:"userid"`
+}
+
+func (q *Queries) ListEventRegistrationsForUserForEvents(ctx context.Context, arg *ListEventRegistrationsForUserForEventsParams) ([]*EventRegistration, error) {
+	rows, err := q.db.Query(ctx, listEventRegistrationsForUserForEvents, arg.Eventids, arg.Userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*EventRegistration
+	for rows.Next() {
+		var i EventRegistration
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventID,
+			&i.UserID,
+			&i.AttendingInPerson,
+			&i.IsHost,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.GivenName,
+			&i.FamilyName,
+			&i.Email,
+			&i.Country,
+			&i.EmailConfirmedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listEvents = `-- name: ListEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
        e.venue_id, e.event_type, e.starts_at, e.ends_at,
