@@ -16,7 +16,7 @@ import (
 
 func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer, lang string) Node {
 	return Span(
-		Class("bg-blue-100 font-fallback inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-blue-900 border border-blue-900/50"),
+		Class("font-fallback inline-flex items-center gap-1 justify-self-start rounded border border-blue-900/50 bg-blue-100 px-2 py-1 text-sm font-semibold text-blue-900"),
 		Iff(venue != nil, func() Node {
 			city := venue.CityEn
 			if lang == "pl" && venue.CityPl != nil {
@@ -39,7 +39,7 @@ func EventAttendanceBadge(isFuture bool, l *i18n.Localizer) Node {
 	}
 
 	return Span(
-		Class("font-fallback inline-flex items-center justify-center gap-1 rounded bg-green-100 px-2 py-1 text-sm font-semibold text-green-900 border border-green-900/50"),
+		Class("font-fallback inline-flex items-center justify-center gap-1 rounded border border-green-900/50 bg-green-100 px-2 py-1 text-sm font-semibold text-green-900"),
 		I(Class("h-4 w-4"), Data("lucide", "user-star")),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: messageKey,

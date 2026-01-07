@@ -55,7 +55,7 @@ func Show(ctx context.Context, event *services.EventDetailsDto) Node {
 		Div(
 			Class("mb-2 flex items-center gap-2"),
 			EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
-			EventAttendanceBadge(isFuture, l),
+			If(event.EventRegistration != nil, EventAttendanceBadge(isFuture, l)),
 		),
 		H2(
 			Class("text-primary my-2 text-4xl font-bold"),

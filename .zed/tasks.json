@@ -56,4 +56,14 @@
     "label": "Run migrations",
     "command": "goose up",
   },
+
+  {
+    "label": "Run seeds",
+    "command": "mise r db:seed",
+  },
+
+  {
+    "label": "Format Tailwind classes in Go files",
+    "command": "mise r format",
+  },
 ]

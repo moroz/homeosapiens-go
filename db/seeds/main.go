@@ -206,6 +206,13 @@ func main() {
 			EndsAt:        MustParseTimestamp("2025-12-13T17:30:00Z"),
 			IsVirtual:     true,
 			DescriptionEn: "Dear Homeopathic Friends, \n\nWe are happy to invite you to the next Homeo sapiens Academy webinar. Experienced clinician and homeopath Dr. Herman Jeggels from Cape Town, South Africa will discuss homeopathic treatment in advanced circulatory pathology. He will present documented cases of infective endocarditis, complete AV block and heart failure.\n\nThe webinar will be hosted on December 13th 10.00am CET (Poland) / 2.30pm IST (India) / 11:00am SAST (South Africa).\n\nThe webinar is free of charge. It will be held in English with consecutive translation to Polish.\n\nIt will be held on Zoom via our website (you need to register using email address and a password).",
+			DescriptionPl: StringPtr(`Z przyjemnością zapraszamy na kolejny webinar organizowany przez Homeo sapiens. Naszym gościem będzie Dr Herman Jeggels z Cape Town (RPA), doświadczony klinicysta i homeopata, który przedstawi przypadki leczenia homeopatycznego w zaawansowanych chorobach układu krążenia. Omówione zostaną udokumentowane historie leczenia pacjentów z problemami kardiologicznymi, między innymi infekcyjne zapalenie wsierdzia, całkowity blok przedsionkowo-komorowy i niewydolność serca.
+
+Webinar odbędzie się 13 grudnia 2025 o godzinie 10.00 czasu polskiego.
+
+Wykład będzie tłumaczony konsekutywnie na język polski.
+
+Webinar jest bezpłatny. Odbędzie się na platformie Zoom za pośrednictwem naszej strony internetowej. Wymagana jest rejestracja z użyciem adresu email i ustawienie hasła.`),
 		},
 		{
 			ID:                MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8c"),
@@ -220,6 +227,17 @@ func main() {
 			VenueID:           MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8e"),
 			BasePriceAmount:   StringPtr("580.00000000"),
 			BasePriceCurrency: StringPtr("PLN"),
+			DescriptionPl: StringPtr(`Wykładowca Dr. Sanjay Modi, wieloletni wykładowca Mumbai Homeopathic College.
+
+Seminarium organizowane jest we współpracy z Polskim Towarzystwem Homeopatycznym i Polskim Stowarzyszeniem Homeopatów Lekarzy i Farmaceutów.
+
+30-31 maja 2025, sala wykładowa B Instytutu Ochrony Roślin, ul. Władysława Węgorka 20, 60-318 Poznań.
+
+Seminarium będzie również dostępne na żywo on-line na platformie Zoom za pośrednictwem naszej strony internetowej. Wykłady będą prowadzone w języku angielskim z konsekutywnym tłumaczeniem na polski.
+
+Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym terminie przewidujemy opcję udostępnienia nagrania, ale tylko dla zarejestrowanych uczestników.
+
+Omówionych zostanie szereg praktycznych problemów klinicznych, różnicowanie leków z grupy Kalium, leki introwertyczne/ekstrawertyczne, prezentacja przypadków klinicznych.`),
 		},
 		{
 			ID:                MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
@@ -231,6 +249,15 @@ func main() {
 			EndsAt:            MustParseTimestamp("2025-10-26T11:30:00Z"),
 			IsVirtual:         true,
 			DescriptionEn:     "Dr. Sanjay Modi, former professor of Mumbai Homeopathic College. The webinar is organised in honorary cooperation with the Polish Homeopathic Society and the Polish Society of Homeopathic Doctors and Pharmacists.\n\nOctober 24-25 2025, Vienna House Easy By Wyndham Cracow ul. Przy Rondzie 2, Kraków, Poland.\n\nOnline mode will also available (through Zoom). The lectures will be held in English with consecutive translation to Polish.",
+			DescriptionPl: StringPtr(`Wykładowca Dr. Sanjay Modi, wieloletni wykładowca Mumbai Homeopathic College.
+
+Seminarium organizowane jest we współpracy z Polskim Towarzystwem Homeopatycznym i Polskim Stowarzyszeniem Homeopatów Lekarzy i Farmaceutów.
+
+24-25 października 2025, Vienna House Easy By Wyndham Cracow ul. Przy Rondzie 2, Kraków.
+
+Seminarium będzie również dostępne na żywo on-line na platformie Zoom za pośrednictwem naszej strony internetowej. Wykłady będą prowadzone w języku angielskim z konsekutywnym tłumaczeniem na polski.
+
+Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym terminie przewidujemy opcję udostępnienia nagrania, ale tylko dla zarejestrowanych uczestników.`),
 			VenueID:           MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8d"),
 			BasePriceAmount:   StringPtr("640.00000000"),
 			BasePriceCurrency: StringPtr("PLN"),
