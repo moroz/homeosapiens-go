@@ -59,7 +59,9 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
 		r.Handle("/assets/*", CacheControlMiddleware(fileServer))
 	} else {
+		email := EmailController()
 		r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/public/assets"))))
+		r.Get("/dev/email", email.Show)
 	}
 
 	return r

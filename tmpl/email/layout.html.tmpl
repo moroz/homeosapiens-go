@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Subject}}</title>
+    <style type="text/css">
+      body {
+        margin: 0;
+        padding: 0;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+      table {
+        border-collapse: collapse;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+      }
+      img {
+        border: 0;
+        height: auto;
+        line-height: 100%;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;
+      }
+      p {
+        display: block;
+        margin: 13px 0;
+      }
+    </style>
+    <!--[if mso]>
+      <style type="text/css">
+        body,
+        table,
+        td,
+        a {
+          font-family: Arial, sans-serif !important;
+        }
+      </style>
+    <![endif]-->
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f4f4f4">
+    <!-- Wrapper table for background color -->
+    <table
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      style="background-color: #f4f4f4"
+    >
+      <tr>
+        <td align="center" style="padding: 20px 0">
+          <!-- Main container table -->
+          <table
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            width="600"
+            style="background-color: #ffffff; border: 1px solid #dddddd"
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                align="center"
+                style="padding: 40px 30px; background-color: #2c3e50"
+              >
+                <font
+                  face="Arial, sans-serif"
+                  size="6"
+                  color="#ffffff"
+                  style="font-size: 28px; font-weight: bold; line-height: 1.2"
+                >
+                  {{.CompanyName}}
+                </font>
+              </td>
+            </tr>
+
+            <!-- Main content -->
+            <tr>
+              <td style="padding: 40px 30px">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td>
+                      <font
+                        face="Arial, sans-serif"
+                        size="4"
+                        color="#333333"
+                        style="
+                          font-size: 18px;
+                          font-weight: bold;
+                          line-height: 1.4;
+                        "
+                      >
+                        {{.Heading}}
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding-top: 20px">
+                      <font
+                        face="Arial, sans-serif"
+                        size="3"
+                        color="#555555"
+                        style="font-size: 16px; line-height: 1.6"
+                      >
+                        {{.Body}}
+                      </font>
+                    </td>
+                  </tr>
+
+                  <!-- Call to action button -->
+                  {{if .ButtonText}}
+                  <tr>
+                    <td align="center" style="padding-top: 30px">
+                      <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td
+                            align="center"
+                            bgcolor="#3498db"
+                            style="border-radius: 4px"
+                          >
+                            <a
+                              href="{{.ButtonURL}}"
+                              target="_blank"
+                              style="
+                                display: inline-block;
+                                padding: 15px 30px;
+                                font-family: Arial, sans-serif;
+                                font-size: 16px;
+                                color: #ffffff;
+                                text-decoration: none;
+                                border-radius: 4px;
+                              "
+                            >
+                              <font
+                                face="Arial, sans-serif"
+                                color="#ffffff"
+                                style="font-size: 16px"
+                              >
+                                {{.ButtonText}}
+                              </font>
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  {{end}}
+                </table>
+              </td>
+            </tr>
+
+            <!-- Divider -->
+            <tr>
+              <td style="padding: 0 30px">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td style="border-top: 1px solid #eeeeee"></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                align="center"
+                style="padding: 30px; background-color: #f9f9f9"
+              >
+                <font
+                  face="Arial, sans-serif"
+                  size="2"
+                  color="#999999"
+                  style="font-size: 14px; line-height: 1.6"
+                >
+                  {{.FooterText}}<br />
+                  {{if .UnsubscribeURL}}
+                  <a
+                    href="{{.UnsubscribeURL}}"
+                    style="color: #999999; text-decoration: underline"
+                    >Unsubscribe</a
+                  >
+                  {{end}}
+                </font>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
