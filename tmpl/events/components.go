@@ -16,7 +16,7 @@ import (
 
 func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer, lang string) Node {
 	return Span(
-		Class("bg-secondary font-fallback inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-white"),
+		Class("bg-blue-100 font-fallback inline-flex items-center gap-1 justify-self-start rounded px-2 py-1 text-sm font-semibold text-blue-900 border border-blue-900/50"),
 		Iff(venue != nil, func() Node {
 			city := venue.CityEn
 			if lang == "pl" && venue.CityPl != nil {
@@ -29,6 +29,21 @@ func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer,
 		}),
 		If(isVirtual && venue != nil, Text(" + ")),
 		If(isVirtual, Text("Online")),
+	)
+}
+
+func EventAttendanceBadge(isFuture bool, l *i18n.Localizer) Node {
+	messageKey := "common.events.attendance_badge.past"
+	if isFuture {
+		messageKey = "common.events.attendance_badge.upcoming"
+	}
+
+	return Span(
+		Class("font-fallback inline-flex items-center justify-center gap-1 rounded bg-green-100 px-2 py-1 text-sm font-semibold text-green-900 border border-green-900/50"),
+		I(Class("h-4 w-4"), Data("lucide", "user-star")),
+		Text(l.MustLocalizeMessage(&i18n.Message{
+			ID: messageKey,
+		})),
 	)
 }
 
@@ -82,20 +97,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			Div(
 				Class("mb-2 flex items-center gap-2"),
 				EventLocationBadge(e.IsVirtual, e.Venue, localizer, lang),
-				Iff(e.EventRegistration != nil, func() Node {
-					messageKey := "common.events.attendance_badge.past"
-					if isFuture {
-						messageKey = "common.events.attendance_badge.upcoming"
-					}
-
-					return Span(
-						Class("font-fallback inline-flex items-center justify-center gap-1 rounded bg-green-900 px-2 py-1 text-sm font-semibold text-white"),
-						I(Class("h-4 w-4"), Data("lucide", "user-star")),
-						Text(localizer.MustLocalizeMessage(&i18n.Message{
-							ID: messageKey,
-						})),
-					)
-				}),
+				If(e.EventRegistration != nil, EventAttendanceBadge(isFuture, localizer)),
 			),
 
 			H3(
