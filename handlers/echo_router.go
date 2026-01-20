@@ -2,6 +2,7 @@
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
@@ -47,6 +48,10 @@ func EchoRouter(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) 
 	prefs := PreferencesController(store)
 	r.POST("/api/v1/prefs/timezone", prefs.SaveTimezone)
 
+	oauth2 := OAuth2Controller(store, db)
+	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
+	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
+
 	if config.IsProd {
 		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
 		r.GET("/assets/*", echo.WrapHandler(fileServer), echo.WrapMiddleware(CacheControlMiddleware))
@@ -57,4 +62,22 @@ func EchoRouter(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) 
 	}
 
 	return r
+}
+
+// CacheControlMiddleware adds cache-control headers based on file patterns
+func CacheControlMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+
+		// Cache versioned assets (containing hash in filename) for 1 year
+		if strings.Contains(path, "-") && (strings.HasSuffix(path, ".js") ||
+			strings.HasSuffix(path, ".css") || strings.HasSuffix(path, ".woff2")) {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			// Short cache for other assets
+			w.Header().Set("Cache-Control", "public, max-age=3600")
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

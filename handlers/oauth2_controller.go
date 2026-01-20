@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -46,30 +46,29 @@ func OAuth2Controller(store securecookie.Store, db queries.DBTX) *oauth2Controll
 const OAuth2SessionKey = "auth_state"
 const RedirectBackUrlSessionKey = "redirect_back"
 
-func (c *oauth2Controller) GoogleRedirect(w http.ResponseWriter, r *http.Request) {
+func (c *oauth2Controller) GoogleRedirect(r *echo.Context) error {
 	if c.config.ClientID == "" {
 		log.Printf("Google Client ID is not set")
-		http.Error(w, "Client ID is not set", http.StatusInternalServerError)
-		return
+		return echo.NewHTTPError(500, "Client ID is not set")
 	}
 
-	redirectTo := r.URL.Query().Get("ref")
+	redirectTo := r.QueryParam("ref")
+
+	ctx := r.Get("context").(*types.CustomContext)
 
 	var state = make([]byte, 4)
 	_, _ = rand.Read(state)
-	session := r.Context().Value(config.SessionContextName).(types.SessionData)
-	session[OAuth2SessionKey] = hex.EncodeToString(state)
+	ctx.Session[OAuth2SessionKey] = hex.EncodeToString(state)
 	if redirectTo != "" {
-		session[RedirectBackUrlSessionKey] = redirectTo
+		ctx.Session[RedirectBackUrlSessionKey] = redirectTo
 	}
-	if err := SaveSession(w, c.sessionStore, session); err != nil {
+	if err := SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error persisting session: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	url := c.config.AuthCodeURL(hex.EncodeToString(state), oauth2.AccessTypeOffline)
-	http.Redirect(w, r, url, http.StatusFound)
+	return r.Redirect(http.StatusFound, url)
 }
 
 func decodeIDTokenClaims(token string) (*types.GoogleIDTokenClaims, error) {
@@ -86,69 +85,63 @@ func decodeIDTokenClaims(token string) (*types.GoogleIDTokenClaims, error) {
 	return &claims, nil
 }
 
-func (c *oauth2Controller) GoogleCallback(w http.ResponseWriter, r *http.Request) {
-	session := r.Context().Value(config.SessionContextName).(types.SessionData)
-	state, _ := session[OAuth2SessionKey].(string)
-	stateParam := r.URL.Query().Get("state")
+func (c *oauth2Controller) GoogleCallback(r *echo.Context) error {
+	ctx := r.Get("context").(*types.CustomContext)
+	state, _ := ctx.Session[OAuth2SessionKey].(string)
+	stateParam := r.QueryParam("state")
 
 	if state != stateParam {
 		log.Printf("Invalid OAuth2 state param in callback")
-		http.Error(w, "Invalid state", 400)
-		return
+		return echo.NewHTTPError(400, "Invalid OAuth2 state param")
 	}
 
-	code := r.URL.Query().Get("code")
-	token, err := c.config.Exchange(r.Context(), code)
+	code := r.QueryParam("code")
+	token, err := c.config.Exchange(r.Request().Context(), code)
 	if err != nil {
 		log.Printf("Google token exchange returned error: %s", err)
-		http.Error(w, "Failed to fetch access token", 500)
-		return
+
+		return echo.NewHTTPError(500, "Failed to fetch access token")
 	}
 
 	idToken, _ := token.Extra("id_token").(string)
 
-	validator, _ := idtoken.NewValidator(r.Context())
-	_, err = validator.Validate(r.Context(), idToken, c.config.ClientID)
+	validator, _ := idtoken.NewValidator(r.Request().Context())
+	_, err = validator.Validate(r.Request().Context(), idToken, c.config.ClientID)
 	if err != nil {
 		log.Printf("ID token verification failed: %s", err)
-		http.Error(w, fmt.Sprintf("ID token verification failed: %s", err), 500)
-		return
+		return err
 	}
 
 	claims, err := decodeIDTokenClaims(idToken)
 	if err != nil {
 		log.Printf("Failed to decode ID token: %s", err)
-		http.Error(w, fmt.Sprintf("Failed to decode ID token: %s", err), 500)
-		return
+		return err
 	}
 
-	user, err := c.UserService.FindOrCreateUserFromClaims(r.Context(), claims)
+	user, err := c.UserService.FindOrCreateUserFromClaims(r.Request().Context(), claims)
 	if err != nil {
 		log.Printf("Failed to create user from claims: %s", err)
-		http.Error(w, fmt.Sprintf("Failed to create user from claims: %s", err), 500)
-		return
+		return err
 	}
 
-	userToken, err := c.UserTokenService.IssueAccessTokenForUser(r.Context(), user, 24*time.Hour)
+	userToken, err := c.UserTokenService.IssueAccessTokenForUser(r.Request().Context(), user, 24*time.Hour)
 	if err != nil {
-		log.Printf("Error parsing form: %s", err)
-		http.Error(w, err.Error(), 500)
-		return
+		log.Printf("Error issuing access token: %s", err)
+		return err
 	}
 
-	redirectBackUrl, ok := session[RedirectBackUrlSessionKey].(string)
+	redirectBackUrl, ok := ctx.Session[RedirectBackUrlSessionKey].(string)
 	if !ok {
 		redirectBackUrl = "/"
 	}
 
-	session["access_token"] = userToken.Token
-	delete(session, OAuth2SessionKey)
-	delete(session, RedirectBackUrlSessionKey)
-	if err := SaveSession(w, c.sessionStore, session); err != nil {
+	ctx.Session["access_token"] = userToken.Token
+	delete(ctx.Session, OAuth2SessionKey)
+	delete(ctx.Session, RedirectBackUrlSessionKey)
+	if err := SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
-		http.Error(w, err.Error(), 500)
-		return
+		return err
 	}
 
-	http.Redirect(w, r, redirectBackUrl, http.StatusFound)
+	return r.Redirect(http.StatusFound, redirectBackUrl)
 }
