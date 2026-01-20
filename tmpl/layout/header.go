@@ -1,11 +1,8 @@
 package layout
 
 import (
-	"context"
-
-	"github.com/moroz/homeosapiens-go/config"
-	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -21,23 +18,22 @@ func logo(class string) Node {
 	)
 }
 
-func UserHeader(ctx context.Context) Node {
-	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
-	title := user.GivenName.String() + " " + user.FamilyName.String()
-	l := ctx.Value("localizer").(*i18n.Localizer)
+func UserHeader(ctx *types.CustomContext) Node {
+	title := ctx.User.GivenName.String() + " " + ctx.User.FamilyName.String()
+	l := ctx.Localizer
 
 	return Div(
 		Class("user-dropdown relative"),
-		Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(user)),
+		Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(ctx.User)),
 		Div(
 			Class("dropdown absolute right-0 bottom-0 flex hidden translate-y-full flex-col overflow-hidden rounded-sm border border-slate-500 bg-white shadow"),
 			Div(
 				Class("flex items-center justify-between gap-4 px-3 py-2"),
-				components.Avatar(user),
+				components.Avatar(ctx.User),
 				Div(
 					Class("flex flex-col text-right"),
 					Strong(Text(title)),
-					Span(Class("text-sm"), Text(user.Email.String())),
+					Span(Class("text-sm"), Text(ctx.User.Email.String())),
 				),
 			),
 			A(
@@ -60,9 +56,8 @@ func NavLink(href string, text string) Node {
 	)
 }
 
-func desktopNav(ctx context.Context) Node {
-	l := ctx.Value("localizer").(*i18n.Localizer)
-	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
+func desktopNav(ctx *types.CustomContext) Node {
+	l := ctx.Localizer
 
 	return Nav(
 		Class("mobile:hidden h-full"),
@@ -78,10 +73,10 @@ func desktopNav(ctx context.Context) Node {
 				ID: "header.nav.my_products",
 			})),
 			LanguageSwitcher(ctx),
-			If(user == nil, NavLink("/sign-in", l.MustLocalizeMessage(&i18n.Message{
+			If(ctx.User == nil, NavLink("/sign-in", l.MustLocalizeMessage(&i18n.Message{
 				ID: "header.nav.sign_in",
 			}))),
-			Iff(user != nil, func() Node {
+			Iff(ctx.User != nil, func() Node {
 				return UserHeader(ctx)
 			}),
 		),
@@ -102,8 +97,8 @@ func HamburgerItem(href string, text string) Node {
 	)
 }
 
-func mobileNav(ctx context.Context) Node {
-	l := ctx.Value("localizer").(*i18n.Localizer)
+func mobileNav(ctx *types.CustomContext) Node {
+	l := ctx.Localizer
 	//user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
 	return Div(
@@ -129,7 +124,7 @@ func mobileNav(ctx context.Context) Node {
 	)
 }
 
-func AppHeader(ctx context.Context) Node {
+func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
 		Class("fixed inset-0 z-10 h-20 border-b bg-white shadow"),
 		Div(Class("mobile:px-2 container mx-auto flex h-full items-center justify-between"),

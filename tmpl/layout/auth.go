@@ -1,13 +1,12 @@
 package layout
 
 import (
-	"context"
-
+	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
 
-func AuthLayout(ctx context.Context, title string, children ...Node) Node {
+func AuthLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 	return RootLayout(ctx, title,
 		Div(
 			Class("grid h-screen place-items-center gap-4 bg-slate-100"),

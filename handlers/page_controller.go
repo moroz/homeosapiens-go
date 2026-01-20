@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -20,12 +21,11 @@ func PageController(db queries.DBTX) *pageController {
 	return &pageController{db, services.NewEventService(db)}
 }
 
-func (c *pageController) Index(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
-	events, err := c.eventService.ListEvents(r.Context(), user)
+func (me *pageController) Index(c *echo.Context) error {
+	ctx := c.Get("context").(*CustomContext)
+	events, err := me.eventService.ListEvents(r.Context(), ctx.User)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+		return err
 	}
 
 	if err := pages.Index(r.Context(), events).Render(w); err != nil {

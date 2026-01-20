@@ -1,6 +1,6 @@
 module github.com/moroz/homeosapiens-go
 
-go 1.24.4
+go 1.25.0
 
 require (
 	github.com/alexedwards/argon2id v1.0.0
@@ -11,12 +11,18 @@ require (
 	github.com/moroz/securecookie v0.0.0-20250207075547-a6abdbe4e5e4
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/stretchr/testify v1.10.0
-	golang.org/x/crypto v0.43.0
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/crypto v0.47.0
 	golang.org/x/oauth2 v0.33.0
-	golang.org/x/text v0.32.0
+	golang.org/x/text v0.33.0
 	google.golang.org/api v0.256.0
 	maragu.dev/gomponents v1.2.0
+)
+
+require (
+	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
+	github.com/labstack/echo/v5 v5.0.0
+	golang.org/x/time v0.14.0 // indirect
 )
 
 require (
@@ -27,12 +33,12 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible // indirect
+	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
-	github.com/gorilla/schema v1.4.1 // indirect
+	github.com/gorilla/schema v1.4.1
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -45,9 +51,9 @@ require (
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
-	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251103181224-f26f9409b101 // indirect
 	google.golang.org/grpc v1.76.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
