@@ -1,8 +1,6 @@
 package pages
 
 import (
-	"context"
-
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/events"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"

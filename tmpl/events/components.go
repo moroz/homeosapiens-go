@@ -1,7 +1,6 @@
 package events
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -76,17 +76,16 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	)
 }
 
-func EventCard(ctx context.Context, e *services.EventListDto) Node {
-	localizer := ctx.Value("localizer").(*i18n.Localizer)
-	lang := ctx.Value(config.LangContextName).(string)
+func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
+	localizer := ctx.Localizer
 
 	title := e.TitleEn
-	if lang == "pl" {
+	if ctx.Language == "pl" {
 		title = e.TitlePl
 	}
 
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
-	tz := ctx.Value("timezone").(*time.Location)
+	tz := ctx.Timezone
 
 	isFuture := e.StartsAt.Time.After(time.Now())
 
@@ -96,7 +95,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			Class("flex flex-1 flex-col items-start"),
 			Div(
 				Class("mb-2 flex items-center gap-2"),
-				EventLocationBadge(e.IsVirtual, e.Venue, localizer, lang),
+				EventLocationBadge(e.IsVirtual, e.Venue, localizer, ctx.Language),
 				If(e.EventRegistration != nil, EventAttendanceBadge(isFuture, localizer)),
 			),
 
@@ -112,7 +111,7 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 			P(
 				Text(helpers.TranslateEventType(localizer, e.EventType)),
 				Text(", "),
-				Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, tz, lang)),
+				Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, tz, ctx.Language)),
 			),
 
 			P(
@@ -158,23 +157,22 @@ func EventCard(ctx context.Context, e *services.EventListDto) Node {
 	)
 }
 
-func formatEventPrice(ctx context.Context, e *services.EventListDto) Node {
-	localizer := ctx.Value("localizer").(*i18n.Localizer)
-	lang := ctx.Value(config.LangContextName).(string)
+func formatEventPrice(ctx *types.CustomContext, e *services.EventListDto) Node {
+	l := ctx.Localizer
 
-	label := localizer.MustLocalizeMessage(&i18n.Message{
+	label := l.MustLocalizeMessage(&i18n.Message{
 		ID:    "common.events.participation_cost",
 		Other: "Participation cost:",
 	})
 
 	var priceFormatted string
 	if e.BasePriceAmount == nil {
-		priceFormatted = localizer.MustLocalizeMessage(&i18n.Message{
+		priceFormatted = l.MustLocalizeMessage(&i18n.Message{
 			ID:    "common.events.free",
 			Other: "Free",
 		})
 	} else {
-		priceFormatted = helpers.FormatPrice(*e.BasePriceAmount, *e.BasePriceCurrency, lang)
+		priceFormatted = helpers.FormatPrice(*e.BasePriceAmount, *e.BasePriceCurrency, ctx.Language)
 	}
 
 	return Div(

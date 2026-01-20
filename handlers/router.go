@@ -24,32 +24,8 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Use(FetchUserFromSession(db))
 	r.Use(LocaleMiddleware(bundle, store))
 
-	pages := PageController(db)
-	r.Get("/", pages.Index)
-
-	events := EventController(db)
-	r.Get("/events/{slug}", events.Show)
-
-	eventRegistrations := EventRegistrationController(db)
-	r.Get("/events/{slug}/register", eventRegistrations.New)
-	r.Post("/event_registrations", eventRegistrations.Create)
-
-	sessions := SessionController(db, store)
-	r.Get("/sign-in", sessions.New)
-	r.Post("/sessions", sessions.Create)
-	r.Get("/sign-out", sessions.Delete)
-
-	userRegistrations := UserRegistrationController(db)
-	r.Get("/sign-up", userRegistrations.New)
-
 	prefs := PreferencesController(store)
 	r.Post("/api/v1/prefs/timezone", prefs.SaveTimezone)
-
-	videos := VideoController(db)
-	r.Get("/videos", videos.Index)
-
-	dashboard := DashboardController(db)
-	r.Get("/dashboard", dashboard.Index)
 
 	oauth2 := OAuth2Controller(store, db)
 	r.Get("/oauth/google/redirect", oauth2.GoogleRedirect)

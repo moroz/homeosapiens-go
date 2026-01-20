@@ -1,7 +1,6 @@
 package events
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -9,10 +8,10 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -33,9 +32,9 @@ func MarkdownContent(content string, classes ...string) Node {
 	return Div(Class(class), Raw(string(innerHTML)))
 }
 
-func Show(ctx context.Context, event *services.EventDetailsDto) Node {
-	lang := ctx.Value(config.LangContextName).(string)
-	tz := ctx.Value("timezone").(*time.Location)
+func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
+	lang := ctx.Language
+	tz := ctx.Timezone
 	isFuture := event.StartsAt.Time.After(time.Now())
 
 	title := event.TitleEn
@@ -48,7 +47,7 @@ func Show(ctx context.Context, event *services.EventDetailsDto) Node {
 		description = *event.DescriptionPl
 	}
 
-	l := ctx.Value("localizer").(*i18n.Localizer)
+	l := ctx.Localizer
 
 	return layout.Layout(ctx, event.TitleEn, Div(
 		Class("card"),

@@ -1,26 +1,24 @@
 package videos
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
+	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
 
-func Index(ctx context.Context, videos []*services.VideoListDto) Node {
-	lang := ctx.Value(config.LangContextName).(string)
-
+func Index(ctx *types.CustomContext, videos []*services.VideoListDto) Node {
 	return layout.Layout(ctx, "Videos",
 		H2(Class("text-primary text-4xl font-bold"), Text("Videos")),
 		Div(Class("mt-6 mb-12 grid gap-6"),
 			Map(videos, func(video *services.VideoListDto) Node {
 				title := video.TitleEn
-				if lang == "pl" {
+				if ctx.Language == "pl" {
 					title = video.TitlePl
 				}
 

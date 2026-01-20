@@ -25,7 +25,7 @@ func main() {
 
 	sessionStore, err := securecookie.NewStore(config.SessionKey)
 
-	r := handlers.Router(db, bundle, sessionStore)
+	r := handlers.EchoRouter(db, bundle, sessionStore)
 	listenOn := ":" + config.AppPort
 	log.Printf("Listening on %s", listenOn)
 	log.Fatal(http.ListenAndServe(listenOn, r))

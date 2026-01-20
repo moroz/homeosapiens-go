@@ -1,20 +1,20 @@
 package userregistrations
 
 import (
-	"context"
 	"strconv"
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 
 	. "maragu.dev/gomponents/html"
 )
 
-func New(ctx context.Context) Node {
-	l := ctx.Value("localizer").(*i18n.Localizer)
+func New(ctx *types.CustomContext) Node {
+	l := ctx.Localizer
 	pageTitle := l.MustLocalizeMessage(&i18n.Message{
 		ID: "user_registrations.new.title",
 	})

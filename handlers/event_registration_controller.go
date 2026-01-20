@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
-	"github.com/go-chi/chi/v5"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/gorilla/schema"
-	"github.com/moroz/homeosapiens-go/config"
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/tz"
 	"github.com/moroz/homeosapiens-go/services"
@@ -33,28 +31,24 @@ func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 	}
 }
 
-func (c *eventRegistrationController) New(w http.ResponseWriter, r *http.Request) {
-	slug := chi.URLParam(r, "slug")
-	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
-	event, err := c.eventService.GetEventDetailsBySlug(r.Context(), slug, user)
+func (c *eventRegistrationController) New(r *echo.Context) error {
+	ctx := r.Get("context").(*types.CustomContext)
+	slug := r.Param("slug")
+	event, err := c.eventService.GetEventDetailsBySlug(r.Request().Context(), slug, ctx.User)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		log.Printf("Event with the slug: %s not found", slug)
-		http.Error(w, "Not Found", 404)
-		return
+		return echo.ErrNotFound
 	}
 	if err != nil {
 		log.Printf("Error when fetching event: %s", err)
-		http.Error(w, "Internal Server Error", 500)
-		return
+		return err
 	}
-	location := r.Context().Value(config.LocationContextName).(*time.Location)
+	location := ctx.Timezone
 	countryGuess := tz.GuessRegionByTimezone(location.String())
-	params := buildRegistrationParams(user, countryGuess)
+	params := buildRegistrationParams(ctx.User, countryGuess)
 	validationErrors := make(validation.Errors)
 
-	if err := eventregistrations.New(r.Context(), event, params, validationErrors).Render(w); err != nil {
-		handleRenderingError(w, err)
-	}
+	return eventregistrations.New(ctx, event, params, validationErrors).Render(r.Response())
 }
 
 func buildRegistrationParams(user *queries.User, location *tz.TimezoneGuess) *types.CreateEventRegistrationParams {
@@ -81,47 +75,36 @@ func buildRegistrationParams(user *queries.User, location *tz.TimezoneGuess) *ty
 	return &params
 }
 
-func (c *eventRegistrationController) Create(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		handleError(w, err, 400)
-		return
-	}
+func (c *eventRegistrationController) Create(r *echo.Context) error {
+	ctx := r.Get("context").(*types.CustomContext)
 
 	var params types.CreateEventRegistrationParams
-	if err := decoder.Decode(&params, r.PostForm); err != nil {
-		handleError(w, err, 400)
-		return
+	if err := r.Bind(&params); err != nil {
+		return echo.ErrBadRequest
 	}
 
-	event, err := c.eventService.GetEventById(r.Context(), params.EventID)
+	event, err := c.eventService.GetEventById(r.Request().Context(), params.EventID)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		handleError(w, err, 404)
-		return
+		return echo.ErrNotFound
 	}
 
-	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
-	_, err = c.eventRegistrationService.CreateEventRegistration(r.Context(), user, event, &params)
+	user := ctx.User
+	_, err = c.eventRegistrationService.CreateEventRegistration(r.Request().Context(), user, event, &params)
 	if err == nil {
-		http.Redirect(w, r, fmt.Sprintf("/events/%s", event.Slug), http.StatusFound)
-		return
+		return r.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
 	}
 
 	var validationErrors validation.Errors
 	ok := errors.As(err, &validationErrors)
 	if ok {
-		dto, err := c.eventService.GetEventDetailsForEvent(r.Context(), event, user)
+		dto, err := c.eventService.GetEventDetailsForEvent(r.Request().Context(), event, user)
 		if err != nil {
-			handleError(w, err, 500)
+			return err
 		}
 
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		if err := eventregistrations.New(r.Context(), dto, &params, validationErrors).Render(w); err != nil {
-			handleRenderingError(w, err)
-		}
+		r.Response().WriteHeader(http.StatusUnprocessableEntity)
+		return eventregistrations.New(ctx, dto, &params, validationErrors).Render(r.Response())
 	}
 
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
+	return err
 }

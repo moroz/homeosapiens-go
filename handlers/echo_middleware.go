@@ -6,13 +6,14 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/securecookie"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 func ExtendContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		c.Set("context", &CustomContext{})
+		c.Set("context", &types.CustomContext{})
 		return next(c)
 	}
 }
@@ -20,7 +21,7 @@ func ExtendContext(next echo.HandlerFunc) echo.HandlerFunc {
 func FetchSessionEcho(sessionStore securecookie.Store, cookieName string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			ctx := c.Get("context").(*CustomContext)
+			ctx := c.Get("context").(*types.CustomContext)
 			ctx.Session = decodeSessionFromRequest(sessionStore, cookieName, c.Request())
 			return next(c)
 		}
@@ -30,7 +31,7 @@ func FetchSessionEcho(sessionStore securecookie.Store, cookieName string) echo.M
 func LocaleMiddlewareEcho(bundle *goi18n.Bundle, store securecookie.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			ctx := c.Get("context").(*CustomContext)
+			ctx := c.Get("context").(*types.CustomContext)
 
 			langParam := c.FormValue("lang")
 			header := c.Request().Header.Get("Accept-Language")
@@ -52,10 +53,10 @@ func LocaleMiddlewareEcho(bundle *goi18n.Bundle, store securecookie.Store) echo.
 func FetchUserFromSessionEcho(db queries.DBTX) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			ctx := c.Get("context").(*CustomContext)
+			ctx := c.Get("context").(*types.CustomContext)
 
 			if token, ok := ctx.Session["access_token"].([]byte); ok {
-				if u, err := queries.New(db).GetUserByAccessToken(r.Context(), token); err == nil {
+				if u, err := queries.New(db).GetUserByAccessToken(c.Request().Context(), token); err == nil {
 					ctx.User = u
 				}
 			}
@@ -67,7 +68,7 @@ func FetchUserFromSessionEcho(db queries.DBTX) echo.MiddlewareFunc {
 
 func FetchPreferredTimezoneEcho(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		ctx := c.Get("context").(*CustomContext)
+		ctx := c.Get("context").(*types.CustomContext)
 		ctx.Timezone, _ = time.LoadLocation("Europe/Warsaw")
 
 		if tzFromSession, ok := ctx.Session["tz"].(string); ok && tzFromSession != "" {
@@ -77,6 +78,14 @@ func FetchPreferredTimezoneEcho(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
+		return next(c)
+	}
+}
+
+func StoreRequestUrlInContextEcho(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Get("context").(*types.CustomContext)
+		ctx.RequestUrl = c.Request().URL
 		return next(c)
 	}
 }

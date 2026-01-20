@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"net/http"
-
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/tmpl/dashboard"
+	"github.com/moroz/homeosapiens-go/types"
 )
 
 type dashboardController struct {
@@ -15,8 +15,7 @@ func DashboardController(db queries.DBTX) *dashboardController {
 	return &dashboardController{db}
 }
 
-func (c *dashboardController) Index(w http.ResponseWriter, r *http.Request) {
-	if err := dashboard.Index(r.Context()).Render(w); err != nil {
-		handleRenderingError(w, err)
-	}
+func (me *dashboardController) Index(c *echo.Context) error {
+	ctx := c.Get("context").(*types.CustomContext)
+	return dashboard.Index(ctx).Render(c.Response())
 }

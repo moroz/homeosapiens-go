@@ -1,12 +1,9 @@
 package eventregistrations
 
 import (
-	"context"
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/moroz/homeosapiens-go/config"
-	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
@@ -54,13 +51,12 @@ func buildCountryOptions(lang string) []components.SelectOption {
 	return append(combined, all...)
 }
 
-func New(ctx context.Context, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams, validationErrors validation.Errors) Node {
-	lang := ctx.Value(config.LangContextName).(string)
+func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams, validationErrors validation.Errors) Node {
 	title := event.TitleEn
-	if lang == "pl" {
+	if ctx.Language == "pl" {
 		title = event.TitlePl
 	}
-	l := ctx.Value("localizer").(*i18n.Localizer)
+	l := ctx.Localizer
 
 	pageTitle := l.MustLocalize(&i18n.LocalizeConfig{
 		MessageID: "event_registrations.new.title",
@@ -69,9 +65,8 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 		},
 	})
 
-	user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 	currentPath := fmt.Sprintf("/events/%s/register", event.Slug)
-	countryOptions := buildCountryOptions(lang)
+	countryOptions := buildCountryOptions(ctx.Language)
 
 	return layout.Layout(ctx, pageTitle,
 		Div(
@@ -90,7 +85,7 @@ func New(ctx context.Context, event *services.EventDetailsDto, params *types.Cre
 				),
 			),
 
-			Iff(user == nil, func() Node {
+			Iff(ctx.User == nil, func() Node {
 				return Section(
 					components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{
 						ID: "event_registrations.new.continue_with_google",

@@ -1,13 +1,11 @@
 package handlers
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/moroz/homeosapiens-go/config"
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/videos"
+	"github.com/moroz/homeosapiens-go/types"
 )
 
 type videoController struct {
@@ -22,17 +20,14 @@ func VideoController(db queries.DBTX) *videoController {
 	}
 }
 
-func (c *videoController) Index(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value(config.CurrentUserContextName).(*queries.User)
+func (c *videoController) Index(r *echo.Context) error {
+	ctx := r.Get("context").(*types.CustomContext)
+	user := ctx.User
 
-	data, err := c.videoService.ListVideosWithSources(r.Context(), user)
+	data, err := c.videoService.ListVideosWithSources(r.Request().Context(), user)
 	if err != nil {
-		log.Print(err)
-		http.Error(w, err.Error(), 500)
-		return
+		return err
 	}
 
-	if err := videos.Index(r.Context(), data).Render(w); err != nil {
-		handleRenderingError(w, err)
-	}
+	return videos.Index(ctx, data).Render(r.Response())
 }
