@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/moroz/homeosapiens-go/config"
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/securecookie"
 )
@@ -20,18 +20,18 @@ func PreferencesController(sessionStore securecookie.Store) *preferencesControll
 	}
 }
 
-func (c *preferencesController) SaveTimezone(w http.ResponseWriter, r *http.Request) {
-	tzParam := r.URL.Query().Get("tz")
+func (c *preferencesController) SaveTimezone(r *echo.Context) error {
+	tzParam := r.QueryParam("tz")
 	if _, err := time.LoadLocation(tzParam); err != nil || tzParam == "" {
-		http.Error(w, "Invalid timezone", 400)
+		return echo.NewHTTPError(400, "Invalid timezone")
 	}
-	session := r.Context().Value(config.SessionContextName).(types.SessionData)
-	session["tz"] = tzParam
-	if err := SaveSession(w, c.sessionStore, session); err != nil {
+	ctx := r.Get("context").(*types.CustomContext)
+	ctx.Session["tz"] = tzParam
+	if err := SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
-		http.Error(w, err.Error(), 500)
-		return
+		return err
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	r.Response().WriteHeader(http.StatusNoContent)
+	return nil
 }

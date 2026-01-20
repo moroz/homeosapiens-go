@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"log"
-	"net/http"
-
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/tmpl/email"
 )
 
@@ -13,7 +11,7 @@ func EmailController() *emailController {
 	return &emailController{}
 }
 
-func (c *emailController) Show(w http.ResponseWriter, r *http.Request) {
+func (c *emailController) Show(r *echo.Context) error {
 	props := email.LayoutProps{
 		Subject:     "Test subject",
 		CompanyName: "Homeo sapiens",
@@ -23,7 +21,5 @@ func (c *emailController) Show(w http.ResponseWriter, r *http.Request) {
 		FooterText:  "&copy; 2024&ndash;2026 by Wydawnictwo Homeo Sapiens. All rights reserved.",
 	}
 
-	if err := email.LayoutTemplate.Execute(w, props); err != nil {
-		log.Print(err)
-	}
+	return email.LayoutTemplate.Execute(r.Response(), props)
 }

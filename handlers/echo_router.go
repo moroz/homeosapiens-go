@@ -44,5 +44,17 @@ func EchoRouter(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) 
 	videos := VideoController(db)
 	r.GET("/videos", videos.Index)
 
+	prefs := PreferencesController(store)
+	r.POST("/api/v1/prefs/timezone", prefs.SaveTimezone)
+
+	if config.IsProd {
+		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
+		r.GET("/assets/*", echo.WrapHandler(fileServer), echo.WrapMiddleware(CacheControlMiddleware))
+	} else {
+		email := EmailController()
+		r.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/public/assets")))))
+		r.GET("/dev/email", email.Show)
+	}
+
 	return r
 }

@@ -24,21 +24,9 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Use(FetchUserFromSession(db))
 	r.Use(LocaleMiddleware(bundle, store))
 
-	prefs := PreferencesController(store)
-	r.Post("/api/v1/prefs/timezone", prefs.SaveTimezone)
-
 	oauth2 := OAuth2Controller(store, db)
 	r.Get("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.Get("/oauth/google/callback", oauth2.GoogleCallback)
-
-	if config.IsProd {
-		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
-		r.Handle("/assets/*", CacheControlMiddleware(fileServer))
-	} else {
-		email := EmailController()
-		r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/public/assets"))))
-		r.Get("/dev/email", email.Show)
-	}
 
 	return r
 }
