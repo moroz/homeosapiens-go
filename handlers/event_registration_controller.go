@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/gorilla/schema"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/tz"
@@ -16,8 +15,6 @@ import (
 	eventregistrations "github.com/moroz/homeosapiens-go/tmpl/event_registrations"
 	"github.com/moroz/homeosapiens-go/types"
 )
-
-var decoder = schema.NewDecoder()
 
 type eventRegistrationController struct {
 	eventService             *services.EventService

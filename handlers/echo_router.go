@@ -12,7 +12,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-func EchoRouter(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http.Handler {
+func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http.Handler {
 	r := echo.New()
 
 	r.Use(middleware.RequestID())
