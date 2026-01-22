@@ -20,12 +20,6 @@ SECRET_KEY_BASE = "YhTVeJ58o+vuYEvASxp68UMydUhvMsAOQZkCmlEeAE/IVJ/WkpjXS0+spVyWt
 TEST_DATABASE = "homeosapiens_test"
 TEST_DATABASE_URL = "postgres://{{ env.PGUSER }}:{{ env.PGPASSWORD }}@{{ env.PGHOST }}:5432/{{ env.TEST_DATABASE }}"
 
-[tasks."deploy.staging"]
-run = """
-jj bookmark set -r @- staging
-jj git push --allow-new -r @-
-"""
-
 [tasks."db:seed"]
 run = "cd db/seeds && go run ."
 
@@ -82,3 +76,6 @@ run = """
 cd db/seeds
 GOOS=linux GOARCH=amd64 go build .
 """
+
+[tasks.deploy]
+run = "cd scripts && ansible-playbook -v deploy.yml"

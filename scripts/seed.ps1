@@ -35,7 +35,7 @@ function Start-SshTunnel
 }
 
 
-$ENV_FILE="/usr/local/lib/homeosapiens/.env"
+$ENV_FILE="/usr/local/lib/server/homeosapiens.env"
 
 Write-Host "Fetching remote DATABASE_URL..."
 $databaseUrl = ssh "$($RemoteUser)@$($RemoteHost)" grep "DATABASE_URL" $ENV_FILE
@@ -54,6 +54,6 @@ $uri = [System.UriBuilder]$databaseUrl
 $uri.Host = "127.0.0.1"
 $uri.Port = $port
 
-psql $uri.ToString() -f ./db/seeds.sql
+cd db/seeds && env DATABASE_URL="$uri" go run .
 
 Stop-Process -Id $tunnel.Id
