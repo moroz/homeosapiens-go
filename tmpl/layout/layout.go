@@ -66,13 +66,11 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 	tooltip := l.MustLocalizeMessage(&i18n.Message{ID: "locale_switcher.switch_to"})
 	baseUrl := ctx.RequestUrl.Path
 
-	return Li(
-		A(
-			Class("text-primary inline-flex h-full items-center gap-1 rounded-sm px-3 font-semibold uppercase transition hover:bg-slate-200"),
-			Href(baseUrl+"?lang="+otherLocale), Title(tooltip), Aria("label", tooltip),
-			I(Class("h-5 w-5"), Data("lucide", "languages")),
-			Text(ctx.Language),
-		),
+	return A(
+		Class("text-primary inline-flex h-full items-center gap-1 rounded-sm px-3 font-semibold uppercase transition hover:bg-slate-200"),
+		Href(baseUrl+"?lang="+otherLocale), Title(tooltip), Aria("label", tooltip),
+		I(Class("h-5 w-5"), Data("lucide", "languages")),
+		Text(ctx.Language),
 	)
 }
 

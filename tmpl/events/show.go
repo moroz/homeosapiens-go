@@ -27,7 +27,7 @@ func MarkdownContent(content string, classes ...string) Node {
 	renderer := html.NewRenderer(opts)
 	innerHTML := markdown.Render(doc, renderer)
 
-	class := strings.Join(append([]string{"prose lg:prose-lg max-w-[unset] "}, classes...), " ")
+	class := strings.Join(append([]string{"prose lg:prose-lg "}, classes...), " ")
 
 	return Div(Class(class), Raw(string(innerHTML)))
 }
@@ -50,7 +50,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	l := ctx.Localizer
 
 	return layout.Layout(ctx, event.TitleEn, Div(
-		Class("card"),
+		Class("card max-w-min mx-auto"),
 		Div(
 			Class("mb-2 flex items-center gap-2"),
 			EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
@@ -82,6 +82,6 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			),
 		),
 		If(event.EventRegistration == nil, A(Href(fmt.Sprintf("/events/%s/register", event.Slug)), Text("Register"))),
-		MarkdownContent(description, "mt-4"),
+		MarkdownContent(description, "mt-4 w-[65ch]"),
 	))
 }

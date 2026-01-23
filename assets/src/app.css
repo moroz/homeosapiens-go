@@ -19,14 +19,14 @@
 	--color-secondary: var(--color-purple-800);
 	--color-secondary-hover: var(--color-purple-700);
 
-	--font-sans: "Noto Sans", system-ui, sans-serif;
+	--font-sans: system-ui, sans-serif;
 	--color-primary: var(--color-blue-900);
 	--color-primary-hover: var(--color-blue-800);
 
 	--spacing-header: calc(70 / 4 * var(--spacing));
 
-	--breakpoint-2xl: 64rem;
-	--breakpoint-xl: 60rem;
+  --breakpoint-*: initial;
+  --breakpoint-lg: calc(65ch + 8rem);
 
 	--shadow-solid: 4px 4px 0px 0px black;
 }
@@ -56,7 +56,7 @@
 		@apply bg-primary hover:bg-primary-hover inline-flex cursor-pointer items-center justify-center rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
 
 		&.secondary {
-			@apply bg-secondary hover:bg-secondary-hover;
+			@apply bg-slate-100 text-blue-900 hover:bg-slate-200 cursor-pointer;
 		}
 
 		&.outline {

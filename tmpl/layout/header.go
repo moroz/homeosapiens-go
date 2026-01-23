@@ -59,28 +59,32 @@ func NavLink(href string, text string) Node {
 func desktopNav(ctx *types.CustomContext) Node {
 	l := ctx.Localizer
 
-	return Nav(
-		Class("mobile:hidden h-full"),
-		Ul(
-			Class("flex h-full gap-1 py-4"),
-			NavLink("/", l.MustLocalizeMessage(&i18n.Message{
-				ID: "header.nav.home",
-			})),
-			NavLink("/videos", l.MustLocalizeMessage(&i18n.Message{
-				ID: "header.nav.videos",
-			})),
-			NavLink("/dashboard", l.MustLocalizeMessage(&i18n.Message{
-				ID: "header.nav.my_products",
-			})),
+	return Group{
+		Nav(Class("absolute inset-0 grid place-items-center mobile:hidden"),
+			Ul(
+				Class("flex h-full gap-1 py-4"),
+				NavLink("/", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.home",
+				})),
+				NavLink("/videos", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.videos",
+				})),
+				NavLink("/dashboard", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.my_products",
+				})),
+			),
+		),
+		Div(
+			Class("z-20 flex items-center"),
 			LanguageSwitcher(ctx),
-			If(ctx.User == nil, NavLink("/sign-in", l.MustLocalizeMessage(&i18n.Message{
+			If(ctx.User == nil, A(Href("/sign-in"), Class("button secondary z-20"), Text(l.MustLocalizeMessage(&i18n.Message{
 				ID: "header.nav.sign_in",
-			}))),
+			})))),
 			Iff(ctx.User != nil, func() Node {
 				return UserHeader(ctx)
 			}),
 		),
-	)
+	}
 }
 
 func hamburgerTrigger() Node {
@@ -127,7 +131,7 @@ func mobileNav(ctx *types.CustomContext) Node {
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
 		Class("fixed inset-0 z-10 h-20 border-b bg-white shadow"),
-		Div(Class("mobile:px-2 container mx-auto flex h-full items-center justify-between"),
+		Div(Class("mobile:px-2 flex h-full items-center justify-between px-6"),
 			H1(
 				Class("z-20"),
 				A(
