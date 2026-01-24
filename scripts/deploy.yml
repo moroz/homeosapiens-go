@@ -6,7 +6,8 @@
   tags: deploy
 
   vars:
-    release_timestamp: "{{ ansible_fact['date_time'].iso8601_basic_short }}"
+    release_timestamp: "{{ ansible_facts['date_time'].iso8601_basic_short }}"
+    app_base_dir: "/usr/local/lib/server"
     target_dir: "{{ app_base_dir }}/releases/{{ release_timestamp }}"
     code_dir: ".."
     app_base_dir: /usr/local/lib/server
@@ -23,8 +24,8 @@
         cmd: "scripts/build-release.sh"
         chdir: "{{ code_dir }}"
       environment:
-        GOOS: "{{ ansible_fact['system'] | lower }}"
-        GOARCH: "{{ 'arm64' if ansible_fact['architecture'] == 'aarch64' else ansible_architecture }}"
+        GOOS: "{{ ansible_facts['system'] | lower }}"
+        GOARCH: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else ansible_facts['architecture'] }}"
 
     - name: Create target directory
       file:
