@@ -67,7 +67,7 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 	baseUrl := ctx.RequestUrl.Path
 
 	return A(
-		Class("text-primary inline-flex h-full items-center gap-1 rounded-sm px-3 font-semibold uppercase transition hover:bg-slate-200"),
+		Class("button tertiary uppercase gap-1"),
 		Href(baseUrl+"?lang="+otherLocale), Title(tooltip), Aria("label", tooltip),
 		I(Class("h-5 w-5"), Data("lucide", "languages")),
 		Text(ctx.Language),
@@ -75,7 +75,7 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 }
 
 func AppFooter() Node {
-	return Footer(Class("h-30 border-t shadow"),
+	return Footer(Class("h-30 border-t shadow border-primary/50"),
 		Div(
 			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(

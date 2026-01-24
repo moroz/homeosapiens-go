@@ -16,7 +16,7 @@ import (
 
 func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer, lang string) Node {
 	return Span(
-		Class("font-fallback inline-flex items-center gap-1 justify-self-start rounded border border-blue-900/50 bg-blue-100 px-2 py-1 text-sm font-semibold text-blue-900"),
+		Class("font-fallback inline-flex items-center gap-1 justify-self-start rounded bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-700"),
 		Iff(venue != nil, func() Node {
 			city := venue.CityEn
 			if lang == "pl" && venue.CityPl != nil {
@@ -51,9 +51,9 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
 	return Div(
-		Class("bg-primary flex h-min w-42 flex-col items-center overflow-hidden rounded-lg border-2"),
+		Class("bg-slate-100 flex h-min w-42 flex-col items-center rounded-sm"),
 		Div(
-			Class("relative aspect-square w-full overflow-hidden"),
+			Class("relative aspect-square w-full overflow-hidden rounded-t-sm"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
 				url := fmt.Sprintf("%s/%s", config.AssetCdnBaseUrl, *host.ProfilePictureUrl)
 
@@ -65,7 +65,7 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 			}),
 		),
 		Footer(
-			Class("flex h-10 w-full items-center justify-center text-center text-white"),
+			Class("flex h-10 w-full items-center justify-center text-center text-primary border border-primary/50 border-t-0 rounded-b-sm"),
 			Span(
 				Text(salutation),
 				Strong(
@@ -100,7 +100,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			),
 
 			H3(
-				Class("text-primary mobile:text-xl mobile:leading-tight text-3xl font-bold"),
+				Class("text-primary mobile:text-xl mobile:leading-tight text-2xl font-bold"),
 				A(
 					Class("hover:text-primary-hover decoration-2 underline-offset-3 transition-colors hover:underline"),
 					Href(eventUrl),
@@ -129,7 +129,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			Div(
 				If(isFuture, A(
 					Href(eventUrl+"/register"),
-					Class("button secondary px-6"),
+					Class("button px-6"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "common.events.sign_up",
 					})),
@@ -138,7 +138,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 				Class("mt-auto flex items-center gap-4"),
 				A(
 					Href(eventUrl),
-					Class("button font-fallback"),
+					Class("button secondary font-fallback"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID:    "common.events.learn_more",
 						Other: "Learn more…",
@@ -177,7 +177,7 @@ func formatEventPrice(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 	return Div(
 		Class("grid leading-tight"),
-		Span(Class("font-semibold"), Text(label)),
+		Span(Class("uppercase text-xs text-gray-500 font-semibold "), Text(label)),
 		Span(Class("text-lg"), Text(priceFormatted)),
 	)
 }

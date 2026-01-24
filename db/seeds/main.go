@@ -113,6 +113,11 @@ func main() {
 			ObjectKey:        "019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg",
 			OriginalFilename: "019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg",
 		},
+		{
+			ID:               MustParseUUID("019beef9-ad4c-736f-9bb0-965b59ca21ae"),
+			ObjectKey:        "019beef9-ad4c-736f-9bb0-965b59ca21ae.png",
+			OriginalFilename: "drasher.png",
+		},
 	}
 	log.Printf("Creating assets...")
 	for _, asset := range assets {
@@ -133,6 +138,14 @@ func main() {
 			GivenName:        "Sanjay",
 			FamilyName:       "Modi",
 			ProfilePictureId: MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8b"),
+			Country:          "IN",
+		},
+		{
+			ID:               MustParseUUID("019beef9-4287-714f-982b-2524fdef7063"),
+			Salutation:       "common.hosts.salutation.dr",
+			GivenName:        "Asher",
+			FamilyName:       "Shaikh",
+			ProfilePictureId: MustParseUUID("019beef9-ad4c-736f-9bb0-965b59ca21ae"),
 			Country:          "IN",
 		},
 		{
@@ -240,15 +253,15 @@ Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym termi
 Omówionych zostanie szereg praktycznych problemów klinicznych, różnicowanie leków z grupy Kalium, leki introwertyczne/ekstrawertyczne, prezentacja przypadków klinicznych.`),
 		},
 		{
-			ID:                MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
-			EventType:         queries.EventTypeSeminar,
-			TitleEn:           "To Perfect the Art of Homeopathy 2",
-			TitlePl:           "Udoskonalić kunszt homeopatyczny 2",
-			Slug:              "to-perfect-the-art-of-homeopathy-2",
-			StartsAt:          MustParseTimestamp("2025-10-24T14:00:00Z"),
-			EndsAt:            MustParseTimestamp("2025-10-26T11:30:00Z"),
-			IsVirtual:         true,
-			DescriptionEn:     "Dr. Sanjay Modi, former professor of Mumbai Homeopathic College. The webinar is organised in honorary cooperation with the Polish Homeopathic Society and the Polish Society of Homeopathic Doctors and Pharmacists.\n\nOctober 24-25 2025, Vienna House Easy By Wyndham Cracow ul. Przy Rondzie 2, Kraków, Poland.\n\nOnline mode will also available (through Zoom). The lectures will be held in English with consecutive translation to Polish.",
+			ID:            MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
+			EventType:     queries.EventTypeSeminar,
+			TitleEn:       "To Perfect the Art of Homeopathy 2",
+			TitlePl:       "Udoskonalić kunszt homeopatyczny 2",
+			Slug:          "to-perfect-the-art-of-homeopathy-2",
+			StartsAt:      MustParseTimestamp("2025-10-24T14:00:00Z"),
+			EndsAt:        MustParseTimestamp("2025-10-26T11:30:00Z"),
+			IsVirtual:     true,
+			DescriptionEn: "Dr. Sanjay Modi, former professor of Mumbai Homeopathic College. The webinar is organised in honorary cooperation with the Polish Homeopathic Society and the Polish Society of Homeopathic Doctors and Pharmacists.\n\nOctober 24-25 2025, Vienna House Easy By Wyndham Cracow ul. Przy Rondzie 2, Kraków, Poland.\n\nOnline mode will also available (through Zoom). The lectures will be held in English with consecutive translation to Polish.",
 			DescriptionPl: StringPtr(`Wykładowca Dr. Sanjay Modi, wieloletni wykładowca Mumbai Homeopathic College.
 
 Seminarium organizowane jest we współpracy z Polskim Towarzystwem Homeopatycznym i Polskim Stowarzyszeniem Homeopatów Lekarzy i Farmaceutów.
@@ -261,6 +274,22 @@ Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym termi
 			VenueID:           MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8d"),
 			BasePriceAmount:   StringPtr("640.00000000"),
 			BasePriceCurrency: StringPtr("PLN"),
+		},
+		{
+			ID:        MustParseUUID("019bef00-6ef2-7636-9a15-c8cd1e87b997"),
+			EventType: queries.EventTypeWebinar,
+			TitleEn:   "What prevents me from moving on? Combining German New Medicine and Homeopathy for musculoskeletal problems",
+			TitlePl:   "What prevents me from moving on? Combining German New Medicine and Homeopathy for musculoskeletal problems",
+			Slug:      "what-prevents-me-from-moving-on",
+			IsVirtual: true,
+			StartsAt:  MustParseTimestamp("2026-02-08T15:00:00Z"),
+			EndsAt:    MustParseTimestamp("2026-02-08T16:30:00Z"),
+			DescriptionEn: `[EN] We kindly invite you to another free Homeo sapiens webinar. Experienced Homeopath Dr Asher Shaikh will share how he uses German New Medicine to facilitate homeopathic case-taking and remedy choice. Several musculoskeletal problems will be discussed, both theory and case-studies. The webinar will be held in English with consecutive translation to Polish.
+
+Dr Asher Shaikh (India) – a homeopathic doctor with over 25 years of clinical experience. He is the Director of Asher Clinics – a network of 12 clinics in Mumbai, Pune, Dubai, and Nasik – and a mentor in German New Medicine, which he has taught in Dubai, India, Austria, and Israel. He currently serves as a professor at the Homoeopathic Medical College in Nasik and as the Director of Viveda Resort – an innovative holistic health center. He is the former president of the Indian Institute of Homoeopathic Physicians. Dr. Shaikh specializes in reversing autoimmune disorders.`,
+			DescriptionPl: StringPtr(`Zapraszamy na kolejny darmowy webinar Homeo sapiens. Doświadczony homeopata dr Asher Shaikh opowie o sposobie, w jaki zastosowanie Nowej Germańskiej Medycyny (GNM) wspomaga przy homeopatycznym doborze leków. Podstawą do dyskusji na ten temat będzie omówienie kilku problemów układu mięśniowo-szkieletowego, zarówno teoretycznie, jak i w oparciu o studia przypadków. Webinar będzie prowadzony w języku angielskim z konsekutywnym tłumaczeniem na polski.
+
+Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem klinicznym. Jest dyrektorem Asher Clinics - 12 klinik w Mumbaju, Pune, Dubaju i Nasiku oraz mentorem Nowej Germańskiej Medycyny, którą wykładał w Dubaju, Indiach, Austrii i Izraelu. Pełni funkcję profesora w Homoeopathic Medical College w Nasiku oraz dyrektora Viveda Resort – innowacyjnego ośrodka zdrowia holistycznego. Były przewodniczący Indian Institute of Homoeopathic Physicians. Specjalizuje się w odwracaniu chorób autoimmunologicznych.`),
 		},
 	}
 	log.Printf("Creating events...")
@@ -300,6 +329,11 @@ Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym termi
 		{
 			EventID:  MustParseUUID("019b0c80-a410-7728-ab6b-c1eff529dfd1"),
 			HostID:   MustParseUUID("019b0c71-fde2-76b7-8c71-21c2e9ea23a5"),
+			Position: 0,
+		},
+		{
+			EventID:  MustParseUUID("019bef00-6ef2-7636-9a15-c8cd1e87b997"),
+			HostID:   MustParseUUID("019beef9-4287-714f-982b-2524fdef7063"),
 			Position: 0,
 		},
 	}

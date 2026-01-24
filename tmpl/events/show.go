@@ -57,7 +57,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			If(event.EventRegistration != nil, EventAttendanceBadge(isFuture, l)),
 		),
 		H2(
-			Class("text-primary my-2 text-4xl font-bold"),
+			Class("text-primary my-2 text-2xl leading-normal font-bold"),
 			Text(title),
 		),
 		Div(

@@ -80,8 +80,12 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 				),
 
 				H2(
-					Class("text-primary text-4xl font-bold"),
-					Text(title),
+					Class("text-primary text-2xl font-bold"),
+					A(
+						Class("no-underline hover:underline"),
+						Href(fmt.Sprintf("/events/%s", event.Slug)),
+						Text(title),
+					),
 				),
 			),
 

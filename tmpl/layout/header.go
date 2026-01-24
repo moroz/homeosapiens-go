@@ -49,8 +49,9 @@ func UserHeader(ctx *types.CustomContext) Node {
 
 func NavLink(href string, text string) Node {
 	return Li(
+		Class("h-full"),
 		A(
-			Class("text-primary inline-flex h-full items-center rounded-sm px-3 font-semibold transition hover:bg-slate-200"),
+			Class("button tertiary"),
 			Href(href), Text(text),
 		),
 	)
@@ -62,7 +63,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 	return Group{
 		Nav(Class("absolute inset-0 grid place-items-center mobile:hidden"),
 			Ul(
-				Class("flex h-full gap-1 py-4"),
+				Class("flex gap-1 items-center"),
 				NavLink("/", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.home",
 				})),
@@ -75,7 +76,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 			),
 		),
 		Div(
-			Class("z-20 flex items-center"),
+			Class("z-20 flex items-center gap-1"),
 			LanguageSwitcher(ctx),
 			If(ctx.User == nil, A(Href("/sign-in"), Class("button secondary z-20"), Text(l.MustLocalizeMessage(&i18n.Message{
 				ID: "header.nav.sign_in",
@@ -130,7 +131,7 @@ func mobileNav(ctx *types.CustomContext) Node {
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("fixed inset-0 z-10 h-20 border-b bg-white shadow"),
+		Class("fixed inset-0 z-10 h-20 border-b border-primary/50 bg-white shadow"),
 		Div(Class("mobile:px-2 flex h-full items-center justify-between px-6"),
 			H1(
 				Class("z-20"),
