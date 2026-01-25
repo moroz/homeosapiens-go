@@ -5,23 +5,12 @@
 @config "../tailwind.config.js";
 
 @theme {
-	--color-primary-50: var(--color-indigo-50);
-	--color-primary-100: var(--color-indigo-100);
-	--color-primary-200: var(--color-indigo-200);
-	--color-primary-300: var(--color-indigo-300);
-	--color-primary-400: var(--color-indigo-400);
-	--color-primary-500: var(--color-indigo-500);
-	--color-primary-600: var(--color-indigo-600);
-	--color-primary-700: var(--color-indigo-700);
-	--color-primary-800: var(--color-indigo-800);
-	--color-primary-900: var(--color-indigo-900);
-
 	--color-secondary: var(--color-purple-800);
 	--color-secondary-hover: var(--color-purple-700);
 
 	--font-sans: system-ui, sans-serif;
-	--color-primary: var(--color-blue-900);
-	--color-primary-hover: var(--color-blue-800);
+	--color-primary: var(--color-blue-800);
+	--color-primary-hover: var(--color-blue-700);
 
 	--spacing-header: calc(70 / 4 * var(--spacing));
 
@@ -56,7 +45,7 @@
 		@apply bg-primary hover:bg-primary-hover inline-flex cursor-pointer items-center justify-center rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
 
 		&.secondary {
-			@apply bg-slate-100 text-primary hover:bg-slate-200;
+			@apply bg-slate-100 text-primary hover:bg-slate-200 border border-slate-300;
 		}
 
     &.tertiary {
@@ -69,7 +58,7 @@
 	}
 
 	.card {
-		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 rounded border border-primary/50 bg-white p-6 shadow;
+		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 rounded border border-primary/30 bg-white p-6 shadow;
 	}
 
 	.input-field {

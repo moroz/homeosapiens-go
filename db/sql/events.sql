@@ -6,7 +6,7 @@ select * from events where slug = @slug::text;
 
 -- name: ListEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
-       e.venue_id, e.event_type, e.starts_at, e.ends_at,
+       e.venue_id, e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
        v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
 from events e
 left join venues v on e.venue_id = v.id

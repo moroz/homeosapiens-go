@@ -38,6 +38,7 @@
 				"past": "Attended",
 				"upcoming": "You are attending"
 			},
+      "participation_cost": "Participation cost",
       "free": "Free",
       "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
       "learn_more": "Learn more…",

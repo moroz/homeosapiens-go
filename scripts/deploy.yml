@@ -10,7 +10,6 @@
     app_base_dir: "/usr/local/lib/server"
     target_dir: "{{ app_base_dir }}/releases/{{ release_timestamp }}"
     code_dir: ".."
-    app_base_dir: /usr/local/lib/server
     deploy_user: deploy
     app_user: app
     app_name: homeosapiens
@@ -59,6 +58,10 @@
   remote_user: deploy
   become: true
   tags: clean
+
+  vars:
+    app_base_dir: "/usr/local/lib/server"
+    keep_releases: 5
 
   tasks:
     - name: List all directories in release root

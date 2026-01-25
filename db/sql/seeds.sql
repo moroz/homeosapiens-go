@@ -24,12 +24,14 @@ ON CONFLICT (id) DO UPDATE SET
 returning *;
 
 -- name: UpsertEvent :one
-INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, venue_id, base_price_amount, base_price_currency)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, venue_id, base_price_amount, base_price_currency, subtitle_en, subtitle_pl)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 ON CONFLICT (id) DO UPDATE SET
     event_type = excluded.event_type,
     title_en = excluded.title_en,
     title_pl = excluded.title_pl,
+    subtitle_en = excluded.subtitle_en,
+    subtitle_pl = excluded.subtitle_pl,
     slug = excluded.slug,
     starts_at = excluded.starts_at,
     ends_at = excluded.ends_at,

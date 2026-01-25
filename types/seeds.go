@@ -36,6 +36,8 @@ type CreateEventParams struct {
 	EventType         queries.EventType
 	TitleEn           string
 	TitlePl           string
+	SubtitleEn        *string
+	SubtitlePl        *string
 	Slug              string
 	StartsAt          pgtype.Timestamp
 	EndsAt            pgtype.Timestamp

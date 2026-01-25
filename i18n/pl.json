@@ -46,11 +46,11 @@
         "seminar": "Seminarium",
         "webinar": "Webinar"
       },
-			"attendance_badge": {
-				"past": "Wzięto udział",
-				"upcoming": "Bierzesz udział"
-			},
-      "participation_cost": "Koszt udziału:",
+      "attendance_badge": {
+        "past": "Wzięto udział",
+        "upcoming": "Bierzesz udział"
+      },
+      "participation_cost": "Koszt udziału",
       "free": "Bezpłatne",
       "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
       "learn_more": "Więcej informacji…",
@@ -110,8 +110,8 @@
       "required": "wymagane pole"
     }
   },
-	"events": {
-		"starts_at": "Data i godzina rozpoczęcia:",
-		"ends_at": "Data i godzina zakończenia:"
-	}
+  "events": {
+    "starts_at": "Data i godzina rozpoczęcia:",
+    "ends_at": "Data i godzina zakończenia:"
+  }
 }

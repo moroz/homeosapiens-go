@@ -16,7 +16,7 @@ import (
 
 func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer, lang string) Node {
 	return Span(
-		Class("font-fallback inline-flex items-center gap-1 justify-self-start rounded bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-700"),
+		Class("font-fallback inline-flex items-center gap-1 justify-self-start rounded bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-700 border border-gray-700/10"),
 		Iff(venue != nil, func() Node {
 			city := venue.CityEn
 			if lang == "pl" && venue.CityPl != nil {
@@ -39,7 +39,7 @@ func EventAttendanceBadge(isFuture bool, l *i18n.Localizer) Node {
 	}
 
 	return Span(
-		Class("font-fallback inline-flex items-center justify-center gap-1 rounded border border-green-900/50 bg-green-100 px-2 py-1 text-sm font-semibold text-green-900"),
+		Class("font-fallback inline-flex items-center justify-center gap-1 rounded border border-green-900/10 bg-green-100 px-2 py-1 text-sm font-semibold text-green-900"),
 		I(Class("h-4 w-4"), Data("lucide", "user-star")),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: messageKey,
@@ -51,7 +51,7 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
 	return Div(
-		Class("bg-slate-100 flex h-min w-42 flex-col items-center rounded-sm"),
+		Class("bg-slate-100 flex h-min w-42 flex-col items-center rounded-sm shadow"),
 		Div(
 			Class("relative aspect-square w-full overflow-hidden rounded-t-sm"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
@@ -65,7 +65,7 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 			}),
 		),
 		Footer(
-			Class("flex h-10 w-full items-center justify-center text-center text-primary border border-primary/50 border-t-0 rounded-b-sm"),
+			Class("flex h-10 w-full items-center justify-center text-center text-primary border border-primary/20 border-t-0 rounded-b-sm text-sm"),
 			Span(
 				Text(salutation),
 				Strong(
@@ -80,8 +80,10 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 	localizer := ctx.Localizer
 
 	title := e.TitleEn
-	if ctx.Language == "pl" {
+	subtitle := e.SubtitleEn
+	if ctx.IsPolish() {
 		title = e.TitlePl
+		subtitle = e.SubtitlePl
 	}
 
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
@@ -97,6 +99,10 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 				Class("mb-2 flex items-center gap-2"),
 				EventLocationBadge(e.IsVirtual, e.Venue, localizer, ctx.Language),
 				If(e.EventRegistration != nil, EventAttendanceBadge(isFuture, localizer)),
+
+				P(
+					Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, tz, ctx.Language)),
+				),
 			),
 
 			H3(
@@ -108,22 +114,21 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 				),
 			),
 
-			P(
-				Text(helpers.TranslateEventType(localizer, e.EventType)),
-				Text(", "),
-				Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, tz, ctx.Language)),
+			Iff(
+				subtitle != nil && *subtitle != "",
+				func() Node {
+					return H4(
+						Class("font-semibold mb-1"),
+						Text(*subtitle),
+					)
+				},
 			),
 
 			P(
-				Class("mb-4"),
-				Raw(
-					localizer.MustLocalize(&i18n.LocalizeConfig{
-						MessageID: "common.events.hosts",
-						TemplateData: map[string]string{
-							"Hosts": helpers.FormatHosts(localizer, e.Hosts),
-						},
-					}),
-				),
+				Class("mb-4 text-gray-600"),
+				Text(helpers.TranslateEventType(localizer, e.EventType)),
+				Text(", "),
+				Text(helpers.FormatHosts(localizer, e.Hosts)),
 			),
 
 			Div(
@@ -161,15 +166,13 @@ func formatEventPrice(ctx *types.CustomContext, e *services.EventListDto) Node {
 	l := ctx.Localizer
 
 	label := l.MustLocalizeMessage(&i18n.Message{
-		ID:    "common.events.participation_cost",
-		Other: "Participation cost:",
+		ID: "common.events.participation_cost",
 	})
 
 	var priceFormatted string
 	if e.BasePriceAmount == nil {
 		priceFormatted = l.MustLocalizeMessage(&i18n.Message{
-			ID:    "common.events.free",
-			Other: "Free",
+			ID: "common.events.free",
 		})
 	} else {
 		priceFormatted = helpers.FormatPrice(*e.BasePriceAmount, *e.BasePriceCurrency, ctx.Language)

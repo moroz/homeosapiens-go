@@ -17,3 +17,7 @@ type CustomContext struct {
 	TimezoneSet bool
 	RequestUrl  *url.URL
 }
+
+func (c *CustomContext) IsPolish() bool {
+	return c.Language == "pl"
+}
