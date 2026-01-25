@@ -25,7 +25,7 @@ func New(ctx *types.CustomContext, email string, msg string) Node {
 			Method("POST"),
 			Action("/sessions"),
 
-			If(msg != "", Div(Class("mt-4 rounded-sm border-2 bg-red-100 px-4 py-3 text-red-900"), Text(msg))),
+			If(msg != "", Div(Class("alert danger"), Text(msg))),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{

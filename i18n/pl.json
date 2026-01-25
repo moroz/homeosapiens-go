@@ -79,7 +79,11 @@
           "given_name": "Imię:",
           "family_name": "Nazwisko:",
           "profession": "Zawód:",
-          "country": "Kraj lub region:"
+          "country": "Kraj lub region:",
+          "licence_number": "Numer prawa do wykonywania zawodu:"
+        },
+        "helper_text": {
+          "email": "W następnym kroku wyślemy Państwu wiadomość w celu potwierdzenia adresu e-mail."
         }
       }
     }

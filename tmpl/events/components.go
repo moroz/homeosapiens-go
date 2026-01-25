@@ -16,7 +16,7 @@ import (
 
 func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer, lang string) Node {
 	return Span(
-		Class("font-fallback inline-flex items-center gap-1 justify-self-start rounded bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-700 border border-gray-700/10"),
+		Class("inline-flex items-center gap-1 justify-self-start rounded-sm border border-gray-700/10 bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-700"),
 		Iff(venue != nil, func() Node {
 			city := venue.CityEn
 			if lang == "pl" && venue.CityPl != nil {
@@ -39,7 +39,7 @@ func EventAttendanceBadge(isFuture bool, l *i18n.Localizer) Node {
 	}
 
 	return Span(
-		Class("font-fallback inline-flex items-center justify-center gap-1 rounded border border-green-900/10 bg-green-100 px-2 py-1 text-sm font-semibold text-green-900"),
+		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-green-900/10 bg-green-100 px-2 py-1 text-sm font-semibold text-green-900"),
 		I(Class("h-4 w-4"), Data("lucide", "user-star")),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: messageKey,
@@ -51,7 +51,7 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
 	return Div(
-		Class("bg-slate-100 flex h-min w-42 flex-col items-center rounded-sm shadow"),
+		Class("flex h-min w-42 flex-col items-center rounded-sm bg-slate-100 shadow"),
 		Div(
 			Class("relative aspect-square w-full overflow-hidden rounded-t-sm"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
@@ -65,7 +65,7 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 			}),
 		),
 		Footer(
-			Class("flex h-10 w-full items-center justify-center text-center text-primary border border-primary/20 border-t-0 rounded-b-sm text-sm"),
+			Class("text-primary border-primary/20 flex h-10 w-full items-center justify-center rounded-b-sm border border-t-0 text-center text-sm"),
 			Span(
 				Text(salutation),
 				Strong(
@@ -118,7 +118,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 				subtitle != nil && *subtitle != "",
 				func() Node {
 					return H4(
-						Class("font-semibold mb-1"),
+						Class("mb-1 font-semibold"),
 						Text(*subtitle),
 					)
 				},
@@ -180,7 +180,7 @@ func formatEventPrice(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 	return Div(
 		Class("grid leading-tight"),
-		Span(Class("uppercase text-xs text-gray-500 font-semibold "), Text(label)),
+		Span(Class("text-xs font-semibold text-gray-500 uppercase"), Text(label)),
 		Span(Class("text-lg"), Text(priceFormatted)),
 	)
 }

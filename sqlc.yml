@@ -19,6 +19,7 @@ sql:
           given_name_encrypted: "GivenName"
           family_name_encrypted: "FamilyName"
           email_encrypted: "Email"
+          licence_number_encrypted: "LicenceNumber"
         overrides:
           - db_type: "public.citext"
             go_type: "string"
@@ -48,6 +49,11 @@ sql:
               import: "github.com/bincyber/go-sqlcrypter"
               type: "EncryptedBytes"
               package: "sqlcrypter"
+          - column: "users.licence_number"
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              package: "sqlcrypter"
           - column: "event_registrations.family_name_encrypted"
             go_type:
               import: "github.com/bincyber/go-sqlcrypter"
@@ -59,6 +65,11 @@ sql:
               type: "EncryptedBytes"
               package: "sqlcrypter"
           - column: "event_registrations.email_encrypted"
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              package: "sqlcrypter"
+          - column: "event_registrations.licence_number"
             go_type:
               import: "github.com/bincyber/go-sqlcrypter"
               type: "EncryptedBytes"

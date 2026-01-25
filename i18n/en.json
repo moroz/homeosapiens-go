@@ -34,10 +34,10 @@
         "seminar": "Seminar",
         "webinar": "Webinar"
       },
-			"attendance_badge": {
-				"past": "Attended",
-				"upcoming": "You are attending"
-			},
+      "attendance_badge": {
+        "past": "Attended",
+        "upcoming": "You are attending"
+      },
       "participation_cost": "Participation cost",
       "free": "Free",
       "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
@@ -67,7 +67,11 @@
           "given_name": "Given name:",
           "family_name": "Family name:",
           "country": "Country or region:",
-          "profession": "Profession:"
+          "profession": "Profession:",
+          "licence_number": "Professional licence number:"
+        },
+        "helper_text": {
+          "email": "We will send you an email to confirm your email address."
         }
       }
     }
@@ -98,8 +102,8 @@
       "required": "required field"
     }
   },
-	"events": {
-		"starts_at": "Starts at:",
-		"ends_at": "Ends at:"
-	}
+  "events": {
+    "starts_at": "Starts at:",
+    "ends_at": "Ends at:"
+  }
 }

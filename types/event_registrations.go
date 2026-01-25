@@ -7,13 +7,14 @@ import (
 )
 
 type CreateEventRegistrationParams struct {
-	EventID    string `form:"event_id"`
-	GivenName  string `form:"given_name"`
-	FamilyName string `form:"family_name"`
-	Email      string `form:"email"`
-	Country    string `form:"country"`
-	Profession string `form:"profession"`
-	Company    string `form:"company"`
+	EventID       string `form:"event_id"`
+	GivenName     string `form:"given_name"`
+	FamilyName    string `form:"family_name"`
+	Email         string `form:"email"`
+	Country       string `form:"country"`
+	Profession    string `form:"profession"`
+	Company       string `form:"company"`
+	LicenceNumber string `form:"licence_number"`
 }
 
 var EmailValidationRegexp = regexp.MustCompile(`^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$`)

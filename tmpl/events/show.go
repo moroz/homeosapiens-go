@@ -50,7 +50,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	l := ctx.Localizer
 
 	return layout.Layout(ctx, event.TitleEn, Div(
-		Class("card max-w-min mx-auto"),
+		Class("card mx-auto max-w-min"),
 		Div(
 			Class("mb-2 flex items-center gap-2"),
 			EventLocationBadge(event.IsVirtual, event.Venue, l, lang),

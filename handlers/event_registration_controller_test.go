@@ -39,11 +39,12 @@ func TestRegisterForEvent(t *testing.T) {
 	eventID := "019b0c80-a410-7728-ab6b-c1eff529dfd1"
 	email := "john.doe@gmail.com"
 	params := url.Values{
-		"event_id":    {eventID},
-		"given_name":  {"John"},
-		"family_name": {"Doe"},
-		"email":       {email},
-		"country":     {"US"},
+		"event_id":       {eventID},
+		"given_name":     {"John"},
+		"family_name":    {"Doe"},
+		"email":          {email},
+		"country":        {"US"},
+		"licence_number": {"12345678"},
 	}
 
 	t.Run("when not signed in", func(t *testing.T) {
@@ -60,5 +61,7 @@ func TestRegisterForEvent(t *testing.T) {
 
 		assert.Equal(t, email, registration.Email.String())
 		assert.False(t, registration.EmailConfirmedAt.Valid)
+
+		assert.Equal(t, params.Get("family_name"), registration.FamilyName.String())
 	})
 }

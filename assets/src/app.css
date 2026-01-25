@@ -69,10 +69,6 @@
 		@apply h-10 rounded-sm border px-2 shadow;
 	}
 
-	.label {
-		@apply font-semibold;
-	}
-
 	.hamburger-menu {
 		@apply fixed inset-0 bg-white transition-all;
 
@@ -80,4 +76,12 @@
 			@apply pointer-events-none opacity-0;
 		}
 	}
+
+  .alert {
+    @apply rounded-sm border;
+
+    &.danger {
+      @apply bg-red-100 text-red-900 px-4 py-3 border-red-900/50;
+    }
+  }
 }

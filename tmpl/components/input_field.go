@@ -38,31 +38,43 @@ func InputField(opts *InputFieldOptions) Node {
 
 	return Div(
 		Class(class),
-		Label(For(id), Class("label"),
-			Text(opts.Label),
-
-			If(opts.Required,
+		Label(For(id), Class("label leading-tight"),
+			Span(
+				Class("block"),
 				Span(
-					Aria("hidden", "true"),
-					Class("ml-1 inline-block text-red-700"),
-					Iff(opts.Localizer != nil, func() Node {
-						return TitleAttr(opts.Localizer.MustLocalizeMessage(&i18n.Message{
-							ID: "components.input_field.required",
-						}))
-					}),
-					Text("*"),
+					Class("font-semibold"),
+					Text(opts.Label),
 				),
+
+				If(opts.Required,
+					Span(
+						Aria("hidden", "true"),
+						Class("ml-1 inline-block text-red-700"),
+						Iff(opts.Localizer != nil, func() Node {
+							return TitleAttr(opts.Localizer.MustLocalizeMessage(&i18n.Message{
+								ID: "components.input_field.required",
+							}))
+						}),
+						Text("*"),
+					),
+				),
+
+				Iff(opts.Localizer != nil && !opts.Required, func() Node {
+					return Span(
+						Class("text-sm text-slate-600"),
+						Text(" "),
+						Text(opts.Localizer.MustLocalizeMessage(&i18n.Message{
+							ID: "components.input_field.optional",
+						})),
+					)
+				}),
 			),
 
-			Iff(opts.Localizer != nil && !opts.Required, func() Node {
-				return Span(
-					Class("text-sm text-slate-600"),
-					Text(" "),
-					Text(opts.Localizer.MustLocalizeMessage(&i18n.Message{
-						ID: "components.input_field.optional",
-					})),
-				)
-			}),
+			If(opts.HelperText != "", Span(
+				Class("helper-text block text-sm"),
+				ID(opts.ID+"-helper"),
+				Text(opts.HelperText),
+			)),
 		),
 		Input(
 			Class("input"),
@@ -78,11 +90,6 @@ func InputField(opts *InputFieldOptions) Node {
 		If(opts.Error != "", Span(
 			Class("error-explanation"),
 			Text(opts.Error),
-		)),
-		If(opts.HelperText != "", Span(
-			Class("helper-text"),
-			ID(opts.ID+"-helper"),
-			Text(opts.HelperText),
 		)),
 	)
 }

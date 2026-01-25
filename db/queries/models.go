@@ -284,6 +284,7 @@ type EventRegistration struct {
 	Email             sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
 	Country           string                    `json:"country"`
 	EmailConfirmedAt  pgtype.Timestamp          `json:"emailConfirmedAt"`
+	LicenceNumber     []byte                    `json:"licenceNumberEncrypted"`
 }
 
 type EventsHost struct {
@@ -325,6 +326,7 @@ type User struct {
 	GivenName        sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
 	FamilyName       sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
 	EmailConfirmedAt pgtype.Timestamp          `json:"emailConfirmedAt"`
+	LicenceNumber    []byte                    `json:"licenceNumberEncrypted"`
 }
 
 type UserToken struct {

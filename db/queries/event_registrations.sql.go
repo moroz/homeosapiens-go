@@ -13,7 +13,7 @@ import (
 )
 
 const getLastEventRegistration = `-- name: GetLastEventRegistration :one
-select id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at from event_registrations order by id desc limit 1
+select id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at, licence_number_encrypted from event_registrations order by id desc limit 1
 `
 
 // Only for testing
@@ -33,6 +33,7 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 		&i.Email,
 		&i.Country,
 		&i.EmailConfirmedAt,
+		&i.LicenceNumber,
 	)
 	return &i, err
 }
@@ -40,7 +41,7 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 const insertEventRegistration = `-- name: InsertEventRegistration :one
 insert into event_registrations (event_id, user_id, is_host, given_name_encrypted, family_name_encrypted, email_encrypted, country, attending_in_person, email_confirmed_at)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-returning id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at
+returning id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at, licence_number_encrypted
 `
 
 type InsertEventRegistrationParams struct {
@@ -81,6 +82,7 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 		&i.Email,
 		&i.Country,
 		&i.EmailConfirmedAt,
+		&i.LicenceNumber,
 	)
 	return &i, err
 }

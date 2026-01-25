@@ -61,9 +61,9 @@ func desktopNav(ctx *types.CustomContext) Node {
 	l := ctx.Localizer
 
 	return Group{
-		Nav(Class("absolute inset-0 grid place-items-center mobile:hidden"),
+		Nav(Class("mobile:hidden absolute inset-0 grid place-items-center"),
 			Ul(
-				Class("flex gap-1 items-center"),
+				Class("flex items-center gap-1"),
 				NavLink("/", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.home",
 				})),
@@ -131,7 +131,7 @@ func mobileNav(ctx *types.CustomContext) Node {
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("fixed inset-0 z-10 h-20 border-b border-primary/50 bg-white shadow"),
+		Class("border-primary/50 fixed inset-0 z-10 h-20 border-b bg-white shadow"),
 		Div(Class("mobile:px-2 flex h-full items-center justify-between px-6"),
 			H1(
 				Class("z-20"),

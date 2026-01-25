@@ -101,7 +101,7 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 				Form(
 					Method("POST"),
 					Action("/event_registrations"),
-					Class("mt-6 space-y-2"),
+					Class("mt-6 space-y-4"),
 					Input(Type("hidden"), Name("event_id"), Value(event.Event.ID.String())),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
@@ -112,6 +112,14 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 						Autocomplete: "email",
 						Required:     true,
 						Localizer:    l,
+						HelperText: func() string {
+							if ctx.User != nil {
+								return ""
+							}
+							return l.MustLocalizeMessage(&i18n.Message{
+								ID: "event_registrations.new.form.helper_text.email",
+							})
+						}(),
 					}),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
@@ -150,6 +158,14 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 						}),
 						Name:      "profession",
 						Value:     params.Profession,
+						Localizer: l,
+					}),
+					components.InputField(&components.InputFieldOptions{
+						Label: l.MustLocalizeMessage(&i18n.Message{
+							ID: "event_registrations.new.form.labels.licence_number",
+						}),
+						Name:      "licence_number",
+						Value:     params.LicenceNumber,
 						Localizer: l,
 					}),
 					Button(Type("submit"), Class("button mt-2 h-10 w-full text-lg"), Text("Submit")),
