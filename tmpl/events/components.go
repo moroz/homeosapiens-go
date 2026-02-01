@@ -96,7 +96,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 		Header(
 			Class("flex flex-1 flex-col items-start"),
 			Div(
-				Class("mb-2 flex items-center gap-2"),
+				Class("mb-2 flex items-center gap-2 flex-wrap"),
 				EventLocationBadge(e.IsVirtual, e.Venue, localizer, ctx.Language),
 				If(e.EventRegistration != nil, EventAttendanceBadge(isFuture, localizer)),
 
@@ -106,7 +106,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			),
 
 			H3(
-				Class("text-primary mobile:text-xl mobile:leading-tight text-2xl font-bold"),
+				Class("text-primary mobile:text-lg mobile:leading-tight text-2xl font-bold"),
 				A(
 					Class("hover:text-primary-hover decoration-2 underline-offset-3 transition-colors hover:underline"),
 					Href(eventUrl),
@@ -125,25 +125,25 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			),
 
 			P(
-				Class("mb-4 text-gray-600"),
+				Class("desktop:mb-4 text-gray-600"),
 				Text(helpers.TranslateEventType(localizer, e.EventType)),
 				Text(", "),
 				Text(helpers.FormatHosts(localizer, e.Hosts)),
 			),
 
 			Div(
+				Class("mobile:grid gap-4 w-full mt-auto flex items-center"),
 				If(isFuture, A(
 					Href(eventUrl+"/register"),
-					Class("button px-6"),
+					Class("button px-6 mobile:w-full"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "common.events.sign_up",
 					})),
 				)),
 
-				Class("mt-auto flex items-center gap-4"),
 				A(
 					Href(eventUrl),
-					Class("button secondary font-fallback"),
+					Class("button secondary mobile:w-full"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID:    "common.events.learn_more",
 						Other: "Learn more…",
@@ -179,8 +179,8 @@ func formatEventPrice(ctx *types.CustomContext, e *services.EventListDto) Node {
 	}
 
 	return Div(
-		Class("grid leading-tight"),
-		Span(Class("text-xs font-semibold text-gray-500 uppercase"), Text(label)),
+		Class("desktop:grid leading-tight mobile:row-start-1"),
+		Span(Class("desktop:text-xs font-semibold desktop:text-gray-500 desktop:uppercase mobile:after:content-[':_']"), Text(label)),
 		Span(Class("text-lg"), Text(priceFormatted)),
 	)
 }

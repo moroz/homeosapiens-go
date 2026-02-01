@@ -16,11 +16,13 @@
 
   --breakpoint-*: initial;
   --breakpoint-lg: calc(65ch + 8rem);
+  --breakpoint-desktop: calc(30rem + 1px);
 
 	--shadow-solid: 4px 4px 0px 0px black;
 }
 
 @variant mobile (@media screen and (max-width: 30rem));
+@variant lang-pl (&:lang(pl));
 
 @layer base {
 	body {
@@ -29,14 +31,6 @@
 
 	a:not([class]) {
 		@apply text-primary hover:text-primary-hover underline underline-offset-2 transform-content;
-	}
-
-	/*
-    Polish diacritics (Zażółć gęślą jaźń) render poorly on Linux with IBM Plex Sans with smaller font sizes.
-    Use this class wherever it seems to be disrupting layout.
-  */
-	.font-fallback:lang(pl) {
-		/* font-family: system-ui, sans-serif; */
 	}
 }
 

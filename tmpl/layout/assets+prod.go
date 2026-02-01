@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
@@ -17,7 +18,7 @@ const ManifestPath = "assets/dist/.vite/manifest.json"
 
 var manifest ViteManifest
 
-func AssetEntryPoint() Node {
+func AssetEntryPoint(ctx *types.CustomContext) Node {
 	entry := manifest["index.html"]
 
 	return Group{

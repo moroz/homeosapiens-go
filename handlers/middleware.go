@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"bytes"
-	"context"
 	"encoding/gob"
 	"net/http"
 	"time"
 
+	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
@@ -14,29 +14,6 @@ import (
 	"github.com/moroz/securecookie"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 )
-
-func LocaleMiddleware(bundle *goi18n.Bundle, store securecookie.Store) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := r.Context().Value(config.SessionContextName).(types.SessionData)
-
-			langParam := r.FormValue("lang")
-			header := r.Header.Get("Accept-Language")
-			langFromSession, _ := session["lang"].(string)
-
-			lang := i18n.ResolveLocale(langParam, langFromSession, header)
-
-			if langParam != "" && langFromSession != langParam {
-				storePreferredLangInSession(w, session, store, langParam)
-			}
-
-			localizer := goi18n.NewLocalizer(bundle, lang)
-			ctx := context.WithValue(r.Context(), "localizer", localizer)
-			ctx = context.WithValue(ctx, config.LangContextName, lang)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-}
 
 func SaveSession(w http.ResponseWriter, store securecookie.Store, session types.SessionData) error {
 	buf := bytes.NewBuffer(nil)
@@ -63,60 +40,6 @@ func storePreferredLangInSession(w http.ResponseWriter, session types.SessionDat
 	_ = SaveSession(w, store, session)
 }
 
-func FetchSession(sessionStore securecookie.Store, cookieName string) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := decodeSessionFromRequest(sessionStore, cookieName, r)
-			ctx := context.WithValue(r.Context(), config.SessionContextName, session)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-}
-
-func FetchUserFromSession(db queries.DBTX) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session := r.Context().Value(config.SessionContextName).(types.SessionData)
-			var (
-				user *queries.User
-			)
-
-			if token, ok := session["access_token"].([]byte); ok {
-				if u, err := queries.New(db).GetUserByAccessToken(r.Context(), token); err == nil {
-					user = u
-				}
-			}
-
-			ctx := context.WithValue(r.Context(), config.CurrentUserContextName, user)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-}
-
-func FetchPreferredTimezone(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session := r.Context().Value(config.SessionContextName).(types.SessionData)
-		tz, _ := time.LoadLocation("Europe/Warsaw")
-		tzSet := false
-		if tzFromSession, ok := session["tz"].(string); ok && tzFromSession != "" {
-			if loaded, err := time.LoadLocation(tzFromSession); err == nil {
-				tz = loaded
-				tzSet = true
-			}
-		}
-		ctx := context.WithValue(r.Context(), config.LocationContextName, tz)
-		ctx = context.WithValue(ctx, config.TimezoneSetContextName, tzSet)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
-func StoreRequestUrlInContext(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), "url", r.URL)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
 func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string, r *http.Request) types.SessionData {
 	result := make(types.SessionData)
 
@@ -133,4 +56,84 @@ func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string
 	_ = gob.NewDecoder(bytes.NewBuffer(binary)).Decode(&result)
 
 	return result
+}
+
+func ExtendContext(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		c.Set("context", &types.CustomContext{})
+		return next(c)
+	}
+}
+
+func FetchSessionEcho(sessionStore securecookie.Store, cookieName string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			ctx := c.Get("context").(*types.CustomContext)
+			ctx.Session = decodeSessionFromRequest(sessionStore, cookieName, c.Request())
+			return next(c)
+		}
+	}
+}
+
+func LocaleMiddlewareEcho(bundle *goi18n.Bundle, store securecookie.Store) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			ctx := c.Get("context").(*types.CustomContext)
+
+			langParam := c.FormValue("lang")
+			header := c.Request().Header.Get("Accept-Language")
+			langFromSession, _ := ctx.Session["lang"].(string)
+
+			lang := i18n.ResolveLocale(langParam, langFromSession, header)
+
+			if langParam != "" && langFromSession != langParam {
+				storePreferredLangInSession(c.Response(), ctx.Session, store, langParam)
+			}
+
+			ctx.Localizer = goi18n.NewLocalizer(bundle, lang)
+			ctx.Language = lang
+			return next(c)
+		}
+	}
+}
+
+func FetchUserFromSessionEcho(db queries.DBTX) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			ctx := c.Get("context").(*types.CustomContext)
+
+			if token, ok := ctx.Session["access_token"].([]byte); ok {
+				if u, err := queries.New(db).GetUserByAccessToken(c.Request().Context(), token); err == nil {
+					ctx.User = u
+				}
+			}
+
+			return next(c)
+		}
+	}
+}
+
+func FetchPreferredTimezoneEcho(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Get("context").(*types.CustomContext)
+		ctx.Timezone, _ = time.LoadLocation("Europe/Warsaw")
+
+		if tzFromSession, ok := ctx.Session["tz"].(string); ok && tzFromSession != "" {
+			if loaded, err := time.LoadLocation(tzFromSession); err == nil {
+				ctx.Timezone = loaded
+				ctx.TimezoneSet = true
+			}
+		}
+
+		return next(c)
+	}
+}
+
+func StoreRequestUrlInContextEcho(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Get("context").(*types.CustomContext)
+		ctx.RequestUrl = c.Request().URL
+		ctx.RequestUrl.Host = c.Request().Host
+		return next(c)
+	}
 }

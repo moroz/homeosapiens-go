@@ -7,7 +7,7 @@ export GOARCH="${GOARCH:-amd64}"
 
 cd $gitroot
 mkdir -p rel
-rm -rf rel/*
+rm -rf rel
 cd $gitroot/assets
 pnpm run build
 cd $gitroot

@@ -42,7 +42,7 @@
       "free": "Free",
       "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
       "learn_more": "Learn more…",
-      "sign_up": "Sign up"
+      "sign_up": "Register"
     }
   },
   "sessions": {

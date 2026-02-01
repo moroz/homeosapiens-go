@@ -50,7 +50,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	l := ctx.Localizer
 
 	return layout.Layout(ctx, event.TitleEn, Div(
-		Class("card mx-auto max-w-min"),
+		Class("card mx-auto"),
 		Div(
 			Class("mb-2 flex items-center gap-2"),
 			EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
@@ -82,6 +82,6 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			),
 		),
 		If(event.EventRegistration == nil, A(Href(fmt.Sprintf("/events/%s/register", event.Slug)), Text("Register"))),
-		MarkdownContent(description, "mt-4 w-[65ch]"),
+		MarkdownContent(description, "mt-4 w-full"),
 	))
 }

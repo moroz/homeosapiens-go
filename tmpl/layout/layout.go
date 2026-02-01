@@ -14,7 +14,7 @@ func RootLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 			Meta(Charset("UTF-8")),
 			Meta(Name("viewport"), Content("width=device-width, initial-scale=1")),
 			TitleEl(Text(title+" | Homeo sapiens")),
-			AssetEntryPoint(),
+			AssetEntryPoint(ctx),
 			fonts(),
 			Script(Src("https://unpkg.com/lucide@latest"), Type("module")),
 			Script(Type("module"), Text("lucide.createIcons();")),
@@ -75,7 +75,7 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 }
 
 func AppFooter() Node {
-	return Footer(Class("border-primary/50 h-30 border-t shadow"),
+	return Footer(Class("border-primary/50 h-30 border-t shadow lg:text-base text-sm text-slate-600"),
 		Div(
 			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(

@@ -26,7 +26,7 @@ func UserHeader(ctx *types.CustomContext) Node {
 		Class("user-dropdown relative"),
 		Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(ctx.User)),
 		Div(
-			Class("dropdown absolute right-0 bottom-0 flex hidden translate-y-full flex-col overflow-hidden rounded-sm border border-slate-500 bg-white shadow"),
+			Class("dropdown absolute right-0 bottom-0 lg:flex mobile:hidden hidden translate-y-full flex-col overflow-hidden rounded-sm border border-slate-500 bg-white shadow"),
 			Div(
 				Class("flex items-center justify-between gap-4 px-3 py-2"),
 				components.Avatar(ctx.User),
@@ -76,7 +76,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 			),
 		),
 		Div(
-			Class("z-20 flex items-center gap-1"),
+			Class("z-20 flex items-center gap-1 mobile:hidden"),
 			LanguageSwitcher(ctx),
 			If(ctx.User == nil, A(Href("/sign-in"), Class("button secondary z-20"), Text(l.MustLocalizeMessage(&i18n.Message{
 				ID: "header.nav.sign_in",
