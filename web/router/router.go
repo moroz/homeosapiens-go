@@ -1,4 +1,4 @@
-﻿package handlers
+﻿package router
 
 import (
 	"net/http"
@@ -8,6 +8,8 @@ import (
 	echomiddleware "github.com/labstack/echo/v5/middleware"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/web/handlers"
+	"github.com/moroz/homeosapiens-go/web/middleware"
 	"github.com/moroz/securecookie"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -18,38 +20,38 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Pre(echomiddleware.MethodOverride())
 	r.Use(echomiddleware.RequestID())
 	r.Use(echomiddleware.RequestLogger())
-	r.Use(ExtendContext)
-	r.Use(StoreRequestUrlInContext)
-	r.Use(FetchSessionFromCookies(store, config.SessionCookieName))
-	r.Use(FetchUserFromSession(db))
-	r.Use(ResolveTimezone)
-	r.Use(ResolveRequestLocale(bundle, store))
+	r.Use(middleware.ExtendContext)
+	r.Use(middleware.StoreRequestUrlInContext)
+	r.Use(middleware.FetchSessionFromCookies(store, config.SessionCookieName))
+	r.Use(middleware.FetchUserFromSession(db))
+	r.Use(middleware.ResolveTimezone)
+	r.Use(middleware.ResolveRequestLocale(bundle, store))
 
-	pages := PageController(db)
+	pages := handlers.PageController(db)
 	r.GET("/", pages.Index)
 
-	events := EventController(db)
+	events := handlers.EventController(db)
 	r.GET("/events/:slug", events.Show)
 
-	eventRegistrations := EventRegistrationController(db)
+	eventRegistrations := handlers.EventRegistrationController(db)
 	r.GET("/events/:slug/register", eventRegistrations.New)
 	r.POST("/event_registrations", eventRegistrations.Create)
 
-	sessions := SessionController(db, store)
+	sessions := handlers.SessionController(db, store)
 	r.GET("/sign-in", sessions.New)
 	r.POST("/sessions", sessions.Create)
 	r.GET("/sign-out", sessions.Delete)
 
-	userRegistrations := UserRegistrationController(db)
+	userRegistrations := handlers.UserRegistrationController(db)
 	r.GET("/sign-up", userRegistrations.New)
 
-	videos := VideoController(db)
+	videos := handlers.VideoController(db)
 	r.GET("/videos", videos.Index)
 
-	prefs := PreferencesController(store)
+	prefs := handlers.PreferencesController(store)
 	r.POST("/api/v1/prefs/timezone", prefs.SaveTimezone)
 
-	oauth2 := OAuth2Controller(store, db)
+	oauth2 := handlers.OAuth2Controller(store, db)
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
@@ -57,7 +59,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
 		r.GET("/assets/*", echo.WrapHandler(fileServer), echo.WrapMiddleware(CacheControlMiddleware))
 	} else {
-		email := EmailController()
+		email := handlers.EmailController()
 		r.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/public/assets")))))
 		r.GET("/dev/email", email.Show)
 	}

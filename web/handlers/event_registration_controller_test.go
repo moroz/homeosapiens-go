@@ -10,8 +10,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/handlers"
 	"github.com/moroz/homeosapiens-go/i18n"
+	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/securecookie"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -32,7 +32,7 @@ func TestRegisterForEvent(t *testing.T) {
 	sessionStore, err := securecookie.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
-	router := handlers.Router(db, bundle, sessionStore)
+	router := router.Router(db, bundle, sessionStore)
 
 	db.Exec(t.Context(), "truncate users cascade")
 

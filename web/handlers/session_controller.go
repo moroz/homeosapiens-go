@@ -11,6 +11,7 @@ import (
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/sessions"
 	"github.com/moroz/homeosapiens-go/types"
+	"github.com/moroz/homeosapiens-go/web/middleware"
 	"github.com/moroz/securecookie"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -69,7 +70,7 @@ func (c *sessionController) Create(r *echo.Context) error {
 
 	session := ctx.Session
 	session["access_token"] = token.Token
-	if err := SaveSession(r.Response(), c.sessionStore, session); err != nil {
+	if err := middleware.SaveSession(r.Response(), c.sessionStore, session); err != nil {
 		return err
 	}
 
@@ -86,7 +87,7 @@ func (c *sessionController) Delete(r *echo.Context) error {
 		}
 	}
 	delete(session, "access_token")
-	if err := SaveSession(r.Response(), c.sessionStore, session); err != nil {
+	if err := middleware.SaveSession(r.Response(), c.sessionStore, session); err != nil {
 		return err
 	}
 
