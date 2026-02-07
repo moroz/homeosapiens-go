@@ -15,4 +15,8 @@ go build -a -installsuffix cgo -o rel/server -tags PROD .
 mkdir -p rel/assets
 cp -R $gitroot/assets/dist rel/assets
 cp -R $gitroot/db/migrations rel/
+
+# Remove hidden sql files, if any
+rm $gitroot/db/migrations/._* || true
+
 cd rel && tar czf release.tar.gz server assets/ migrations/

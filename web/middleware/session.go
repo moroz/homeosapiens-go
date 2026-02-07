@@ -48,6 +48,14 @@ func FetchFlashMessages(sessionStore securecookie.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			ctx := helpers.GetRequestContext(c)
+
+			if flash, ok := ctx.Session["_flash"].([]types.FlashMessage); ok {
+				delete(ctx.Session, "_flash")
+				_ = helpers.SaveSession(c.Response(), sessionStore, ctx.Session)
+				ctx.Flash = flash
+			}
+
+			return next(c)
 		}
 	}
 }
