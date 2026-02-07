@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -11,22 +10,10 @@ import (
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/sessions"
 	"github.com/moroz/homeosapiens-go/types"
-	"github.com/moroz/homeosapiens-go/web/middleware"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 	"github.com/moroz/securecookie"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
-
-func handleError(w http.ResponseWriter, err error, code int) {
-	msg := fmt.Sprintf("Error: %s", err)
-	log.Print(msg)
-	http.Error(w, msg, code)
-}
-
-func handleRenderingError(w http.ResponseWriter, err error) {
-	msg := fmt.Sprintf("Error rendering page: %s", err)
-	log.Print(msg)
-	http.Error(w, msg, 500)
-}
 
 type sessionController struct {
 	*services.UserService
@@ -70,7 +57,7 @@ func (c *sessionController) Create(r *echo.Context) error {
 
 	session := ctx.Session
 	session["access_token"] = token.Token
-	if err := middleware.SaveSession(r.Response(), c.sessionStore, session); err != nil {
+	if err := helpers.SaveSession(r.Response(), c.sessionStore, session); err != nil {
 		return err
 	}
 
@@ -87,7 +74,7 @@ func (c *sessionController) Delete(r *echo.Context) error {
 		}
 	}
 	delete(session, "access_token")
-	if err := middleware.SaveSession(r.Response(), c.sessionStore, session); err != nil {
+	if err := helpers.SaveSession(r.Response(), c.sessionStore, session); err != nil {
 		return err
 	}
 

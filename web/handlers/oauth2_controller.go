@@ -15,7 +15,7 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
-	"github.com/moroz/homeosapiens-go/web/middleware"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 	"github.com/moroz/securecookie"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -63,7 +63,7 @@ func (c *oauth2Controller) GoogleRedirect(r *echo.Context) error {
 	if redirectTo != "" {
 		ctx.Session[RedirectBackUrlSessionKey] = redirectTo
 	}
-	if err := middleware.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
+	if err := helpers.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error persisting session: %s", err)
 		return err
 	}
@@ -139,7 +139,7 @@ func (c *oauth2Controller) GoogleCallback(r *echo.Context) error {
 	ctx.Session["access_token"] = userToken.Token
 	delete(ctx.Session, OAuth2SessionKey)
 	delete(ctx.Session, RedirectBackUrlSessionKey)
-	if err := middleware.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
+	if err := helpers.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		return err
 	}

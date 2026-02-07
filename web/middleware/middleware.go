@@ -7,37 +7,17 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v5"
-	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/types"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 	"github.com/moroz/securecookie"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-func SaveSession(w http.ResponseWriter, store securecookie.Store, session types.SessionData) error {
-	buf := bytes.NewBuffer(nil)
-	err := gob.NewEncoder(buf).Encode(session)
-	if err != nil {
-		return err
-	}
-	cookie, err := store.EncryptCookie(buf.Bytes())
-	if err != nil {
-		return err
-	}
-	http.SetCookie(w, &http.Cookie{
-		Name:     config.SessionCookieName,
-		Value:    cookie,
-		Path:     "/",
-		Secure:   true,
-		HttpOnly: true,
-	})
-	return nil
-}
-
 func storePreferredLangInSession(w http.ResponseWriter, session types.SessionData, store securecookie.Store, newValue string) {
 	session["lang"] = newValue
-	_ = SaveSession(w, store, session)
+	_ = helpers.SaveSession(w, store, session)
 }
 
 func decodeSessionFromRequest(sessionStore securecookie.Store, cookieName string, r *http.Request) types.SessionData {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/types"
-	"github.com/moroz/homeosapiens-go/web/middleware"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 	"github.com/moroz/securecookie"
 )
 
@@ -28,7 +28,7 @@ func (c *preferencesController) SaveTimezone(r *echo.Context) error {
 	}
 	ctx := r.Get("context").(*types.CustomContext)
 	ctx.Session["tz"] = tzParam
-	if err := middleware.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
+	if err := helpers.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		return err
 	}
