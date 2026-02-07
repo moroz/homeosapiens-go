@@ -9,7 +9,6 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/sessions"
-	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
 	"github.com/moroz/securecookie"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -29,54 +28,53 @@ func SessionController(db queries.DBTX, sessionStore securecookie.Store) *sessio
 	}
 }
 
-func (c *sessionController) New(r *echo.Context) error {
-	ctx := r.Get("context").(*types.CustomContext)
-	return sessions.New(ctx, "", "").Render(r.Response())
+func (cc *sessionController) New(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+	return sessions.New(ctx, "", "").Render(c.Response())
 }
 
-func (c *sessionController) Create(r *echo.Context) error {
-	ctx := r.Get("context").(*types.CustomContext)
+func (cc *sessionController) Create(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
 
-	email := r.FormValue("email")
-	password := r.FormValue("password")
+	email := c.FormValue("email")
+	password := c.FormValue("password")
 
-	user, err := c.UserService.AuthenticateUserByEmailPassword(r.Request().Context(), email, password)
+	user, err := cc.UserService.AuthenticateUserByEmailPassword(c.Request().Context(), email, password)
 	if err != nil {
 		l := ctx.Localizer
 		msg := l.MustLocalizeMessage(&i18n.Message{
 			ID: "sessions.new.invalid_email_password_combination",
 		})
 
-		return sessions.New(ctx, email, msg).Render(r.Response())
+		return sessions.New(ctx, email, msg).Render(c.Response())
 	}
 
-	token, err := c.UserTokenService.IssueAccessTokenForUser(r.Request().Context(), user, 24*time.Hour)
+	token, err := cc.UserTokenService.IssueAccessTokenForUser(c.Request().Context(), user, 24*time.Hour)
 	if err != nil {
 		return err
 	}
 
 	session := ctx.Session
 	session["access_token"] = token.Token
-	if err := helpers.SaveSession(r.Response(), c.sessionStore, session); err != nil {
+	if err := helpers.SaveSession(c.Response(), cc.sessionStore, session); err != nil {
 		return err
 	}
 
-	return r.Redirect(http.StatusFound, "/")
+	return c.Redirect(http.StatusFound, "/")
 }
 
-func (c *sessionController) Delete(r *echo.Context) error {
-	ctx := r.Get("context").(*types.CustomContext)
-	session := ctx.Session
-	token, ok := session["access_token"].([]byte)
+func (cc *sessionController) Delete(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+	token, ok := ctx.Session["access_token"].([]byte)
 	if ok && token != nil {
-		if _, err := c.UserTokenService.DeleteToken(r.Request().Context(), token); err != nil {
+		if _, err := cc.UserTokenService.DeleteToken(c.Request().Context(), token); err != nil {
 			log.Printf("Error deleting user token: %s", err)
 		}
 	}
-	delete(session, "access_token")
-	if err := helpers.SaveSession(r.Response(), c.sessionStore, session); err != nil {
+	delete(ctx.Session, "access_token")
+	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
 		return err
 	}
 
-	return r.Redirect(http.StatusFound, "/")
+	return c.Redirect(http.StatusFound, "/")
 }

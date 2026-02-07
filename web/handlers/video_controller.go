@@ -5,7 +5,7 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/videos"
-	"github.com/moroz/homeosapiens-go/types"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 )
 
 type videoController struct {
@@ -20,14 +20,13 @@ func VideoController(db queries.DBTX) *videoController {
 	}
 }
 
-func (c *videoController) Index(r *echo.Context) error {
-	ctx := r.Get("context").(*types.CustomContext)
-	user := ctx.User
+func (cc *videoController) Index(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
 
-	data, err := c.videoService.ListVideosWithSources(r.Request().Context(), user)
+	data, err := cc.videoService.ListVideosWithSources(c.Request().Context(), ctx.User)
 	if err != nil {
 		return err
 	}
 
-	return videos.Index(ctx, data).Render(r.Response())
+	return videos.Index(ctx, data).Render(c.Response())
 }

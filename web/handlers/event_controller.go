@@ -9,7 +9,7 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/events"
-	"github.com/moroz/homeosapiens-go/types"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 )
 
 type eventController struct {
@@ -21,11 +21,11 @@ func EventController(db queries.DBTX) *eventController {
 	return &eventController{db, services.NewEventService(db)}
 }
 
-func (me *eventController) Show(c *echo.Context) error {
-	ctx := c.Get("context").(*types.CustomContext)
+func (cc *eventController) Show(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
 	slug := c.Param("slug")
 	user := ctx.User
-	event, err := me.eventService.GetEventDetailsBySlug(c.Request().Context(), slug, user)
+	event, err := cc.eventService.GetEventDetailsBySlug(c.Request().Context(), slug, user)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return echo.ErrNotFound
 	}

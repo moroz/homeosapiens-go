@@ -5,7 +5,7 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/pages"
-	"github.com/moroz/homeosapiens-go/types"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 )
 
 type pageController struct {
@@ -17,9 +17,9 @@ func PageController(db queries.DBTX) *pageController {
 	return &pageController{db, services.NewEventService(db)}
 }
 
-func (me *pageController) Index(c *echo.Context) error {
-	ctx := c.Get("context").(*types.CustomContext)
-	events, err := me.eventService.ListEvents(c.Request().Context(), ctx.User)
+func (cc *pageController) Index(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+	events, err := cc.eventService.ListEvents(c.Request().Context(), ctx.User)
 	if err != nil {
 		return err
 	}

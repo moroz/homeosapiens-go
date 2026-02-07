@@ -87,7 +87,7 @@
 		}
 
 		.dropdown-item {
-			@apply inline-flex h-10 w-full items-center justify-center text-center transition hover:bg-slate-100;
+			@apply inline-flex h-10 w-full items-center justify-start px-4 text-left transition hover:bg-slate-100;
 		}
 
 		section {

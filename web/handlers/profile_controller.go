@@ -4,6 +4,8 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/tmpl/profile"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 )
 
 type profileController struct {
@@ -17,5 +19,7 @@ func ProfileController(db queries.DBTX) *profileController {
 }
 
 func (cc *profileController) Show(c *echo.Context) error {
-	return nil
+	ctx := helpers.GetRequestContext(c)
+
+	return profile.Show(ctx).Render(c.Response())
 }

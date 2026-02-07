@@ -48,7 +48,7 @@ func ExtendContext(next echo.HandlerFunc) echo.HandlerFunc {
 func FetchSessionFromCookies(sessionStore securecookie.Store, cookieName string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			ctx := c.Get("context").(*types.CustomContext)
+			ctx := helpers.GetRequestContext(c)
 			ctx.Session = decodeSessionFromRequest(sessionStore, cookieName, c.Request())
 			return next(c)
 		}
@@ -58,7 +58,7 @@ func FetchSessionFromCookies(sessionStore securecookie.Store, cookieName string)
 func ResolveRequestLocale(bundle *goi18n.Bundle, store securecookie.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			ctx := c.Get("context").(*types.CustomContext)
+			ctx := helpers.GetRequestContext(c)
 
 			langParam := c.FormValue("lang")
 			header := c.Request().Header.Get("Accept-Language")
@@ -80,7 +80,7 @@ func ResolveRequestLocale(bundle *goi18n.Bundle, store securecookie.Store) echo.
 func FetchUserFromSession(db queries.DBTX) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			ctx := c.Get("context").(*types.CustomContext)
+			ctx := helpers.GetRequestContext(c)
 
 			if token, ok := ctx.Session["access_token"].([]byte); ok {
 				if u, err := queries.New(db).GetUserByAccessToken(c.Request().Context(), token); err == nil {
@@ -95,7 +95,7 @@ func FetchUserFromSession(db queries.DBTX) echo.MiddlewareFunc {
 
 func ResolveTimezone(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		ctx := c.Get("context").(*types.CustomContext)
+		ctx := helpers.GetRequestContext(c)
 		ctx.Timezone, _ = time.LoadLocation("Europe/Warsaw")
 
 		if tzFromSession, ok := ctx.Session["tz"].(string); ok && tzFromSession != "" {
@@ -111,7 +111,7 @@ func ResolveTimezone(next echo.HandlerFunc) echo.HandlerFunc {
 
 func StoreRequestUrlInContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		ctx := c.Get("context").(*types.CustomContext)
+		ctx := helpers.GetRequestContext(c)
 		ctx.RequestUrl = c.Request().URL
 		ctx.RequestUrl.Host = c.Request().Host
 		return next(c)

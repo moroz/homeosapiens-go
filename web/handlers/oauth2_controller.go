@@ -47,15 +47,15 @@ func OAuth2Controller(store securecookie.Store, db queries.DBTX) *oauth2Controll
 const OAuth2SessionKey = "auth_state"
 const RedirectBackUrlSessionKey = "redirect_back"
 
-func (c *oauth2Controller) GoogleRedirect(r *echo.Context) error {
-	if c.config.ClientID == "" {
+func (cc *oauth2Controller) GoogleRedirect(c *echo.Context) error {
+	if cc.config.ClientID == "" {
 		log.Printf("Google Client ID is not set")
 		return echo.NewHTTPError(500, "Client ID is not set")
 	}
 
-	redirectTo := r.QueryParam("ref")
+	redirectTo := c.QueryParam("ref")
 
-	ctx := r.Get("context").(*types.CustomContext)
+	ctx := helpers.GetRequestContext(c)
 
 	var state = make([]byte, 4)
 	_, _ = rand.Read(state)
@@ -63,13 +63,13 @@ func (c *oauth2Controller) GoogleRedirect(r *echo.Context) error {
 	if redirectTo != "" {
 		ctx.Session[RedirectBackUrlSessionKey] = redirectTo
 	}
-	if err := helpers.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
+	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error persisting session: %s", err)
 		return err
 	}
 
-	url := c.config.AuthCodeURL(hex.EncodeToString(state), oauth2.AccessTypeOffline)
-	return r.Redirect(http.StatusFound, url)
+	url := cc.config.AuthCodeURL(hex.EncodeToString(state), oauth2.AccessTypeOffline)
+	return c.Redirect(http.StatusFound, url)
 }
 
 func decodeIDTokenClaims(token string) (*types.GoogleIDTokenClaims, error) {
@@ -86,18 +86,18 @@ func decodeIDTokenClaims(token string) (*types.GoogleIDTokenClaims, error) {
 	return &claims, nil
 }
 
-func (c *oauth2Controller) GoogleCallback(r *echo.Context) error {
-	ctx := r.Get("context").(*types.CustomContext)
+func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
 	state, _ := ctx.Session[OAuth2SessionKey].(string)
-	stateParam := r.QueryParam("state")
+	stateParam := c.QueryParam("state")
 
 	if state != stateParam {
 		log.Printf("Invalid OAuth2 state param in callback")
 		return echo.NewHTTPError(400, "Invalid OAuth2 state param")
 	}
 
-	code := r.QueryParam("code")
-	token, err := c.config.Exchange(r.Request().Context(), code)
+	code := c.QueryParam("code")
+	token, err := cc.config.Exchange(c.Request().Context(), code)
 	if err != nil {
 		log.Printf("Google token exchange returned error: %s", err)
 
@@ -106,8 +106,8 @@ func (c *oauth2Controller) GoogleCallback(r *echo.Context) error {
 
 	idToken, _ := token.Extra("id_token").(string)
 
-	validator, _ := idtoken.NewValidator(r.Request().Context())
-	_, err = validator.Validate(r.Request().Context(), idToken, c.config.ClientID)
+	validator, _ := idtoken.NewValidator(c.Request().Context())
+	_, err = validator.Validate(c.Request().Context(), idToken, cc.config.ClientID)
 	if err != nil {
 		log.Printf("ID token verification failed: %s", err)
 		return err
@@ -119,13 +119,13 @@ func (c *oauth2Controller) GoogleCallback(r *echo.Context) error {
 		return err
 	}
 
-	user, err := c.UserService.FindOrCreateUserFromClaims(r.Request().Context(), claims)
+	user, err := cc.UserService.FindOrCreateUserFromClaims(c.Request().Context(), claims)
 	if err != nil {
 		log.Printf("Failed to create user from claims: %s", err)
 		return err
 	}
 
-	userToken, err := c.UserTokenService.IssueAccessTokenForUser(r.Request().Context(), user, 24*time.Hour)
+	userToken, err := cc.UserTokenService.IssueAccessTokenForUser(c.Request().Context(), user, 24*time.Hour)
 	if err != nil {
 		log.Printf("Error issuing access token: %s", err)
 		return err
@@ -139,10 +139,10 @@ func (c *oauth2Controller) GoogleCallback(r *echo.Context) error {
 	ctx.Session["access_token"] = userToken.Token
 	delete(ctx.Session, OAuth2SessionKey)
 	delete(ctx.Session, RedirectBackUrlSessionKey)
-	if err := helpers.SaveSession(r.Response(), c.sessionStore, ctx.Session); err != nil {
+	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		return err
 	}
 
-	return r.Redirect(http.StatusFound, redirectBackUrl)
+	return c.Redirect(http.StatusFound, redirectBackUrl)
 }
