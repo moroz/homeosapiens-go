@@ -44,9 +44,6 @@ func OAuth2Controller(store securecookie.Store, db queries.DBTX) *oauth2Controll
 	}
 }
 
-const OAuth2SessionKey = "auth_state"
-const RedirectBackUrlSessionKey = "redirect_back"
-
 func (cc *oauth2Controller) GoogleRedirect(c *echo.Context) error {
 	if cc.config.ClientID == "" {
 		log.Printf("Google Client ID is not set")
@@ -59,9 +56,9 @@ func (cc *oauth2Controller) GoogleRedirect(c *echo.Context) error {
 
 	var state = make([]byte, 4)
 	_, _ = rand.Read(state)
-	ctx.Session[OAuth2SessionKey] = hex.EncodeToString(state)
+	ctx.Session[config.OAuth2SessionKey] = hex.EncodeToString(state)
 	if redirectTo != "" {
-		ctx.Session[RedirectBackUrlSessionKey] = redirectTo
+		ctx.Session[config.RedirectBackUrlSessionKey] = redirectTo
 	}
 	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error persisting session: %s", err)
@@ -88,7 +85,7 @@ func decodeIDTokenClaims(token string) (*types.GoogleIDTokenClaims, error) {
 
 func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	state, _ := ctx.Session[OAuth2SessionKey].(string)
+	state, _ := ctx.Session[config.OAuth2SessionKey].(string)
 	stateParam := c.QueryParam("state")
 
 	if state != stateParam {
@@ -131,14 +128,14 @@ func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
 		return err
 	}
 
-	redirectBackUrl, ok := ctx.Session[RedirectBackUrlSessionKey].(string)
+	redirectBackUrl, ok := ctx.Session[config.RedirectBackUrlSessionKey].(string)
 	if !ok {
 		redirectBackUrl = "/"
 	}
 
 	ctx.Session["access_token"] = userToken.Token
-	delete(ctx.Session, OAuth2SessionKey)
-	delete(ctx.Session, RedirectBackUrlSessionKey)
+	delete(ctx.Session, config.OAuth2SessionKey)
+	delete(ctx.Session, config.RedirectBackUrlSessionKey)
 	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		return err

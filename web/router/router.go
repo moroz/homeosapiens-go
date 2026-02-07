@@ -55,6 +55,12 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
+	authenticated := r.Group("")
+	authenticated.Use(middleware.RequireAuthenticatedUser)
+
+	profile := handlers.ProfileController(db)
+	authenticated.GET("/profile", profile.Show)
+
 	if config.IsProd {
 		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
 		r.GET("/assets/*", echo.WrapHandler(fileServer), echo.WrapMiddleware(CacheControlMiddleware))

@@ -83,11 +83,9 @@ var PublicUrl = RequireInProduction("PUBLIC_URL", "http://localhost:3000")
 
 const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 const SessionCookieName = "_hs_session"
-const SessionContextName = "session"
-const LocationContextName = "timezone"
-const TimezoneSetContextName = "tzset"
-const CurrentUserContextName = "current_user"
-const LangContextName = "lang"
+
+const OAuth2SessionKey = "auth_state"
+const RedirectBackUrlSessionKey = "redirect_back"
 
 const MinPasswordLength = 8
 const MaxPasswordLength = 128

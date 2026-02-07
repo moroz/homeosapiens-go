@@ -1,110 +1,120 @@
 {
-  "countries": {
-    "PL": "Poland",
-    "ZA": "South Africa",
-    "IN": "India"
-  },
-  "languages": {
-    "pl": "polski",
-    "en": "English"
-  },
-  "header": {
-    "nav": {
-      "sign_in": "Sign in",
-      "home": "Home",
-      "events": "Events",
-      "videos": "Watch",
-      "my_products": "My products"
-    },
-    "user_dropdown": {
-      "sign_out": "Sign out",
+	"countries": {
+		"PL": "Poland",
+		"ZA": "South Africa",
+		"IN": "India"
+	},
+	"languages": {
+		"pl": "polski",
+		"en": "English"
+	},
+	"header": {
+		"nav": {
+			"sign_in": "Sign in",
+			"home": "Home",
+			"events": "Events",
+			"videos": "Watch",
+			"my_products": "My products"
+		},
+		"user_dropdown": {
+			"sign_out": "Sign out",
 			"profile": "Profile"
-    }
-  },
-  "locale_switcher": {
-    "switch_to": "Przełącz na język polski"
-  },
-  "common": {
-    "hosts": {
-      "salutation": {
-        "dr": "Dr."
-      }
-    },
-    "events": {
-      "event_type": {
-        "seminar": "Seminar",
-        "webinar": "Webinar"
-      },
-      "attendance_badge": {
-        "past": "Attended",
-        "upcoming": "You are attending"
-      },
-      "participation_cost": "Participation cost",
-      "free": "Free",
-      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
-      "learn_more": "Learn more…",
-      "sign_up": "Register"
-    }
-  },
-  "sessions": {
-    "new": {
-      "email": "Email:",
-      "password": "Password:",
-      "submit": "Submit",
-      "header": "Sign in",
-      "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
-      "invalid_email_password_combination": "Invalid email/password combination.",
-      "sign_in_with_google": "Sign in with Google"
-    }
-  },
-  "event_registrations": {
-    "new": {
-      "title": "Sign up for event: {{ .Title }}",
-      "heading": "Sign up for event",
-      "continue_with_google": "Continue with Google",
-      "form": {
-        "labels": {
-          "email": "Email:",
-          "given_name": "Given name:",
-          "family_name": "Family name:",
-          "country": "Country or region:",
-          "profession": "Profession:",
-          "licence_number": "Professional licence number:"
-        },
-        "helper_text": {
-          "email": "We will send you an email to confirm your email address."
-        }
-      }
-    }
-  },
-  "user_registrations": {
-    "new": {
-      "title": "Sign up",
-      "already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
-      "submit": "Sign up",
-      "sign_up_with_google": "Sign up with Google",
-      "form": {
-        "labels": {
-          "email": "Email:",
-          "password": "Create password:",
-          "password_confirmation": "Confirm password:",
-          "given_name": "Given name:",
-          "family_name": "Family name:"
-        },
-        "helper_text": {
-          "password": "{{ .Min }}–{{ .Max }} characters"
-        }
-      }
-    }
-  },
-  "components": {
-    "input_field": {
-      "optional": "(optional)",
-      "required": "required field"
-    }
-  },
-  "events": {
-    "starts_at": "Starts at:",
-    "ends_at": "Ends at:"
-  }
+		}
+	},
+	"locale_switcher": {
+		"switch_to": "Przełącz na język polski"
+	},
+	"common": {
+		"hosts": {
+			"salutation": {
+				"dr": "Dr."
+			}
+		},
+		"events": {
+			"event_type": {
+				"seminar": "Seminar",
+				"webinar": "Webinar"
+			},
+			"attendance_badge": {
+				"past": "Attended",
+				"upcoming": "You are attending"
+			},
+			"participation_cost": "Participation cost",
+			"free": "Free",
+			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
+			"learn_more": "Learn more…",
+			"sign_up": "Register"
+		}
+	},
+	"sessions": {
+		"new": {
+			"email": "Email:",
+			"password": "Password:",
+			"submit": "Submit",
+			"header": "Sign in",
+			"no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
+			"invalid_email_password_combination": "Invalid email/password combination.",
+			"sign_in_with_google": "Sign in with Google"
+		}
+	},
+	"event_registrations": {
+		"new": {
+			"title": "Sign up for event: {{ .Title }}",
+			"heading": "Sign up for event",
+			"continue_with_google": "Continue with Google",
+			"form": {
+				"labels": {
+					"email": "Email:",
+					"given_name": "Given name:",
+					"family_name": "Family name:",
+					"country": "Country or region:",
+					"profession": "Profession:",
+					"licence_number": "Professional licence number:"
+				},
+				"helper_text": {
+					"email": "We will send you an email to confirm your email address."
+				}
+			}
+		}
+	},
+	"user_registrations": {
+		"new": {
+			"title": "Sign up",
+			"already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
+			"submit": "Sign up",
+			"sign_up_with_google": "Sign up with Google",
+			"form": {
+				"labels": {
+					"email": "Email:",
+					"password": "Create password:",
+					"password_confirmation": "Confirm password:",
+					"given_name": "Given name:",
+					"family_name": "Family name:"
+				},
+				"helper_text": {
+					"password": "{{ .Min }}–{{ .Max }} characters"
+				}
+			}
+		}
+	},
+	"components": {
+		"input_field": {
+			"optional": "(optional)",
+			"required": "required field"
+		}
+	},
+	"events": {
+		"starts_at": "Starts at:",
+		"ends_at": "Ends at:"
+	},
+	"profile": {
+		"title": "Profile",
+		"form": {
+			"labels": {
+				"email": "Email:",
+				"given_name": "Given name:",
+				"family_name": "Family name:"
+			}
+		}
+	}
 }

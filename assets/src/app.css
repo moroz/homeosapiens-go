@@ -55,6 +55,10 @@
 		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 border-primary/30 rounded border bg-white p-6 shadow;
 	}
 
+	.card-header {
+		@apply text-primary text-xl font-bold lg:text-2xl;
+	}
+
 	.input-field {
 		@apply grid gap-1;
 	}
@@ -78,9 +82,7 @@
 			@apply border-red-900/50 bg-red-100 px-4 py-3 text-red-900;
 		}
 	}
-}
 
-@layer components {
 	.user-dropdown {
 		:is(&) .dropdown {
 			@apply mobile:hidden absolute right-0 bottom-0 flex translate-y-full flex-col items-stretch overflow-hidden rounded-sm border border-slate-500 bg-white shadow;

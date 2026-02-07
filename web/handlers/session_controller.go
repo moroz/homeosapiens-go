@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/sessions"
@@ -30,6 +31,13 @@ func SessionController(db queries.DBTX, sessionStore securecookie.Store) *sessio
 
 func (cc *sessionController) New(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
+
+	redirectTo := c.QueryParams().Get("ref")
+	if redirectTo != "" {
+		ctx.Session[config.RedirectBackUrlSessionKey] = redirectTo
+		_ = helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session)
+	}
+
 	return sessions.New(ctx, "", "").Render(c.Response())
 }
 
@@ -54,13 +62,14 @@ func (cc *sessionController) Create(c *echo.Context) error {
 		return err
 	}
 
-	session := ctx.Session
-	session["access_token"] = token.Token
-	if err := helpers.SaveSession(c.Response(), cc.sessionStore, session); err != nil {
+	ctx.Session["access_token"] = token.Token
+	redirectTo := helpers.GetRedirectUrl(ctx)
+
+	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
 		return err
 	}
 
-	return c.Redirect(http.StatusFound, "/")
+	return c.Redirect(http.StatusFound, redirectTo)
 }
 
 func (cc *sessionController) Delete(c *echo.Context) error {

@@ -29,3 +29,12 @@ func SaveSession(w http.ResponseWriter, store securecookie.Store, session types.
 	})
 	return nil
 }
+
+func GetRedirectUrl(ctx *types.CustomContext) string {
+	redirectTo, _ := ctx.Session[config.RedirectBackUrlSessionKey].(string)
+	if redirectTo != "" {
+		delete(ctx.Session, config.RedirectBackUrlSessionKey)
+		return redirectTo
+	}
+	return "/"
+}
