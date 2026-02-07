@@ -11,8 +11,8 @@ and ut.token = @token::bytea and ut.context = 'access';
 insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;
 
 -- name: UpsertUserFromSeedData :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash)
-values ($1, $2, $3, $4, $5, $6)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role)
+values ($1, $2, $3, $4, $5, $6, $7)
 on conflict (email_hash) do update set updated_at = now()
 returning *;
 

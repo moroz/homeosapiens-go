@@ -23,9 +23,8 @@
       }
     },
     "user_dropdown": {
-      "sign_out": {
-        "other": "Wyloguj się"
-      }
+				"profile": "Profil",
+				"sign_out":         "Wyloguj się"
     }
   },
   "locale_switcher": {

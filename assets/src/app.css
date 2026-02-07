@@ -14,9 +14,9 @@
 
 	--spacing-header: calc(70 / 4 * var(--spacing));
 
-  --breakpoint-*: initial;
-  --breakpoint-lg: calc(65ch + 8rem);
-  --breakpoint-desktop: calc(30rem + 1px);
+	--breakpoint-*: initial;
+	--breakpoint-lg: calc(65ch + 8rem);
+	--breakpoint-desktop: calc(30rem + 1px);
 
 	--shadow-solid: 4px 4px 0px 0px black;
 }
@@ -39,12 +39,12 @@
 		@apply bg-primary hover:bg-primary-hover inline-flex cursor-pointer items-center justify-center rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
 
 		&.secondary {
-			@apply bg-slate-100 text-primary hover:bg-slate-200 border border-slate-300;
+			@apply text-primary border border-slate-300 bg-slate-100 hover:bg-slate-200;
 		}
 
-    &.tertiary {
-      @apply bg-white hover:bg-slate-100 text-primary;
-    }
+		&.tertiary {
+			@apply text-primary bg-white hover:bg-slate-100;
+		}
 
 		&.outline {
 			@apply border-primary text-primary border bg-white shadow hover:bg-slate-100;
@@ -52,7 +52,7 @@
 	}
 
 	.card {
-		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 rounded border border-primary/30 bg-white p-6 shadow;
+		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 border-primary/30 rounded border bg-white p-6 shadow;
 	}
 
 	.input-field {
@@ -71,11 +71,27 @@
 		}
 	}
 
-  .alert {
-    @apply rounded-sm border;
+	.alert {
+		@apply rounded-sm border;
 
-    &.danger {
-      @apply bg-red-100 text-red-900 px-4 py-3 border-red-900/50;
-    }
-  }
+		&.danger {
+			@apply border-red-900/50 bg-red-100 px-4 py-3 text-red-900;
+		}
+	}
+}
+
+@layer components {
+	.user-dropdown {
+		:is(&) .dropdown {
+			@apply mobile:hidden absolute right-0 bottom-0 flex translate-y-full flex-col items-stretch overflow-hidden rounded-sm border border-slate-500 bg-white shadow;
+		}
+
+		.dropdown-item {
+			@apply inline-flex h-10 w-full items-center justify-center text-center transition hover:bg-slate-100;
+		}
+
+		section {
+			@apply border-slate-300 not-first:border-t;
+		}
+	}
 }

@@ -17,7 +17,8 @@
       "my_products": "My products"
     },
     "user_dropdown": {
-      "sign_out": "Sign out"
+      "sign_out": "Sign out",
+			"profile": "Profile"
     }
   },
   "locale_switcher": {

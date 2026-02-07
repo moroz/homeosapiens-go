@@ -1,7 +1,6 @@
 package layout
 
 import (
-	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
@@ -14,35 +13,6 @@ func logo(class string) Node {
 		Class(class),
 		El("use",
 			Href("/assets/logo.svg#logo"),
-		),
-	)
-}
-
-func UserHeader(ctx *types.CustomContext) Node {
-	title := ctx.User.GivenName.String() + " " + ctx.User.FamilyName.String()
-	l := ctx.Localizer
-
-	return Div(
-		Class("user-dropdown relative"),
-		Button(Class("flex h-full cursor-pointer items-center justify-center rounded-sm px-3 transition-colors hover:bg-slate-200"), Title(title), components.Avatar(ctx.User)),
-		Div(
-			Class("dropdown absolute right-0 bottom-0 lg:flex mobile:hidden hidden translate-y-full flex-col overflow-hidden rounded-sm border border-slate-500 bg-white shadow"),
-			Div(
-				Class("flex items-center justify-between gap-4 px-3 py-2"),
-				components.Avatar(ctx.User),
-				Div(
-					Class("flex flex-col text-right"),
-					Strong(Text(title)),
-					Span(Class("text-sm"), Text(ctx.User.Email.String())),
-				),
-			),
-			A(
-				Href("/sign-out"),
-				Class("inline-flex h-10 cursor-pointer items-center justify-center border-t border-slate-400 text-center transition hover:bg-slate-100"),
-				Text(l.MustLocalizeMessage(&i18n.Message{
-					ID: "header.user_dropdown.sign_out",
-				})),
-			),
 		),
 	)
 }

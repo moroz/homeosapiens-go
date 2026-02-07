@@ -58,6 +58,7 @@ func (s *UserService) CreateUser(ctx context.Context, params *types.CreateUserPa
 		FamilyName:   sqlcrypter.NewEncryptedBytes(params.FamilyName),
 		Country:      &params.Country,
 		PasswordHash: &passwordHash,
+		UserRole:     params.Role,
 	})
 }
 

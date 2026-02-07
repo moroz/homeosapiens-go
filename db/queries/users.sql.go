@@ -225,8 +225,8 @@ func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParam
 }
 
 const upsertUserFromSeedData = `-- name: UpsertUserFromSeedData :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash)
-values ($1, $2, $3, $4, $5, $6)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role)
+values ($1, $2, $3, $4, $5, $6, $7)
 on conflict (email_hash) do update set updated_at = now()
 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
 `
@@ -238,6 +238,7 @@ type UpsertUserFromSeedDataParams struct {
 	FamilyName   sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
 	Country      *string                   `json:"country"`
 	PasswordHash *string                   `json:"passwordHash"`
+	UserRole     UserRole                  `json:"userRole"`
 }
 
 func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFromSeedDataParams) (*User, error) {
@@ -248,6 +249,7 @@ func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFro
 		arg.FamilyName,
 		arg.Country,
 		arg.PasswordHash,
+		arg.UserRole,
 	)
 	var i User
 	err := row.Scan(
