@@ -1,120 +1,120 @@
 {
-  "countries": {
-    "PL": "Polska",
-    "ZA": "RPA",
-    "IN": "Indie"
-  },
-  "languages": {
-    "pl": "polski",
-    "en": "English"
-  },
-  "header": {
-    "nav": {
-      "home": "Strona główna",
-      "sign_in": "Logowanie",
-      "events": {
-        "other": "Wydarzenia"
-      },
-      "videos": {
-        "other": "Wideo"
-      },
-      "my_products": {
-        "other": "Moje produkty"
-      }
-    },
-    "user_dropdown": {
-				"profile": "Profil",
-				"sign_out":         "Wyloguj się"
-    }
-  },
-  "locale_switcher": {
-    "switch_to": {
-      "other": "Switch to English"
-    }
-  },
-  "common": {
-    "hosts": {
-      "salutation": {
-        "dr": {
-          "other": "dr"
-        }
-      }
-    },
-    "events": {
-      "event_type": {
-        "seminar": "Seminarium",
-        "webinar": "Webinar"
-      },
-      "attendance_badge": {
-        "past": "Wzięto udział",
-        "upcoming": "Bierzesz udział"
-      },
-      "participation_cost": "Koszt udziału",
-      "free": "Bezpłatne",
-      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
-      "learn_more": "Więcej informacji…",
-      "sign_up": "Rejestracja"
-    }
-  },
-  "sessions": {
-    "new": {
-      "email": "Email:",
-      "password": "Hasło:",
-      "submit": "Zaloguj się",
-      "header": "Logowanie",
-      "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
-      "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
-      "sign_in_with_google": "Zaloguj się przez Google"
-    }
-  },
-  "event_registrations": {
-    "new": {
-      "title": "Rejestracja na wydarzenie: {{ .Title }}",
-      "heading": "Rejestracja na wydarzenie",
-      "continue_with_google": "Zarejestruj się przy użyciu konta Google",
-      "form": {
-        "labels": {
-          "email": "Email:",
-          "given_name": "Imię:",
-          "family_name": "Nazwisko:",
-          "profession": "Zawód:",
-          "country": "Kraj lub region:",
-          "licence_number": "Numer prawa do wykonywania zawodu:"
-        },
-        "helper_text": {
-          "email": "W następnym kroku wyślemy Państwu wiadomość w celu potwierdzenia adresu e-mail."
-        }
-      }
-    }
-  },
-  "user_registrations": {
-    "new": {
-      "title": "Rejestracja",
-      "already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
-      "submit": "Zarejestruj się",
-      "sign_up_with_google": "Zarejestruj się przez Google",
-      "form": {
-        "labels": {
-          "email": "Email:",
-          "password": "Utwórz hasło:",
-          "password_confirmation": "Powtórz hasło:",
-          "given_name": "Imię:",
-          "family_name": "Nazwisko:"
-        },
-        "helper_text": {
-          "password": "{{ .Min }}–{{ .Max }} znaków"
-        }
-      }
-    }
-  },
-  "components": {
-    "input_field": {
-      "optional": "(opcjonalne)",
-      "required": "wymagane pole"
-    }
-  },
-  "events": {
-    "starts_at": "Data i godzina rozpoczęcia:",
-    "ends_at": "Data i godzina zakończenia:"
-  }
+	"countries": {
+		"PL": "Polska",
+		"ZA": "RPA",
+		"IN": "Indie"
+	},
+	"languages": {
+		"pl": "polski",
+		"en": "English"
+	},
+	"header": {
+		"nav": {
+			"home": "Strona główna",
+			"sign_in": "Logowanie",
+			"events": {
+				"other": "Wydarzenia"
+			},
+			"videos": {
+				"other": "Wideo"
+			},
+			"my_products": {
+				"other": "Moje produkty"
+			}
+		},
+		"user_dropdown": {
+			"profile": "Profil",
+			"sign_out": "Wyloguj się"
+		}
+	},
+	"locale_switcher": {
+		"switch_to": {
+			"other": "Switch to English"
+		}
+	},
+	"common": {
+		"hosts": {
+			"salutation": {
+				"dr": {
+					"other": "dr"
+				}
+			}
+		},
+		"events": {
+			"event_type": {
+				"seminar": "Seminarium",
+				"webinar": "Webinar"
+			},
+			"attendance_badge": {
+				"past": "Wzięto udział",
+				"upcoming": "Bierzesz udział"
+			},
+			"participation_cost": "Koszt udziału",
+			"free": "Bezpłatne",
+			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
+			"learn_more": "Więcej informacji…",
+			"sign_up": "Rejestracja"
+		}
+	},
+	"sessions": {
+		"new": {
+			"email": "Email:",
+			"password": "Hasło:",
+			"submit": "Zaloguj się",
+			"header": "Logowanie",
+			"no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
+			"invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
+			"sign_in_with_google": "Zaloguj się przez Google"
+		}
+	},
+	"event_registrations": {
+		"new": {
+			"title": "Rejestracja na wydarzenie: {{ .Title }}",
+			"heading": "Rejestracja na wydarzenie",
+			"continue_with_google": "Zarejestruj się przy użyciu konta Google",
+			"form": {
+				"labels": {
+					"email": "Email:",
+					"given_name": "Imię:",
+					"family_name": "Nazwisko:",
+					"profession": "Zawód:",
+					"country": "Kraj lub region:",
+					"licence_number": "Numer prawa do wykonywania zawodu:"
+				},
+				"helper_text": {
+					"email": "W następnym kroku wyślemy Państwu wiadomość w celu potwierdzenia adresu e-mail."
+				}
+			}
+		}
+	},
+	"user_registrations": {
+		"new": {
+			"title": "Rejestracja",
+			"already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
+			"submit": "Zarejestruj się",
+			"sign_up_with_google": "Zarejestruj się przez Google",
+			"form": {
+				"labels": {
+					"email": "Email:",
+					"password": "Utwórz hasło:",
+					"password_confirmation": "Powtórz hasło:",
+					"given_name": "Imię:",
+					"family_name": "Nazwisko:"
+				},
+				"helper_text": {
+					"password": "{{ .Min }}–{{ .Max }} znaków"
+				}
+			}
+		}
+	},
+	"components": {
+		"input_field": {
+			"optional": "(opcjonalne)",
+			"required": "wymagane pole"
+		}
+	},
+	"events": {
+		"starts_at": "Data i godzina rozpoczęcia:",
+		"ends_at": "Data i godzina zakończenia:"
+	}
 }

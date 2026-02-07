@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v5"
-	"github.com/labstack/echo/v5/middleware"
+	echomiddleware "github.com/labstack/echo/v5/middleware"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/securecookie"
@@ -15,14 +15,15 @@ import (
 func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http.Handler {
 	r := echo.New()
 
-	r.Use(middleware.RequestID())
-	r.Use(middleware.RequestLogger())
+	r.Pre(echomiddleware.MethodOverride())
+	r.Use(echomiddleware.RequestID())
+	r.Use(echomiddleware.RequestLogger())
 	r.Use(ExtendContext)
-	r.Use(StoreRequestUrlInContextEcho)
-	r.Use(FetchSessionEcho(store, config.SessionCookieName))
-	r.Use(FetchUserFromSessionEcho(db))
-	r.Use(FetchPreferredTimezoneEcho)
-	r.Use(LocaleMiddlewareEcho(bundle, store))
+	r.Use(StoreRequestUrlInContext)
+	r.Use(FetchSessionFromCookies(store, config.SessionCookieName))
+	r.Use(FetchUserFromSession(db))
+	r.Use(ResolveTimezone)
+	r.Use(ResolveRequestLocale(bundle, store))
 
 	pages := PageController(db)
 	r.GET("/", pages.Index)

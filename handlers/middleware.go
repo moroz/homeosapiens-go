@@ -65,7 +65,7 @@ func ExtendContext(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func FetchSessionEcho(sessionStore securecookie.Store, cookieName string) echo.MiddlewareFunc {
+func FetchSessionFromCookies(sessionStore securecookie.Store, cookieName string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			ctx := c.Get("context").(*types.CustomContext)
@@ -75,7 +75,7 @@ func FetchSessionEcho(sessionStore securecookie.Store, cookieName string) echo.M
 	}
 }
 
-func LocaleMiddlewareEcho(bundle *goi18n.Bundle, store securecookie.Store) echo.MiddlewareFunc {
+func ResolveRequestLocale(bundle *goi18n.Bundle, store securecookie.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			ctx := c.Get("context").(*types.CustomContext)
@@ -97,7 +97,7 @@ func LocaleMiddlewareEcho(bundle *goi18n.Bundle, store securecookie.Store) echo.
 	}
 }
 
-func FetchUserFromSessionEcho(db queries.DBTX) echo.MiddlewareFunc {
+func FetchUserFromSession(db queries.DBTX) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			ctx := c.Get("context").(*types.CustomContext)
@@ -113,7 +113,7 @@ func FetchUserFromSessionEcho(db queries.DBTX) echo.MiddlewareFunc {
 	}
 }
 
-func FetchPreferredTimezoneEcho(next echo.HandlerFunc) echo.HandlerFunc {
+func ResolveTimezone(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Get("context").(*types.CustomContext)
 		ctx.Timezone, _ = time.LoadLocation("Europe/Warsaw")
@@ -129,7 +129,7 @@ func FetchPreferredTimezoneEcho(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func StoreRequestUrlInContextEcho(next echo.HandlerFunc) echo.HandlerFunc {
+func StoreRequestUrlInContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Get("context").(*types.CustomContext)
 		ctx.RequestUrl = c.Request().URL

@@ -28,10 +28,10 @@ func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 	}
 }
 
-func (c *eventRegistrationController) New(r *echo.Context) error {
-	ctx := r.Get("context").(*types.CustomContext)
-	slug := r.Param("slug")
-	event, err := c.eventService.GetEventDetailsBySlug(r.Request().Context(), slug, ctx.User)
+func (cc *eventRegistrationController) New(c *echo.Context) error {
+	ctx := c.Get("context").(*types.CustomContext)
+	slug := c.Param("slug")
+	event, err := cc.eventService.GetEventDetailsBySlug(c.Request().Context(), slug, ctx.User)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		log.Printf("Event with the slug: %s not found", slug)
 		return echo.ErrNotFound
@@ -45,7 +45,7 @@ func (c *eventRegistrationController) New(r *echo.Context) error {
 	params := buildRegistrationParams(ctx.User, countryGuess)
 	validationErrors := make(validation.Errors)
 
-	return eventregistrations.New(ctx, event, params, validationErrors).Render(r.Response())
+	return eventregistrations.New(ctx, event, params, validationErrors).Render(c.Response())
 }
 
 func buildRegistrationParams(user *queries.User, location *tz.TimezoneGuess) *types.CreateEventRegistrationParams {
@@ -72,35 +72,35 @@ func buildRegistrationParams(user *queries.User, location *tz.TimezoneGuess) *ty
 	return &params
 }
 
-func (c *eventRegistrationController) Create(r *echo.Context) error {
-	ctx := r.Get("context").(*types.CustomContext)
+func (cc *eventRegistrationController) Create(c *echo.Context) error {
+	ctx := c.Get("context").(*types.CustomContext)
 
 	var params types.CreateEventRegistrationParams
-	if err := r.Bind(&params); err != nil {
+	if err := c.Bind(&params); err != nil {
 		return echo.ErrBadRequest
 	}
 
-	event, err := c.eventService.GetEventById(r.Request().Context(), params.EventID)
+	event, err := cc.eventService.GetEventById(c.Request().Context(), params.EventID)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return echo.ErrNotFound
 	}
 
 	user := ctx.User
-	_, err = c.eventRegistrationService.CreateEventRegistration(r.Request().Context(), user, event, &params)
+	_, err = cc.eventRegistrationService.CreateEventRegistration(c.Request().Context(), user, event, &params)
 	if err == nil {
-		return r.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
+		return c.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
 	}
 
 	var validationErrors validation.Errors
 	ok := errors.As(err, &validationErrors)
 	if ok {
-		dto, err := c.eventService.GetEventDetailsForEvent(r.Request().Context(), event, user)
+		dto, err := cc.eventService.GetEventDetailsForEvent(c.Request().Context(), event, user)
 		if err != nil {
 			return err
 		}
 
-		r.Response().WriteHeader(http.StatusUnprocessableEntity)
-		return eventregistrations.New(ctx, dto, &params, validationErrors).Render(r.Response())
+		c.Response().WriteHeader(http.StatusUnprocessableEntity)
+		return eventregistrations.New(ctx, dto, &params, validationErrors).Render(c.Response())
 	}
 
 	return err
