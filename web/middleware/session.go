@@ -43,3 +43,11 @@ func FetchSessionFromCookies(sessionStore securecookie.Store, cookieName string)
 		}
 	}
 }
+
+func FetchFlashMessages(sessionStore securecookie.Store) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			ctx := helpers.GetRequestContext(c)
+		}
+	}
+}
