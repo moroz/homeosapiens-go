@@ -40,22 +40,41 @@ func Show(ctx *types.CustomContext, messages []types.FlashMessage) Node {
 					Label: l.MustLocalizeMessage(&i18n.Message{
 						ID: "common.users.given_name",
 					}),
-					Name:  "given_name",
-					Value: ctx.User.GivenName.String(),
+					Name:     "given_name",
+					Value:    ctx.User.GivenName.String(),
+					Required: true,
 				}),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{
 						ID: "common.users.family_name",
 					}),
-					Name:  "family_name",
-					Value: ctx.User.FamilyName.String(),
+					Name:     "family_name",
+					Value:    ctx.User.FamilyName.String(),
+					Required: true,
+				}),
+				components.CountrySelect(&components.CountrySelectOptions{
+					Label: l.MustLocalizeMessage(&i18n.Message{
+						ID: "common.users.country",
+					}),
+					Value:    helpers.DerefOrEmpty(ctx.User.Country),
+					Language: ctx.Language,
+					Required: true,
 				}),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{
 						ID: "common.users.profession",
 					}),
-					Name:  "profession",
-					Value: helpers.DerefOrEmpty(ctx.User.Profession),
+					Name:      "profession",
+					Value:     helpers.DerefOrEmpty(ctx.User.Profession),
+					Localizer: ctx.Localizer,
+				}),
+				components.InputField(&components.InputFieldOptions{
+					Label: l.MustLocalizeMessage(&i18n.Message{
+						ID: "common.users.licence_number",
+					}),
+					Name:      "licence_number",
+					Value:     helpers.DerefEncrypted(ctx.User.LicenceNumber),
+					Localizer: l,
 				}),
 				Button(
 					Type("submit"),

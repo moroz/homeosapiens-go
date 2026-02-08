@@ -69,8 +69,17 @@ sql:
               import: "github.com/bincyber/go-sqlcrypter"
               type: "EncryptedBytes"
               package: "sqlcrypter"
-          - column: "event_registrations.licence_number"
+          - column: "event_registrations.licence_number_encrypted"
+            nullable: true
             go_type:
               import: "github.com/bincyber/go-sqlcrypter"
               type: "EncryptedBytes"
+              pointer: true
+              package: "sqlcrypter"
+          - column: "users.licence_number_encrypted"
+            nullable: true
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: true
               package: "sqlcrypter"

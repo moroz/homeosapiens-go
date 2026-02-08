@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bincyber/go-sqlcrypter"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/shopspring/decimal"
@@ -130,6 +131,13 @@ func FormatHosts(localizer *i18n.Localizer, hosts []*queries.ListHostsForEventsR
 func DerefOrEmpty(str *string) string {
 	if str != nil {
 		return *str
+	}
+	return ""
+}
+
+func DerefEncrypted(str *sqlcrypter.EncryptedBytes) string {
+	if str != nil {
+		return str.String()
 	}
 	return ""
 }

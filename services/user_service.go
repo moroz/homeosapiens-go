@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
@@ -84,9 +85,23 @@ func (s *UserService) FindOrCreateUserFromEventRegistrationParams(ctx context.Co
 }
 
 func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User, params *types.UpdateProfileRequest) (*queries.User, error) {
+	var profession *string
+	if strings.TrimSpace(params.Profession) != "" {
+		profession = &params.Profession
+	}
+
+	var licenceNumber *sqlcrypter.EncryptedBytes
+	if strings.TrimSpace(params.LicenceNumber) != "" {
+		encrypted := sqlcrypter.NewEncryptedBytes(params.LicenceNumber)
+		licenceNumber = &encrypted
+	}
+
 	return queries.New(s.db).UpdateUserProfile(ctx, &queries.UpdateUserProfileParams{
-		ID:         user.ID,
-		GivenName:  sqlcrypter.NewEncryptedBytes(params.GivenName),
-		FamilyName: sqlcrypter.NewEncryptedBytes(params.FamilyName),
+		GivenName:     sqlcrypter.NewEncryptedBytes(params.GivenName),
+		FamilyName:    sqlcrypter.NewEncryptedBytes(params.FamilyName),
+		Profession:    profession,
+		LicenceNumber: licenceNumber,
+		Country:       &params.Country,
+		ID:            user.ID,
 	})
 }

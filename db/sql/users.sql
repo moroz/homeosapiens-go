@@ -30,4 +30,7 @@ set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted 
 returning *;
 
 -- name: UpdateUserProfile :one
-update users set given_name_encrypted = $1, family_name_encrypted = $2, updated_at = now() where id = $3 returning *;
+update users
+set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5,
+updated_at = now()
+where id = $6 returning *;

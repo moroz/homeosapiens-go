@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
@@ -14,42 +13,6 @@ import (
 
 	. "maragu.dev/gomponents/html"
 )
-
-func mapOptions(options []*countries.CountryOption, lang string) []components.SelectOption {
-	var combined []components.SelectOption
-	for _, o := range options {
-		label := o.LabelEn
-		if lang == "pl" {
-			label = o.LabelPl
-		}
-
-		combined = append(combined, components.SelectOption{
-			Label: label,
-			Value: o.Value,
-		})
-	}
-	return combined
-}
-
-func buildCountryOptions(lang string) []components.SelectOption {
-	options := countries.OrderedByEnglish
-	popular := countries.PopularRegionsEnglish
-	if lang == "pl" {
-		options = countries.OrderedByPolish
-		popular = countries.PopularRegionsPolish
-	}
-
-	var combined []components.SelectOption
-	combined = mapOptions(popular, lang)
-
-	combined = append(combined, components.SelectOption{
-		Label: "---",
-		Value: "",
-	})
-
-	all := mapOptions(options, lang)
-	return append(combined, all...)
-}
 
 func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *types.CreateEventRegistrationParams, validationErrors validation.Errors) Node {
 	title := event.TitleEn
@@ -66,7 +29,6 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 	})
 
 	currentPath := fmt.Sprintf("/events/%s/register", event.Slug)
-	countryOptions := buildCountryOptions(ctx.Language)
 
 	return layout.Layout(ctx, pageTitle,
 		Div(
@@ -141,16 +103,13 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 						Required:     true,
 						Localizer:    l,
 					}),
-					components.SelectComponent(&components.SelectOptions{
+					components.CountrySelect(&components.CountrySelectOptions{
+						Language: ctx.Language,
+						Value:    params.Country,
+						Required: true,
 						Label: l.MustLocalizeMessage(&i18n.Message{
 							ID: "common.users.country",
 						}),
-						Name:         "country",
-						Value:        params.Country,
-						Autocomplete: "country",
-						Options:      countryOptions,
-						Required:     true,
-						Localizer:    l,
 					}),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{

@@ -225,17 +225,30 @@ func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParam
 }
 
 const updateUserProfile = `-- name: UpdateUserProfile :one
-update users set given_name_encrypted = $1, family_name_encrypted = $2, updated_at = now() where id = $3 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
+update users
+set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5,
+updated_at = now()
+where id = $6 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
 `
 
 type UpdateUserProfileParams struct {
-	GivenName  sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
-	FamilyName sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
-	ID         pgtype.UUID               `json:"id"`
+	GivenName     sqlcrypter.EncryptedBytes  `json:"givenNameEncrypted"`
+	FamilyName    sqlcrypter.EncryptedBytes  `json:"familyNameEncrypted"`
+	Profession    *string                    `json:"profession"`
+	LicenceNumber *sqlcrypter.EncryptedBytes `json:"licenceNumberEncrypted"`
+	Country       *string                    `json:"country"`
+	ID            pgtype.UUID                `json:"id"`
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileParams) (*User, error) {
-	row := q.db.QueryRow(ctx, updateUserProfile, arg.GivenName, arg.FamilyName, arg.ID)
+	row := q.db.QueryRow(ctx, updateUserProfile,
+		arg.GivenName,
+		arg.FamilyName,
+		arg.Profession,
+		arg.LicenceNumber,
+		arg.Country,
+		arg.ID,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
