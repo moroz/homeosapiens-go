@@ -105,7 +105,7 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 					Input(Type("hidden"), Name("event_id"), Value(event.Event.ID.String())),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
-							ID: "event_registrations.new.form.labels.email",
+							ID: "common.users.email",
 						}),
 						Name:         "email",
 						Value:        params.Email,
@@ -123,7 +123,7 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 					}),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
-							ID: "event_registrations.new.form.labels.given_name",
+							ID: "common.users.given_name",
 						}),
 						Name:         "given_name",
 						Value:        params.GivenName,
@@ -133,7 +133,7 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 					}),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
-							ID: "event_registrations.new.form.labels.family_name",
+							ID: "common.users.family_name",
 						}),
 						Name:         "family_name",
 						Value:        params.FamilyName,
@@ -143,7 +143,7 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 					}),
 					components.SelectComponent(&components.SelectOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
-							ID: "event_registrations.new.form.labels.country",
+							ID: "common.users.country",
 						}),
 						Name:         "country",
 						Value:        params.Country,
@@ -154,7 +154,7 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 					}),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
-							ID: "event_registrations.new.form.labels.profession",
+							ID: "common.users.profession",
 						}),
 						Name:      "profession",
 						Value:     params.Profession,
@@ -162,7 +162,7 @@ func New(ctx *types.CustomContext, event *services.EventDetailsDto, params *type
 					}),
 					components.InputField(&components.InputFieldOptions{
 						Label: l.MustLocalizeMessage(&i18n.Message{
-							ID: "event_registrations.new.form.labels.licence_number",
+							ID: "common.users.licence_number",
 						}),
 						Name:      "licence_number",
 						Value:     params.LicenceNumber,

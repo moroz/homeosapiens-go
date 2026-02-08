@@ -32,7 +32,7 @@ func New(ctx *types.CustomContext) Node {
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
-					ID: "user_registrations.new.form.labels.email",
+					ID: "common.users.email",
 				}),
 				Name:         "email",
 				ID:           "email",
@@ -72,7 +72,7 @@ func New(ctx *types.CustomContext) Node {
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
-					ID: "user_registrations.new.form.labels.given_name",
+					ID: "common.users.given_name",
 				}),
 				Name:         "given_name",
 				ID:           "given_name",
@@ -83,7 +83,7 @@ func New(ctx *types.CustomContext) Node {
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
-					ID: "user_registrations.new.form.labels.family_name",
+					ID: "common.users.family_name",
 				}),
 				Name:         "family_name",
 				ID:           "family_name",

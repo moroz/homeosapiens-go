@@ -10,12 +10,12 @@ func _() {
 	var x [1]struct{}
 	_ = x[FlashLevel_Info-0]
 	_ = x[FlashLevel_Success-1]
-	_ = x[FlashLevel_Error-2]
+	_ = x[FlashLevel_Danger-2]
 }
 
-const _FlashLevel_name = "InfoSuccessError"
+const _FlashLevel_name = "InfoSuccessDanger"
 
-var _FlashLevel_index = [...]uint8{0, 4, 11, 16}
+var _FlashLevel_index = [...]uint8{0, 4, 11, 17}
 
 func (i FlashLevel) String() string {
 	idx := int(i) - 0

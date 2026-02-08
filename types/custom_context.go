@@ -8,20 +8,6 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-//go:generate stringer -type=FlashLevel -trimprefix=FlashLevel_
-type FlashLevel int
-
-const (
-	FlashLevel_Info FlashLevel = iota
-	FlashLevel_Success
-	FlashLevel_Error
-)
-
-type FlashMessage struct {
-	Level   FlashLevel
-	Message string
-}
-
 type CustomContext struct {
 	User        *queries.User
 	Session     SessionData

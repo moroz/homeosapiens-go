@@ -9,6 +9,7 @@ import (
 	"github.com/moroz/homeosapiens-go/tmpl/profile"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type profileController struct {
@@ -23,8 +24,7 @@ func ProfileController(db queries.DBTX) *profileController {
 
 func (cc *profileController) Show(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-
-	return profile.Show(ctx).Render(c.Response())
+	return profile.Show(ctx, nil).Render(c.Response())
 }
 
 func (cc *profileController) Update(c *echo.Context) error {
@@ -42,6 +42,12 @@ func (cc *profileController) Update(c *echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
+	success := ctx.Localizer.MustLocalizeMessage(&i18n.Message{
+		ID: "profile.messages.success",
+	})
+
 	ctx.User = user
-	return profile.Show(ctx).Render(c.Response())
+	return profile.Show(ctx, []types.FlashMessage{
+		{Level: types.FlashLevel_Success, Message: success},
+	}).Render(c.Response())
 }

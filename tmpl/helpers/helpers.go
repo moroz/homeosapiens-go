@@ -126,3 +126,10 @@ func FormatHosts(localizer *i18n.Localizer, hosts []*queries.ListHostsForEventsR
 	}
 	return strings.Join(names, ", ")
 }
+
+func DerefOrEmpty(str *string) string {
+	if str != nil {
+		return *str
+	}
+	return ""
+}

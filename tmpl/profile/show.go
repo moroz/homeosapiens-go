@@ -2,6 +2,7 @@ package profile
 
 import (
 	"github.com/moroz/homeosapiens-go/tmpl/components"
+	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -9,7 +10,7 @@ import (
 import . "maragu.dev/gomponents"
 import . "maragu.dev/gomponents/html"
 
-func Show(ctx *types.CustomContext) Node {
+func Show(ctx *types.CustomContext, messages []types.FlashMessage) Node {
 	l := ctx.Localizer
 
 	return layout.Layout(ctx, "Profile",
@@ -20,6 +21,8 @@ func Show(ctx *types.CustomContext) Node {
 					ID: "profile.title",
 				}))),
 
+			components.Flash(messages),
+
 			Form(
 				Method("POST"),
 				Action("/profile"),
@@ -27,7 +30,7 @@ func Show(ctx *types.CustomContext) Node {
 				Input(Type("hidden"), Name("_method"), Value("PUT")),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{
-						ID: "profile.form.labels.email",
+						ID: "common.users.email",
 					}),
 					ID:       "email",
 					Value:    ctx.User.Email.String(),
@@ -35,17 +38,24 @@ func Show(ctx *types.CustomContext) Node {
 				}),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{
-						ID: "profile.form.labels.given_name",
+						ID: "common.users.given_name",
 					}),
 					Name:  "given_name",
 					Value: ctx.User.GivenName.String(),
 				}),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{
-						ID: "profile.form.labels.family_name",
+						ID: "common.users.family_name",
 					}),
 					Name:  "family_name",
 					Value: ctx.User.FamilyName.String(),
+				}),
+				components.InputField(&components.InputFieldOptions{
+					Label: l.MustLocalizeMessage(&i18n.Message{
+						ID: "common.users.profession",
+					}),
+					Name:  "profession",
+					Value: helpers.DerefOrEmpty(ctx.User.Profession),
 				}),
 				Button(
 					Type("submit"),

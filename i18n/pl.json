@@ -54,6 +54,14 @@
 			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
 			"learn_more": "Więcej informacji…",
 			"sign_up": "Rejestracja"
+		},
+		"users": {
+			"email": "Email:",
+			"given_name": "Imię:",
+			"family_name": "Nazwisko:",
+			"profession": "Zawód:",
+			"country": "Kraj lub region:",
+			"licence_number": "Numer prawa do wykonywania zawodu:"
 		}
 	},
 	"sessions": {
@@ -73,14 +81,6 @@
 			"heading": "Rejestracja na wydarzenie",
 			"continue_with_google": "Zarejestruj się przy użyciu konta Google",
 			"form": {
-				"labels": {
-					"email": "Email:",
-					"given_name": "Imię:",
-					"family_name": "Nazwisko:",
-					"profession": "Zawód:",
-					"country": "Kraj lub region:",
-					"licence_number": "Numer prawa do wykonywania zawodu:"
-				},
 				"helper_text": {
 					"email": "W następnym kroku wyślemy Państwu wiadomość w celu potwierdzenia adresu e-mail."
 				}
@@ -95,11 +95,8 @@
 			"sign_up_with_google": "Zarejestruj się przez Google",
 			"form": {
 				"labels": {
-					"email": "Email:",
 					"password": "Utwórz hasło:",
-					"password_confirmation": "Powtórz hasło:",
-					"given_name": "Imię:",
-					"family_name": "Nazwisko:"
+					"password_confirmation": "Powtórz hasło:"
 				},
 				"helper_text": {
 					"password": "{{ .Min }}–{{ .Max }} znaków"
@@ -119,13 +116,11 @@
 	},
 	"profile": {
 		"title": "Profil",
+		"messages": {
+			"success": "Twój profil został zaktualizowany."
+		},
 		"form": {
-			"labels": {
-				"email": "Email:",
-				"given_name": "Imię:",
-				"family_name": "Nazwisko:"
-			},
-			"submit": "Zaktualizuj dane"
+			"submit": "Zapisz zmiany"
 		}
 	}
 }
