@@ -17,7 +17,9 @@ import (
 func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http.Handler {
 	r := echo.New()
 
-	r.Pre(echomiddleware.MethodOverride())
+	r.Pre(echomiddleware.MethodOverrideWithConfig(echomiddleware.MethodOverrideConfig{
+		Getter: echomiddleware.MethodFromForm("_method"),
+	}))
 	r.Use(echomiddleware.RequestID())
 	r.Use(echomiddleware.RequestLogger())
 	r.Use(middleware.ExtendContext)
@@ -61,6 +63,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 
 	profile := handlers.ProfileController(db)
 	authenticated.GET("/profile", profile.Show)
+	authenticated.PUT("/profile", profile.Update)
 
 	if config.IsProd {
 		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))

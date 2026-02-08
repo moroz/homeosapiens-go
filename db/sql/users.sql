@@ -28,3 +28,6 @@ values ($1, $2, $3, $4, $5, case when @email_confirmed::boolean then now() else 
 on conflict (email_hash) do update
 set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
 returning *;
+
+-- name: UpdateUserProfile :one
+update users set given_name_encrypted = $1, family_name_encrypted = $2, updated_at = now() where id = $3 returning *;

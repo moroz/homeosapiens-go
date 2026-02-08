@@ -82,3 +82,11 @@ func (s *UserService) FindOrCreateUserFromEventRegistrationParams(ctx context.Co
 		EmailConfirmed: false,
 	})
 }
+
+func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User, params *types.UpdateProfileRequest) (*queries.User, error) {
+	return queries.New(s.db).UpdateUserProfile(ctx, &queries.UpdateUserProfileParams{
+		ID:         user.ID,
+		GivenName:  sqlcrypter.NewEncryptedBytes(params.GivenName),
+		FamilyName: sqlcrypter.NewEncryptedBytes(params.FamilyName),
+	})
+}

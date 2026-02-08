@@ -29,9 +29,31 @@ func Show(ctx *types.CustomContext) Node {
 					Label: l.MustLocalizeMessage(&i18n.Message{
 						ID: "profile.form.labels.email",
 					}),
-					Name:  "email",
-					Value: ctx.User.Email.String(),
+					ID:       "email",
+					Value:    ctx.User.Email.String(),
+					Readonly: true,
 				}),
+				components.InputField(&components.InputFieldOptions{
+					Label: l.MustLocalizeMessage(&i18n.Message{
+						ID: "profile.form.labels.given_name",
+					}),
+					Name:  "given_name",
+					Value: ctx.User.GivenName.String(),
+				}),
+				components.InputField(&components.InputFieldOptions{
+					Label: l.MustLocalizeMessage(&i18n.Message{
+						ID: "profile.form.labels.family_name",
+					}),
+					Name:  "family_name",
+					Value: ctx.User.FamilyName.String(),
+				}),
+				Button(
+					Type("submit"),
+					Class("button"),
+					Text(l.MustLocalizeMessage(&i18n.Message{
+						ID: "profile.form.submit",
+					})),
+				),
 			),
 		),
 	)

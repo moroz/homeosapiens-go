@@ -116,5 +116,16 @@
 	"events": {
 		"starts_at": "Data i godzina rozpoczęcia:",
 		"ends_at": "Data i godzina zakończenia:"
+	},
+	"profile": {
+		"title": "Profil",
+		"form": {
+			"labels": {
+				"email": "Email:",
+				"given_name": "Imię:",
+				"family_name": "Nazwisko:"
+			},
+			"submit": "Zaktualizuj dane"
+		}
 	}
 }

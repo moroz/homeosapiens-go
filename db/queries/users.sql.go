@@ -224,6 +224,43 @@ func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParam
 	return &i, err
 }
 
+const updateUserProfile = `-- name: UpdateUserProfile :one
+update users set given_name_encrypted = $1, family_name_encrypted = $2, updated_at = now() where id = $3 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
+`
+
+type UpdateUserProfileParams struct {
+	GivenName  sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	ID         pgtype.UUID               `json:"id"`
+}
+
+func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileParams) (*User, error) {
+	row := q.db.QueryRow(ctx, updateUserProfile, arg.GivenName, arg.FamilyName, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.ProfilePicture,
+		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.EmailConfirmedAt,
+		&i.LicenceNumber,
+	)
+	return &i, err
+}
+
 const upsertUserFromSeedData = `-- name: UpsertUserFromSeedData :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role)
 values ($1, $2, $3, $4, $5, $6, $7)

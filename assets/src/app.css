@@ -65,6 +65,10 @@
 
 	.input {
 		@apply h-10 rounded-sm border px-2 shadow;
+
+		&:read-only {
+			@apply cursor-default border-gray-500 bg-gray-100 text-gray-600 shadow-none focus:shadow-none focus:outline-none;
+		}
 	}
 
 	.hamburger-menu {

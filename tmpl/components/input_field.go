@@ -17,6 +17,7 @@ type InputFieldOptions struct {
 	Autocomplete string
 	Autofocus    bool
 	Required     bool
+	Readonly     bool
 	Localizer    *i18n.Localizer
 }
 
@@ -51,7 +52,7 @@ func InputField(opts *InputFieldOptions) Node {
 						Aria("hidden", "true"),
 						Class("ml-1 inline-block text-red-700"),
 						Iff(opts.Localizer != nil, func() Node {
-							return TitleAttr(opts.Localizer.MustLocalizeMessage(&i18n.Message{
+							return Title(opts.Localizer.MustLocalizeMessage(&i18n.Message{
 								ID: "components.input_field.required",
 							}))
 						}),
@@ -86,6 +87,7 @@ func InputField(opts *InputFieldOptions) Node {
 			If(opts.HelperText != "", Aria("describedby", id+"-helper")),
 			If(opts.Autofocus, AutoFocus()),
 			If(opts.Required, Required()),
+			If(opts.Readonly, ReadOnly()),
 		),
 		If(opts.Error != "", Span(
 			Class("error-explanation"),
