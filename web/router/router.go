@@ -8,6 +8,7 @@ import (
 	echomiddleware "github.com/labstack/echo/v5/middleware"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/handlers"
 	"github.com/moroz/homeosapiens-go/web/middleware"
 	"github.com/moroz/securecookie"
@@ -58,39 +59,45 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
-	authenticated := r.Group("")
-	authenticated.Use(middleware.RequireAuthenticatedUser)
+	auth := r.Group("")
+	auth.Use(middleware.RequireAuthenticatedUser)
 
 	profile := handlers.ProfileController(db)
-	authenticated.GET("/profile", profile.Show)
-	authenticated.PUT("/profile", profile.Update)
+	auth.GET("/profile", profile.Show)
+	auth.PUT("/profile", profile.Update)
+
+	ar := r.Group("/admin")
+	ar.Use(middleware.RequireAdmin)
+
+	adminEvents := admin.EventController(db)
+	ar.GET("", adminEvents.Index)
 
 	if config.IsProd {
-		fileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/dist/assets")))
-		r.GET("/assets/*", echo.WrapHandler(fileServer), echo.WrapMiddleware(CacheControlMiddleware))
+		assets := r.Group("/assets")
+		assets.Use(CacheControlMiddleware)
+		assets.Static("", "assets/dist/assets")
 	} else {
+		r.Static("/assets", "assets/public/assets")
+
 		email := handlers.EmailController()
-		r.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/public/assets")))))
 		r.GET("/dev/email", email.Show)
 	}
 
 	return r
 }
 
-// CacheControlMiddleware adds cache-control headers based on file patterns
-func CacheControlMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
+func CacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		path := c.Request().URL.Path
 
 		// Cache versioned assets (containing hash in filename) for 1 year
-		if strings.Contains(path, "-") && (strings.HasSuffix(path, ".js") ||
-			strings.HasSuffix(path, ".css") || strings.HasSuffix(path, ".woff2")) {
-			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		if strings.Contains(path, "-") && (strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".css")) {
+			c.Response().Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		} else {
 			// Short cache for other assets
-			w.Header().Set("Cache-Control", "public, max-age=3600")
+			c.Response().Header().Set("Cache-Control", "public, max-age=3600")
 		}
 
-		next.ServeHTTP(w, r)
-	})
+		return next(c)
+	}
 }
