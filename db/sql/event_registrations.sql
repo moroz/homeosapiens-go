@@ -6,3 +6,8 @@ returning *;
 -- name: GetLastEventRegistration :one
 -- Only for testing
 select * from event_registrations order by id desc limit 1;
+
+-- name: CountRegistrationsForEvents :many
+select er.event_id, count(er.id) from event_registrations er
+where er.event_id = any(@EventIDs::uuid[])
+group by 1;

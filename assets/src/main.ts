@@ -42,3 +42,12 @@ document.querySelector("#hamburger-toggle")?.addEventListener("click", () => {
 
 	menu.classList.toggle("open");
 });
+
+document.querySelectorAll(".index-table [data-url]").forEach((row) => {
+	row.addEventListener("click", () => {
+		const url = row.getAttribute("data-url");
+		if (!url) return;
+
+		location.href = url;
+	});
+});

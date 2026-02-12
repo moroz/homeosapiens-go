@@ -28,3 +28,14 @@ func (cc *eventController) Index(c *echo.Context) error {
 
 	return events.Index(ctx, list).Render(c.Response())
 }
+
+func (cc *eventController) Show(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+
+	event, err := cc.eventService.GetEventDetailsById(c.Request().Context(), c.Param("id"), ctx.User)
+	if err != nil {
+		return err
+	}
+
+	return events.Show(ctx, event).Render(c.Response())
+}

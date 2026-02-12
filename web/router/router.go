@@ -81,6 +81,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 
 	adminEvents := admin.EventController(db)
 	ar.GET("", adminEvents.Index)
+	ar.GET("/events/:id", adminEvents.Show)
 
 	if !config.IsProd {
 		email := handlers.EmailController()

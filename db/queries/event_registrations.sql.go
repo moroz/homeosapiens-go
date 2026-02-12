@@ -12,6 +12,37 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countRegistrationsForEvents = `-- name: CountRegistrationsForEvents :many
+select er.event_id, count(er.id) from event_registrations er
+where er.event_id = any($1::uuid[])
+group by 1
+`
+
+type CountRegistrationsForEventsRow struct {
+	EventID pgtype.UUID `json:"eventId"`
+	Count   int64       `json:"count"`
+}
+
+func (q *Queries) CountRegistrationsForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*CountRegistrationsForEventsRow, error) {
+	rows, err := q.db.Query(ctx, countRegistrationsForEvents, eventids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*CountRegistrationsForEventsRow
+	for rows.Next() {
+		var i CountRegistrationsForEventsRow
+		if err := rows.Scan(&i.EventID, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLastEventRegistration = `-- name: GetLastEventRegistration :one
 select id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at, licence_number_encrypted from event_registrations order by id desc limit 1
 `

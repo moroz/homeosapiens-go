@@ -15,6 +15,7 @@ func AdminLayout(ctx *types.CustomContext, title string, children ...Node) Node 
 				H1(Text("Admin panel")),
 			),
 			Main(
+				Class("p-6"),
 				Group(children),
 			),
 		),

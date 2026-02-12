@@ -104,4 +104,24 @@
 			@apply border-slate-300 not-first:border-t;
 		}
 	}
+
+	.index-table {
+		@apply w-full table-fixed;
+
+		thead,
+		tfoot {
+			th {
+				@apply h-9 bg-gray-100 text-gray-800;
+			}
+		}
+
+		th,
+		td {
+			@apply h-9 border border-slate-400 px-2 text-left;
+		}
+
+		tr[data-url] {
+			@apply cursor-pointer hover:bg-slate-100;
+		}
+	}
 }

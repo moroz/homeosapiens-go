@@ -26,6 +26,7 @@ type EventListDto struct {
 	Prices            []*queries.EventPrice
 	EventRegistration *queries.EventRegistration
 	Venue             *queries.Venue
+	RegistrationCount int
 }
 
 func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*EventListDto, error) {
@@ -59,6 +60,11 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 		return nil, err
 	}
 
+	counts, err := s.preloadRegistrationCountsForEvents(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
 	var result []*EventListDto
 	for _, event := range events {
 		result = append(result, &EventListDto{
@@ -67,6 +73,7 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 			Prices:            prices[event.ID],
 			EventRegistration: registrations[event.ID],
 			Venue:             venues[event.ID],
+			RegistrationCount: counts[event.ID],
 		})
 	}
 
@@ -79,6 +86,7 @@ type EventDetailsDto struct {
 	Prices            []*queries.EventPrice
 	Hosts             []*queries.ListHostsForEventsRow
 	EventRegistration *queries.EventRegistration
+	RegistrationCount int
 }
 
 func (s *EventService) GetEventDetailsById(ctx context.Context, eventId string, user *queries.User) (*EventDetailsDto, error) {
@@ -128,6 +136,12 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 		return nil, err
 	}
 	dto.EventRegistration = registrations[event.ID]
+
+	counts, err := s.preloadRegistrationCountsForEvents(ctx, []pgtype.UUID{event.ID})
+	if err != nil {
+		return nil, err
+	}
+	dto.RegistrationCount = counts[event.ID]
 
 	return &dto, nil
 
@@ -190,6 +204,19 @@ func (s *EventService) preloadVenuesForEvents(ctx context.Context, eventIds []pg
 	result := make(map[pgtype.UUID]*queries.Venue)
 	for _, row := range venues {
 		result[row.EventID] = &row.Venue
+	}
+	return result, nil
+}
+
+func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID]int, error) {
+	counts, err := queries.New(s.db).CountRegistrationsForEvents(ctx, eventIds)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[pgtype.UUID]int)
+	for _, row := range counts {
+		result[row.EventID] = int(row.Count)
 	}
 	return result, nil
 }
