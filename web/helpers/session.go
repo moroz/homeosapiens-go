@@ -1,8 +1,6 @@
 package helpers
 
 import (
-	"bytes"
-	"encoding/gob"
 	"net/http"
 
 	"github.com/moroz/homeosapiens-go/config"
@@ -11,12 +9,11 @@ import (
 )
 
 func SaveSession(w http.ResponseWriter, store securecookie.Store, session types.SessionData) error {
-	buf := bytes.NewBuffer(nil)
-	err := gob.NewEncoder(buf).Encode(session)
+	bytes, err := session.Encode()
 	if err != nil {
 		return err
 	}
-	cookie, err := store.EncryptCookie(buf.Bytes())
+	cookie, err := store.EncryptCookie(bytes)
 	if err != nil {
 		return err
 	}

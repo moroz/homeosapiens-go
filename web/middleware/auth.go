@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 
@@ -36,6 +37,11 @@ func RequireAuthenticatedUser(next echo.HandlerFunc) echo.HandlerFunc {
 		qs := url.Values{
 			"ref": {ctx.RequestUrl.String()},
 		}
+		ctx.PutFlash("danger", "You need to sign in to access this page.")
+		if err := ctx.SaveSession(c.Response()); err != nil {
+			log.Print(err)
+		}
+
 		return c.Redirect(http.StatusSeeOther, "/sign-in?"+qs.Encode())
 	}
 }

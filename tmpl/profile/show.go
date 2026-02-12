@@ -10,7 +10,7 @@ import (
 import . "maragu.dev/gomponents"
 import . "maragu.dev/gomponents/html"
 
-func Show(ctx *types.CustomContext, messages []types.FlashMessage) Node {
+func Show(ctx *types.CustomContext) Node {
 	l := ctx.Localizer
 
 	return layout.Layout(ctx, "Profile",
@@ -20,8 +20,6 @@ func Show(ctx *types.CustomContext, messages []types.FlashMessage) Node {
 				Text(l.MustLocalizeMessage(&i18n.Message{
 					ID: "profile.title",
 				}))),
-
-			components.Flash(messages),
 
 			Form(
 				Method("POST"),

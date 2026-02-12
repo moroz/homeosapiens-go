@@ -86,6 +86,7 @@ const SessionCookieName = "_hs_session"
 
 const OAuth2SessionKey = "auth_state"
 const RedirectBackUrlSessionKey = "redirect_back"
+const FlashSessionKey = "_flash"
 
 const MinPasswordLength = 8
 const MaxPasswordLength = 128

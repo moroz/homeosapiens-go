@@ -60,7 +60,7 @@ func (cc *oauth2Controller) GoogleRedirect(c *echo.Context) error {
 	if redirectTo != "" {
 		ctx.Session[config.RedirectBackUrlSessionKey] = redirectTo
 	}
-	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
+	if err := ctx.SaveSession(c.Response()); err != nil {
 		log.Printf("Error persisting session: %s", err)
 		return err
 	}
@@ -136,7 +136,7 @@ func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
 	ctx.Session["access_token"] = userToken.Token
 	delete(ctx.Session, config.OAuth2SessionKey)
 	delete(ctx.Session, config.RedirectBackUrlSessionKey)
-	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
+	if err := ctx.SaveSession(c.Response()); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		return err
 	}

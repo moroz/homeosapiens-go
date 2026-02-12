@@ -9,14 +9,16 @@ import (
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-func ExtendContext(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c *echo.Context) error {
-		c.Set("context", &types.CustomContext{})
-		return next(c)
+func ExtendContext(store securecookie.Store) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			c.Set("context", types.NewContext(store))
+			return next(c)
+		}
 	}
 }
 
-func ResolveRequestLocale(bundle *goi18n.Bundle, store securecookie.Store) echo.MiddlewareFunc {
+func ResolveRequestLocale(bundle *goi18n.Bundle) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			ctx := helpers.GetRequestContext(c)
@@ -28,7 +30,10 @@ func ResolveRequestLocale(bundle *goi18n.Bundle, store securecookie.Store) echo.
 			lang := i18n.ResolveLocale(langParam, langFromSession, header)
 
 			if langParam != "" && langFromSession != langParam {
-				storePreferredLangInSession(c.Response(), ctx.Session, store, langParam)
+				ctx.Session["lang"] = langParam
+				if err := ctx.SaveSession(c.Response()); err != nil {
+					return err
+				}
 			}
 
 			ctx.Localizer = goi18n.NewLocalizer(bundle, lang)

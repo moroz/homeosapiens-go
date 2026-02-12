@@ -1,6 +1,7 @@
 package layout
 
 import (
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -20,6 +21,7 @@ func AuthLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 						Class("text-primary text-center text-3xl font-semibold"),
 						Text(title),
 					),
+					components.Flash(ctx.Flash),
 					Group(children),
 				),
 			),

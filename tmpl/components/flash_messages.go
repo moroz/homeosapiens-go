@@ -1,18 +1,18 @@
 package components
 
 import (
-	"strings"
-
 	"github.com/moroz/homeosapiens-go/types"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
-import . "maragu.dev/gomponents"
-import . "maragu.dev/gomponents/html"
 
-func Flash(messages []types.FlashMessage) Node {
-	return Map(messages, func(msg types.FlashMessage) Node {
-		return Article(
-			Class("alert "+strings.ToLower(msg.Level.String())),
-			Text(msg.Message),
-		)
-	})
+func Flash(messages types.Flash) Node {
+	var elements []Node
+
+	for level, msg := range messages {
+		alert := Article(Class("alert "+level), Text(msg))
+		elements = append(elements, alert)
+	}
+
+	return Group(elements)
 }

@@ -11,21 +11,18 @@ import (
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/sessions"
 	"github.com/moroz/homeosapiens-go/web/helpers"
-	"github.com/moroz/securecookie"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type sessionController struct {
 	*services.UserService
 	*services.UserTokenService
-	sessionStore securecookie.Store
 }
 
-func SessionController(db queries.DBTX, sessionStore securecookie.Store) *sessionController {
+func SessionController(db queries.DBTX) *sessionController {
 	return &sessionController{
 		services.NewUserService(db),
 		services.NewUserTokenService(db),
-		sessionStore,
 	}
 }
 
@@ -35,7 +32,7 @@ func (cc *sessionController) New(c *echo.Context) error {
 	redirectTo := c.QueryParams().Get("ref")
 	if redirectTo != "" {
 		ctx.Session[config.RedirectBackUrlSessionKey] = redirectTo
-		_ = helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session)
+		_ = ctx.SaveSession(c.Response())
 	}
 
 	return sessions.New(ctx, "", "").Render(c.Response())
@@ -65,7 +62,7 @@ func (cc *sessionController) Create(c *echo.Context) error {
 	ctx.Session["access_token"] = token.Token
 	redirectTo := helpers.GetRedirectUrl(ctx)
 
-	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
+	if err := ctx.SaveSession(c.Response()); err != nil {
 		return err
 	}
 
@@ -81,7 +78,7 @@ func (cc *sessionController) Delete(c *echo.Context) error {
 		}
 	}
 	delete(ctx.Session, "access_token")
-	if err := helpers.SaveSession(c.Response(), cc.sessionStore, ctx.Session); err != nil {
+	if err := ctx.SaveSession(c.Response()); err != nil {
 		return err
 	}
 

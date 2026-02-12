@@ -23,13 +23,23 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	}))
 	r.Use(echomiddleware.RequestID())
 	r.Use(echomiddleware.RequestLogger())
-	r.Use(middleware.ExtendContext)
+
+	if config.IsProd {
+		assets := r.Group("/assets")
+		assets.Use(CacheControlMiddleware)
+		assets.Static("", "assets/dist/assets")
+	} else {
+		r.Static("/assets", "assets/public/assets")
+	}
+
+	r.Use(middleware.ExtendContext(store))
 	r.Use(middleware.StoreRequestUrlInContext)
-	r.Use(middleware.FetchSessionFromCookies(store, config.SessionCookieName))
+
+	r.Use(middleware.FetchSessionFromCookies(config.SessionCookieName))
 	r.Use(middleware.FetchFlashMessages(store))
 	r.Use(middleware.FetchUserFromSession(db))
 	r.Use(middleware.ResolveTimezone)
-	r.Use(middleware.ResolveRequestLocale(bundle, store))
+	r.Use(middleware.ResolveRequestLocale(bundle))
 
 	pages := handlers.PageController(db)
 	r.GET("/", pages.Index)
@@ -41,7 +51,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.GET("/events/:slug/register", eventRegistrations.New)
 	r.POST("/event_registrations", eventRegistrations.Create)
 
-	sessions := handlers.SessionController(db, store)
+	sessions := handlers.SessionController(db)
 	r.GET("/sign-in", sessions.New)
 	r.POST("/sessions", sessions.Create)
 	r.GET("/sign-out", sessions.Delete)
@@ -72,13 +82,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	adminEvents := admin.EventController(db)
 	ar.GET("", adminEvents.Index)
 
-	if config.IsProd {
-		assets := r.Group("/assets")
-		assets.Use(CacheControlMiddleware)
-		assets.Static("", "assets/dist/assets")
-	} else {
-		r.Static("/assets", "assets/public/assets")
-
+	if !config.IsProd {
 		email := handlers.EmailController()
 		r.GET("/dev/email", email.Show)
 	}

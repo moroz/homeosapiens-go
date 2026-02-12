@@ -1,6 +1,7 @@
 package layout
 
 import (
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
@@ -32,6 +33,7 @@ func Layout(ctx *types.CustomContext, title string, children ...Node) Node {
 			Class("flex-1 bg-slate-100 pt-26 pb-6"),
 			Div(
 				Class("container mx-auto"),
+				components.Flash(ctx.Flash),
 				Group(children),
 			),
 		),

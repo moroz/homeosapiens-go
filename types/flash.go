@@ -1,15 +1,9 @@
 package types
 
-//go:generate stringer -type=FlashLevel -trimprefix=FlashLevel_
-type FlashLevel int
+import "encoding/gob"
 
-const (
-	FlashLevel_Info FlashLevel = iota
-	FlashLevel_Success
-	FlashLevel_Danger
-)
-
-type FlashMessage struct {
-	Level   FlashLevel
-	Message string
+func init() {
+	gob.Register(make(Flash))
 }
+
+type Flash map[string]string
