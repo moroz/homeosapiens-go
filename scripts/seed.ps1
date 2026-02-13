@@ -41,6 +41,10 @@ Write-Host "Fetching remote DATABASE_URL..."
 $databaseUrl = ssh "$($RemoteUser)@$($RemoteHost)" grep "DATABASE_URL" $ENV_FILE
 $databaseUrl = $databaseUrl.Split('=')[1].Replace('"', '')
 
+Write-Host "Fetching remote SECRET_KEY_BASE..."
+$secretKeyBase = ssh "$($RemoteUser)@$($RemoteHost)" grep "SECRET_KEY_BASE" $ENV_FILE
+$secretKeyBase = $secretKeyBase.Split('"')[1]
+
 Write-Host $databaseUrl
 
 $port = 6000
@@ -54,6 +58,6 @@ $uri = [System.UriBuilder]$databaseUrl
 $uri.Host = "127.0.0.1"
 $uri.Port = $port
 
-cd db/seeds && env DATABASE_URL="$uri" go run .
+cd db/seeds && env SECRET_KEY_BASE="$secretKeyBase" DATABASE_URL="$uri" go run .
 
 Stop-Process -Id $tunnel.Id
