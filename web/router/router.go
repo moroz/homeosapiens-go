@@ -15,6 +15,11 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
+	group := r.Group(prefix)
+	cb(group)
+}
+
 func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http.Handler {
 	r := echo.New()
 
@@ -69,19 +74,21 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
-	auth := r.Group("")
-	auth.Use(middleware.RequireAuthenticatedUser)
+	Group(r, "", func(r *echo.Group) {
+		r.Use(middleware.RequireAuthenticatedUser)
 
-	profile := handlers.ProfileController(db)
-	auth.GET("/profile", profile.Show)
-	auth.PUT("/profile", profile.Update)
+		profile := handlers.ProfileController(db)
+		r.GET("/profile", profile.Show)
+		r.PUT("/profile", profile.Update)
+	})
 
-	ar := r.Group("/admin")
-	ar.Use(middleware.RequireAdmin)
+	Group(r, "/admin", func(r *echo.Group) {
+		r.Use(middleware.RequireAdmin)
 
-	adminEvents := admin.EventController(db)
-	ar.GET("", adminEvents.Index)
-	ar.GET("/events/:id", adminEvents.Show)
+		adminEvents := admin.EventController(db)
+		r.GET("", adminEvents.Index)
+		r.GET("/events/:id", adminEvents.Show)
+	})
 
 	if !config.IsProd {
 		email := handlers.EmailController()
