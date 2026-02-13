@@ -4,7 +4,7 @@ select * from users where email_hash = $1;
 -- name: GetUserByAccessToken :one
 select u.* from user_tokens ut
 join users u on ut.user_id = u.id
-where ut.valid_until > (now() at time zone 'utc')
+where ut.valid_until > now()
 and ut.token = @token::bytea and ut.context = 'access';
 
 -- name: InsertUser :one
@@ -24,13 +24,19 @@ delete from user_tokens where token = $1 returning true;
 
 -- name: FindOrCreateUserFromClaims :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, email_confirmed_at)
-values ($1, $2, $3, $4, $5, case when @email_confirmed::boolean then now() else null end)
+values ($1, $2, $3, $4, $5, case when @email_confirmed::boolean then now() end)
 on conflict (email_hash) do update
 set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
 returning *;
 
 -- name: UpdateUserProfile :one
 update users
-set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5,
-updated_at = now()
+set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5, updated_at = now()
 where id = $6 returning *;
+
+-- name: ListUsers :many
+select * from users order by id;
+
+-- name: SetUserLastLogin :exec
+update users set last_login_ip = $1, last_login_at = now(), updated_at = now()
+where id = $2;

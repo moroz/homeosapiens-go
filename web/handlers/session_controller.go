@@ -59,6 +59,8 @@ func (cc *sessionController) Create(c *echo.Context) error {
 		return err
 	}
 
+	_ = cc.UserService.SetUserLastLogin(c.Request().Context(), c.RealIP(), user.ID)
+
 	ctx.Session["access_token"] = token.Token
 	redirectTo := helpers.GetRedirectUrl(ctx)
 

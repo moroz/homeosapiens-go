@@ -7,6 +7,7 @@ package queries
 
 import (
 	"context"
+	"net/netip"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -25,7 +26,7 @@ func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, erro
 
 const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, email_confirmed_at)
-values ($1, $2, $3, $4, $5, case when $6::boolean then now() else null end)
+values ($1, $2, $3, $4, $5, case when $6::boolean then now() end)
 on conflict (email_hash) do update
 set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
@@ -77,7 +78,7 @@ func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCre
 const getUserByAccessToken = `-- name: GetUserByAccessToken :one
 select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted from user_tokens ut
 join users u on ut.user_id = u.id
-where ut.valid_until > (now() at time zone 'utc')
+where ut.valid_until > now()
 and ut.token = $1::bytea and ut.context = 'access'
 `
 
@@ -224,10 +225,68 @@ func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParam
 	return &i, err
 }
 
+const listUsers = `-- name: ListUsers :many
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted from users order by id
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]*User, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Salutation,
+			&i.Country,
+			&i.Profession,
+			&i.Organization,
+			&i.Company,
+			&i.PasswordHash,
+			&i.LastLoginAt,
+			&i.LastLoginIp,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.ProfilePicture,
+			&i.UserRole,
+			&i.Email,
+			&i.EmailHash,
+			&i.GivenName,
+			&i.FamilyName,
+			&i.EmailConfirmedAt,
+			&i.LicenceNumber,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setUserLastLogin = `-- name: SetUserLastLogin :exec
+update users set last_login_ip = $1, last_login_at = now(), updated_at = now()
+where id = $2
+`
+
+type SetUserLastLoginParams struct {
+	LastLoginIp *netip.Addr `json:"lastLoginIp"`
+	ID          pgtype.UUID `json:"id"`
+}
+
+func (q *Queries) SetUserLastLogin(ctx context.Context, arg *SetUserLastLoginParams) error {
+	_, err := q.db.Exec(ctx, setUserLastLogin, arg.LastLoginIp, arg.ID)
+	return err
+}
+
 const updateUserProfile = `-- name: UpdateUserProfile :one
 update users
-set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5,
-updated_at = now()
+set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5, updated_at = now()
 where id = $6 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
 `
 

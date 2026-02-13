@@ -1,9 +1,8 @@
 [tools]
-go = "latest"
+go = "1.26"
 "go:github.com/air-verse/air" = "latest"
 "go:github.com/pressly/goose/v3/cmd/goose" = "latest"
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "latest"
-"go:golang.org/x/tools/cmd/stringer" = "latest"
 node = "latest"
 pnpm = "latest"
 prettier = "latest"
@@ -13,7 +12,7 @@ PGDATABASE = "homeosapiens_dev"
 PGUSER = "postgres"
 PGPASSWORD = "postgres"
 PGHOST = "localhost"
-DATABASE_URL = "postgres://postgres:postgres@localhost:5432/{{ env.PGDATABASE }}"
+DATABASE_URL = "postgres://postgres:postgres@localhost:5432/{{ env.PGDATABASE }}?options=-c+TimeZone%3DUTC"
 GOOSE_DBSTRING = "{{ env.DATABASE_URL }}"
 GOOSE_DRIVER = "postgres"
 GOOSE_MIGRATION_DIR = "db/migrations"
@@ -29,6 +28,7 @@ run = """
 #!/usr/bin/env -S bash -euo pipefail
 
 createdb $PGDATABASE || true
+psql -c "alter database $PGDATABASE set timezone to 'UTC'"
 goose up
 mise r db:seed
 """

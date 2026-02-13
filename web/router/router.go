@@ -30,10 +30,10 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Use(echomiddleware.RequestLogger())
 
 	if config.IsProd {
-		assets := r.Group("/assets")
-		assets.Use(CacheControlMiddleware)
-		assets.Static("", "assets/dist/assets")
+		r.IPExtractor = echo.ExtractIPFromXFFHeader()
+		r.Static("/assets", "assets/dist/assets", CacheControlMiddleware)
 	} else {
+		r.IPExtractor = echo.ExtractIPDirect()
 		r.Static("/assets", "assets/public/assets")
 	}
 
@@ -85,9 +85,12 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	Group(r, "/admin", func(r *echo.Group) {
 		r.Use(middleware.RequireAdmin)
 
-		adminEvents := admin.EventController(db)
-		r.GET("", adminEvents.Index)
-		r.GET("/events/:id", adminEvents.Show)
+		events := admin.EventController(db)
+		r.GET("", events.Index)
+		r.GET("/events/:id", events.Show)
+
+		users := admin.UserController(db)
+		r.GET("/users", users.Index)
 	})
 
 	if !config.IsProd {

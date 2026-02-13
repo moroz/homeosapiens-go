@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/netip"
 	"strings"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
@@ -103,5 +105,21 @@ func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User,
 		LicenceNumber: licenceNumber,
 		Country:       &params.Country,
 		ID:            user.ID,
+	})
+}
+
+func (s *UserService) ListUsers(ctx context.Context) ([]*queries.User, error) {
+	return queries.New(s.db).ListUsers(ctx)
+}
+
+func (s *UserService) SetUserLastLogin(ctx context.Context, ipAddr string, userId pgtype.UUID) error {
+	parsed, err := netip.ParseAddr(ipAddr)
+	if err != nil {
+		return err
+	}
+
+	return queries.New(s.db).SetUserLastLogin(ctx, &queries.SetUserLastLoginParams{
+		LastLoginIp: &parsed,
+		ID:          userId,
 	})
 }

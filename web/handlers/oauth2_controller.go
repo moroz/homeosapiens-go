@@ -128,6 +128,8 @@ func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
 		return err
 	}
 
+	_ = cc.UserService.SetUserLastLogin(c.Request().Context(), c.RealIP(), user.ID)
+
 	redirectBackUrl, ok := ctx.Session[config.RedirectBackUrlSessionKey].(string)
 	if !ok {
 		redirectBackUrl = "/"
