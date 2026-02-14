@@ -77,7 +77,9 @@ func SelectComponent(opts *SelectOptions) Node {
 					}),
 				),
 
-				Div(Class("absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2 text-slate-600"), Data("lucide", "chevron-down")),
+				SVG(
+					Class("absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2 fill-slate-600"),
+					Attr("viewBox", "0 0 640 640"), El("use", Href("/assets/chevron-down.svg"))),
 			),
 		),
 	)

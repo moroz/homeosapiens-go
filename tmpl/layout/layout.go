@@ -17,8 +17,6 @@ func RootLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 			TitleEl(Text(title+" | Homeo sapiens")),
 			AssetEntryPoint(ctx),
 			fonts(),
-			Script(Src("https://unpkg.com/lucide@latest"), Type("module")),
-			Script(Type("module"), Text("lucide.createIcons();")),
 			Meta(Name("user-timezone"), Content(ctx.Timezone.String())),
 		),
 		Body(Group(children)),
@@ -71,7 +69,7 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 	return A(
 		Class("button tertiary gap-1 uppercase"),
 		Href(baseUrl+"?lang="+otherLocale), Title(tooltip), Aria("label", tooltip),
-		I(Class("h-5 w-5"), Data("lucide", "languages")),
+		SVG(Class("h-5 w-5 fill-current"), Attr("viewBox", "0 0 640 640"), El("use", Href("/assets/language.svg#icon"))),
 		Text(ctx.Language),
 	)
 }
