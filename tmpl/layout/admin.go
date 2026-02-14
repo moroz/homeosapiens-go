@@ -32,6 +32,7 @@ func AdminLayout(ctx *types.CustomContext, title string, children ...Node) Node 
 						navLink(Href("/admin"), Text("Events")),
 						navLink(Href("/admin/users"), Text("Users")),
 						navLink(Href("/admin/blog"), Text("Blog")),
+						navLink(Href("/"), Text("Back to website")),
 					),
 				),
 				Footer(
@@ -41,7 +42,7 @@ func AdminLayout(ctx *types.CustomContext, title string, children ...Node) Node 
 			),
 			Main(
 				Class("p-6"),
-				Group(children),
+				Div(Class("container max-w-300 mx-auto"), Group(children)),
 			),
 		),
 	)

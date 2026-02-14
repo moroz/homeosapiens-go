@@ -19,6 +19,8 @@ GOOSE_MIGRATION_DIR = "db/migrations"
 SECRET_KEY_BASE = "YhTVeJ58o+vuYEvASxp68UMydUhvMsAOQZkCmlEeAE/IVJ/WkpjXS0+spVyWttR0ZMs0aKbbx+jkqV7oD9Lp+w=="
 TEST_DATABASE = "homeosapiens_test"
 TEST_DATABASE_URL = "postgres://{{ env.PGUSER }}:{{ env.PGPASSWORD }}@{{ env.PGHOST }}:5432/{{ env.TEST_DATABASE }}"
+STRIPE_PUBLISHABLE_KEY = "sk_test_51T0jEeEMV4Zkv3aajZLlXReMRTF9OIy83nkEeYrm5XUtB6zl1LO82dmF5bGZ0OBW4pP7lmilAox9raGNkaUJCDXE00fdj0C2Gr"
+STRIPE_SECRET_KEY = "pk_test_51T0jEeEMV4Zkv3aa2ILqePbTyRiZ9ynXCoYnwFP4ub41ueAtJ06KOtJRpdVUlKiPlMtV3TdfuBqqaQzam27ETE3p00ywIghIGE"
 
 [tasks."db:seed"]
 run = "cd db/seeds && go run ."

@@ -52,7 +52,7 @@ func EventAttendanceBadge(l *i18n.Localizer) Node {
 	messageKey := "common.events.attendance_badge"
 
 	return Span(
-		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-blue-900/10 bg-blue-100 px-2 py-1 text-sm font-semibold text-blue-700"),
+		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-primary/20 bg-primary/10 px-2 py-1 text-sm font-semibold text-primary"),
 		EventAttendanceIcon(true),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: messageKey,
@@ -146,7 +146,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 			Div(
 				Class("mobile:grid gap-4 w-full mt-auto flex items-center"),
-				If(isFuture, A(
+				If(isFuture && e.EventRegistration == nil, A(
 					Href(eventUrl+"/register"),
 					Class("button px-6 mobile:w-full"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{

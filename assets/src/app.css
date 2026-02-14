@@ -1,8 +1,9 @@
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
 @import "video.js/dist/video-js.css";
 @import "@videojs/themes/dist/fantasy/index.css";
+@import "tailwindcss";
+
 @config "../tailwind.config.js";
+@plugin "@tailwindcss/typography";
 
 @theme {
 	--color-secondary: var(--color-purple-800);

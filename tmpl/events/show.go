@@ -2,6 +2,7 @@ package events
 
 import (
 	"fmt"
+	"net/url"
 
 	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/services"
@@ -13,10 +14,29 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
+const EventRegistrationButtonBaseClasses = "inline-flex button bg-slate-100 text-slate-900 gap-1 font-semibold hover:bg-slate-200"
+const EventRegistrationButtonNotGoingClasses = "bg-slate-100 text-slate-900 hover:bg-slate-200"
+const EventRegistrationButtonGoingClasses = "bg-primary/10 text-primary hover:bg-primary/20"
+
+func eventRegistrationSignInLink(l *i18n.Localizer, event *services.EventDetailsDto) Node {
+	qs := url.Values{
+		"ref": {fmt.Sprintf("/events/%s", event.Slug)},
+	}
+
+	return A(Href("/sign-in?"+qs.Encode()), Class(
+		twmerge.Merge(EventRegistrationButtonBaseClasses, EventRegistrationButtonNotGoingClasses),
+	),
+		EventAttendanceIcon(false),
+		Text(l.MustLocalizeMessage(&i18n.Message{
+			ID: "common.events.attendance_badge",
+		})),
+	)
+}
+
 func eventRegistrationButton(l *i18n.Localizer, event *services.EventDetailsDto) Node {
-	classes := "bg-slate-100 text-slate-900 hover:bg-slate-200"
+	classes := EventRegistrationButtonNotGoingClasses
 	if event.EventRegistration != nil {
-		classes = "bg-primary/10 text-primary hover:bg-primary/20"
+		classes = EventRegistrationButtonGoingClasses
 	}
 
 	return Form(
@@ -25,7 +45,7 @@ func eventRegistrationButton(l *i18n.Localizer, event *services.EventDetailsDto)
 		If(event.EventRegistration != nil, Input(Type("hidden"), Name("_method"), Value("DELETE"))),
 		Button(
 			Class(
-				twmerge.Merge("inline-flex button bg-slate-100 text-slate-900 gap-1 font-semibold hover:bg-slate-200", classes),
+				twmerge.Merge(EventRegistrationButtonBaseClasses, classes),
 			),
 			Type("submit"),
 			EventAttendanceIcon(event.EventRegistration != nil),
@@ -81,7 +101,8 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 		),
 		EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
 		Div(Class("my-4 flex gap-4 items-center"),
-			eventRegistrationButton(l, event),
+			If(ctx.User != nil, eventRegistrationButton(l, event)),
+			If(ctx.User == nil, eventRegistrationSignInLink(l, event)),
 			If(
 				event.RegistrationCount > 0,
 				Text(l.MustLocalize(&i18n.LocalizeConfig{
