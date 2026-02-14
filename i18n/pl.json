@@ -46,6 +46,12 @@
 				"webinar": "Webinar"
 			},
 			"attendance_badge": "Wezmę udział",
+			"nobody_attending": "Bądź pierwszą osobą, która weźmie udział!",
+			"attendance_count": {
+				"one": "Jedna osoba weźmie udział.",
+				"few": "{{ .Count }} osoby wezmą udział.",
+				"many": "{{ .Count }} osób weźmie udział."
+			},
 			"participation_cost": "Koszt udziału",
 			"free": "Bezpłatne",
 			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",

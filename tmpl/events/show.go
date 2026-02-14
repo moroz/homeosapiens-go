@@ -3,6 +3,7 @@ package events
 import (
 	"fmt"
 
+	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
@@ -12,39 +13,25 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func eventRegistrationIcon(href string) Node {
-	return SVG(
-		Class("h-5 w-5 fill-current"),
-		Attr("viewBox", "0 0 640 640"),
-		El("use",
-			Href(href),
-		),
-	)
-}
-
-func eventRegistrationButton(event *services.EventDetailsDto) Node {
-	if event.EventRegistration == nil {
-		return Form(
-			Action(fmt.Sprintf("/event_registrations/%s", event.ID)),
-			Method("POST"),
-			Button(
-				Class("inline-flex button bg-slate-100 text-slate-900 gap-1 font-semibold hover:bg-slate-200"),
-				Type("submit"),
-				eventRegistrationIcon("/assets/circle-check-empty.svg#icon"),
-				Text("Wezmę udział"),
-			),
-		)
+func eventRegistrationButton(l *i18n.Localizer, event *services.EventDetailsDto) Node {
+	classes := "bg-slate-100 text-slate-900 hover:bg-slate-200"
+	if event.EventRegistration != nil {
+		classes = "bg-primary/10 text-primary hover:bg-primary/20"
 	}
 
 	return Form(
 		Action(fmt.Sprintf("/event_registrations/%s", event.ID)),
 		Method("POST"),
-		Input(Type("hidden"), Name("_method"), Value("DELETE")),
+		If(event.EventRegistration != nil, Input(Type("hidden"), Name("_method"), Value("DELETE"))),
 		Button(
-			Class("inline-flex button bg-blue-100 text-blue-700 gap-1 font-semibold hover:bg-blue-200"),
+			Class(
+				twmerge.Merge("inline-flex button bg-slate-100 text-slate-900 gap-1 font-semibold hover:bg-slate-200", classes),
+			),
 			Type("submit"),
-			eventRegistrationIcon("/assets/circle-check-solid.svg#icon"),
-			Text("Wezmę udział"),
+			EventAttendanceIcon(event.EventRegistration != nil),
+			Text(l.MustLocalizeMessage(&i18n.Message{
+				ID: "common.events.attendance_badge",
+			})),
 		),
 	)
 }
@@ -93,8 +80,21 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			),
 		),
 		EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
-		Div(Class("my-4 flex gap-6"),
-			eventRegistrationButton(event),
+		Div(Class("my-4 flex gap-4 items-center"),
+			eventRegistrationButton(l, event),
+			If(
+				event.RegistrationCount > 0,
+				Text(l.MustLocalize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID: "common.events.attendance_count",
+					},
+					TemplateData: map[string]any{
+						"Count": event.RegistrationCount,
+					},
+					PluralCount: event.RegistrationCount,
+				})),
+			),
+			If(event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 		),
 		helpers.MarkdownContent(description, "mt-4 w-full"),
 	))

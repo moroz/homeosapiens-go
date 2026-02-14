@@ -36,6 +36,11 @@
 				"webinar": "Webinar"
 			},
 			"attendance_badge": "Going",
+			"nobody_attending": "Be the first to register!",
+			"attendance_count": {
+				"one": "One person is going.",
+				"many": "{{ .Count }} people are going."
+			},
 			"participation_cost": "Participation cost",
 			"free": "Free",
 			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
