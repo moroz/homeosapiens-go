@@ -8,7 +8,6 @@ package queries
 import (
 	"context"
 
-	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -43,8 +42,24 @@ func (q *Queries) CountRegistrationsForEvents(ctx context.Context, eventids []pg
 	return items, nil
 }
 
+const deleteEventRegistration = `-- name: DeleteEventRegistration :one
+delete from event_registrations where event_id = $1 and user_id = $2 returning id
+`
+
+type DeleteEventRegistrationParams struct {
+	EventID pgtype.UUID `json:"eventId"`
+	UserID  pgtype.UUID `json:"userId"`
+}
+
+func (q *Queries) DeleteEventRegistration(ctx context.Context, arg *DeleteEventRegistrationParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, deleteEventRegistration, arg.EventID, arg.UserID)
+	var id pgtype.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getLastEventRegistration = `-- name: GetLastEventRegistration :one
-select id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at, licence_number_encrypted from event_registrations order by id desc limit 1
+select id, event_id, user_id, inserted_at from event_registrations order by id desc limit 1
 `
 
 // Only for testing
@@ -55,65 +70,28 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 		&i.ID,
 		&i.EventID,
 		&i.UserID,
-		&i.AttendingInPerson,
-		&i.IsHost,
 		&i.InsertedAt,
-		&i.UpdatedAt,
-		&i.GivenName,
-		&i.FamilyName,
-		&i.Email,
-		&i.Country,
-		&i.EmailConfirmedAt,
-		&i.LicenceNumber,
 	)
 	return &i, err
 }
 
 const insertEventRegistration = `-- name: InsertEventRegistration :one
-insert into event_registrations (event_id, user_id, is_host, given_name_encrypted, family_name_encrypted, email_encrypted, country, attending_in_person, email_confirmed_at)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-returning id, event_id, user_id, attending_in_person, is_host, inserted_at, updated_at, given_name_encrypted, family_name_encrypted, email_encrypted, country, email_confirmed_at, licence_number_encrypted
+insert into event_registrations (event_id, user_id) values ($1, $2) returning id, event_id, user_id, inserted_at
 `
 
 type InsertEventRegistrationParams struct {
-	EventID           pgtype.UUID               `json:"eventId"`
-	UserID            pgtype.UUID               `json:"userId"`
-	IsHost            bool                      `json:"isHost"`
-	GivenName         sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
-	FamilyName        sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
-	Email             sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
-	Country           string                    `json:"country"`
-	AttendingInPerson bool                      `json:"attendingInPerson"`
-	EmailConfirmedAt  pgtype.Timestamp          `json:"emailConfirmedAt"`
+	EventID pgtype.UUID `json:"eventId"`
+	UserID  pgtype.UUID `json:"userId"`
 }
 
 func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventRegistrationParams) (*EventRegistration, error) {
-	row := q.db.QueryRow(ctx, insertEventRegistration,
-		arg.EventID,
-		arg.UserID,
-		arg.IsHost,
-		arg.GivenName,
-		arg.FamilyName,
-		arg.Email,
-		arg.Country,
-		arg.AttendingInPerson,
-		arg.EmailConfirmedAt,
-	)
+	row := q.db.QueryRow(ctx, insertEventRegistration, arg.EventID, arg.UserID)
 	var i EventRegistration
 	err := row.Scan(
 		&i.ID,
 		&i.EventID,
 		&i.UserID,
-		&i.AttendingInPerson,
-		&i.IsHost,
 		&i.InsertedAt,
-		&i.UpdatedAt,
-		&i.GivenName,
-		&i.FamilyName,
-		&i.Email,
-		&i.Country,
-		&i.EmailConfirmedAt,
-		&i.LicenceNumber,
 	)
 	return &i, err
 }

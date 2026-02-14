@@ -9,7 +9,7 @@ import (
 
 func logo(class string) Node {
 	return SVG(
-		Attr("viewbox", "0 0 1538 361"),
+		Attr("viewBox", "0 0 1538 361"),
 		Class(class),
 		El("use",
 			Href("/assets/logo.svg#logo"),

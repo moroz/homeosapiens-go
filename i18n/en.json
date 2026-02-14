@@ -35,10 +35,7 @@
 				"seminar": "Seminar",
 				"webinar": "Webinar"
 			},
-			"attendance_badge": {
-				"past": "Attended",
-				"upcoming": "You are attending"
-			},
+			"attendance_badge": "Going",
 			"participation_cost": "Participation cost",
 			"free": "Free",
 			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
@@ -63,18 +60,6 @@
 			"no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
 			"invalid_email_password_combination": "Invalid email/password combination.",
 			"sign_in_with_google": "Sign in with Google"
-		}
-	},
-	"event_registrations": {
-		"new": {
-			"title": "Sign up for event: {{ .Title }}",
-			"heading": "Sign up for event",
-			"continue_with_google": "Continue with Google",
-			"form": {
-				"helper_text": {
-					"email": "We will send you an email to confirm your email address."
-				}
-			}
 		}
 	},
 	"user_registrations": {

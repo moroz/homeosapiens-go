@@ -2,13 +2,10 @@ package services
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
+	"errors"
 
-	"github.com/bincyber/go-sqlcrypter"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/types"
 )
 
 type EventRegistrationService struct {
@@ -25,37 +22,26 @@ func NewEventRegistrationService(db queries.DBTX) *EventRegistrationService {
 	}
 }
 
-func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event, params *types.CreateEventRegistrationParams) (*queries.EventRegistration, error) {
-	if err := params.Validate(); err != nil {
-		return nil, fmt.Errorf("CreateEventRegistration: validation failed: %w", err)
-	}
+func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (*queries.EventRegistration, error) {
+	return queries.New(s.db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
+		EventID: event.ID,
+		UserID:  user.ID,
+	})
+}
 
-	tx, err := s.db.(*pgxpool.Pool).BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback(ctx)
-
-	if user == nil {
-		user, err = s.userService.FindOrCreateUserFromEventRegistrationParams(ctx, params)
-		if err != nil {
-			return nil, fmt.Errorf("CreateEventRegistration: %w", err)
-		}
-	}
-
-	registration, err := queries.New(s.db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
-		EventID:          event.ID,
-		UserID:           user.ID,
-		GivenName:        sqlcrypter.NewEncryptedBytes(params.GivenName),
-		FamilyName:       sqlcrypter.NewEncryptedBytes(params.FamilyName),
-		Email:            sqlcrypter.NewEncryptedBytes(params.Email),
-		Country:          params.Country,
-		EmailConfirmedAt: user.EmailConfirmedAt,
+func (s *EventRegistrationService) DeleteEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (bool, error) {
+	_, err := queries.New(s.db).DeleteEventRegistration(ctx, &queries.DeleteEventRegistrationParams{
+		EventID: event.ID,
+		UserID:  user.ID,
 	})
 
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("CreateEventRegistration: %w", err)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return false, nil
 	}
 
-	return registration, nil
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

@@ -2,12 +2,7 @@ package events
 
 import (
 	"fmt"
-	"strings"
-	"time"
 
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
@@ -17,25 +12,46 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func MarkdownContent(content string, classes ...string) Node {
-	extensions := parser.CommonExtensions | parser.Autolink | parser.NoEmptyLineBeforeBlock
-	p := parser.NewWithExtensions(extensions)
-	doc := p.Parse([]byte(content))
+func eventRegistrationIcon(href string) Node {
+	return SVG(
+		Class("h-5 w-5 fill-current"),
+		Attr("viewBox", "0 0 640 640"),
+		El("use",
+			Href(href),
+		),
+	)
+}
 
-	htmlFlags := html.CommonFlags | html.HrefTargetBlank
-	opts := html.RendererOptions{Flags: htmlFlags}
-	renderer := html.NewRenderer(opts)
-	innerHTML := markdown.Render(doc, renderer)
+func eventRegistrationButton(event *services.EventDetailsDto) Node {
+	if event.EventRegistration == nil {
+		return Form(
+			Action(fmt.Sprintf("/event_registrations/%s", event.ID)),
+			Method("POST"),
+			Button(
+				Class("inline-flex button bg-slate-100 text-slate-900 gap-1 font-semibold hover:bg-slate-200"),
+				Type("submit"),
+				eventRegistrationIcon("/assets/circle-check-empty.svg#icon"),
+				Text("Wezmę udział"),
+			),
+		)
+	}
 
-	class := strings.Join(append([]string{"prose lg:prose-lg "}, classes...), " ")
-
-	return Div(Class(class), Raw(string(innerHTML)))
+	return Form(
+		Action(fmt.Sprintf("/event_registrations/%s", event.ID)),
+		Method("POST"),
+		Input(Type("hidden"), Name("_method"), Value("DELETE")),
+		Button(
+			Class("inline-flex button bg-blue-100 text-blue-700 gap-1 font-semibold hover:bg-blue-200"),
+			Type("submit"),
+			eventRegistrationIcon("/assets/circle-check-solid.svg#icon"),
+			Text("Wezmę udział"),
+		),
+	)
 }
 
 func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	lang := ctx.Language
 	tz := ctx.Timezone
-	isFuture := event.StartsAt.Time.After(time.Now())
 
 	title := event.TitleEn
 	if lang == "pl" {
@@ -51,13 +67,8 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 
 	return layout.Layout(ctx, event.TitleEn, Div(
 		Class("card mx-auto"),
-		Div(
-			Class("mb-2 flex items-center gap-2"),
-			EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
-			If(event.EventRegistration != nil, EventAttendanceBadge(isFuture, l)),
-		),
 		H2(
-			Class("text-primary my-2 text-2xl leading-normal font-bold"),
+			Class("text-primary text-2xl leading-normal font-bold"),
 			Text(title),
 		),
 		Div(
@@ -81,7 +92,10 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 				),
 			),
 		),
-		If(event.EventRegistration == nil, A(Href(fmt.Sprintf("/events/%s/register", event.Slug)), Text("Register"))),
-		MarkdownContent(description, "mt-4 w-full"),
+		EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
+		Div(Class("my-4 flex gap-6"),
+			eventRegistrationButton(event),
+		),
+		helpers.MarkdownContent(description, "mt-4 w-full"),
 	))
 }

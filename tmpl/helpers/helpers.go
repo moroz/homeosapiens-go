@@ -6,9 +6,14 @@ import (
 	"time"
 
 	"github.com/bincyber/go-sqlcrypter"
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/shopspring/decimal"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 func TranslateCountry(localizer *i18n.Localizer, countryCode string) string {
@@ -140,4 +145,19 @@ func DerefEncrypted(str *sqlcrypter.EncryptedBytes) string {
 		return str.String()
 	}
 	return ""
+}
+
+func MarkdownContent(content string, classes ...string) Node {
+	extensions := parser.CommonExtensions | parser.Autolink | parser.NoEmptyLineBeforeBlock
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse([]byte(content))
+
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank
+	opts := html.RendererOptions{Flags: htmlFlags}
+	renderer := html.NewRenderer(opts)
+	innerHTML := markdown.Render(doc, renderer)
+
+	class := strings.Join(append([]string{"prose lg:prose-lg "}, classes...), " ")
+
+	return Div(Class(class), Raw(string(innerHTML)))
 }

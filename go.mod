@@ -3,6 +3,7 @@ module github.com/moroz/homeosapiens-go
 go 1.25.0
 
 require (
+	github.com/Oudwins/tailwind-merge-go v0.2.1
 	github.com/alexedwards/argon2id v1.0.0
 	github.com/bincyber/go-sqlcrypter v0.2.0
 	github.com/google/uuid v1.6.0

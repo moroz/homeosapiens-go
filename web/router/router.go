@@ -52,10 +52,6 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	events := handlers.EventController(db)
 	r.GET("/events/:slug", events.Show)
 
-	eventRegistrations := handlers.EventRegistrationController(db)
-	r.GET("/events/:slug/register", eventRegistrations.New)
-	r.POST("/event_registrations", eventRegistrations.Create)
-
 	sessions := handlers.SessionController(db)
 	r.GET("/sign-in", sessions.New)
 	r.POST("/sessions", sessions.Create)
@@ -80,6 +76,10 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 		profile := handlers.ProfileController(db)
 		r.GET("/profile", profile.Show)
 		r.PUT("/profile", profile.Update)
+
+		eventRegistrations := handlers.EventRegistrationController(db)
+		r.POST("/event_registrations/:event_id", eventRegistrations.Create)
+		r.DELETE("/event_registrations/:event_id", eventRegistrations.Delete)
 	})
 
 	Group(r, "/admin", func(r *echo.Group) {

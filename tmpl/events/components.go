@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -32,15 +33,27 @@ func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer,
 	)
 }
 
-func EventAttendanceBadge(isFuture bool, l *i18n.Localizer) Node {
-	messageKey := "common.events.attendance_badge.past"
-	if isFuture {
-		messageKey = "common.events.attendance_badge.upcoming"
+func EventAttendanceIcon(going bool, classes ...string) Node {
+	icon := "/assets/circle-check-empty.svg#icon"
+	if going {
+		icon = "/assets/circle-check-solid.svg#icon"
 	}
 
+	return SVG(
+		Class(twmerge.Merge("h-5 w-5 fill-current", twmerge.Merge(classes...))),
+		Attr("viewBox", "0 0 640 640"),
+		El("use",
+			Href(icon),
+		),
+	)
+}
+
+func EventAttendanceBadge(l *i18n.Localizer) Node {
+	messageKey := "common.events.attendance_badge"
+
 	return Span(
-		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-green-900/10 bg-green-100 px-2 py-1 text-sm font-semibold text-green-900"),
-		I(Class("h-4 w-4"), Data("lucide", "user-star")),
+		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-blue-900/10 bg-blue-100 px-2 py-1 text-sm font-semibold text-blue-700"),
+		EventAttendanceIcon(true),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: messageKey,
 		})),
@@ -98,7 +111,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			Div(
 				Class("mb-2 flex items-center gap-2 flex-wrap"),
 				EventLocationBadge(e.IsVirtual, e.Venue, localizer, ctx.Language),
-				If(e.EventRegistration != nil, EventAttendanceBadge(isFuture, localizer)),
+				If(e.EventRegistration != nil, EventAttendanceBadge(localizer)),
 
 				P(
 					Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, tz, ctx.Language)),

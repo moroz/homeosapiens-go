@@ -71,7 +71,7 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 }
 
 const listEventRegistrationsForUserForEvents = `-- name: ListEventRegistrationsForUserForEvents :many
-select er.id, er.event_id, er.user_id, er.attending_in_person, er.is_host, er.inserted_at, er.updated_at, er.given_name_encrypted, er.family_name_encrypted, er.email_encrypted, er.country, er.email_confirmed_at, er.licence_number_encrypted from event_registrations er
+select er.id, er.event_id, er.user_id, er.inserted_at from event_registrations er
 where er.event_id = any($1::uuid[])
 and er.user_id = $2::uuid
 `
@@ -94,16 +94,7 @@ func (q *Queries) ListEventRegistrationsForUserForEvents(ctx context.Context, ar
 			&i.ID,
 			&i.EventID,
 			&i.UserID,
-			&i.AttendingInPerson,
-			&i.IsHost,
 			&i.InsertedAt,
-			&i.UpdatedAt,
-			&i.GivenName,
-			&i.FamilyName,
-			&i.Email,
-			&i.Country,
-			&i.EmailConfirmedAt,
-			&i.LicenceNumber,
 		); err != nil {
 			return nil, err
 		}

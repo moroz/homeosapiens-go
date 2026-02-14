@@ -45,10 +45,7 @@
 				"seminar": "Seminarium",
 				"webinar": "Webinar"
 			},
-			"attendance_badge": {
-				"past": "Wzięto udział",
-				"upcoming": "Bierzesz udział"
-			},
+			"attendance_badge": "Wezmę udział",
 			"participation_cost": "Koszt udziału",
 			"free": "Bezpłatne",
 			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
@@ -73,18 +70,6 @@
 			"no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
 			"invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
 			"sign_in_with_google": "Zaloguj się przez Google"
-		}
-	},
-	"event_registrations": {
-		"new": {
-			"title": "Rejestracja na wydarzenie: {{ .Title }}",
-			"heading": "Rejestracja na wydarzenie",
-			"continue_with_google": "Zarejestruj się przy użyciu konta Google",
-			"form": {
-				"helper_text": {
-					"email": "W następnym kroku wyślemy Państwu wiadomość w celu potwierdzenia adresu e-mail."
-				}
-			}
 		}
 	},
 	"user_registrations": {
