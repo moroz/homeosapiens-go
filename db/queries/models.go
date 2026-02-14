@@ -235,6 +235,22 @@ type Asset struct {
 	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
 }
 
+type Cart struct {
+	ID         pgtype.UUID      `json:"id"`
+	OwnerID    pgtype.UUID      `json:"ownerId"`
+	InsertedAt pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
+}
+
+type CartLineItem struct {
+	ID         pgtype.UUID      `json:"id"`
+	CartID     pgtype.UUID      `json:"cartId"`
+	EventID    pgtype.UUID      `json:"eventId"`
+	Quantity   int32            `json:"quantity"`
+	InsertedAt pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
+}
+
 type Event struct {
 	ID                pgtype.UUID      `json:"id"`
 	TitleEn           string           `json:"titleEn"`
@@ -249,10 +265,16 @@ type Event struct {
 	BasePriceCurrency *string          `json:"basePriceCurrency"`
 	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
-	VenueID           pgtype.UUID      `json:"venueId"`
 	Slug              string           `json:"slug"`
 	SubtitleEn        *string          `json:"subtitleEn"`
 	SubtitlePl        *string          `json:"subtitlePl"`
+	VenueNameEn       *string          `json:"venueNameEn"`
+	VenueNamePl       *string          `json:"venueNamePl"`
+	VenueStreet       *string          `json:"venueStreet"`
+	VenueCityEn       *string          `json:"venueCityEn"`
+	VenueCityPl       *string          `json:"venueCityPl"`
+	VenuePostalCode   *string          `json:"venuePostalCode"`
+	VenueCountryCode  *string          `json:"venueCountryCode"`
 }
 
 type EventPrice struct {
@@ -298,6 +320,30 @@ type Host struct {
 	Country          *string          `json:"country"`
 }
 
+type Order struct {
+	ID           pgtype.UUID      `json:"id"`
+	UserID       pgtype.UUID      `json:"userId"`
+	PaidAt       pgtype.Timestamp `json:"paidAt"`
+	CancelledAt  pgtype.Timestamp `json:"cancelledAt"`
+	DiscountCode *string          `json:"discountCode"`
+	GrandTotal   decimal.Decimal  `json:"grandTotal"`
+	Currency     string           `json:"currency"`
+	InsertedAt   pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt    pgtype.Timestamp `json:"updatedAt"`
+}
+
+type OrderLineItem struct {
+	ID                 pgtype.UUID      `json:"id"`
+	OrderID            pgtype.UUID      `json:"orderId"`
+	EventID            pgtype.UUID      `json:"eventId"`
+	EventTitle         string           `json:"eventTitle"`
+	EventPriceAmount   decimal.Decimal  `json:"eventPriceAmount"`
+	EventPriceCurrency string           `json:"eventPriceCurrency"`
+	Quantity           int32            `json:"quantity"`
+	InsertedAt         pgtype.Timestamp `json:"insertedAt"`
+	UpdatedAt          pgtype.Timestamp `json:"updatedAt"`
+}
+
 type User struct {
 	ID               pgtype.UUID                `json:"id"`
 	Salutation       *string                    `json:"salutation"`
@@ -327,19 +373,6 @@ type UserToken struct {
 	Token      []byte           `json:"token"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
 	ValidUntil pgtype.Timestamp `json:"validUntil"`
-}
-
-type Venue struct {
-	ID          pgtype.UUID      `json:"id"`
-	NameEn      string           `json:"nameEn"`
-	NamePl      *string          `json:"namePl"`
-	Street      string           `json:"street"`
-	CityEn      string           `json:"cityEn"`
-	CityPl      *string          `json:"cityPl"`
-	PostalCode  *string          `json:"postalCode"`
-	CountryCode string           `json:"countryCode"`
-	InsertedAt  pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
 }
 
 type Video struct {

@@ -44,9 +44,13 @@ type CreateEventParams struct {
 	IsVirtual         bool
 	DescriptionEn     string
 	DescriptionPl     *string
-	VenueID           pgtype.UUID
 	BasePriceAmount   *string
 	BasePriceCurrency *string
+	VenueNameEn       *string
+	VenueNamePl       *string
+	VenueCityEn       *string
+	VenueCityPl       *string
+	Venue
 }
 
 type CreateEventHostParams struct {

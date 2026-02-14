@@ -13,7 +13,7 @@ import (
 )
 
 const getEventById = `-- name: GetEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug, subtitle_en, subtitle_pl from events where id = ($1::text)::uuid
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where id = ($1::text)::uuid
 `
 
 func (q *Queries) GetEventById(ctx context.Context, id string) (*Event, error) {
@@ -33,16 +33,22 @@ func (q *Queries) GetEventById(ctx context.Context, id string) (*Event, error) {
 		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
-		&i.VenueID,
 		&i.Slug,
 		&i.SubtitleEn,
 		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
 	)
 	return &i, err
 }
 
 const getEventBySlug = `-- name: GetEventBySlug :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug, subtitle_en, subtitle_pl from events where slug = $1::text
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where slug = $1::text
 `
 
 func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, error) {
@@ -62,10 +68,16 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
-		&i.VenueID,
 		&i.Slug,
 		&i.SubtitleEn,
 		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
 	)
 	return &i, err
 }
@@ -108,10 +120,9 @@ func (q *Queries) ListEventRegistrationsForUserForEvents(ctx context.Context, ar
 
 const listEvents = `-- name: ListEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
-       e.venue_id, e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
-       v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
+       e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
+       e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_country_code
 from events e
-left join venues v on e.venue_id = v.id
 order by e.starts_at desc
 `
 
@@ -123,7 +134,6 @@ type ListEventsRow struct {
 	IsVirtual         bool             `json:"isVirtual"`
 	BasePriceAmount   *decimal.Decimal `json:"basePriceAmount"`
 	BasePriceCurrency *string          `json:"basePriceCurrency"`
-	VenueID           pgtype.UUID      `json:"venueId"`
 	EventType         EventType        `json:"eventType"`
 	StartsAt          pgtype.Timestamp `json:"startsAt"`
 	EndsAt            pgtype.Timestamp `json:"endsAt"`
@@ -152,7 +162,6 @@ func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
 			&i.IsVirtual,
 			&i.BasePriceAmount,
 			&i.BasePriceCurrency,
-			&i.VenueID,
 			&i.EventType,
 			&i.StartsAt,
 			&i.EndsAt,
@@ -255,49 +264,6 @@ func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []pgtype.UUI
 			&i.ValidUntil,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listVenuesForEvents = `-- name: ListVenuesForEvents :many
-select e.id as event_id, v.id, v.name_en, v.name_pl, v.street, v.city_en, v.city_pl, v.postal_code, v.country_code, v.inserted_at, v.updated_at from events e
-join venues v on e.venue_id = v.id
-where e.id = any($1::uuid[])
-`
-
-type ListVenuesForEventsRow struct {
-	EventID pgtype.UUID `json:"eventId"`
-	Venue   Venue       `json:"venue"`
-}
-
-func (q *Queries) ListVenuesForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*ListVenuesForEventsRow, error) {
-	rows, err := q.db.Query(ctx, listVenuesForEvents, eventids)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*ListVenuesForEventsRow
-	for rows.Next() {
-		var i ListVenuesForEventsRow
-		if err := rows.Scan(
-			&i.EventID,
-			&i.Venue.ID,
-			&i.Venue.NameEn,
-			&i.Venue.NamePl,
-			&i.Venue.Street,
-			&i.Venue.CityEn,
-			&i.Venue.CityPl,
-			&i.Venue.PostalCode,
-			&i.Venue.CountryCode,
-			&i.Venue.InsertedAt,
-			&i.Venue.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

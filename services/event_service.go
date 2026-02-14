@@ -25,7 +25,6 @@ type EventListDto struct {
 	Hosts             []*queries.ListHostsForEventsRow
 	Prices            []*queries.EventPrice
 	EventRegistration *queries.EventRegistration
-	Venue             *queries.Venue
 	RegistrationCount int
 }
 
@@ -55,11 +54,6 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 		return nil, err
 	}
 
-	venues, err := s.preloadVenuesForEvents(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-
 	counts, err := s.preloadRegistrationCountsForEvents(ctx, ids)
 	if err != nil {
 		return nil, err
@@ -72,7 +66,6 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 			Hosts:             hosts[event.ID],
 			Prices:            prices[event.ID],
 			EventRegistration: registrations[event.ID],
-			Venue:             venues[event.ID],
 			RegistrationCount: counts[event.ID],
 		})
 	}
@@ -82,7 +75,6 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 
 type EventDetailsDto struct {
 	*queries.Event
-	Venue             *queries.Venue
 	Prices            []*queries.EventPrice
 	Hosts             []*queries.ListHostsForEventsRow
 	EventRegistration *queries.EventRegistration
@@ -110,14 +102,6 @@ func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, u
 func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queries.Event, user *queries.User) (*EventDetailsDto, error) {
 	var dto EventDetailsDto
 	dto.Event = event
-
-	if event.VenueID.Valid {
-		venue, err := queries.New(s.db).GetVenueById(ctx, event.VenueID)
-		if err != nil {
-			return nil, err
-		}
-		dto.Venue = venue
-	}
 
 	prices, err := s.preloadPricesForEvents(ctx, []pgtype.UUID{event.ID})
 	if err != nil {
@@ -193,19 +177,6 @@ func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, e
 		resultMap[row.EventID] = row
 	}
 	return resultMap, nil
-}
-
-func (s *EventService) preloadVenuesForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID]*queries.Venue, error) {
-	venues, err := queries.New(s.db).ListVenuesForEvents(ctx, eventIds)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make(map[pgtype.UUID]*queries.Venue)
-	for _, row := range venues {
-		result[row.EventID] = &row.Venue
-	}
-	return result, nil
 }
 
 func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID]int, error) {

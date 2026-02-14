@@ -6,10 +6,9 @@ select * from events where slug = @slug::text;
 
 -- name: ListEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
-       e.venue_id, e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
-       v.street venue_street, v.city_en venue_city_en, v.city_pl venue_city_pl, v.country_code venue_country_code
+       e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
+       e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_country_code
 from events e
-left join venues v on e.venue_id = v.id
 order by e.starts_at desc;
 
 -- name: ListHostsForEvents :many
@@ -29,8 +28,3 @@ order by p.event_id, p.priority;
 select er.* from event_registrations er
 where er.event_id = any(@EventIDs::uuid[])
 and er.user_id = @UserID::uuid;
-
--- name: ListVenuesForEvents :many
-select e.id as event_id, sqlc.embed(v) from events e
-join venues v on e.venue_id = v.id
-where e.id = any(@EventIDs::uuid[]);

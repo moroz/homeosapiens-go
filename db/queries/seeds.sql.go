@@ -38,25 +38,9 @@ func (q *Queries) UpsertAsset(ctx context.Context, arg *UpsertAssetParams) (*Ass
 }
 
 const upsertEvent = `-- name: UpsertEvent :one
-INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, venue_id, base_price_amount, base_price_currency, subtitle_en, subtitle_pl)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-ON CONFLICT (id) DO UPDATE SET
-    event_type = excluded.event_type,
-    title_en = excluded.title_en,
-    title_pl = excluded.title_pl,
-    subtitle_en = excluded.subtitle_en,
-    subtitle_pl = excluded.subtitle_pl,
-    slug = excluded.slug,
-    starts_at = excluded.starts_at,
-    ends_at = excluded.ends_at,
-    is_virtual = excluded.is_virtual,
-    description_en = excluded.description_en,
-    description_pl = excluded.description_pl,
-    venue_id = excluded.venue_id,
-    base_price_amount = excluded.base_price_amount,
-    base_price_currency = excluded.base_price_currency,
-    updated_at = now()
-returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, venue_id, slug, subtitle_en, subtitle_pl
+INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, base_price_amount, base_price_currency, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code
 `
 
 type UpsertEventParams struct {
@@ -70,11 +54,17 @@ type UpsertEventParams struct {
 	IsVirtual         bool             `json:"isVirtual"`
 	DescriptionEn     string           `json:"descriptionEn"`
 	DescriptionPl     *string          `json:"descriptionPl"`
-	VenueID           pgtype.UUID      `json:"venueId"`
 	BasePriceAmount   *decimal.Decimal `json:"basePriceAmount"`
 	BasePriceCurrency *string          `json:"basePriceCurrency"`
 	SubtitleEn        *string          `json:"subtitleEn"`
 	SubtitlePl        *string          `json:"subtitlePl"`
+	VenueStreet       *string          `json:"venueStreet"`
+	VenueCityEn       *string          `json:"venueCityEn"`
+	VenueCityPl       *string          `json:"venueCityPl"`
+	VenueNameEn       *string          `json:"venueNameEn"`
+	VenueNamePl       *string          `json:"venueNamePl"`
+	VenueCountryCode  *string          `json:"venueCountryCode"`
+	VenuePostalCode   *string          `json:"venuePostalCode"`
 }
 
 func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Event, error) {
@@ -89,11 +79,17 @@ func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Eve
 		arg.IsVirtual,
 		arg.DescriptionEn,
 		arg.DescriptionPl,
-		arg.VenueID,
 		arg.BasePriceAmount,
 		arg.BasePriceCurrency,
 		arg.SubtitleEn,
 		arg.SubtitlePl,
+		arg.VenueStreet,
+		arg.VenueCityEn,
+		arg.VenueCityPl,
+		arg.VenueNameEn,
+		arg.VenueNamePl,
+		arg.VenueCountryCode,
+		arg.VenuePostalCode,
 	)
 	var i Event
 	err := row.Scan(
@@ -110,10 +106,16 @@ func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Eve
 		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
-		&i.VenueID,
 		&i.Slug,
 		&i.SubtitleEn,
 		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
 	)
 	return &i, err
 }
@@ -234,59 +236,6 @@ func (q *Queries) UpsertHost(ctx context.Context, arg *UpsertHostParams) (*Host,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.Country,
-	)
-	return &i, err
-}
-
-const upsertVenue = `-- name: UpsertVenue :one
-INSERT INTO venues (id, name_en, name_pl, street, city_en, city_pl, postal_code, country_code)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-ON CONFLICT (id) DO UPDATE SET
-    name_en = excluded.name_en,
-    name_pl = excluded.name_pl,
-    street = excluded.street,
-    city_en = excluded.city_en,
-    city_pl = excluded.city_pl,
-    postal_code = excluded.postal_code,
-    country_code = excluded.country_code,
-    updated_at = now()
-returning id, name_en, name_pl, street, city_en, city_pl, postal_code, country_code, inserted_at, updated_at
-`
-
-type UpsertVenueParams struct {
-	ID          pgtype.UUID `json:"id"`
-	NameEn      string      `json:"nameEn"`
-	NamePl      *string     `json:"namePl"`
-	Street      string      `json:"street"`
-	CityEn      string      `json:"cityEn"`
-	CityPl      *string     `json:"cityPl"`
-	PostalCode  *string     `json:"postalCode"`
-	CountryCode string      `json:"countryCode"`
-}
-
-func (q *Queries) UpsertVenue(ctx context.Context, arg *UpsertVenueParams) (*Venue, error) {
-	row := q.db.QueryRow(ctx, upsertVenue,
-		arg.ID,
-		arg.NameEn,
-		arg.NamePl,
-		arg.Street,
-		arg.CityEn,
-		arg.CityPl,
-		arg.PostalCode,
-		arg.CountryCode,
-	)
-	var i Venue
-	err := row.Scan(
-		&i.ID,
-		&i.NameEn,
-		&i.NamePl,
-		&i.Street,
-		&i.CityEn,
-		&i.CityPl,
-		&i.PostalCode,
-		&i.CountryCode,
-		&i.InsertedAt,
-		&i.UpdatedAt,
 	)
 	return &i, err
 }

@@ -9,39 +9,9 @@ VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) do nothing
 returning *;
 
--- name: UpsertVenue :one
-INSERT INTO venues (id, name_en, name_pl, street, city_en, city_pl, postal_code, country_code)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-ON CONFLICT (id) DO UPDATE SET
-    name_en = excluded.name_en,
-    name_pl = excluded.name_pl,
-    street = excluded.street,
-    city_en = excluded.city_en,
-    city_pl = excluded.city_pl,
-    postal_code = excluded.postal_code,
-    country_code = excluded.country_code,
-    updated_at = now()
-returning *;
-
 -- name: UpsertEvent :one
-INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, venue_id, base_price_amount, base_price_currency, subtitle_en, subtitle_pl)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-ON CONFLICT (id) DO UPDATE SET
-    event_type = excluded.event_type,
-    title_en = excluded.title_en,
-    title_pl = excluded.title_pl,
-    subtitle_en = excluded.subtitle_en,
-    subtitle_pl = excluded.subtitle_pl,
-    slug = excluded.slug,
-    starts_at = excluded.starts_at,
-    ends_at = excluded.ends_at,
-    is_virtual = excluded.is_virtual,
-    description_en = excluded.description_en,
-    description_pl = excluded.description_pl,
-    venue_id = excluded.venue_id,
-    base_price_amount = excluded.base_price_amount,
-    base_price_currency = excluded.base_price_currency,
-    updated_at = now()
+INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, base_price_amount, base_price_currency, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 returning *;
 
 -- name: UpsertEventHost :one

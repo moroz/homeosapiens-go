@@ -66,7 +66,7 @@ func main() {
 	defer tx.Rollback(context.Background())
 
 	log.Printf("Cleaning database...")
-	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, venues, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, carts, cart_line_items")
+	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, carts, cart_line_items")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -329,7 +329,6 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			IsVirtual:         event.IsVirtual,
 			DescriptionEn:     event.DescriptionEn,
 			DescriptionPl:     event.DescriptionPl,
-			VenueID:           event.VenueID,
 			BasePriceAmount:   MaybeDecimal(event.BasePriceAmount),
 			BasePriceCurrency: event.BasePriceCurrency,
 		}

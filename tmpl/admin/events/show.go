@@ -13,6 +13,28 @@ import (
 func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	title := fmt.Sprintf("Event: %s", event.TitleEn)
 
-	return layout.AdminLayout(ctx, title, Div(
-		Text(title)))
+	return layout.AdminLayout(ctx, title,
+		H2(Class("font-bold text-2xl"), Text(event.TitleEn)),
+		Table(
+			Class("data-table"),
+			TBody(
+				Tr(
+					Th(Scope("row"), Text("Title (EN)")),
+					Td(Text(event.TitleEn)),
+				),
+				Tr(
+					Th(Scope("row"), Text("Title (PL)")),
+					Td(Text(event.TitlePl)),
+				),
+				Tr(
+					Th(Scope("row"), Text("Venue")),
+					Td(Iff(event.VenueID.Valid, func() Node {
+						v := event.Venue
+						address := fmt.Sprintf("%s, %s", v.NameEn, v.CountryCode)
+						return Text(address)
+					})),
+				),
+			),
+		),
+	)
 }

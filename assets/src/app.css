@@ -125,4 +125,17 @@
 			@apply cursor-pointer hover:bg-slate-100;
 		}
 	}
+
+	.data-table {
+		@apply my-4 w-full table-fixed;
+
+		th {
+			width: 150px;
+		}
+
+		th,
+		td {
+			@apply min-h-9 border border-slate-400 px-2 py-1 text-left;
+		}
+	}
 }
