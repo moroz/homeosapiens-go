@@ -99,7 +99,6 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 				),
 			),
 		),
-		EventLocationBadge(event.IsVirtual, event.Venue, l, lang),
 		Div(Class("my-4 flex gap-4 items-center"),
 			If(ctx.User != nil, eventRegistrationButton(l, event)),
 			If(ctx.User == nil, eventRegistrationSignInLink(l, event)),

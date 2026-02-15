@@ -168,51 +168,6 @@ func main() {
 		}
 	}
 
-	venues := []*types.CreateVenueParams{
-		{
-			ID:          MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8d"),
-			NameEn:      "Vienna House Easy By Wyndham Cracow",
-			CityEn:      "Cracow",
-			CityPl:      new("Kraków"),
-			CountryCode: "PL",
-			Street:      "ul. Przy Rondzie 2",
-		},
-		{
-			ID:          MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8e"),
-			NameEn:      "IOR Hotel",
-			NamePl:      new("Hotel IOR"),
-			CityEn:      "Poznań",
-			CountryCode: "PL",
-			Street:      "ul. Węgorka 20",
-			PostalCode:  "60-318",
-		},
-		{
-			ID:          MustParseUUID("019c5c94-7f0b-720e-84f4-22f397f941b5"),
-			NameEn:      "Marina Club Hotel",
-			NamePl:      new("Hotel Marina Club"),
-			CityEn:      "Gdańsk",
-			CountryCode: "PL",
-			Street:      "ul. Szafarnia 10",
-			PostalCode:  "80-753",
-		},
-	}
-	log.Printf("Creating venues...")
-	for _, venue := range venues {
-		params := &queries.UpsertVenueParams{
-			ID:          venue.ID,
-			NameEn:      venue.NameEn,
-			NamePl:      venue.NamePl,
-			Street:      venue.Street,
-			CityEn:      venue.CityEn,
-			CityPl:      venue.CityPl,
-			PostalCode:  &venue.PostalCode,
-			CountryCode: venue.CountryCode,
-		}
-		if _, err := queries.New(db).UpsertVenue(context.Background(), params); err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	events := []*types.CreateEventParams{
 		{
 			ID:                MustParseUUID("019c5c9a-c5a4-7518-8317-65ae90516726"),
@@ -222,7 +177,13 @@ func main() {
 			Slug:              "dr-asher-shaikh-seminar",
 			StartsAt:          MustParseTimestamp("2026-06-05T14:00:00Z"),
 			EndsAt:            MustParseTimestamp("2026-06-06T20:00:00Z"),
-			VenueID:           MustParseUUID("019c5c94-7f0b-720e-84f4-22f397f941b5"),
+			VenueCityEn:       new("Gdańsk"),
+			VenueCityPl:       new("Gdańsk"),
+			VenueNameEn:       new("Marina Club Hotel"),
+			VenueNamePl:       new("Hotel Marina Club"),
+			VenueCountryCode:  new("PL"),
+			VenueStreet:       new("ul. Szafarnia 10"),
+			VenuePostalCode:   new("80-753"),
 			BasePriceAmount:   new("560.00"),
 			BasePriceCurrency: new("PLN"),
 			DescriptionEn:     "We kindly invite you to the Homeo sapiens seminar with Dr Asher Shaikh. During the seminar, Dr Shaikh will present the practical application of German New Medicine (GNM) in clinical homeopathic practice, with particular focus on case-taking, identification of biological conflicts, and remedy selection. The seminar will include both theoretical background and case studies. **More info coming soon!**\n\nThe seminar will take place on **June 5–6, 2026**.\n\nVenue: **Hotel Marina Club**, ul. Szafarnia 10, 80-753 Gdańsk, Poland + **online** (Zoom).\n\nParticipation fee:\n\n*   **EARLY BIRD 480 PLN / 114 EUR** – until Feb 9, 2026\n*   **560 PLN / 135 EUR** – until March 31, 2026\n*   **640 PLN / 152 EUR** – after March 31, 2026\n*   **700 PLN / 170 EUR** – on the day of the seminar\nDiscounted accommodation is available for participants at **Hotel Marina Club** ([https://marinaclubhotel.pl](https://marinaclubhotel.pl)) and **Hostel Szafarnia** ([https://szafarnia10.pl](https://szafarnia10.pl)). Reservations must be made online. Discount code: **Homeopatia** (active after activation in the hotel booking system).\n\n**Dr Asher Shaikh (India)** is a homeopathic doctor with over 30 years of clinical experience. He is the Director of Asher Clinics, a network of 12 clinics in Mumbai, Pune, Dubai, and Nasik. He is a mentor of German New Medicine, which he has taught in Dubai, India, Austria, and Israel. He currently serves as a professor at the Homoeopathic Medical College in Nasik and as the Director of Viveda Resort, an innovative holistic health center. He is the former president of the Indian Institute of Homoeopathic Physicians and specializes in reversing autoimmune disorders.\n\nWebsite: [www.asherclinic.com](http://www.asherclinic.com)  \nInstagram: @asherhomoeopathy, @doctor.ashar\n\nCheck out videos on [our channel](https://www.youtube.com/@Homeosapiens-p7z) featuring Dr. Asher:\n\n*   [_How German New Medicine and Homeopathy Work Together | Dr Asher Shaikh’s Holistic Approach_](https://www.youtube.com/watch?v=K8WJlg_zP38)\n    \n*   [_Dr Asher Shaikh on German New Medicine, infertility and Spongia_](https://www.youtube.com/watch?v=J4NRGCOdme8)\n    \n*   [_Once you hit the bull's-eye… | Kiedy trafisz w dziesiątkę…_](https://www.youtube.com/watch?v=R9l7CSOMRe4)",
@@ -256,7 +217,13 @@ Webinar jest bezpłatny. Odbędzie się na platformie Zoom za pośrednictwem nas
 			EndsAt:            MustParseTimestamp("2025-05-31T08:00:00Z"),
 			IsVirtual:         true,
 			DescriptionEn:     "Dr. Sanjay Modi, former professor of Mumbai Homeopathic College. The webinar is organised in honorary cooperation with the Polish Homeopathic Society and the Polish Society of Homeopathic Doctors and Pharmacists.",
-			VenueID:           MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8e"),
+			VenueStreet:       new("ul. Przy Rondzie 2"),
+			VenuePostalCode:   new("31-547"),
+			VenueCountryCode:  new("PL"),
+			VenueNamePl:       new("Vienna House Easy By Wyndham Kraków"),
+			VenueNameEn:       new("Vienna House Easy By Wyndham Cracow"),
+			VenueCityEn:       new("Cracow"),
+			VenueCityPl:       new("Kraków"),
 			BasePriceAmount:   new("580.00000000"),
 			BasePriceCurrency: new("PLN"),
 			DescriptionPl: new(`Wykładowca Dr. Sanjay Modi, wieloletni wykładowca Mumbai Homeopathic College.
@@ -290,8 +257,14 @@ Seminarium organizowane jest we współpracy z Polskim Towarzystwem Homeopatyczn
 Seminarium będzie również dostępne na żywo on-line na platformie Zoom za pośrednictwem naszej strony internetowej. Wykłady będą prowadzone w języku angielskim z konsekutywnym tłumaczeniem na polski.
 
 Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym terminie przewidujemy opcję udostępnienia nagrania, ale tylko dla zarejestrowanych uczestników.`),
-			VenueID:           MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8d"),
-			BasePriceAmount:   new("640.00000000"),
+			VenueStreet:       new("ul. Węgorka 20"),
+			VenueCityEn:       new("Poznań"),
+			VenueNamePl:       new("Hotel IOR"),
+			VenuePostalCode:   new("60-318"),
+			VenueNameEn:       new("IOR Hotel"),
+			VenueCountryCode:  new("PL"),
+			VenueCityPl:       new("Poznań"),
+			BasePriceAmount:   new("640"),
 			BasePriceCurrency: new("PLN"),
 		},
 		{
@@ -331,6 +304,13 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			DescriptionPl:     event.DescriptionPl,
 			BasePriceAmount:   MaybeDecimal(event.BasePriceAmount),
 			BasePriceCurrency: event.BasePriceCurrency,
+			VenueCountryCode:  event.VenueCountryCode,
+			VenueStreet:       event.VenueStreet,
+			VenueNameEn:       event.VenueNameEn,
+			VenueNamePl:       event.VenueNamePl,
+			VenuePostalCode:   event.VenuePostalCode,
+			VenueCityPl:       event.VenueCityPl,
+			VenueCityEn:       event.VenueCityEn,
 		}
 		if _, err := q.UpsertEvent(context.Background(), params); err != nil {
 			log.Fatal(err)

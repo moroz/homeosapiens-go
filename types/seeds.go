@@ -50,7 +50,9 @@ type CreateEventParams struct {
 	VenueNamePl       *string
 	VenueCityEn       *string
 	VenueCityPl       *string
-	Venue
+	VenueStreet       *string
+	VenuePostalCode   *string
+	VenueCountryCode  *string
 }
 
 type CreateEventHostParams struct {

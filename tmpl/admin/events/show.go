@@ -28,11 +28,10 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 				),
 				Tr(
 					Th(Scope("row"), Text("Venue")),
-					Td(Iff(event.VenueID.Valid, func() Node {
-						v := event.Venue
-						address := fmt.Sprintf("%s, %s", v.NameEn, v.CountryCode)
-						return Text(address)
-					})),
+					Td(Iff(event.VenueNamePl != nil, func() Node {
+						return Text("PL: " + *event.VenueNamePl)
+					}),
+					),
 				),
 			),
 		),

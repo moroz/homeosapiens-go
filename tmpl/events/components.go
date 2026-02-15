@@ -15,21 +15,21 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func EventLocationBadge(isVirtual bool, venue *queries.Venue, l *i18n.Localizer, lang string) Node {
+func EventLocationBadge(e *services.EventListDto, l *i18n.Localizer, lang string) Node {
 	return Span(
 		Class("inline-flex items-center gap-1 justify-self-start rounded-sm border border-gray-700/10 bg-gray-100 px-2 py-1 text-sm font-semibold text-gray-700"),
-		Iff(venue != nil, func() Node {
-			city := venue.CityEn
-			if lang == "pl" && venue.CityPl != nil {
-				city = *venue.CityPl
+		Iff(e.VenueCityEn != nil, func() Node {
+			city := *e.VenueCityEn
+			if lang == "pl" && e.VenueCityPl != nil {
+				city = *e.VenueCityPl
 			}
 
 			return Text(
-				fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(l, venue.CountryCode)),
+				fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(l, *e.VenueCountryCode)),
 			)
 		}),
-		If(isVirtual && venue != nil, Text(" + ")),
-		If(isVirtual, Text("Online")),
+		If(e.IsVirtual && e.VenueCityEn != nil, Text(" + ")),
+		If(e.IsVirtual, Text("Online")),
 	)
 }
 
@@ -110,7 +110,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			Class("flex flex-1 flex-col items-start"),
 			Div(
 				Class("mb-2 flex items-center gap-2 flex-wrap"),
-				EventLocationBadge(e.IsVirtual, e.Venue, localizer, ctx.Language),
+				EventLocationBadge(e, localizer, ctx.Language),
 				If(e.EventRegistration != nil, EventAttendanceBadge(localizer)),
 
 				P(
