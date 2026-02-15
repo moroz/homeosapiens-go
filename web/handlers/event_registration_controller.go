@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -28,9 +29,9 @@ func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 func (cc *eventRegistrationController) Create(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	eventId := c.Param("event_id")
-	if eventId == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Missing required parameter: event_id")
+	eventId, err := uuid.Parse(c.Param("event_id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Missing or invalid required parameter: event_id")
 	}
 
 	event, err := cc.eventService.GetRegisterableEventById(c.Request().Context(), eventId)
@@ -56,9 +57,9 @@ func (cc *eventRegistrationController) Create(c *echo.Context) error {
 func (cc *eventRegistrationController) Delete(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	eventId := c.Param("event_id")
-	if eventId == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Missing required parameter: event_id")
+	eventId, err := uuid.Parse(c.Param("event_id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Missing or invalid required parameter: event_id")
 	}
 
 	event, err := cc.eventService.GetEventById(c.Request().Context(), eventId)

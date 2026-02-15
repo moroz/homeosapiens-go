@@ -8,7 +8,7 @@ package queries
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const countRegistrationsForEvents = `-- name: CountRegistrationsForEvents :many
@@ -18,11 +18,11 @@ group by 1
 `
 
 type CountRegistrationsForEventsRow struct {
-	EventID pgtype.UUID `json:"eventId"`
-	Count   int64       `json:"count"`
+	EventID uuid.UUID `json:"eventId"`
+	Count   int64     `json:"count"`
 }
 
-func (q *Queries) CountRegistrationsForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*CountRegistrationsForEventsRow, error) {
+func (q *Queries) CountRegistrationsForEvents(ctx context.Context, eventids []uuid.UUID) ([]*CountRegistrationsForEventsRow, error) {
 	rows, err := q.db.Query(ctx, countRegistrationsForEvents, eventids)
 	if err != nil {
 		return nil, err
@@ -47,13 +47,13 @@ delete from event_registrations where event_id = $1 and user_id = $2 returning i
 `
 
 type DeleteEventRegistrationParams struct {
-	EventID pgtype.UUID `json:"eventId"`
-	UserID  pgtype.UUID `json:"userId"`
+	EventID uuid.UUID `json:"eventId"`
+	UserID  uuid.UUID `json:"userId"`
 }
 
-func (q *Queries) DeleteEventRegistration(ctx context.Context, arg *DeleteEventRegistrationParams) (pgtype.UUID, error) {
+func (q *Queries) DeleteEventRegistration(ctx context.Context, arg *DeleteEventRegistrationParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, deleteEventRegistration, arg.EventID, arg.UserID)
-	var id pgtype.UUID
+	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
@@ -82,8 +82,8 @@ returning id, event_id, user_id, inserted_at
 `
 
 type InsertEventRegistrationParams struct {
-	EventID pgtype.UUID `json:"eventId"`
-	UserID  pgtype.UUID `json:"userId"`
+	EventID uuid.UUID `json:"eventId"`
+	UserID  uuid.UUID `json:"userId"`
 }
 
 func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventRegistrationParams) (*EventRegistration, error) {

@@ -8,15 +8,16 @@ package queries
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
 const getEventById = `-- name: GetEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where id = ($1::text)::uuid
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where id = $1
 `
 
-func (q *Queries) GetEventById(ctx context.Context, id string) (*Event, error) {
+func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
 	row := q.db.QueryRow(ctx, getEventById, id)
 	var i Event
 	err := row.Scan(
@@ -48,7 +49,7 @@ func (q *Queries) GetEventById(ctx context.Context, id string) (*Event, error) {
 }
 
 const getEventBySlug = `-- name: GetEventBySlug :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where slug = $1::text
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where slug = $1
 `
 
 func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, error) {
@@ -83,10 +84,10 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 }
 
 const getFreeEventById = `-- name: GetFreeEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where (base_price_amount is null or base_price_amount = 0) and id = ($1::text)::uuid
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where (base_price_amount is null or base_price_amount = 0) and id = $1
 `
 
-func (q *Queries) GetFreeEventById(ctx context.Context, id string) (*Event, error) {
+func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
 	row := q.db.QueryRow(ctx, getFreeEventById, id)
 	var i Event
 	err := row.Scan(
@@ -118,10 +119,10 @@ func (q *Queries) GetFreeEventById(ctx context.Context, id string) (*Event, erro
 }
 
 const getPaidEventById = `-- name: GetPaidEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where base_price_amount is not null and base_price_amount > 0 and id = ($1::text)::uuid
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where base_price_amount is not null and base_price_amount > 0 and id = $1
 `
 
-func (q *Queries) GetPaidEventById(ctx context.Context, id string) (*Event, error) {
+func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
 	row := q.db.QueryRow(ctx, getPaidEventById, id)
 	var i Event
 	err := row.Scan(
@@ -159,8 +160,8 @@ and er.user_id = $2::uuid
 `
 
 type ListEventRegistrationsForUserForEventsParams struct {
-	Eventids []pgtype.UUID `json:"eventids"`
-	Userid   pgtype.UUID   `json:"userid"`
+	Eventids []uuid.UUID `json:"eventids"`
+	Userid   uuid.UUID   `json:"userid"`
 }
 
 func (q *Queries) ListEventRegistrationsForUserForEvents(ctx context.Context, arg *ListEventRegistrationsForUserForEventsParams) ([]*EventRegistration, error) {
@@ -197,7 +198,7 @@ order by e.starts_at desc
 `
 
 type ListEventsRow struct {
-	ID                pgtype.UUID      `json:"id"`
+	ID                uuid.UUID        `json:"id"`
 	Slug              string           `json:"slug"`
 	TitleEn           string           `json:"titleEn"`
 	TitlePl           string           `json:"titlePl"`
@@ -262,19 +263,19 @@ order by eh.host_id, eh.position
 `
 
 type ListHostsForEventsRow struct {
-	EventID           pgtype.UUID      `json:"eventId"`
-	ID                pgtype.UUID      `json:"id"`
+	EventID           uuid.UUID        `json:"eventId"`
+	ID                uuid.UUID        `json:"id"`
 	Salutation        *string          `json:"salutation"`
 	GivenName         string           `json:"givenName"`
 	FamilyName        string           `json:"familyName"`
-	ProfilePictureID  pgtype.UUID      `json:"profilePictureId"`
+	ProfilePictureID  *uuid.UUID       `json:"profilePictureId"`
 	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
 	Country           *string          `json:"country"`
 	ProfilePictureUrl *string          `json:"profilePictureUrl"`
 }
 
-func (q *Queries) ListHostsForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*ListHostsForEventsRow, error) {
+func (q *Queries) ListHostsForEvents(ctx context.Context, eventids []uuid.UUID) ([]*ListHostsForEventsRow, error) {
 	rows, err := q.db.Query(ctx, listHostsForEvents, eventids)
 	if err != nil {
 		return nil, err
@@ -311,7 +312,7 @@ where p.event_id = any($1::uuid[])
 order by p.event_id, p.priority
 `
 
-func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []pgtype.UUID) ([]*EventPrice, error) {
+func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []uuid.UUID) ([]*EventPrice, error) {
 	rows, err := q.db.Query(ctx, listPricesForEvents, eventids)
 	if err != nil {
 		return nil, err

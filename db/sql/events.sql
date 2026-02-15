@@ -1,8 +1,8 @@
 -- name: GetEventById :one
-select * from events where id = (@id::text)::uuid;
+select * from events where id = $1;
 
 -- name: GetEventBySlug :one
-select * from events where slug = @slug::text;
+select * from events where slug = $1;
 
 -- name: ListEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
@@ -30,7 +30,7 @@ where er.event_id = any(@EventIDs::uuid[])
 and er.user_id = @UserID::uuid;
 
 -- name: GetFreeEventById :one
-select * from events where (base_price_amount is null or base_price_amount = 0) and id = (@id::text)::uuid;
+select * from events where (base_price_amount is null or base_price_amount = 0) and id = $1;
 
 -- name: GetPaidEventById :one
-select * from events where base_price_amount is not null and base_price_amount > 0 and id = (@id::text)::uuid;
+select * from events where base_price_amount is not null and base_price_amount > 0 and id = $1;

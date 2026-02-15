@@ -8,7 +8,7 @@ package queries
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const listPublicVideos = `-- name: ListPublicVideos :many
@@ -53,7 +53,7 @@ where vs.video_id = any($1::uuid[])
 order by vs.video_id, vs.id
 `
 
-func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoids []pgtype.UUID) ([]*VideoSource, error) {
+func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoids []uuid.UUID) ([]*VideoSource, error) {
 	rows, err := q.db.Query(ctx, listVideoSourcesForVideos, videoids)
 	if err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ where v.is_public = true
    or exists (select 1 from users u where u.id = $1::uuid and u.user_role = 'Administrator')
 `
 
-func (q *Queries) ListVideosForUser(ctx context.Context, userid pgtype.UUID) ([]*Video, error) {
+func (q *Queries) ListVideosForUser(ctx context.Context, userid uuid.UUID) ([]*Video, error) {
 	rows, err := q.db.Query(ctx, listVideosForUser, userid)
 	if err != nil {
 		return nil, err

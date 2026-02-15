@@ -10,6 +10,7 @@ import (
 	"net/netip"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
@@ -228,7 +229,7 @@ func (ns NullVideoProvider) Value() (driver.Value, error) {
 }
 
 type Asset struct {
-	ID               pgtype.UUID      `json:"id"`
+	ID               uuid.UUID        `json:"id"`
 	ObjectKey        string           `json:"objectKey"`
 	OriginalFilename *string          `json:"originalFilename"`
 	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
@@ -236,23 +237,23 @@ type Asset struct {
 }
 
 type Cart struct {
-	ID         pgtype.UUID      `json:"id"`
-	OwnerID    pgtype.UUID      `json:"ownerId"`
+	ID         uuid.UUID        `json:"id"`
+	OwnerID    *uuid.UUID       `json:"ownerId"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
 }
 
 type CartLineItem struct {
-	ID         pgtype.UUID      `json:"id"`
-	CartID     pgtype.UUID      `json:"cartId"`
-	EventID    pgtype.UUID      `json:"eventId"`
+	ID         uuid.UUID        `json:"id"`
+	CartID     uuid.UUID        `json:"cartId"`
+	EventID    uuid.UUID        `json:"eventId"`
 	Quantity   int32            `json:"quantity"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
 }
 
 type Event struct {
-	ID                pgtype.UUID      `json:"id"`
+	ID                uuid.UUID        `json:"id"`
 	TitleEn           string           `json:"titleEn"`
 	TitlePl           string           `json:"titlePl"`
 	StartsAt          pgtype.Timestamp `json:"startsAt"`
@@ -278,8 +279,8 @@ type Event struct {
 }
 
 type EventPrice struct {
-	ID            pgtype.UUID      `json:"id"`
-	EventID       pgtype.UUID      `json:"eventId"`
+	ID            uuid.UUID        `json:"id"`
+	EventID       uuid.UUID        `json:"eventId"`
 	PriceType     PriceType        `json:"priceType"`
 	RuleType      PriceRuleType    `json:"ruleType"`
 	PriceAmount   decimal.Decimal  `json:"priceAmount"`
@@ -294,35 +295,35 @@ type EventPrice struct {
 }
 
 type EventRegistration struct {
-	ID         pgtype.UUID      `json:"id"`
-	EventID    pgtype.UUID      `json:"eventId"`
-	UserID     pgtype.UUID      `json:"userId"`
+	ID         uuid.UUID        `json:"id"`
+	EventID    uuid.UUID        `json:"eventId"`
+	UserID     uuid.UUID        `json:"userId"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
 }
 
 type EventsHost struct {
-	ID         pgtype.UUID      `json:"id"`
-	EventID    pgtype.UUID      `json:"eventId"`
-	HostID     pgtype.UUID      `json:"hostId"`
+	ID         uuid.UUID        `json:"id"`
+	EventID    uuid.UUID        `json:"eventId"`
+	HostID     uuid.UUID        `json:"hostId"`
 	Position   int32            `json:"position"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
 }
 
 type Host struct {
-	ID               pgtype.UUID      `json:"id"`
+	ID               uuid.UUID        `json:"id"`
 	Salutation       *string          `json:"salutation"`
 	GivenName        string           `json:"givenName"`
 	FamilyName       string           `json:"familyName"`
-	ProfilePictureID pgtype.UUID      `json:"profilePictureId"`
+	ProfilePictureID *uuid.UUID       `json:"profilePictureId"`
 	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
 	Country          *string          `json:"country"`
 }
 
 type Order struct {
-	ID           pgtype.UUID      `json:"id"`
-	UserID       pgtype.UUID      `json:"userId"`
+	ID           uuid.UUID        `json:"id"`
+	UserID       uuid.UUID        `json:"userId"`
 	PaidAt       pgtype.Timestamp `json:"paidAt"`
 	CancelledAt  pgtype.Timestamp `json:"cancelledAt"`
 	DiscountCode *string          `json:"discountCode"`
@@ -333,9 +334,9 @@ type Order struct {
 }
 
 type OrderLineItem struct {
-	ID                 pgtype.UUID      `json:"id"`
-	OrderID            pgtype.UUID      `json:"orderId"`
-	EventID            pgtype.UUID      `json:"eventId"`
+	ID                 uuid.UUID        `json:"id"`
+	OrderID            uuid.UUID        `json:"orderId"`
+	EventID            uuid.UUID        `json:"eventId"`
 	EventTitle         string           `json:"eventTitle"`
 	EventPriceAmount   decimal.Decimal  `json:"eventPriceAmount"`
 	EventPriceCurrency string           `json:"eventPriceCurrency"`
@@ -345,7 +346,7 @@ type OrderLineItem struct {
 }
 
 type User struct {
-	ID               pgtype.UUID                `json:"id"`
+	ID               uuid.UUID                  `json:"id"`
 	Salutation       *string                    `json:"salutation"`
 	Country          *string                    `json:"country"`
 	Profession       *string                    `json:"profession"`
@@ -367,8 +368,8 @@ type User struct {
 }
 
 type UserToken struct {
-	ID         pgtype.UUID      `json:"id"`
-	UserID     pgtype.UUID      `json:"userId"`
+	ID         uuid.UUID        `json:"id"`
+	UserID     uuid.UUID        `json:"userId"`
 	Context    string           `json:"context"`
 	Token      []byte           `json:"token"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
@@ -376,7 +377,7 @@ type UserToken struct {
 }
 
 type Video struct {
-	ID         pgtype.UUID      `json:"id"`
+	ID         uuid.UUID        `json:"id"`
 	Provider   VideoProvider    `json:"provider"`
 	IsPublic   bool             `json:"isPublic"`
 	TitleEn    string           `json:"titleEn"`
@@ -384,14 +385,14 @@ type Video struct {
 	Slug       string           `json:"slug"`
 	InsertedAt pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
-	EventID    pgtype.UUID      `json:"eventId"`
+	EventID    uuid.UUID        `json:"eventId"`
 }
 
 type VideoSource struct {
-	ID          pgtype.UUID      `json:"id"`
+	ID          uuid.UUID        `json:"id"`
 	ContentType string           `json:"contentType"`
 	Codec       *string          `json:"codec"`
-	VideoID     pgtype.UUID      `json:"videoId"`
+	VideoID     uuid.UUID        `json:"videoId"`
 	ObjectKey   string           `json:"objectKey"`
 	InsertedAt  pgtype.Timestamp `json:"insertedAt"`
 	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`

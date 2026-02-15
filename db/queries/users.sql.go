@@ -10,6 +10,7 @@ import (
 	"net/netip"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -200,7 +201,7 @@ insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $
 `
 
 type InsertUserTokenParams struct {
-	UserID     pgtype.UUID      `json:"userId"`
+	UserID     uuid.UUID        `json:"userId"`
 	Context    string           `json:"context"`
 	Token      []byte           `json:"token"`
 	ValidUntil pgtype.Timestamp `json:"validUntil"`
@@ -276,7 +277,7 @@ where id = $2
 
 type SetUserLastLoginParams struct {
 	LastLoginIp *netip.Addr `json:"lastLoginIp"`
-	ID          pgtype.UUID `json:"id"`
+	ID          uuid.UUID   `json:"id"`
 }
 
 func (q *Queries) SetUserLastLogin(ctx context.Context, arg *SetUserLastLoginParams) error {
@@ -296,7 +297,7 @@ type UpdateUserProfileParams struct {
 	Profession    *string                    `json:"profession"`
 	LicenceNumber *sqlcrypter.EncryptedBytes `json:"licenceNumberEncrypted"`
 	Country       *string                    `json:"country"`
-	ID            pgtype.UUID                `json:"id"`
+	ID            uuid.UUID                  `json:"id"`
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileParams) (*User, error) {

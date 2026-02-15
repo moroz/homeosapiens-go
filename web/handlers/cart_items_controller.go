@@ -1,21 +1,53 @@
 package handlers
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"fmt"
+	"net/http"
+
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/helpers"
 )
 
 type cartItemsController struct {
-	cartService *services.CartService
+	cartService  *services.CartService
+	eventService *services.EventService
+}
+
+func CartItemsController(db queries.DBTX) *cartItemsController {
+	return &cartItemsController{
+		cartService:  services.NewCartItemService(db),
+		eventService: services.NewEventService(db),
+	}
 }
 
 type createLineItemParams struct {
-	EventId pgtype.UUID `form:"event_id"`
+	EventId uuid.UUID `form:"event_id"`
 }
 
 func (cc *cartItemsController) Create(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
+	var params createLineItemParams
+	if err := c.Bind(&params); err != nil {
+		return err
+	}
 
+	event, err := cc.eventService.GetPaidEventById(c.Request().Context(), params.EventId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	cartId := new(uuid.UUID)
+	if ctx.Cart != nil {
+		cartId = &ctx.Cart.ID
+	}
+
+	_, err = cc.cartService.AddEventToCart(c.Request().Context(), cartId, ctx.User, params.EventId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
 }

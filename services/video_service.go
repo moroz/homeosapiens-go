@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
 
@@ -33,7 +33,7 @@ func (s *VideoService) ListVideosWithSources(ctx context.Context, user *queries.
 		return nil, err
 	}
 
-	var ids []pgtype.UUID
+	var ids []uuid.UUID
 	for _, v := range videos {
 		ids = append(ids, v.ID)
 	}
@@ -54,13 +54,13 @@ func (s *VideoService) ListVideosWithSources(ctx context.Context, user *queries.
 	return result, nil
 }
 
-func (s *VideoService) preloadSourcesForVideos(ctx context.Context, ids []pgtype.UUID) (map[pgtype.UUID][]*queries.VideoSource, error) {
+func (s *VideoService) preloadSourcesForVideos(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID][]*queries.VideoSource, error) {
 	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
-	var result = make(map[pgtype.UUID][]*queries.VideoSource)
+	var result = make(map[uuid.UUID][]*queries.VideoSource)
 	for _, row := range sources {
 		result[row.VideoID] = append(result[row.VideoID], row)
 	}

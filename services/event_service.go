@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
 
@@ -16,12 +16,16 @@ func NewEventService(db queries.DBTX) *EventService {
 	return &EventService{db}
 }
 
-func (s *EventService) GetEventById(ctx context.Context, id string) (*queries.Event, error) {
+func (s *EventService) GetEventById(ctx context.Context, id uuid.UUID) (*queries.Event, error) {
 	return queries.New(s.db).GetEventById(ctx, id)
 }
 
-func (s *EventService) GetRegisterableEventById(ctx context.Context, id string) (*queries.Event, error) {
+func (s *EventService) GetRegisterableEventById(ctx context.Context, id uuid.UUID) (*queries.Event, error) {
 	return queries.New(s.db).GetFreeEventById(ctx, id)
+}
+
+func (s *EventService) GetPaidEventById(ctx context.Context, id uuid.UUID) (*queries.Event, error) {
+	return queries.New(s.db).GetPaidEventById(ctx, id)
 }
 
 type EventListDto struct {
@@ -38,7 +42,7 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 		return nil, err
 	}
 
-	var ids []pgtype.UUID
+	var ids []uuid.UUID
 	for _, event := range events {
 		ids = append(ids, event.ID)
 	}
@@ -85,7 +89,7 @@ type EventDetailsDto struct {
 	RegistrationCount int
 }
 
-func (s *EventService) GetEventDetailsById(ctx context.Context, eventId string, user *queries.User) (*EventDetailsDto, error) {
+func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUID, user *queries.User) (*EventDetailsDto, error) {
 	event, err := queries.New(s.db).GetEventById(ctx, eventId)
 	if err != nil {
 		return nil, err
@@ -107,25 +111,25 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 	var dto EventDetailsDto
 	dto.Event = event
 
-	prices, err := s.preloadPricesForEvents(ctx, []pgtype.UUID{event.ID})
+	prices, err := s.preloadPricesForEvents(ctx, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Prices = prices[event.ID]
 
-	hosts, err := s.preloadHostsForEvents(ctx, []pgtype.UUID{event.ID})
+	hosts, err := s.preloadHostsForEvents(ctx, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Hosts = hosts[event.ID]
 
-	registrations, err := s.preloadEventRegistrationsForEvents(ctx, []pgtype.UUID{event.ID}, user)
+	registrations, err := s.preloadEventRegistrationsForEvents(ctx, []uuid.UUID{event.ID}, user)
 	if err != nil {
 		return nil, err
 	}
 	dto.EventRegistration = registrations[event.ID]
 
-	counts, err := s.preloadRegistrationCountsForEvents(ctx, []pgtype.UUID{event.ID})
+	counts, err := s.preloadRegistrationCountsForEvents(ctx, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
@@ -135,13 +139,13 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 
 }
 
-func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID][]*queries.ListHostsForEventsRow, error) {
+func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.ListHostsForEventsRow, error) {
 	hosts, err := queries.New(s.db).ListHostsForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
 
-	hostMap := make(map[pgtype.UUID][]*queries.ListHostsForEventsRow)
+	hostMap := make(map[uuid.UUID][]*queries.ListHostsForEventsRow)
 	for _, row := range hosts {
 		hostMap[row.EventID] = append(hostMap[row.EventID], row)
 	}
@@ -149,13 +153,13 @@ func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []pgt
 	return hostMap, nil
 }
 
-func (s *EventService) preloadPricesForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID][]*queries.EventPrice, error) {
+func (s *EventService) preloadPricesForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.EventPrice, error) {
 	prices, err := queries.New(s.db).ListPricesForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
 
-	priceMap := make(map[pgtype.UUID][]*queries.EventPrice)
+	priceMap := make(map[uuid.UUID][]*queries.EventPrice)
 	for _, row := range prices {
 		priceMap[row.EventID] = append(priceMap[row.EventID], row)
 	}
@@ -163,8 +167,8 @@ func (s *EventService) preloadPricesForEvents(ctx context.Context, eventIds []pg
 	return priceMap, nil
 }
 
-func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, eventIds []pgtype.UUID, user *queries.User) (map[pgtype.UUID]*queries.EventRegistration, error) {
-	resultMap := make(map[pgtype.UUID]*queries.EventRegistration)
+func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, eventIds []uuid.UUID, user *queries.User) (map[uuid.UUID]*queries.EventRegistration, error) {
+	resultMap := make(map[uuid.UUID]*queries.EventRegistration)
 
 	if user == nil {
 		return resultMap, nil
@@ -183,13 +187,13 @@ func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, e
 	return resultMap, nil
 }
 
-func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, eventIds []pgtype.UUID) (map[pgtype.UUID]int, error) {
+func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID]int, error) {
 	counts, err := queries.New(s.db).CountRegistrationsForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make(map[pgtype.UUID]int)
+	result := make(map[uuid.UUID]int)
 	for _, row := range counts {
 		result[row.EventID] = int(row.Count)
 	}

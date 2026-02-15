@@ -8,7 +8,7 @@ package queries
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const getCart = `-- name: GetCart :one
@@ -21,9 +21,9 @@ group by 1
 `
 
 type GetCartRow struct {
-	ID    pgtype.UUID `json:"id"`
-	Count int64       `json:"count"`
-	Sum   int64       `json:"sum"`
+	ID    uuid.UUID `json:"id"`
+	Count int64     `json:"count"`
+	Sum   int64     `json:"sum"`
 }
 
 func (q *Queries) GetCart(ctx context.Context, cartID string) (*GetCartRow, error) {
@@ -37,7 +37,7 @@ const insertCart = `-- name: InsertCart :one
 insert into carts (owner_id) values ($1) returning id, owner_id, inserted_at, updated_at
 `
 
-func (q *Queries) InsertCart(ctx context.Context, ownerID pgtype.UUID) (*Cart, error) {
+func (q *Queries) InsertCart(ctx context.Context, ownerID *uuid.UUID) (*Cart, error) {
 	row := q.db.QueryRow(ctx, insertCart, ownerID)
 	var i Cart
 	err := row.Scan(
@@ -54,8 +54,8 @@ insert into cart_line_items (cart_id, event_id) values ($1, $2) on conflict (car
 `
 
 type InsertCartLineItemParams struct {
-	CartID  pgtype.UUID `json:"cartId"`
-	EventID pgtype.UUID `json:"eventId"`
+	CartID  uuid.UUID `json:"cartId"`
+	EventID uuid.UUID `json:"eventId"`
 }
 
 func (q *Queries) InsertCartLineItem(ctx context.Context, arg *InsertCartLineItemParams) (*CartLineItem, error) {

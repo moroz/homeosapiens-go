@@ -9,7 +9,7 @@ import (
 
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
@@ -112,7 +112,7 @@ func (s *UserService) ListUsers(ctx context.Context) ([]*queries.User, error) {
 	return queries.New(s.db).ListUsers(ctx)
 }
 
-func (s *UserService) SetUserLastLogin(ctx context.Context, ipAddr string, userId pgtype.UUID) error {
+func (s *UserService) SetUserLastLogin(ctx context.Context, ipAddr string, userId uuid.UUID) error {
 	parsed, err := netip.ParseAddr(ipAddr)
 	if err != nil {
 		return err

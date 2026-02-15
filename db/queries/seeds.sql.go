@@ -8,6 +8,7 @@ package queries
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
@@ -19,9 +20,9 @@ returning id, object_key, original_filename, inserted_at, updated_at
 `
 
 type UpsertAssetParams struct {
-	ID               pgtype.UUID `json:"id"`
-	ObjectKey        string      `json:"objectKey"`
-	OriginalFilename *string     `json:"originalFilename"`
+	ID               uuid.UUID `json:"id"`
+	ObjectKey        string    `json:"objectKey"`
+	OriginalFilename *string   `json:"originalFilename"`
 }
 
 func (q *Queries) UpsertAsset(ctx context.Context, arg *UpsertAssetParams) (*Asset, error) {
@@ -44,7 +45,7 @@ returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en
 `
 
 type UpsertEventParams struct {
-	ID                pgtype.UUID      `json:"id"`
+	ID                uuid.UUID        `json:"id"`
 	EventType         EventType        `json:"eventType"`
 	TitleEn           string           `json:"titleEn"`
 	TitlePl           string           `json:"titlePl"`
@@ -130,9 +131,9 @@ returning id, event_id, host_id, position, inserted_at, updated_at
 `
 
 type UpsertEventHostParams struct {
-	EventID  pgtype.UUID `json:"eventId"`
-	HostID   pgtype.UUID `json:"hostId"`
-	Position int32       `json:"position"`
+	EventID  uuid.UUID `json:"eventId"`
+	HostID   uuid.UUID `json:"hostId"`
+	Position int32     `json:"position"`
 }
 
 func (q *Queries) UpsertEventHost(ctx context.Context, arg *UpsertEventHostParams) (*EventsHost, error) {
@@ -157,7 +158,7 @@ returning id, event_id, price_type, rule_type, price_amount, price_currency, dis
 `
 
 type UpsertEventPriceParams struct {
-	EventID       pgtype.UUID      `json:"eventId"`
+	EventID       uuid.UUID        `json:"eventId"`
 	PriceType     PriceType        `json:"priceType"`
 	RuleType      PriceRuleType    `json:"ruleType"`
 	PriceAmount   decimal.Decimal  `json:"priceAmount"`
@@ -209,12 +210,12 @@ returning id, salutation, given_name, family_name, profile_picture_id, inserted_
 `
 
 type UpsertHostParams struct {
-	ID               pgtype.UUID `json:"id"`
-	Salutation       *string     `json:"salutation"`
-	GivenName        string      `json:"givenName"`
-	FamilyName       string      `json:"familyName"`
-	ProfilePictureID pgtype.UUID `json:"profilePictureId"`
-	Country          *string     `json:"country"`
+	ID               uuid.UUID  `json:"id"`
+	Salutation       *string    `json:"salutation"`
+	GivenName        string     `json:"givenName"`
+	FamilyName       string     `json:"familyName"`
+	ProfilePictureID *uuid.UUID `json:"profilePictureId"`
+	Country          *string    `json:"country"`
 }
 
 func (q *Queries) UpsertHost(ctx context.Context, arg *UpsertHostParams) (*Host, error) {
@@ -255,8 +256,8 @@ returning id, provider, is_public, title_en, title_pl, slug, inserted_at, update
 `
 
 type UpsertVideoParams struct {
-	ID       pgtype.UUID   `json:"id"`
-	EventID  pgtype.UUID   `json:"eventId"`
+	ID       uuid.UUID     `json:"id"`
+	EventID  uuid.UUID     `json:"eventId"`
 	Provider VideoProvider `json:"provider"`
 	TitleEn  string        `json:"titleEn"`
 	TitlePl  string        `json:"titlePl"`
@@ -302,11 +303,11 @@ returning id, content_type, codec, video_id, object_key, inserted_at, updated_at
 `
 
 type UpsertVideoSourceParams struct {
-	ID          pgtype.UUID `json:"id"`
-	VideoID     pgtype.UUID `json:"videoId"`
-	ContentType string      `json:"contentType"`
-	Codec       *string     `json:"codec"`
-	ObjectKey   string      `json:"objectKey"`
+	ID          uuid.UUID `json:"id"`
+	VideoID     uuid.UUID `json:"videoId"`
+	ContentType string    `json:"contentType"`
+	Codec       *string   `json:"codec"`
+	ObjectKey   string    `json:"objectKey"`
 }
 
 func (q *Queries) UpsertVideoSource(ctx context.Context, arg *UpsertVideoSourceParams) (*VideoSource, error) {
