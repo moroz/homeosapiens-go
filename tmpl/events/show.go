@@ -55,8 +55,13 @@ func eventRegistrationButton(l *i18n.Localizer, event *services.EventDetailsDto)
 
 func addToCartButton(l *i18n.Localizer, event *queries.Event) Node {
 	return Form(
-		Action(fmt.Sprintf("/cart_line_items/%s", event.ID)),
+		Action("/cart_items"),
 		Method("POST"),
+		Input(Type("hidden"), Name("event_id"), Value(event.ID.String())),
+		Button(
+			Class("button"),
+			Text("Add to cart"),
+		),
 	)
 }
 
@@ -107,6 +112,8 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 		Div(Class("my-4 flex gap-4 items-center"),
 			If(isFree && event.EventRegistration == nil, eventRegistrationSignInLink(l, event)),
 			If(isFree && event.EventRegistration != nil, eventRegistrationButton(l, event)),
+			If(!isFree && event.CountInCart == 0, addToCartButton(ctx.Localizer, event.Event)),
+			If(!isFree && event.CountInCart > 0, A(Href("/cart"), Text("View cart"))),
 			If(
 				event.RegistrationCount > 0,
 				Text(l.MustLocalize(&i18n.LocalizeConfig{

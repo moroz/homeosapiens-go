@@ -19,7 +19,8 @@
 		"user_dropdown": {
 			"sign_out": "Sign out",
 			"profile": "Profile"
-		}
+		},
+		"cart": "View cart"
 	},
 	"locale_switcher": {
 		"switch_to": "Przełącz na język polski"

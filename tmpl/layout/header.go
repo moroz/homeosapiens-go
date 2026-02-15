@@ -1,6 +1,7 @@
 package layout
 
 import (
+	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
@@ -47,6 +48,15 @@ func desktopNav(ctx *types.CustomContext) Node {
 		),
 		Div(
 			Class("z-20 flex items-center gap-1 mobile:hidden"),
+			Iff(ctx.Cart != nil, func() Node {
+				return A(Href("/cart"), Class("button tertiary z-20 gap-1"),
+					Title(l.MustLocalizeMessage(&i18n.Message{
+						ID: "header.cart",
+					})),
+					SVG(Class("fill-current h-5 w-5"), Attr("viewBox", "0 0 576 512"), El("use", Href("/assets/basket.svg#icon"))),
+					Text(helpers.FormatPrice(ctx.Cart.ProductTotal, "PLN", ctx.Language)),
+				)
+			}),
 			LanguageSwitcher(ctx),
 			If(ctx.User == nil, A(Href("/sign-in"), Class("button secondary z-20"), Text(l.MustLocalizeMessage(&i18n.Message{
 				ID: "header.nav.sign_in",

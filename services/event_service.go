@@ -34,9 +34,10 @@ type EventListDto struct {
 	Prices            []*queries.EventPrice
 	EventRegistration *queries.EventRegistration
 	RegistrationCount int
+	CountInCart       int
 }
 
-func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*EventListDto, error) {
+func (s *EventService) ListEvents(ctx context.Context, user *queries.User, cartId *uuid.UUID) ([]*EventListDto, error) {
 	events, err := queries.New(s.db).ListEvents(ctx)
 	if err != nil {
 		return nil, err
@@ -62,7 +63,12 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 		return nil, err
 	}
 
-	counts, err := s.preloadRegistrationCountsForEvents(ctx, ids)
+	regCounts, err := s.preloadRegistrationCountsForEvents(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, cartId, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +80,8 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User) ([]*E
 			Hosts:             hosts[event.ID],
 			Prices:            prices[event.ID],
 			EventRegistration: registrations[event.ID],
-			RegistrationCount: counts[event.ID],
+			RegistrationCount: regCounts[event.ID],
+			CountInCart:       cartCounts[event.ID],
 		})
 	}
 
@@ -87,6 +94,7 @@ type EventDetailsDto struct {
 	Hosts             []*queries.ListHostsForEventsRow
 	EventRegistration *queries.EventRegistration
 	RegistrationCount int
+	CountInCart       int
 }
 
 func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUID, user *queries.User) (*EventDetailsDto, error) {
@@ -95,19 +103,19 @@ func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUI
 		return nil, err
 	}
 
-	return s.GetEventDetailsForEvent(ctx, event, user)
+	return s.GetEventDetailsForEvent(ctx, event, user, nil)
 }
 
-func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, user *queries.User) (*EventDetailsDto, error) {
+func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, user *queries.User, cartId *uuid.UUID) (*EventDetailsDto, error) {
 	event, err := queries.New(s.db).GetEventBySlug(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.GetEventDetailsForEvent(ctx, event, user)
+	return s.GetEventDetailsForEvent(ctx, event, user, cartId)
 }
 
-func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queries.Event, user *queries.User) (*EventDetailsDto, error) {
+func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queries.Event, user *queries.User, cartId *uuid.UUID) (*EventDetailsDto, error) {
 	var dto EventDetailsDto
 	dto.Event = event
 
@@ -134,6 +142,14 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 		return nil, err
 	}
 	dto.RegistrationCount = counts[event.ID]
+
+	if cartId != nil {
+		cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, cartId, []uuid.UUID{event.ID})
+		if err != nil {
+			return nil, err
+		}
+		dto.CountInCart = cartCounts[event.ID]
+	}
 
 	return &dto, nil
 
@@ -196,6 +212,26 @@ func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, e
 	result := make(map[uuid.UUID]int)
 	for _, row := range counts {
 		result[row.EventID] = int(row.Count)
+	}
+	return result, nil
+}
+
+func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartId *uuid.UUID, eventIds []uuid.UUID) (map[uuid.UUID]int, error) {
+	result := make(map[uuid.UUID]int)
+	if cartId == nil {
+		return result, nil
+	}
+
+	counts, err := queries.New(s.db).CountCartLineItemQuantitiesForEvents(ctx, &queries.CountCartLineItemQuantitiesForEventsParams{
+		EventIds: eventIds,
+		CartID:   *cartId,
+	})
+	if err != nil {
+		return result, nil
+	}
+
+	for _, row := range counts {
+		result[row.EventID] = int(row.Quantity)
 	}
 	return result, nil
 }

@@ -9,32 +9,86 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
+const countCartLineItemQuantitiesForEvents = `-- name: CountCartLineItemQuantitiesForEvents :many
+select c.event_id, c.quantity
+from cart_line_items c
+where c.event_id = any($1::uuid[]) and c.cart_id = $2::uuid
+`
+
+type CountCartLineItemQuantitiesForEventsParams struct {
+	EventIds []uuid.UUID `json:"eventIds"`
+	CartID   uuid.UUID   `json:"cartId"`
+}
+
+type CountCartLineItemQuantitiesForEventsRow struct {
+	EventID  uuid.UUID `json:"eventId"`
+	Quantity int32     `json:"quantity"`
+}
+
+func (q *Queries) CountCartLineItemQuantitiesForEvents(ctx context.Context, arg *CountCartLineItemQuantitiesForEventsParams) ([]*CountCartLineItemQuantitiesForEventsRow, error) {
+	rows, err := q.db.Query(ctx, countCartLineItemQuantitiesForEvents, arg.EventIds, arg.CartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*CountCartLineItemQuantitiesForEventsRow
+	for rows.Next() {
+		var i CountCartLineItemQuantitiesForEventsRow
+		if err := rows.Scan(&i.EventID, &i.Quantity); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCart = `-- name: GetCart :one
-select c.id, count(cli.id), sum(cli.quantity * e.base_price_amount)
+select c.id, c.owner_id, c.inserted_at, c.updated_at, count(cli.id) item_count, sum(cli.quantity * e.base_price_amount)::decimal product_total
 from carts c
 join cart_line_items cli on cli.cart_id = c.id
 join events e on cli.event_id = e.id
-where c.id = ($1::text)::uuid
-group by 1
+where
+    ($1::uuid is not null and c.id = $1::uuid)
+    or
+    ($1::uuid is null and $2::uuid is not null and c.owner_id = $2::uuid)
+    group by c.id, c.owner_id, c.inserted_at, c.updated_at
 `
 
-type GetCartRow struct {
-	ID    uuid.UUID `json:"id"`
-	Count int64     `json:"count"`
-	Sum   int64     `json:"sum"`
+type GetCartParams struct {
+	CartID  *uuid.UUID `json:"cartId"`
+	OwnerID *uuid.UUID `json:"ownerId"`
 }
 
-func (q *Queries) GetCart(ctx context.Context, cartID string) (*GetCartRow, error) {
-	row := q.db.QueryRow(ctx, getCart, cartID)
+type GetCartRow struct {
+	Cart         Cart            `json:"cart"`
+	ItemCount    int64           `json:"itemCount"`
+	ProductTotal decimal.Decimal `json:"productTotal"`
+}
+
+func (q *Queries) GetCart(ctx context.Context, arg *GetCartParams) (*GetCartRow, error) {
+	row := q.db.QueryRow(ctx, getCart, arg.CartID, arg.OwnerID)
 	var i GetCartRow
-	err := row.Scan(&i.ID, &i.Count, &i.Sum)
+	err := row.Scan(
+		&i.Cart.ID,
+		&i.Cart.OwnerID,
+		&i.Cart.InsertedAt,
+		&i.Cart.UpdatedAt,
+		&i.ItemCount,
+		&i.ProductTotal,
+	)
 	return &i, err
 }
 
 const insertCart = `-- name: InsertCart :one
-insert into carts (owner_id) values ($1) returning id, owner_id, inserted_at, updated_at
+insert into carts (owner_id) values ($1)
+on conflict (owner_id) where owner_id is not null do update set updated_at = now() at time zone 'utc'
+returning id, owner_id, inserted_at, updated_at
 `
 
 func (q *Queries) InsertCart(ctx context.Context, ownerID *uuid.UUID) (*Cart, error) {
@@ -50,7 +104,8 @@ func (q *Queries) InsertCart(ctx context.Context, ownerID *uuid.UUID) (*Cart, er
 }
 
 const insertCartLineItem = `-- name: InsertCartLineItem :one
-insert into cart_line_items (cart_id, event_id) values ($1, $2) on conflict (cart_id, event_id) do update set quantity = quantity + excluded.quantity returning id, cart_id, event_id, quantity, inserted_at, updated_at
+insert into cart_line_items as cli (cart_id, event_id, quantity) values ($1, $2, 1) on conflict (cart_id, event_id)
+do update set quantity = cli.quantity + excluded.quantity returning id, cart_id, event_id, quantity, inserted_at, updated_at
 `
 
 type InsertCartLineItemParams struct {

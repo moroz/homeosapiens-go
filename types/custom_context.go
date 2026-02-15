@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/securecookie"
@@ -28,6 +29,13 @@ type CustomContext struct {
 
 func NewContext(store securecookie.Store) *CustomContext {
 	return &CustomContext{store: store}
+}
+
+func (c *CustomContext) CartId() *uuid.UUID {
+	if c.Cart == nil {
+		return nil
+	}
+	return &c.Cart.Cart.ID
 }
 
 func (c *CustomContext) IsPolish() bool {

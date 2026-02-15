@@ -6,32 +6,28 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v5"
-	"github.com/moroz/homeosapiens-go/types"
-	"github.com/moroz/securecookie"
+	"github.com/moroz/homeosapiens-go/web/helpers"
 )
 
-type preferencesController struct {
-	sessionStore securecookie.Store
+type preferencesController struct{}
+
+func PreferencesController() *preferencesController {
+	return &preferencesController{}
 }
 
-func PreferencesController(sessionStore securecookie.Store) *preferencesController {
-	return &preferencesController{
-		sessionStore,
-	}
-}
-
-func (c *preferencesController) SaveTimezone(r *echo.Context) error {
-	tzParam := r.QueryParam("tz")
+func (cc *preferencesController) SaveTimezone(c *echo.Context) error {
+	tzParam := c.QueryParam("tz")
 	if _, err := time.LoadLocation(tzParam); err != nil || tzParam == "" {
 		return echo.NewHTTPError(400, "Invalid timezone")
 	}
-	ctx := r.Get("context").(*types.CustomContext)
+
+	ctx := helpers.GetRequestContext(c)
 	ctx.Session["tz"] = tzParam
-	if err := ctx.SaveSession(r.Response()); err != nil {
+	if err := ctx.SaveSession(c.Response()); err != nil {
 		log.Printf("Error serializing session cookie: %s", err)
 		return err
 	}
 
-	r.Response().WriteHeader(http.StatusNoContent)
+	c.Response().WriteHeader(http.StatusNoContent)
 	return nil
 }

@@ -17,14 +17,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func MustParseUUID(u string) pgtype.UUID {
-	parsed := uuid.MustParse(u)
-	return pgtype.UUID{
-		Valid: true,
-		Bytes: parsed,
-	}
-}
-
 func MustParseTimestamp(t string) pgtype.Timestamp {
 	parsed, err := time.Parse(time.RFC3339, t)
 	if err != nil {
@@ -100,17 +92,17 @@ func main() {
 
 	assets := []*types.CreateAssetParams{
 		{
-			ID:               MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8b"),
+			ID:               uuid.MustParse("0199c2f2-528b-7e88-96e3-5e5088333a8b"),
 			ObjectKey:        "cm7uqj3q500mglz8z2dqy8sdz.webp",
 			OriginalFilename: "cm7uqj3q500mglz8z2dqy8sdz.webp",
 		},
 		{
-			ID:               MustParseUUID("019b0c7c-c3c4-71c3-a630-7b33a847ca2a"),
+			ID:               uuid.MustParse("019b0c7c-c3c4-71c3-a630-7b33a847ca2a"),
 			ObjectKey:        "019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg",
 			OriginalFilename: "019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg",
 		},
 		{
-			ID:               MustParseUUID("019beef9-ad4c-736f-9bb0-965b59ca21ae"),
+			ID:               uuid.MustParse("019beef9-ad4c-736f-9bb0-965b59ca21ae"),
 			ObjectKey:        "019beef9-ad4c-736f-9bb0-965b59ca21ae.png",
 			OriginalFilename: "drasher.png",
 		},
@@ -129,27 +121,27 @@ func main() {
 
 	hosts := []*types.CreateHostParams{
 		{
-			ID:               MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8a"),
+			ID:               uuid.MustParse("0199c2f2-528b-7e88-96e3-5e5088333a8a"),
 			Salutation:       "common.hosts.salutation.dr",
 			GivenName:        "Sanjay",
 			FamilyName:       "Modi",
-			ProfilePictureId: MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8b"),
+			ProfilePictureId: uuid.MustParse("0199c2f2-528b-7e88-96e3-5e5088333a8b"),
 			Country:          "IN",
 		},
 		{
-			ID:               MustParseUUID("019beef9-4287-714f-982b-2524fdef7063"),
+			ID:               uuid.MustParse("019beef9-4287-714f-982b-2524fdef7063"),
 			Salutation:       "common.hosts.salutation.dr",
 			GivenName:        "Asher",
 			FamilyName:       "Shaikh",
-			ProfilePictureId: MustParseUUID("019beef9-ad4c-736f-9bb0-965b59ca21ae"),
+			ProfilePictureId: uuid.MustParse("019beef9-ad4c-736f-9bb0-965b59ca21ae"),
 			Country:          "IN",
 		},
 		{
-			ID:               MustParseUUID("019b0c71-fde2-76b7-8c71-21c2e9ea23a5"),
+			ID:               uuid.MustParse("019b0c71-fde2-76b7-8c71-21c2e9ea23a5"),
 			Salutation:       "common.hosts.salutation.dr",
 			GivenName:        "Herman",
 			FamilyName:       "Jeggels",
-			ProfilePictureId: MustParseUUID("019b0c7c-c3c4-71c3-a630-7b33a847ca2a"),
+			ProfilePictureId: uuid.MustParse("019b0c7c-c3c4-71c3-a630-7b33a847ca2a"),
 			Country:          "ZA",
 		},
 	}
@@ -160,7 +152,7 @@ func main() {
 			Salutation:       &host.Salutation,
 			GivenName:        host.GivenName,
 			FamilyName:       host.FamilyName,
-			ProfilePictureID: host.ProfilePictureId,
+			ProfilePictureID: &host.ProfilePictureId,
 			Country:          &host.Country,
 		}
 		if _, err := queries.New(db).UpsertHost(context.Background(), params); err != nil {
@@ -170,7 +162,7 @@ func main() {
 
 	events := []*types.CreateEventParams{
 		{
-			ID:                MustParseUUID("019c5c9a-c5a4-7518-8317-65ae90516726"),
+			ID:                uuid.MustParse("019c5c9a-c5a4-7518-8317-65ae90516726"),
 			EventType:         queries.EventTypeSeminar,
 			TitleEn:           "Dr Asher Shaikh seminar",
 			TitlePl:           "Seminarium z drem Asherem Shaikh",
@@ -190,7 +182,7 @@ func main() {
 			DescriptionPl:     new("Zapraszamy na seminarium Homeo sapiens z udziałem dr Ashera Shaikha. Podczas spotkania dr Asher Shaikh przedstawi praktyczne zastosowanie Nowej Germańskiej Medycyny (GNM) w pracy klinicznej homeopaty, ze szczególnym uwzględnieniem procesu prowadzenia wywiadu, analizy konfliktów biologicznych oraz doboru leków homeopatycznych. Omawiane zagadnienia obejmą zarówno część teoretyczną, jak i studia przypadków. **Więcej informacji już wkrótce!**\n\nSeminarium odbędzie się w dniach **5–6 czerwca 2026 r.**\n\nMiejsce wydarzenia: **Hotel Marina Club,** ul. Szafarnia 10, 80-753 Gdańsk oraz **online** (Zoom).\n\nCena uczestnictwa:\n\n*   **EARLY BIRD 480 PLN / 114 EUR** – do 09.02.2026\n    \n*   **560 PLN / 135 EUR** – do 31.03.2026\n    \n*   **640 PLN / 152 EUR** – po 31.03.2026\n    \n*   **700 PLN / 170 EUR** – w dniu seminarium\n    \n\nDla uczestników dostępna jest zniżka na noclegi w **Hotelu Marina Club** ([https://marinaclubhotel.pl](https://marinaclubhotel.pl)) oraz **Hostelu Szafarnia** ([https://szafarnia10.pl](https://szafarnia10.pl)) . Rezerwacje realizowane są wyłącznie online. Kod rabatowy: **Homeopatia** (kod aktywny po uruchomieniu w systemie hotelu).\n\n**Dr Asher Shaikh (Indie)** – lekarz homeopata z ponad 30-letnim doświadczeniem klinicznym. Dyrektor Asher Clinics – sieci 12 klinik w Mumbaju, Pune, Dubaju i Nasiku. Mentor Nowej Germańskiej Medycyny, którą wykładał w Dubaju, Indiach, Austrii i Izraelu. Profesor Homoeopathic Medical College w Nasiku. Dyrektor Viveda Resort – ośrodka zdrowia holistycznego. Były przewodniczący Indian Institute of Homoeopathic Physicians. Specjalizuje się w odwracaniu chorób autoimmunologicznych.\n\nStrona internetowa: [www.asherclinic.com](http://www.asherclinic.com)  \nInstagram: @asherhomoeopathy, @doctor.ashar\n\nObejrzyj wywiady z Dr Asherem na [naszym kanale](https://www.youtube.com/@Homeosapiens-p7z):\n\n*   [_How German New Medicine and Homeopathy Work Together | Dr Asher Shaikh’s Holistic Approach_](https://www.youtube.com/watch?v=K8WJlg_zP38)\n    \n*   [_Dr Asher Shaikh on German New Medicine, infertility and Spongia_](https://www.youtube.com/watch?v=J4NRGCOdme8)\n    \n*   [_Once you hit the bull's-eye… | Kiedy trafisz w dziesiątkę…_](https://www.youtube.com/watch?v=R9l7CSOMRe4)"),
 		},
 		{
-			ID:            MustParseUUID("019b0c80-a410-7728-ab6b-c1eff529dfd1"),
+			ID:            uuid.MustParse("019b0c80-a410-7728-ab6b-c1eff529dfd1"),
 			EventType:     queries.EventTypeWebinar,
 			TitleEn:       "A Series of Critical Cardiac Cases",
 			TitlePl:       "Seria krytycznych problemów kardiologicznych",
@@ -208,7 +200,7 @@ Wykład będzie tłumaczony konsekutywnie na język polski.
 Webinar jest bezpłatny. Odbędzie się na platformie Zoom za pośrednictwem naszej strony internetowej. Wymagana jest rejestracja z użyciem adresu email i ustawienie hasła.`),
 		},
 		{
-			ID:                MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8c"),
+			ID:                uuid.MustParse("0199c2f2-528b-7e88-96e3-5e5088333a8c"),
 			EventType:         queries.EventTypeSeminar,
 			TitleEn:           "To Perfect the Art of Homeopathy",
 			TitlePl:           "Udoskonalić kunszt homeopatyczny",
@@ -239,7 +231,7 @@ Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym termi
 Omówionych zostanie szereg praktycznych problemów klinicznych, różnicowanie leków z grupy Kalium, leki introwertyczne/ekstrawertyczne, prezentacja przypadków klinicznych.`),
 		},
 		{
-			ID:            MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
+			ID:            uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
 			EventType:     queries.EventTypeSeminar,
 			TitleEn:       "To Perfect the Art of Homeopathy 2",
 			TitlePl:       "Udoskonalić kunszt homeopatyczny 2",
@@ -268,7 +260,7 @@ Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym termi
 			BasePriceCurrency: new("PLN"),
 		},
 		{
-			ID:         MustParseUUID("019bef00-6ef2-7636-9a15-c8cd1e87b997"),
+			ID:         uuid.MustParse("019bef00-6ef2-7636-9a15-c8cd1e87b997"),
 			EventType:  queries.EventTypeWebinar,
 			TitleEn:    "What prevents me from moving on?",
 			TitlePl:    "What prevents me from moving on?",
@@ -319,28 +311,28 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 
 	eventHosts := []*types.CreateEventHostParams{
 		{
-			EventID:  MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8c"),
-			HostID:   MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8a"),
+			EventID:  uuid.MustParse("0199c2f2-528b-7e88-96e3-5e5088333a8c"),
+			HostID:   uuid.MustParse("0199c2f2-528b-7e88-96e3-5e5088333a8a"),
 			Position: 0,
 		},
 		{
-			EventID:  MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
-			HostID:   MustParseUUID("0199c2f2-528b-7e88-96e3-5e5088333a8a"),
+			EventID:  uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
+			HostID:   uuid.MustParse("0199c2f2-528b-7e88-96e3-5e5088333a8a"),
 			Position: 0,
 		},
 		{
-			EventID:  MustParseUUID("019b0c80-a410-7728-ab6b-c1eff529dfd1"),
-			HostID:   MustParseUUID("019b0c71-fde2-76b7-8c71-21c2e9ea23a5"),
+			EventID:  uuid.MustParse("019b0c80-a410-7728-ab6b-c1eff529dfd1"),
+			HostID:   uuid.MustParse("019b0c71-fde2-76b7-8c71-21c2e9ea23a5"),
 			Position: 0,
 		},
 		{
-			EventID:  MustParseUUID("019bef00-6ef2-7636-9a15-c8cd1e87b997"),
-			HostID:   MustParseUUID("019beef9-4287-714f-982b-2524fdef7063"),
+			EventID:  uuid.MustParse("019bef00-6ef2-7636-9a15-c8cd1e87b997"),
+			HostID:   uuid.MustParse("019beef9-4287-714f-982b-2524fdef7063"),
 			Position: 0,
 		},
 		{
-			EventID:  MustParseUUID("019c5c9a-c5a4-7518-8317-65ae90516726"),
-			HostID:   MustParseUUID("019beef9-4287-714f-982b-2524fdef7063"),
+			EventID:  uuid.MustParse("019c5c9a-c5a4-7518-8317-65ae90516726"),
+			HostID:   uuid.MustParse("019beef9-4287-714f-982b-2524fdef7063"),
 			Position: 0,
 		},
 	}
@@ -358,7 +350,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 
 	eventPrices := []*types.CreateEventPriceParams{
 		{
-			EventID:       MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
+			EventID:       uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
 			PriceAmount:   "560.00000000",
 			PriceCurrency: "PLN",
 			RuleType:      queries.PriceRuleTypeEarlyBird,
@@ -368,7 +360,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			PriceType:     queries.PriceTypeFixed,
 		},
 		{
-			EventID:       MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
+			EventID:       uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
 			PriceAmount:   "500.00000000",
 			PriceCurrency: "PLN",
 			RuleType:      queries.PriceRuleTypeDiscountCode,
@@ -399,8 +391,8 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 
 	videos := []*types.CreateVideoParams{
 		{
-			ID:       MustParseUUID("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
-			EventID:  MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
+			ID:       uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
+			EventID:  uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
 			Provider: queries.VideoProviderCloudfront,
 			TitleEn:  "Day 1, Part 1",
 			TitlePl:  "Dzień 1, Część 1",
@@ -408,8 +400,8 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			IsPublic: false,
 		},
 		{
-			ID:       MustParseUUID("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
-			EventID:  MustParseUUID("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
+			ID:       uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
+			EventID:  uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
 			Provider: queries.VideoProviderCloudfront,
 			TitleEn:  "Day 1, Part 2",
 			TitlePl:  "Dzień 1, Część 2",
@@ -435,29 +427,29 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 
 	videoSources := []*types.CreateVideoSourceParams{
 		{
-			ID:          MustParseUUID("019a8ba6-c5ae-7f6f-becb-94b6957a52b2"),
-			VideoID:     MustParseUUID("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
+			ID:          uuid.MustParse("019a8ba6-c5ae-7f6f-becb-94b6957a52b2"),
+			VideoID:     uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
 			ContentType: "video/mp4",
 			Codec:       "hev1",
 			ObjectKey:   "/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/hevc_1080.mp4",
 		},
 		{
-			ID:          MustParseUUID("019a8ba7-d04b-77ec-92c6-f76b6ec0e7ea"),
-			VideoID:     MustParseUUID("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
+			ID:          uuid.MustParse("019a8ba7-d04b-77ec-92c6-f76b6ec0e7ea"),
+			VideoID:     uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
 			ContentType: "video/webm",
 			Codec:       "vp9,opus",
 			ObjectKey:   "/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/webm_1080.webm",
 		},
 		{
-			ID:          MustParseUUID("019a8bab-135e-7321-9857-f74d2dcda427"),
-			VideoID:     MustParseUUID("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
+			ID:          uuid.MustParse("019a8bab-135e-7321-9857-f74d2dcda427"),
+			VideoID:     uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
 			ContentType: "video/mp4",
 			Codec:       "hev1",
 			ObjectKey:   "/videos/019a8ba5-fe29-7af8-bf54-b8d96af38461/hevc_1080.mp4",
 		},
 		{
-			ID:          MustParseUUID("019a8bab-bc67-76f9-bf80-902043c922e6"),
-			VideoID:     MustParseUUID("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
+			ID:          uuid.MustParse("019a8bab-bc67-76f9-bf80-902043c922e6"),
+			VideoID:     uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
 			ContentType: "video/webm",
 			Codec:       "vp9,opus",
 			ObjectKey:   "/videos/019a8ba5-fe29-7af8-bf54-b8d96af38461/webm_1080.webm",

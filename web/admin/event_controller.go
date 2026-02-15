@@ -24,7 +24,7 @@ func EventController(db queries.DBTX) *eventController {
 func (cc *eventController) Index(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	list, err := cc.eventService.ListEvents(c.Request().Context(), ctx.User)
+	list, err := cc.eventService.ListEvents(c.Request().Context(), ctx.User, ctx.CartId())
 	if err != nil {
 		return err
 	}

@@ -43,6 +43,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.Use(middleware.FetchSessionFromCookies(config.SessionCookieName))
 	r.Use(middleware.FetchFlashMessages(store))
 	r.Use(middleware.FetchUserFromSession(db))
+	r.Use(middleware.FetchCartFromSession(db))
 	r.Use(middleware.ResolveTimezone)
 	r.Use(middleware.ResolveRequestLocale(bundle))
 
@@ -63,12 +64,15 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	videos := handlers.VideoController(db)
 	r.GET("/videos", videos.Index)
 
-	prefs := handlers.PreferencesController(store)
+	prefs := handlers.PreferencesController()
 	r.POST("/api/v1/prefs/timezone", prefs.SaveTimezone)
 
-	oauth2 := handlers.OAuth2Controller(store, db)
+	oauth2 := handlers.OAuth2Controller(db)
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
+
+	cart := handlers.CartItemsController(db)
+	r.POST("/cart_items", cart.Create)
 
 	Group(r, "", func(r *echo.Group) {
 		r.Use(middleware.RequireAuthenticatedUser)

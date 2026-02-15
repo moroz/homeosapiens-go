@@ -6,6 +6,7 @@ go = "1.26"
 node = "latest"
 pnpm = "latest"
 prettier = "latest"
+xh = "latest"
 
 [env]
 PGDATABASE = "homeosapiens_dev"

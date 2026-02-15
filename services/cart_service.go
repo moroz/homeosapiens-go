@@ -18,7 +18,7 @@ func NewCartItemService(db queries.DBTX) *CartService {
 }
 
 func (s *CartService) AddEventToCart(ctx context.Context, cartId *uuid.UUID, user *queries.User, eventId uuid.UUID) (*queries.CartLineItem, error) {
-	conn, ok := s.db.(*pgxpool.Conn)
+	conn, ok := s.db.(*pgxpool.Pool)
 	if !ok {
 		return nil, fmt.Errorf("failed to cast db as *pgxpool.Conn: %T", s.db)
 	}

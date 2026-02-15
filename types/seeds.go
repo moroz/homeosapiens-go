@@ -1,27 +1,28 @@
 package types
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
 
 type CreateAssetParams struct {
-	ID               pgtype.UUID
+	ID               uuid.UUID
 	ObjectKey        string
 	OriginalFilename string
 }
 
 type CreateHostParams struct {
-	ID               pgtype.UUID
+	ID               uuid.UUID
 	Salutation       string
 	GivenName        string
 	FamilyName       string
-	ProfilePictureId pgtype.UUID
+	ProfilePictureId uuid.UUID
 	Country          string
 }
 
 type CreateVenueParams struct {
-	ID          pgtype.UUID
+	ID          uuid.UUID
 	NameEn      string
 	NamePl      *string
 	CityEn      string
@@ -32,7 +33,7 @@ type CreateVenueParams struct {
 }
 
 type CreateEventParams struct {
-	ID                pgtype.UUID
+	ID                uuid.UUID
 	EventType         queries.EventType
 	TitleEn           string
 	TitlePl           string
@@ -56,14 +57,14 @@ type CreateEventParams struct {
 }
 
 type CreateEventHostParams struct {
-	EventID  pgtype.UUID
-	HostID   pgtype.UUID
+	EventID  uuid.UUID
+	HostID   uuid.UUID
 	Position int32
 }
 
 type CreateEventPriceParams struct {
-	ID            pgtype.UUID
-	EventID       pgtype.UUID
+	ID            uuid.UUID
+	EventID       uuid.UUID
 	PriceType     queries.PriceType
 	RuleType      queries.PriceRuleType
 	PriceAmount   string
@@ -76,8 +77,8 @@ type CreateEventPriceParams struct {
 }
 
 type CreateVideoParams struct {
-	ID       pgtype.UUID
-	EventID  pgtype.UUID
+	ID       uuid.UUID
+	EventID  uuid.UUID
 	Provider queries.VideoProvider
 	TitleEn  string
 	TitlePl  string
@@ -86,8 +87,8 @@ type CreateVideoParams struct {
 }
 
 type CreateVideoSourceParams struct {
-	ID          pgtype.UUID
-	VideoID     pgtype.UUID
+	ID          uuid.UUID
+	VideoID     uuid.UUID
 	ContentType string
 	Codec       string
 	ObjectKey   string

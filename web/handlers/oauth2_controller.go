@@ -16,22 +16,19 @@ import (
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
-	"github.com/moroz/securecookie"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/idtoken"
 )
 
 type oauth2Controller struct {
-	sessionStore securecookie.Store
-	config       *oauth2.Config
+	config *oauth2.Config
 	*services.UserService
 	*services.UserTokenService
 }
 
-func OAuth2Controller(store securecookie.Store, db queries.DBTX) *oauth2Controller {
+func OAuth2Controller(db queries.DBTX) *oauth2Controller {
 	return &oauth2Controller{
-		store,
 		&oauth2.Config{
 			ClientID:     config.GoogleClientId,
 			ClientSecret: config.GoogleClientSecret,

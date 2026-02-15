@@ -25,7 +25,8 @@
 		"user_dropdown": {
 			"profile": "Profil",
 			"sign_out": "Wyloguj się"
-		}
+		},
+		"cart": "Przejdź do koszyka"
 	},
 	"locale_switcher": {
 		"switch_to": {

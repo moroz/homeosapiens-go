@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/helpers"
@@ -39,14 +40,16 @@ func (cc *cartItemsController) Create(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	cartId := new(uuid.UUID)
-	if ctx.Cart != nil {
-		cartId = &ctx.Cart.ID
-	}
-
-	_, err = cc.cartService.AddEventToCart(c.Request().Context(), cartId, ctx.User, params.EventId)
+	cartItem, err := cc.cartService.AddEventToCart(c.Request().Context(), ctx.CartId(), ctx.User, params.EventId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	if ctx.CartId() == nil {
+		ctx.Session[config.CartIdSessionKey] = cartItem.CartID
+		if err := ctx.SaveSession(c.Response()); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
 	}
 
 	return c.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
