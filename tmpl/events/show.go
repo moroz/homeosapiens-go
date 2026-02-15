@@ -2,14 +2,15 @@ package events
 
 import (
 	"fmt"
-	"net/url"
 
 	twmerge "github.com/Oudwins/tailwind-merge-go"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/shopspring/decimal"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
@@ -19,13 +20,9 @@ const EventRegistrationButtonNotGoingClasses = "bg-slate-100 text-slate-900 hove
 const EventRegistrationButtonGoingClasses = "bg-primary/10 text-primary hover:bg-primary/20"
 
 func eventRegistrationSignInLink(l *i18n.Localizer, event *services.EventDetailsDto) Node {
-	qs := url.Values{
-		"ref": {fmt.Sprintf("/events/%s", event.Slug)},
-	}
-
-	return A(Href("/sign-in?"+qs.Encode()), Class(
-		twmerge.Merge(EventRegistrationButtonBaseClasses, EventRegistrationButtonNotGoingClasses),
-	),
+	return A(
+		Href(fmt.Sprintf("/events/%s/register", event.ID)),
+		Class(twmerge.Merge(EventRegistrationButtonBaseClasses, EventRegistrationButtonNotGoingClasses)),
 		EventAttendanceIcon(false),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: "common.events.attendance_badge",
@@ -56,6 +53,13 @@ func eventRegistrationButton(l *i18n.Localizer, event *services.EventDetailsDto)
 	)
 }
 
+func addToCartButton(l *i18n.Localizer, event *queries.Event) Node {
+	return Form(
+		Action(fmt.Sprintf("/cart_line_items/%s", event.ID)),
+		Method("POST"),
+	)
+}
+
 func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	lang := ctx.Language
 	tz := ctx.Timezone
@@ -71,6 +75,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	}
 
 	l := ctx.Localizer
+	isFree := event.BasePriceAmount == nil || event.BasePriceAmount.Equal(decimal.Zero)
 
 	return layout.Layout(ctx, event.TitleEn, Div(
 		Class("card mx-auto"),
@@ -100,8 +105,8 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			),
 		),
 		Div(Class("my-4 flex gap-4 items-center"),
-			If(ctx.User != nil, eventRegistrationButton(l, event)),
-			If(ctx.User == nil, eventRegistrationSignInLink(l, event)),
+			If(isFree && event.EventRegistration == nil, eventRegistrationSignInLink(l, event)),
+			If(isFree && event.EventRegistration != nil, eventRegistrationButton(l, event)),
 			If(
 				event.RegistrationCount > 0,
 				Text(l.MustLocalize(&i18n.LocalizeConfig{

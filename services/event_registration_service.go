@@ -22,11 +22,17 @@ func NewEventRegistrationService(db queries.DBTX) *EventRegistrationService {
 	}
 }
 
-func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (*queries.EventRegistration, error) {
-	return queries.New(s.db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
+func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (bool, error) {
+	result, err := queries.New(s.db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
 		EventID: event.ID,
 		UserID:  user.ID,
 	})
+
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return false, err
+	}
+
+	return result != nil, nil
 }
 
 func (s *EventRegistrationService) DeleteEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (bool, error) {

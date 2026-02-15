@@ -10,6 +10,7 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/helpers"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type eventRegistrationController struct {
@@ -32,12 +33,19 @@ func (cc *eventRegistrationController) Create(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Missing required parameter: event_id")
 	}
 
-	event, err := cc.eventService.GetEventById(c.Request().Context(), eventId)
+	event, err := cc.eventService.GetRegisterableEventById(c.Request().Context(), eventId)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return echo.ErrNotFound
 	}
 
-	_, err = cc.eventRegistrationService.CreateEventRegistration(c.Request().Context(), ctx.User, event)
+	registered, err := cc.eventRegistrationService.CreateEventRegistration(c.Request().Context(), ctx.User, event)
+	if registered {
+		ctx.PutFlash("success", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
+			ID: "event_registrations.create.success",
+		}))
+	}
+	_ = ctx.SaveSession(c.Response())
+
 	if err == nil {
 		return c.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
 	}

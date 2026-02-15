@@ -76,7 +76,9 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 }
 
 const insertEventRegistration = `-- name: InsertEventRegistration :one
-insert into event_registrations (event_id, user_id) values ($1, $2) returning id, event_id, user_id, inserted_at
+insert into event_registrations (event_id, user_id) values ($1, $2)
+on conflict (event_id, user_id) do nothing
+returning id, event_id, user_id, inserted_at
 `
 
 type InsertEventRegistrationParams struct {

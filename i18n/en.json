@@ -102,5 +102,10 @@
 		"form": {
 			"submit": "Save changes"
 		}
+	},
+	"event_registrations": {
+		"create": {
+			"success": "You have successfully registered for this event."
+		}
 	}
 }

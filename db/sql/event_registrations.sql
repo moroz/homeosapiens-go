@@ -1,5 +1,7 @@
 -- name: InsertEventRegistration :one
-insert into event_registrations (event_id, user_id) values ($1, $2) returning *;
+insert into event_registrations (event_id, user_id) values ($1, $2)
+on conflict (event_id, user_id) do nothing
+returning *;
 
 -- name: DeleteEventRegistration :one
 delete from event_registrations where event_id = $1 and user_id = $2 returning id;

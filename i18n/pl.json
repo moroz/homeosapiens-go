@@ -113,5 +113,10 @@
 		"form": {
 			"submit": "Zapisz zmiany"
 		}
+	},
+	"event_registrations": {
+		"create": {
+			"success": "Rejestracja na wydarzenie przebiegła pomyślnie."
+		}
 	}
 }

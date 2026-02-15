@@ -28,3 +28,9 @@ order by p.event_id, p.priority;
 select er.* from event_registrations er
 where er.event_id = any(@EventIDs::uuid[])
 and er.user_id = @UserID::uuid;
+
+-- name: GetFreeEventById :one
+select * from events where (base_price_amount is null or base_price_amount = 0) and id = (@id::text)::uuid;
+
+-- name: GetPaidEventById :one
+select * from events where base_price_amount is not null and base_price_amount > 0 and id = (@id::text)::uuid;

@@ -23,6 +23,7 @@ type CustomContext struct {
 	TimezoneSet bool
 	RequestUrl  *url.URL
 	Flash       Flash
+	Cart        *queries.GetCartRow
 }
 
 func NewContext(store securecookie.Store) *CustomContext {

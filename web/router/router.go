@@ -78,7 +78,7 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 		r.PUT("/profile", profile.Update)
 
 		eventRegistrations := handlers.EventRegistrationController(db)
-		r.POST("/event_registrations/:event_id", eventRegistrations.Create)
+		r.GET("/events/:event_id/register", eventRegistrations.Create)
 		r.DELETE("/event_registrations/:event_id", eventRegistrations.Delete)
 	})
 

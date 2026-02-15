@@ -82,6 +82,76 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 	return &i, err
 }
 
+const getFreeEventById = `-- name: GetFreeEventById :one
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where (base_price_amount is null or base_price_amount = 0) and id = ($1::text)::uuid
+`
+
+func (q *Queries) GetFreeEventById(ctx context.Context, id string) (*Event, error) {
+	row := q.db.QueryRow(ctx, getFreeEventById, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Slug,
+		&i.SubtitleEn,
+		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
+	)
+	return &i, err
+}
+
+const getPaidEventById = `-- name: GetPaidEventById :one
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where base_price_amount is not null and base_price_amount > 0 and id = ($1::text)::uuid
+`
+
+func (q *Queries) GetPaidEventById(ctx context.Context, id string) (*Event, error) {
+	row := q.db.QueryRow(ctx, getPaidEventById, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Slug,
+		&i.SubtitleEn,
+		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
+	)
+	return &i, err
+}
+
 const listEventRegistrationsForUserForEvents = `-- name: ListEventRegistrationsForUserForEvents :many
 select er.id, er.event_id, er.user_id, er.inserted_at from event_registrations er
 where er.event_id = any($1::uuid[])

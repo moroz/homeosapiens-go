@@ -20,6 +20,10 @@ func (s *EventService) GetEventById(ctx context.Context, id string) (*queries.Ev
 	return queries.New(s.db).GetEventById(ctx, id)
 }
 
+func (s *EventService) GetRegisterableEventById(ctx context.Context, id string) (*queries.Event, error) {
+	return queries.New(s.db).GetFreeEventById(ctx, id)
+}
+
 type EventListDto struct {
 	*queries.ListEventsRow
 	Hosts             []*queries.ListHostsForEventsRow
