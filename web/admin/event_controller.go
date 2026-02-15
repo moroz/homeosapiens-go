@@ -1,6 +1,9 @@
 package admin
 
 import (
+	"net/http"
+
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -32,7 +35,12 @@ func (cc *eventController) Index(c *echo.Context) error {
 func (cc *eventController) Show(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	event, err := cc.eventService.GetEventDetailsById(c.Request().Context(), c.Param("id"), ctx.User)
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid required param: id")
+	}
+
+	event, err := cc.eventService.GetEventDetailsById(c.Request().Context(), id, ctx.User)
 	if err != nil {
 		return err
 	}
