@@ -236,13 +236,6 @@ type Asset struct {
 	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
 }
 
-type Cart struct {
-	ID         uuid.UUID        `json:"id"`
-	OwnerID    *uuid.UUID       `json:"ownerId"`
-	InsertedAt pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
-}
-
 type CartLineItem struct {
 	ID         uuid.UUID        `json:"id"`
 	CartID     uuid.UUID        `json:"cartId"`

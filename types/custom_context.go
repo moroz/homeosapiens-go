@@ -35,7 +35,7 @@ func (c *CustomContext) CartId() *uuid.UUID {
 	if c.Cart == nil {
 		return nil
 	}
-	return &c.Cart.Cart.ID
+	return &c.Cart.CartID
 }
 
 func (c *CustomContext) IsPolish() bool {

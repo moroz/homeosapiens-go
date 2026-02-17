@@ -23,20 +23,12 @@ func FetchCartFromSession(db queries.DBTX) echo.MiddlewareFunc {
 				cartId = &id
 			}
 
-			var userId *uuid.UUID
-			if ctx.User != nil {
-				userId = &ctx.User.ID
-			}
-
 			// If there is no cart ID or user in the session, there can't possibly be a cart
-			if cartId == nil && userId == nil {
+			if cartId == nil {
 				return next(c)
 			}
 
-			cart, err := queries.New(db).GetCart(c.Request().Context(), &queries.GetCartParams{
-				CartID:  cartId,
-				OwnerID: userId,
-			})
+			cart, err := queries.New(db).GetCart(c.Request().Context(), *cartId)
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}

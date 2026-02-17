@@ -2,11 +2,10 @@ package services
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/shopspring/decimal"
 )
 
 type CartService struct {
@@ -17,32 +16,12 @@ func NewCartItemService(db queries.DBTX) *CartService {
 	return &CartService{db}
 }
 
-func (s *CartService) AddEventToCart(ctx context.Context, cartId *uuid.UUID, user *queries.User, eventId uuid.UUID) (*queries.CartLineItem, error) {
-	conn, ok := s.db.(*pgxpool.Pool)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast db as *pgxpool.Conn: %T", s.db)
-	}
-	tx, err := conn.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback(ctx)
-
+func (s *CartService) AddEventToCart(ctx context.Context, cartId *uuid.UUID, eventId uuid.UUID) (*queries.CartLineItem, error) {
 	if cartId == nil {
-		var userId *uuid.UUID
-		if user != nil {
-			userId = &user.ID
-		}
-
-		cart, err := queries.New(tx).InsertCart(ctx, userId)
-		if err != nil {
-			return nil, err
-		}
-
-		cartId = &cart.ID
+		cartId = new(uuid.Must(uuid.NewV7()))
 	}
 
-	item, err := queries.New(tx).InsertCartLineItem(ctx, &queries.InsertCartLineItemParams{
+	item, err := queries.New(s.db).InsertCartLineItem(ctx, &queries.InsertCartLineItemParams{
 		CartID:  *cartId,
 		EventID: eventId,
 	})
@@ -50,9 +29,32 @@ func (s *CartService) AddEventToCart(ctx context.Context, cartId *uuid.UUID, use
 		return nil, err
 	}
 
-	if err := tx.Commit(ctx); err != nil {
-		return nil, err
+	return item, nil
+}
+
+type CartViewDto struct {
+	CartItems  []*queries.GetCartItemsByCartIdRow
+	GrandTotal decimal.Decimal
+}
+
+func (s *CartService) GetCartItemsByCartId(ctx context.Context, cartId *uuid.UUID) (*CartViewDto, error) {
+	result := CartViewDto{
+		CartItems:  nil,
+		GrandTotal: decimal.Zero,
 	}
 
-	return item, nil
+	if cartId == nil {
+		return &result, nil
+	}
+
+	items, err := queries.New(s.db).GetCartItemsByCartId(ctx, *cartId)
+	if err != nil {
+		return &result, err
+	}
+
+	for _, item := range items {
+		result.GrandTotal = result.GrandTotal.Add(item.Subtotal)
+	}
+
+	return &result, nil
 }

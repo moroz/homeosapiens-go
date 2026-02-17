@@ -12,13 +12,13 @@ import (
 	"github.com/moroz/homeosapiens-go/web/helpers"
 )
 
-type cartItemsController struct {
+type cartController struct {
 	cartService  *services.CartService
 	eventService *services.EventService
 }
 
-func CartItemsController(db queries.DBTX) *cartItemsController {
-	return &cartItemsController{
+func CartController(db queries.DBTX) *cartController {
+	return &cartController{
 		cartService:  services.NewCartItemService(db),
 		eventService: services.NewEventService(db),
 	}
@@ -28,7 +28,7 @@ type createLineItemParams struct {
 	EventId uuid.UUID `form:"event_id"`
 }
 
-func (cc *cartItemsController) Create(c *echo.Context) error {
+func (cc *cartController) Create(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 	var params createLineItemParams
 	if err := c.Bind(&params); err != nil {
@@ -40,7 +40,7 @@ func (cc *cartItemsController) Create(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	cartItem, err := cc.cartService.AddEventToCart(c.Request().Context(), ctx.CartId(), ctx.User, params.EventId)
+	cartItem, err := cc.cartService.AddEventToCart(c.Request().Context(), ctx.CartId(), params.EventId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -53,4 +53,9 @@ func (cc *cartItemsController) Create(c *echo.Context) error {
 	}
 
 	return c.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
+}
+
+func (cc *cartController) Show(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+	cart, err := cc.cartService.GetCartItemsByCartId(c.Request().Context(), ctx.CartId())
 }

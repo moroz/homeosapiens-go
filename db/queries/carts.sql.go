@@ -49,58 +49,88 @@ func (q *Queries) CountCartLineItemQuantitiesForEvents(ctx context.Context, arg 
 }
 
 const getCart = `-- name: GetCart :one
-select c.id, c.owner_id, c.inserted_at, c.updated_at, count(cli.id) item_count, sum(cli.quantity * e.base_price_amount)::decimal product_total
-from carts c
-join cart_line_items cli on cli.cart_id = c.id
+select cli.cart_id, count(cli.id) item_count, sum(cli.quantity * e.base_price_amount)::decimal product_total
+from cart_line_items cli
 join events e on cli.event_id = e.id
-where
-    ($1::uuid is not null and c.id = $1::uuid)
-    or
-    ($1::uuid is null and $2::uuid is not null and c.owner_id = $2::uuid)
-    group by c.id, c.owner_id, c.inserted_at, c.updated_at
+where cli.cart_id = $1::uuid 
+group by 1
 `
 
-type GetCartParams struct {
-	CartID  *uuid.UUID `json:"cartId"`
-	OwnerID *uuid.UUID `json:"ownerId"`
-}
-
 type GetCartRow struct {
-	Cart         Cart            `json:"cart"`
+	CartID       uuid.UUID       `json:"cartId"`
 	ItemCount    int64           `json:"itemCount"`
 	ProductTotal decimal.Decimal `json:"productTotal"`
 }
 
-func (q *Queries) GetCart(ctx context.Context, arg *GetCartParams) (*GetCartRow, error) {
-	row := q.db.QueryRow(ctx, getCart, arg.CartID, arg.OwnerID)
+func (q *Queries) GetCart(ctx context.Context, cartID uuid.UUID) (*GetCartRow, error) {
+	row := q.db.QueryRow(ctx, getCart, cartID)
 	var i GetCartRow
-	err := row.Scan(
-		&i.Cart.ID,
-		&i.Cart.OwnerID,
-		&i.Cart.InsertedAt,
-		&i.Cart.UpdatedAt,
-		&i.ItemCount,
-		&i.ProductTotal,
-	)
+	err := row.Scan(&i.CartID, &i.ItemCount, &i.ProductTotal)
 	return &i, err
 }
 
-const insertCart = `-- name: InsertCart :one
-insert into carts (owner_id) values ($1)
-on conflict (owner_id) where owner_id is not null do update set updated_at = now() at time zone 'utc'
-returning id, owner_id, inserted_at, updated_at
+const getCartItemsByCartId = `-- name: GetCartItemsByCartId :many
+select c.id, c.cart_id, c.event_id, c.quantity, c.inserted_at, c.updated_at, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, (e.base_price_amount * c.quantity)::decimal as subtotal
+from cart_line_items c
+join events e on c.event_id = e.id
+where c.cart_id = $1::uuid
 `
 
-func (q *Queries) InsertCart(ctx context.Context, ownerID *uuid.UUID) (*Cart, error) {
-	row := q.db.QueryRow(ctx, insertCart, ownerID)
-	var i Cart
-	err := row.Scan(
-		&i.ID,
-		&i.OwnerID,
-		&i.InsertedAt,
-		&i.UpdatedAt,
-	)
-	return &i, err
+type GetCartItemsByCartIdRow struct {
+	CartLineItem CartLineItem    `json:"cartLineItem"`
+	Event        Event           `json:"event"`
+	Subtotal     decimal.Decimal `json:"subtotal"`
+}
+
+func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([]*GetCartItemsByCartIdRow, error) {
+	rows, err := q.db.Query(ctx, getCartItemsByCartId, cartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetCartItemsByCartIdRow
+	for rows.Next() {
+		var i GetCartItemsByCartIdRow
+		if err := rows.Scan(
+			&i.CartLineItem.ID,
+			&i.CartLineItem.CartID,
+			&i.CartLineItem.EventID,
+			&i.CartLineItem.Quantity,
+			&i.CartLineItem.InsertedAt,
+			&i.CartLineItem.UpdatedAt,
+			&i.Event.ID,
+			&i.Event.TitleEn,
+			&i.Event.TitlePl,
+			&i.Event.StartsAt,
+			&i.Event.EndsAt,
+			&i.Event.IsVirtual,
+			&i.Event.DescriptionEn,
+			&i.Event.DescriptionPl,
+			&i.Event.EventType,
+			&i.Event.BasePriceAmount,
+			&i.Event.BasePriceCurrency,
+			&i.Event.InsertedAt,
+			&i.Event.UpdatedAt,
+			&i.Event.Slug,
+			&i.Event.SubtitleEn,
+			&i.Event.SubtitlePl,
+			&i.Event.VenueNameEn,
+			&i.Event.VenueNamePl,
+			&i.Event.VenueStreet,
+			&i.Event.VenueCityEn,
+			&i.Event.VenueCityPl,
+			&i.Event.VenuePostalCode,
+			&i.Event.VenueCountryCode,
+			&i.Subtotal,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertCartLineItem = `-- name: InsertCartLineItem :one
