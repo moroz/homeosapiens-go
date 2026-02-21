@@ -14,7 +14,7 @@ import (
 
 func Index(ctx *types.CustomContext, videos []*services.VideoListDto) Node {
 	return layout.Layout(ctx, "Videos",
-		H2(Class("text-primary text-4xl font-bold"), Text("Videos")),
+		H2(Class("page-title"), Text("Videos")),
 		Div(Class("mt-6 mb-12 grid gap-6"),
 			Map(videos, func(video *services.VideoListDto) Node {
 				title := video.TitleEn

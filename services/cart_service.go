@@ -51,6 +51,7 @@ func (s *CartService) GetCartItemsByCartId(ctx context.Context, cartId *uuid.UUI
 	if err != nil {
 		return &result, err
 	}
+	result.CartItems = items
 
 	for _, item := range items {
 		result.GrandTotal = result.GrandTotal.Add(item.Subtotal)

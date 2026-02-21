@@ -52,6 +52,10 @@
 		}
 	}
 
+	.page-title {
+		@apply text-primary text-2xl font-bold lg:text-4xl;
+	}
+
 	.card {
 		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 border-primary/30 rounded border bg-white p-6 shadow;
 	}
@@ -123,6 +127,15 @@
 
 		tr[data-url] {
 			@apply cursor-pointer hover:bg-slate-100;
+		}
+	}
+
+	.cart-table {
+		@apply my-4 w-full table-fixed;
+
+		th,
+		td {
+			@apply border border-slate-400 p-2 text-center;
 		}
 	}
 

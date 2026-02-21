@@ -119,5 +119,15 @@
 		"create": {
 			"success": "Rejestracja na wydarzenie przebiegła pomyślnie."
 		}
+	},
+	"cart": {
+		"title": "Koszyk",
+		"table": {
+			"product_title": "Artykuł",
+			"unit_price": "Cena",
+			"quantity": "Ilość",
+			"subtotal": "Podsuma",
+			"grand_total": "Łącznie"
+		}
 	}
 }

@@ -108,5 +108,15 @@
 		"create": {
 			"success": "You have successfully registered for this event."
 		}
+	},
+	"cart": {
+		"title": "Cart",
+		"table": {
+			"product_title": "Title",
+			"unit_price": "Unit price",
+			"quantity": "Quantity",
+			"subtotal": "Subtotal",
+			"grand_total": "Grand total"
+		}
 	}
 }
