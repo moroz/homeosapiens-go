@@ -19,36 +19,57 @@ type CountryOption struct {
 	LabelEn string
 }
 
-var MostPopularRegionsISO = []string{"IN", "PL", "HK", "CN", "GB", "ZA", "US"}
+var MostPopularRegionsISO = []string{"PL", "IN", "HK", "CN", "GB", "ZA", "US"}
+var EuMemberStatesISO = []string{"AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"}
 
-var OrderedByPolish []*CountryOption
-var OrderedByEnglish []*CountryOption
+var all []CountryOption
+var mapped map[string]CountryOption
+var OrderedByPolish []CountryOption
+var OrderedByEnglish []CountryOption
+var PopularRegions []CountryOption
 
-var PopularRegionsPolish []*CountryOption
-var PopularRegionsEnglish []*CountryOption
+func All() []CountryOption {
+	return append([]CountryOption(nil), all...)
+}
+
+func SortByLabel(list []CountryOption, langCode string) []CountryOption {
+	collation := collate.New(language.English)
+	if langCode == "pl" {
+		collation = collate.New(language.Polish)
+	}
+
+	return slices.SortedFunc(slices.Values(list), func(co1 CountryOption, co2 CountryOption) int {
+		switch langCode {
+		case "pl":
+			return collation.CompareString(co1.LabelPl, co2.LabelPl)
+		default:
+			return collation.CompareString(co1.LabelEn, co2.LabelEn)
+		}
+	})
+}
+
+func OptionsFromISOCodeList(codes []string) []CountryOption {
+	result := make([]CountryOption, 0, len(codes))
+	for _, code := range codes {
+		if option, ok := mapped[code]; ok {
+			result = append(result, option)
+		}
+	}
+
+	return result
+}
 
 func init() {
-	var options []*CountryOption
-	if err := json.Unmarshal(CountryList, &options); err != nil {
+	if err := json.Unmarshal(CountryList, &all); err != nil {
 		log.Fatal(err)
 	}
-	colEN := collate.New(language.English)
-	colPL := collate.New(language.Polish)
-	OrderedByEnglish = slices.SortedFunc(slices.Values(options), func(co1, co2 *CountryOption) int {
-		return colEN.CompareString(co1.LabelEn, co2.LabelEn)
-	})
-	OrderedByPolish = slices.SortedFunc(slices.Values(options), func(co1, co2 *CountryOption) int {
-		return colPL.CompareString(co1.LabelPl, co2.LabelPl)
-	})
+	OrderedByEnglish = SortByLabel(all, "en")
+	OrderedByPolish = SortByLabel(all, "pl")
 
-	popularRegions := slices.DeleteFunc(options, func(e *CountryOption) bool {
-		return !slices.Contains(MostPopularRegionsISO, e.Value)
-	})
+	mapped = make(map[string]CountryOption)
+	for i, option := range all {
+		mapped[option.Value] = all[i]
+	}
 
-	PopularRegionsEnglish = slices.SortedFunc(slices.Values(popularRegions), func(co1 *CountryOption, co2 *CountryOption) int {
-		return colEN.CompareString(co1.LabelEn, co2.LabelEn)
-	})
-	PopularRegionsPolish = slices.SortedFunc(slices.Values(popularRegions), func(co1 *CountryOption, co2 *CountryOption) int {
-		return colPL.CompareString(co1.LabelPl, co2.LabelPl)
-	})
+	PopularRegions = OptionsFromISOCodeList(MostPopularRegionsISO)
 }

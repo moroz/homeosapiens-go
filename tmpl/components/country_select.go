@@ -12,7 +12,7 @@ type CountrySelectOptions struct {
 	Label    string
 }
 
-func mapOptions(options []*countries.CountryOption, lang string) []SelectOption {
+func mapOptions(options []countries.CountryOption, lang string) []SelectOption {
 	var combined []SelectOption
 	for _, o := range options {
 		label := o.LabelEn
@@ -29,15 +29,10 @@ func mapOptions(options []*countries.CountryOption, lang string) []SelectOption 
 }
 
 func buildCountryOptions(lang string) []SelectOption {
-	options := countries.OrderedByEnglish
-	popular := countries.PopularRegionsEnglish
-	if lang == "pl" {
-		options = countries.OrderedByPolish
-		popular = countries.PopularRegionsPolish
-	}
+	options := countries.SortByLabel(countries.All(), lang)
 
 	var combined []SelectOption
-	combined = mapOptions(popular, lang)
+	combined = mapOptions(countries.PopularRegions, lang)
 
 	combined = append(combined, SelectOption{
 		Label: "---",

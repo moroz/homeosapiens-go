@@ -19,6 +19,8 @@ require (
 	maragu.dev/gomponents v1.2.0
 )
 
+require github.com/stripe/stripe-go/v84 v84.3.0 // indirect
+
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/labstack/echo/v5 v5.0.0

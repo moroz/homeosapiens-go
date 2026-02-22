@@ -12,7 +12,7 @@ type CartService struct {
 	db queries.DBTX
 }
 
-func NewCartItemService(db queries.DBTX) *CartService {
+func NewCartService(db queries.DBTX) *CartService {
 	return &CartService{db}
 }
 

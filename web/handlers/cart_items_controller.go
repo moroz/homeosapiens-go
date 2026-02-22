@@ -20,7 +20,7 @@ type cartController struct {
 
 func CartController(db queries.DBTX) *cartController {
 	return &cartController{
-		cartService:  services.NewCartItemService(db),
+		cartService:  services.NewCartService(db),
 		eventService: services.NewEventService(db),
 	}
 }
