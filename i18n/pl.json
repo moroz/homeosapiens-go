@@ -57,7 +57,8 @@
 			"free": "Bezpłatne",
 			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
 			"learn_more": "Więcej informacji…",
-			"sign_up": "Rejestracja"
+			"sign_up": "Rejestracja",
+			"add_to_cart": "Dodaj do koszyka"
 		},
 		"users": {
 			"email": "Email:",

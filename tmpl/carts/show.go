@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
@@ -24,11 +25,8 @@ func deleteItemButton(ctx *types.CustomContext, eventId uuid.UUID) Node {
 		Input(Type("hidden"), Name("_method"), Value("DELETE")),
 		Input(Type("hidden"), Name("event_id"), Value(eventId.String())),
 		Button(Class("button tertiary p-2 font-normal text-xs"),
-			SVG(Class("h-4 w-4 fill-current"), Attr("viewBox", "0 0 640 640"), El("use", Href("/assets/xmark.svg#icon"))),
-			Span(
-				Class("block mb-0.5"),
-				Text(ctx.Localizer.MustLocalizeMessage(&i18n.Message{ID: "cart.table.delete"})),
-			),
+			icons.Icon(&icons.IconProps{Name: "xmark", Classes: "h-4 w-4"}),
+			Text(ctx.Localizer.MustLocalizeMessage(&i18n.Message{ID: "cart.table.delete"})),
 		),
 	)
 }
@@ -75,9 +73,15 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 						return Tr(
 							Td(
 								Class("text-left py-0"),
-								Div(Class("flex items-center gap-2"),
-									Text(title), deleteItemButton(ctx, item.Event.ID))),
-
+								Div(
+									Class("flex items-center gap-2"),
+									A(
+										Href(fmt.Sprintf("/events/%s", item.Event.Slug)),
+										Text(title),
+									),
+									deleteItemButton(ctx, item.Event.ID),
+								),
+							),
 							Td(Text(helpers.FormatPrice(*item.Event.BasePriceAmount, "PLN", ctx.Language))),
 							Td(Raw(fmt.Sprintf("&times; %d", item.CartLineItem.Quantity))),
 							Td(Text(helpers.FormatPrice(item.Subtotal, "PLN", ctx.Language))),

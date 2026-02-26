@@ -46,7 +46,8 @@
 			"free": "Free",
 			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
 			"learn_more": "Learn more…",
-			"sign_up": "Register"
+			"sign_up": "Register",
+			"add_to_cart": "Add to cart"
 		},
 		"users": {
 			"email": "Email:",

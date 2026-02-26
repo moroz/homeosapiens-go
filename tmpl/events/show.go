@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	twmerge "github.com/Oudwins/tailwind-merge-go"
-	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
@@ -49,18 +49,6 @@ func eventRegistrationButton(l *i18n.Localizer, event *services.EventDetailsDto)
 			Text(l.MustLocalizeMessage(&i18n.Message{
 				ID: "common.events.attendance_badge",
 			})),
-		),
-	)
-}
-
-func addToCartButton(l *i18n.Localizer, event *queries.Event) Node {
-	return Form(
-		Action("/cart_items"),
-		Method("POST"),
-		Input(Type("hidden"), Name("event_id"), Value(event.ID.String())),
-		Button(
-			Class("button"),
-			Text("Add to cart"),
 		),
 	)
 }
@@ -112,7 +100,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 		Div(Class("my-4 flex items-center gap-4"),
 			If(isFree && event.EventRegistration == nil, eventRegistrationSignInLink(l, event)),
 			If(isFree && event.EventRegistration != nil, eventRegistrationButton(l, event)),
-			If(!isFree && event.CountInCart == 0, addToCartButton(ctx.Localizer, event.Event)),
+			If(!isFree && event.CountInCart == 0, components.AddToCartButton(ctx.Localizer, event.Event, event.CountInCart)),
 			If(!isFree && event.CountInCart > 0, A(Href("/cart"), Text("View cart"))),
 			If(
 				event.RegistrationCount > 0,

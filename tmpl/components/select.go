@@ -1,6 +1,7 @@
 package components
 
 import (
+	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -77,9 +78,10 @@ func SelectComponent(opts *SelectOptions) Node {
 					}),
 				),
 
-				SVG(
-					Class("absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2 fill-slate-600"),
-					Attr("viewBox", "0 0 640 640"), El("use", Href("/assets/chevron-down.svg"))),
+				icons.Icon(&icons.IconProps{
+					Name:    "chevron-down",
+					Classes: "absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2 fill-slate-600",
+				}),
 			),
 		),
 	)
