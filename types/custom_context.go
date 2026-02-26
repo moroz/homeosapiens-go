@@ -25,17 +25,11 @@ type CustomContext struct {
 	RequestUrl  *url.URL
 	Flash       Flash
 	Cart        *queries.GetCartRow
+	CartId      *uuid.UUID
 }
 
 func NewContext(store securecookie.Store) *CustomContext {
 	return &CustomContext{store: store}
-}
-
-func (c *CustomContext) CartId() *uuid.UUID {
-	if c.Cart == nil {
-		return nil
-	}
-	return &c.Cart.CartID
 }
 
 func (c *CustomContext) IsPolish() bool {

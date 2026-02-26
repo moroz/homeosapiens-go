@@ -72,8 +72,14 @@ func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
 	cart := handlers.CartController(db)
-	r.POST("/cart_items", cart.Create)
 	r.GET("/cart", cart.Show)
+
+	cartItems := handlers.CartItemController(db)
+	r.POST("/cart_items", cartItems.Create)
+	r.DELETE("/cart_items", cartItems.Delete)
+
+	orders := handlers.OrderController(db)
+	r.GET("/checkout", orders.New)
 
 	Group(r, "", func(r *echo.Group) {
 		r.Use(middleware.RequireAuthenticatedUser)

@@ -32,6 +32,14 @@ func (s *CartService) AddEventToCart(ctx context.Context, cartId *uuid.UUID, eve
 	return item, nil
 }
 
+func (s *CartService) DeleteCartItem(ctx context.Context, cartId uuid.UUID, eventId uuid.UUID) (bool, error) {
+	id, err := queries.New(s.db).DeleteCartItem(ctx, &queries.DeleteCartItemParams{
+		CartID:  cartId,
+		EventID: eventId,
+	})
+	return id != uuid.UUID{}, err
+}
+
 type CartViewDto struct {
 	CartItems  []*queries.GetCartItemsByCartIdRow
 	GrandTotal decimal.Decimal

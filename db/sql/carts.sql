@@ -19,3 +19,6 @@ select sqlc.embed(c), sqlc.embed(e), (e.base_price_amount * c.quantity)::decimal
 from cart_line_items c
 join events e on c.event_id = e.id
 where c.cart_id = @cart_id::uuid;
+
+-- name: DeleteCartItem :one
+delete from cart_line_items cli where cart_id = @cart_id::uuid and event_id = @event_id::uuid returning id;

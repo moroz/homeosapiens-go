@@ -18,17 +18,16 @@ func FetchCartFromSession(db queries.DBTX) echo.MiddlewareFunc {
 
 			// Check if there is a cart ID stored in the session, or if the user is signed in
 			// (the user may have a default cart)
-			var cartId *uuid.UUID
 			if id, ok := ctx.Session["cart_id"].(uuid.UUID); ok {
-				cartId = &id
+				ctx.CartId = &id
 			}
 
 			// If there is no cart ID or user in the session, there can't possibly be a cart
-			if cartId == nil {
+			if ctx.CartId == nil {
 				return next(c)
 			}
 
-			cart, err := queries.New(db).GetCart(c.Request().Context(), *cartId)
+			cart, err := queries.New(db).GetCart(c.Request().Context(), *ctx.CartId)
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}

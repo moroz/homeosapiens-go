@@ -25,7 +25,7 @@ func (cc *eventController) Show(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 	slug := c.Param("slug")
 	user := ctx.User
-	event, err := cc.eventService.GetEventDetailsBySlug(c.Request().Context(), slug, user, ctx.CartId())
+	event, err := cc.eventService.GetEventDetailsBySlug(c.Request().Context(), slug, user, ctx.CartId)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return echo.ErrNotFound
 	}

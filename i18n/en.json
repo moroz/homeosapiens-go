@@ -116,7 +116,16 @@
 			"unit_price": "Unit price",
 			"quantity": "Quantity",
 			"subtotal": "Subtotal",
-			"grand_total": "Grand total"
+			"grand_total": "Grand total",
+			"delete": "Delete"
+		},
+		"go_to_checkout": "Go to checkout",
+		"continue_shopping": "Continue shopping"
+	},
+	"cart_items": {
+		"delete": {
+			"confirmation": "Do you really want to remove this event from your cart?",
+			"success": "The event has been successfully removed from your cart."
 		}
 	}
 }

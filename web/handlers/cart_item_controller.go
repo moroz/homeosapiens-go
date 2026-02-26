@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -9,29 +11,29 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
-	"github.com/moroz/homeosapiens-go/tmpl/carts"
 	"github.com/moroz/homeosapiens-go/web/helpers"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type cartController struct {
+type cartItemController struct {
 	cartService  *services.CartService
 	eventService *services.EventService
 }
 
-func CartController(db queries.DBTX) *cartController {
-	return &cartController{
+func CartItemController(db queries.DBTX) *cartItemController {
+	return &cartItemController{
 		cartService:  services.NewCartService(db),
 		eventService: services.NewEventService(db),
 	}
 }
 
-type createLineItemParams struct {
+type lineItemParams struct {
 	EventId uuid.UUID `form:"event_id"`
 }
 
-func (cc *cartController) Create(c *echo.Context) error {
+func (cc *cartItemController) Create(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	var params createLineItemParams
+	var params lineItemParams
 	if err := c.Bind(&params); err != nil {
 		return err
 	}
@@ -41,12 +43,12 @@ func (cc *cartController) Create(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	cartItem, err := cc.cartService.AddEventToCart(c.Request().Context(), ctx.CartId(), params.EventId)
+	cartItem, err := cc.cartService.AddEventToCart(c.Request().Context(), ctx.CartId, params.EventId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	if ctx.CartId() == nil {
+	if ctx.CartId == nil {
 		ctx.Session[config.CartIdSessionKey] = cartItem.CartID
 		if err := ctx.SaveSession(c.Response()); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -56,12 +58,25 @@ func (cc *cartController) Create(c *echo.Context) error {
 	return c.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
 }
 
-func (cc *cartController) Show(c *echo.Context) error {
+func (cc *cartItemController) Delete(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	cart, err := cc.cartService.GetCartItemsByCartId(c.Request().Context(), ctx.CartId())
-	if err != nil {
+	var params lineItemParams
+	if err := c.Bind(&params); err != nil {
 		return err
 	}
 
-	return carts.Show(ctx, cart).Render(c.Response())
+	if ctx.CartId != nil {
+		found, err := cc.cartService.DeleteCartItem(c.Request().Context(), *ctx.CartId, params.EventId)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		if found {
+			ctx.PutFlash("success", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
+				ID: "cart_items.delete.success",
+			}))
+		}
+	}
+
+	return c.Redirect(http.StatusFound, "/cart")
 }

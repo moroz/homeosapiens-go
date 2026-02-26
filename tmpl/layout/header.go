@@ -4,6 +4,7 @@ import (
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/shopspring/decimal"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
@@ -48,12 +49,12 @@ func desktopNav(ctx *types.CustomContext) Node {
 		),
 		Div(
 			Class("mobile:hidden z-20 flex items-center gap-1"),
-			Iff(ctx.Cart != nil, func() Node {
+			Iff(ctx.Cart != nil && !ctx.Cart.ProductTotal.Equal(decimal.Zero), func() Node {
 				return A(Href("/cart"), Class("button tertiary z-20 gap-1"),
 					Title(l.MustLocalizeMessage(&i18n.Message{
 						ID: "header.cart",
 					})),
-					SVG(Class("h-5 w-5 fill-current"), Attr("viewBox", "0 0 576 512"), El("use", Href("/assets/basket.svg#icon"))),
+					SVG(Class("h-5 w-5 fill-current"), Attr("viewBox", "0 0 640 640"), El("use", Href("/assets/cart-shopping.svg#icon"))),
 					Text(helpers.FormatPrice(ctx.Cart.ProductTotal, "PLN", ctx.Language)),
 				)
 			}),

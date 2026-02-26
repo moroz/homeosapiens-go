@@ -48,6 +48,22 @@ func (q *Queries) CountCartLineItemQuantitiesForEvents(ctx context.Context, arg 
 	return items, nil
 }
 
+const deleteCartItem = `-- name: DeleteCartItem :one
+delete from cart_line_items cli where cart_id = $1::uuid and event_id = $2::uuid returning id
+`
+
+type DeleteCartItemParams struct {
+	CartID  uuid.UUID `json:"cartId"`
+	EventID uuid.UUID `json:"eventId"`
+}
+
+func (q *Queries) DeleteCartItem(ctx context.Context, arg *DeleteCartItemParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, deleteCartItem, arg.CartID, arg.EventID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getCart = `-- name: GetCart :one
 select cli.cart_id, count(cli.id) item_count, sum(cli.quantity * e.base_price_amount)::decimal product_total
 from cart_line_items cli

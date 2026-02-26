@@ -127,7 +127,16 @@
 			"unit_price": "Cena",
 			"quantity": "Ilość",
 			"subtotal": "Podsuma",
-			"grand_total": "Łącznie"
+			"grand_total": "Łącznie",
+			"delete": "Usuń"
+		},
+		"go_to_checkout": "Przejdź do podsumowania",
+		"continue_shopping": "Kontynuuj zakupy"
+	},
+	"cart_items": {
+		"delete": {
+			"confirmation": "Czy na pewno chcesz usunąć to wydarzenie z koszyka?",
+			"success": "Wydarzenie zostało usunięte z koszyka."
 		}
 	}
 }

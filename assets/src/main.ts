@@ -51,3 +51,12 @@ document.querySelectorAll(".index-table [data-url]").forEach((row) => {
 		location.href = url;
 	});
 });
+
+document.querySelectorAll("form[data-confirm]").forEach((form) => {
+	form.addEventListener("submit", (e) => {
+		const text = form.getAttribute("data-confirm")!;
+		if (!confirm(text)) {
+			e.preventDefault();
+		}
+	});
+});
