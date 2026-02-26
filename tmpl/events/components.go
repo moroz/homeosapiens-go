@@ -52,7 +52,7 @@ func EventAttendanceBadge(l *i18n.Localizer) Node {
 	messageKey := "common.events.attendance_badge"
 
 	return Span(
-		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-primary/20 bg-primary/10 px-2 py-1 text-sm font-semibold text-primary"),
+		Class("border-primary/20 bg-primary/10 text-primary inline-flex items-center justify-center gap-1 rounded-sm border px-2 py-1 text-sm font-semibold"),
 		EventAttendanceIcon(true),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: messageKey,
@@ -109,7 +109,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 		Header(
 			Class("flex flex-1 flex-col items-start"),
 			Div(
-				Class("mb-2 flex items-center gap-2 flex-wrap"),
+				Class("mb-2 flex flex-wrap items-center gap-2"),
 				EventLocationBadge(e, localizer, ctx.Language),
 				If(e.EventRegistration != nil, EventAttendanceBadge(localizer)),
 
@@ -145,10 +145,10 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			),
 
 			Div(
-				Class("mobile:grid gap-4 w-full mt-auto flex items-center"),
+				Class("mobile:grid mt-auto flex w-full items-center gap-4"),
 				If(isFuture && e.EventRegistration == nil, A(
 					Href(eventUrl+"/register"),
-					Class("button px-6 mobile:w-full"),
+					Class("button mobile:w-full px-6"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "common.events.sign_up",
 					})),
@@ -192,8 +192,8 @@ func formatEventPrice(ctx *types.CustomContext, e *services.EventListDto) Node {
 	}
 
 	return Div(
-		Class("desktop:grid leading-tight mobile:row-start-1"),
-		Span(Class("desktop:text-xs font-semibold desktop:text-gray-500 desktop:uppercase mobile:after:content-[':_']"), Text(label)),
+		Class("desktop:grid mobile:row-start-1 leading-tight"),
+		Span(Class("desktop:text-xs desktop:text-gray-500 desktop:uppercase mobile:after:content-[':_'] font-semibold"), Text(label)),
 		Span(Class("text-lg"), Text(priceFormatted)),
 	)
 }

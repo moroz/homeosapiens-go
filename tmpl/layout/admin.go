@@ -10,7 +10,7 @@ func navLink(children ...Node) Node {
 	return Li(
 		Class("-mx-3"),
 		A(
-			Class("flex h-10 w-full hover:bg-white/10 items-center px-3"),
+			Class("flex h-10 w-full items-center px-3 hover:bg-white/10"),
 			Group(children),
 		),
 	)
@@ -21,9 +21,9 @@ func AdminLayout(ctx *types.CustomContext, title string, children ...Node) Node 
 		Div(
 			Class("grid h-screen grid-cols-[300px_1fr]"),
 			Aside(
-				Class("bg-slate-700 text-white p-6 gap-6 flex flex-col"),
+				Class("flex flex-col gap-6 bg-slate-700 p-6 text-white"),
 				Header(
-					H1(Class("font-bold text-2xl"), Text("Homeo sapiens")),
+					H1(Class("text-2xl font-bold"), Text("Homeo sapiens")),
 					H2(Text("Admin panel")),
 				),
 				Nav(
@@ -42,7 +42,7 @@ func AdminLayout(ctx *types.CustomContext, title string, children ...Node) Node 
 			),
 			Main(
 				Class("p-6"),
-				Div(Class("container max-w-300 mx-auto"), Group(children)),
+				Div(Class("container mx-auto max-w-300"), Group(children)),
 			),
 		),
 	)

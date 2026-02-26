@@ -109,7 +109,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 				),
 			),
 		),
-		Div(Class("my-4 flex gap-4 items-center"),
+		Div(Class("my-4 flex items-center gap-4"),
 			If(isFree && event.EventRegistration == nil, eventRegistrationSignInLink(l, event)),
 			If(isFree && event.EventRegistration != nil, eventRegistrationButton(l, event)),
 			If(!isFree && event.CountInCart == 0, addToCartButton(ctx.Localizer, event.Event)),

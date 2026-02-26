@@ -47,13 +47,13 @@ func desktopNav(ctx *types.CustomContext) Node {
 			),
 		),
 		Div(
-			Class("z-20 flex items-center gap-1 mobile:hidden"),
+			Class("mobile:hidden z-20 flex items-center gap-1"),
 			Iff(ctx.Cart != nil, func() Node {
 				return A(Href("/cart"), Class("button tertiary z-20 gap-1"),
 					Title(l.MustLocalizeMessage(&i18n.Message{
 						ID: "header.cart",
 					})),
-					SVG(Class("fill-current h-5 w-5"), Attr("viewBox", "0 0 576 512"), El("use", Href("/assets/basket.svg#icon"))),
+					SVG(Class("h-5 w-5 fill-current"), Attr("viewBox", "0 0 576 512"), El("use", Href("/assets/basket.svg#icon"))),
 					Text(helpers.FormatPrice(ctx.Cart.ProductTotal, "PLN", ctx.Language)),
 				)
 			}),
