@@ -14,6 +14,8 @@ github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 h1:DklsrG3d
 github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
 github.com/bincyber/go-sqlcrypter v0.2.0 h1:RN37uO15GWNIrR8HMC2JYMKj7nutZrQUyA9u+Uw2IKs=
 github.com/bincyber/go-sqlcrypter v0.2.0/go.mod h1:UREzsLJG+jhsO2F7ASwhQB05Jr7JWfarsEcjToWUhRs=
+github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a h1:NtjeEx9EbZH6iM4BCho0yBMr7VjDu8MagoWU+dBKGpo=
+github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a/go.mod h1:g4F5sZT1Eult6KqY9vzZ6Uf9H5FwP3WsHx8NX3UNfN8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

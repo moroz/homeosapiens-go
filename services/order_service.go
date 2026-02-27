@@ -13,5 +13,5 @@ type OrderService struct {
 }
 
 func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *queries.User, params *types.OrderParams) (*queries.Order, error) {
-
+	return nil, nil
 }

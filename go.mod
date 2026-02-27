@@ -19,7 +19,10 @@ require (
 	maragu.dev/gomponents v1.2.0
 )
 
-require github.com/stripe/stripe-go/v84 v84.3.0 // indirect
+require (
+	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a // indirect
+	github.com/stripe/stripe-go/v84 v84.3.0 // indirect
+)
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
