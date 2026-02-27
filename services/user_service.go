@@ -29,8 +29,7 @@ var ErrNoPasswordHash = errors.New("user has no password set")
 
 func (s *UserService) AuthenticateUserByEmailPassword(ctx context.Context, email, password string) (*queries.User, error) {
 	tmpl := "AuthenticateUserByEmailPassword: %w"
-	normalizedEmail := crypto.HashEmail(email)
-	user, err := queries.New(s.db).GetUserByEmail(ctx, normalizedEmail)
+	user, err := s.FindUserByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf(tmpl, err)
 	}
@@ -46,6 +45,11 @@ func (s *UserService) AuthenticateUserByEmailPassword(ctx context.Context, email
 		return nil, fmt.Errorf(tmpl, err)
 	}
 	return user, nil
+}
+
+func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*queries.User, error) {
+	normalizedEmail := crypto.HashEmail(email)
+	return queries.New(s.db).GetUserByEmail(ctx, normalizedEmail)
 }
 
 func (s *UserService) CreateUser(ctx context.Context, params *types.CreateUserParams) (*queries.User, error) {

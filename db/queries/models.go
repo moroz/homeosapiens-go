@@ -333,6 +333,7 @@ type Order struct {
 	BillingCity            sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
 	BillingPostalCode      *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
 	BillingCountry         string                     `json:"billingCountry"`
+	Email                  sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
 }
 
 type OrderLineItem struct {

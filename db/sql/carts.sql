@@ -22,3 +22,6 @@ where c.cart_id = @cart_id::uuid;
 
 -- name: DeleteCartItem :one
 delete from cart_line_items cli where cart_id = @cart_id::uuid and event_id = @event_id::uuid returning id;
+
+-- name: DeleteCart :exec
+delete from cart_line_items where cart_id = @cart_id::uuid;

@@ -48,6 +48,15 @@ func (q *Queries) CountCartLineItemQuantitiesForEvents(ctx context.Context, arg 
 	return items, nil
 }
 
+const deleteCart = `-- name: DeleteCart :exec
+delete from cart_line_items where cart_id = $1::uuid
+`
+
+func (q *Queries) DeleteCart(ctx context.Context, cartID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteCart, cartID)
+	return err
+}
+
 const deleteCartItem = `-- name: DeleteCartItem :one
 delete from cart_line_items cli where cart_id = $1::uuid and event_id = $2::uuid returning id
 `

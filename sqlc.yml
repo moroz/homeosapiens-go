@@ -150,11 +150,9 @@ sql:
               package: "sqlcrypter"
 
           - column: "orders.billing_city_encrypted"
-            nullable: false
             go_type:
               import: "github.com/bincyber/go-sqlcrypter"
               type: "EncryptedBytes"
-              pointer: false
               package: "sqlcrypter"
 
           - column: "orders.billing_postal_code_encrypted"
@@ -163,4 +161,10 @@ sql:
               import: "github.com/bincyber/go-sqlcrypter"
               type: "EncryptedBytes"
               pointer: true
+              package: "sqlcrypter"
+
+          - column: "orders.email_encrypted"
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
               package: "sqlcrypter"
