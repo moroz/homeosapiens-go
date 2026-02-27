@@ -20,6 +20,15 @@ sql:
           family_name_encrypted: "FamilyName"
           email_encrypted: "Email"
           licence_number_encrypted: "LicenceNumber"
+          billing_given_name_encrypted: "BillingGivenName"
+          billing_family_name_encrypted: "BillingFamilyName"
+          billing_phone_encrypted: "BillingPhone"
+          billing_street_encrypted: "BillingStreet"
+          billing_house_number_encrypted: "BillingHouseNumber"
+          billing_apartment_number_encrypted: "BillingApartmentNumber"
+          billing_city_encrypted: "BillingCity"
+          billing_postal_code_encrypted: "BillingPostalCode"
+          billing_country: "BillingCountry"
         overrides:
           - db_type: "uuid"
             nullable: true
@@ -85,6 +94,70 @@ sql:
               pointer: true
               package: "sqlcrypter"
           - column: "users.licence_number_encrypted"
+            nullable: true
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: true
+              package: "sqlcrypter"
+
+          - column: "orders.billing_given_name_encrypted"
+            nullable: false
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: false
+              package: "sqlcrypter"
+
+          - column: "orders.billing_family_name_encrypted"
+            nullable: false
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: false
+              package: "sqlcrypter"
+
+          - column: "orders.billing_phone_encrypted"
+            nullable: true
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: true
+              package: "sqlcrypter"
+
+          - column: "orders.billing_street_encrypted"
+            nullable: false
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: false
+              package: "sqlcrypter"
+
+          - column: "orders.billing_house_number_encrypted"
+            nullable: false
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: false
+              package: "sqlcrypter"
+
+          - column: "orders.billing_apartment_number_encrypted"
+            nullable: true
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: true
+              package: "sqlcrypter"
+
+          - column: "orders.billing_city_encrypted"
+            nullable: false
+            go_type:
+              import: "github.com/bincyber/go-sqlcrypter"
+              type: "EncryptedBytes"
+              pointer: false
+              package: "sqlcrypter"
+
+          - column: "orders.billing_postal_code_encrypted"
             nullable: true
             go_type:
               import: "github.com/bincyber/go-sqlcrypter"
