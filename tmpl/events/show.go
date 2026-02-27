@@ -100,10 +100,10 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 		Div(Class("my-4 flex items-center gap-4"),
 			If(isFree && event.EventRegistration == nil, eventRegistrationSignInLink(l, event)),
 			If(isFree && event.EventRegistration != nil, eventRegistrationButton(l, event)),
-			If(!isFree && event.CountInCart == 0, components.AddToCartButton(ctx.Localizer, event.Event, event.CountInCart)),
-			If(!isFree && event.CountInCart > 0, A(Href("/cart"), Text("View cart"))),
+			If(!isFree, components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
+			If(!isFree && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
 			If(
-				event.RegistrationCount > 0,
+				isFree && event.RegistrationCount > 0,
 				Text(l.MustLocalize(&i18n.LocalizeConfig{
 					DefaultMessage: &i18n.Message{
 						ID: "common.events.attendance_count",
@@ -114,7 +114,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 					PluralCount: event.RegistrationCount,
 				})),
 			),
-			If(event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
+			If(isFree && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 		),
 		helpers.MarkdownContent(description, "mt-4 w-full"),
 	))

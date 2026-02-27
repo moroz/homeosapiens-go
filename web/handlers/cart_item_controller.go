@@ -55,7 +55,12 @@ func (cc *cartItemController) Create(c *echo.Context) error {
 		}
 	}
 
-	return c.Redirect(http.StatusFound, fmt.Sprintf("/events/%s", event.Slug))
+	redirectTo := c.Request().Referer()
+	if redirectTo == "" {
+		redirectTo = fmt.Sprintf("/events/%s", event.Slug)
+	}
+
+	return c.Redirect(http.StatusFound, redirectTo)
 }
 
 func (cc *cartItemController) Delete(c *echo.Context) error {

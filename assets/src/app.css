@@ -37,7 +37,7 @@
 
 @layer components {
 	.button {
-		@apply bg-primary hover:bg-primary-hover inline-flex cursor-pointer items-center justify-center rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
+		@apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-blue-700 px-4 py-2 text-center font-bold text-white transition-colors hover:bg-blue-600;
 
 		&.secondary {
 			@apply text-primary border border-slate-300 bg-slate-100 hover:bg-slate-200;
@@ -49,6 +49,10 @@
 
 		&.outline {
 			@apply border-primary text-primary border bg-white shadow hover:bg-slate-100;
+		}
+
+		:is(&).success {
+			@apply border border-green-900/20 bg-green-100 text-green-900 hover:bg-green-200/90;
 		}
 	}
 

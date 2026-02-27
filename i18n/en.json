@@ -47,7 +47,9 @@
 			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
 			"learn_more": "Learn more…",
 			"sign_up": "Register",
-			"add_to_cart": "Add to cart"
+			"add_to_cart": "Add to cart",
+			"added_to_cart": "Added to cart",
+			"view_cart": "View cart"
 		},
 		"users": {
 			"email": "Email:",

@@ -58,7 +58,9 @@
 			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
 			"learn_more": "Więcej informacji…",
 			"sign_up": "Rejestracja",
-			"add_to_cart": "Dodaj do koszyka"
+			"add_to_cart": "Dodaj do koszyka",
+			"added_to_cart": "W koszyku",
+			"view_cart": "Przejdź do koszyka"
 		},
 		"users": {
 			"email": "Email:",

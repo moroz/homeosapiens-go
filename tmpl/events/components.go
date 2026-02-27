@@ -8,6 +8,7 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -103,6 +104,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 	tz := ctx.Timezone
 
 	isFuture := e.StartsAt.Time.After(time.Now())
+	isFree := e.BasePriceAmount == nil
 
 	return Article(
 		Class("card flex justify-between gap-6"),
@@ -146,13 +148,16 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 			Div(
 				Class("mobile:grid mt-auto flex w-full items-center gap-4"),
-				If(isFuture && e.EventRegistration == nil, A(
+				If(isFuture && isFree && e.EventRegistration == nil, A(
 					Href(eventUrl+"/register"),
 					Class("button mobile:w-full px-6"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "common.events.sign_up",
 					})),
 				)),
+				If(isFuture && !isFree && e.EventRegistration == nil,
+					components.AddToCartButton(localizer, e.ListEventsRow.ID, e.CountInCart),
+				),
 
 				A(
 					Href(eventUrl),
