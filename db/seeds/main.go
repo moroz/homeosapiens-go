@@ -279,7 +279,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		},
 	}
 	log.Printf("Creating events...")
-	q := queries.New(db)
+	q := queries.New(tx)
 	for _, event := range events {
 		params := &queries.UpsertEventParams{
 			ID:                event.ID,
@@ -469,5 +469,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		}
 	}
 
-	tx.Commit(context.Background())
+	if err := tx.Commit(context.Background()); err != nil {
+		log.Fatal(err)
+	}
 }

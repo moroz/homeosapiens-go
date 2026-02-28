@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
-	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/securecookie"
 )
@@ -18,15 +16,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bundle, err := i18n.InitBundle()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	sessionStore, err := securecookie.NewStore(config.SessionKey)
 
-	r := router.Router(db, bundle, sessionStore)
+	r := router.Router(db, sessionStore)
 	listenOn := ":" + config.AppPort
-	log.Printf("Listening on %s", listenOn)
-	log.Fatal(http.ListenAndServe(listenOn, r))
+	log.Fatal(r.Start(listenOn))
 }

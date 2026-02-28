@@ -1,18 +1,17 @@
 ﻿package router
 
 import (
-	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v5"
 	echomiddleware "github.com/labstack/echo/v5/middleware"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/handlers"
 	"github.com/moroz/homeosapiens-go/web/middleware"
 	"github.com/moroz/securecookie"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
@@ -20,8 +19,13 @@ func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db queries.DBTX, bundle *i18n.Bundle, store securecookie.Store) http.Handler {
+func Router(db queries.DBTX, store securecookie.Store) *echo.Echo {
 	r := echo.New()
+
+	bundle, err := i18n.InitBundle()
+	if err != nil {
+		panic(err)
+	}
 
 	r.Pre(echomiddleware.MethodOverrideWithConfig(echomiddleware.MethodOverrideConfig{
 		Getter: echomiddleware.MethodFromForm("_method"),

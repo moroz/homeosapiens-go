@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
+// PaddingBlockSize defines the length of the PKCS#7 padding block that we use to pad encrypted columns in the database. This is to mitigate leaking the length of the plaintext.
 const PaddingBlockSize = 32
 
 // ChachaCrypter implements the sqlcrypter.Crypterer interface. The implementation in this file is mostly a blatant copy of https://github.com/bincyber/go-sqlcrypter/blob/master/providers/aesgcm/aes.go
