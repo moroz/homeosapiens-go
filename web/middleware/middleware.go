@@ -5,11 +5,11 @@ import (
 	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
-	"github.com/moroz/securecookie"
+	"github.com/moroz/homeosapiens-go/web/session"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-func ExtendContext(store securecookie.Store) echo.MiddlewareFunc {
+func ExtendContext(store *session.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			c.Set("context", types.NewContext(store))

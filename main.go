@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/web/router"
-	"github.com/moroz/securecookie"
+	"github.com/moroz/homeosapiens-go/web/session"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sessionStore, err := securecookie.NewStore(config.SessionKey)
+	sessionStore, err := session.NewStore(config.SessionKey)
 
 	r := router.Router(db, sessionStore)
 	listenOn := ":" + config.AppPort

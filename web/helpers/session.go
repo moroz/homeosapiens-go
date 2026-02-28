@@ -5,15 +5,11 @@ import (
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/types"
-	"github.com/moroz/securecookie"
+	"github.com/moroz/homeosapiens-go/web/session"
 )
 
-func SaveSession(w http.ResponseWriter, store securecookie.Store, session types.SessionData) error {
-	bytes, err := session.Encode()
-	if err != nil {
-		return err
-	}
-	cookie, err := store.EncryptCookie(bytes)
+func SaveSession(w http.ResponseWriter, store *session.Store, session session.Payload) error {
+	cookie, err := store.EncodeSession(session)
 	if err != nil {
 		return err
 	}

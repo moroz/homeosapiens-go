@@ -11,7 +11,7 @@ import (
 	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/handlers"
 	"github.com/moroz/homeosapiens-go/web/middleware"
-	"github.com/moroz/securecookie"
+	"github.com/moroz/homeosapiens-go/web/session"
 )
 
 func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
@@ -19,7 +19,7 @@ func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db queries.DBTX, store securecookie.Store) *echo.Echo {
+func Router(db queries.DBTX, store *session.Store) *echo.Echo {
 	r := echo.New()
 
 	bundle, err := i18n.InitBundle()
@@ -44,7 +44,7 @@ func Router(db queries.DBTX, store securecookie.Store) *echo.Echo {
 	r.Use(middleware.ExtendContext(store))
 	r.Use(middleware.StoreRequestUrlInContext)
 
-	r.Use(middleware.FetchSessionFromCookies(config.SessionCookieName))
+	r.Use(middleware.FetchSessionFromCookies(store, config.SessionCookieName))
 	r.Use(middleware.FetchFlashMessages(store))
 	r.Use(middleware.FetchUserFromSession(db))
 	r.Use(middleware.FetchCartFromSession(db))
