@@ -12,6 +12,11 @@ type CartService struct {
 	db queries.DBTX
 }
 
+type CartViewDto struct {
+	CartItems  []*queries.GetCartItemsByCartIdRow
+	GrandTotal decimal.Decimal
+}
+
 func NewCartService(db queries.DBTX) *CartService {
 	return &CartService{db}
 }
@@ -40,11 +45,6 @@ func (s *CartService) DeleteCartItem(ctx context.Context, cartId uuid.UUID, even
 	return id != uuid.UUID{}, err
 }
 
-type CartViewDto struct {
-	CartItems  []*queries.GetCartItemsByCartIdRow
-	GrandTotal decimal.Decimal
-}
-
 func (s *CartService) GetCartItemsByCartId(ctx context.Context, cartId *uuid.UUID) (*CartViewDto, error) {
 	result := CartViewDto{
 		CartItems:  nil,
@@ -66,4 +66,8 @@ func (s *CartService) GetCartItemsByCartId(ctx context.Context, cartId *uuid.UUI
 	}
 
 	return &result, nil
+}
+
+func (c *CartViewDto) IsEmpty() bool {
+	return len(c.CartItems) == 0
 }

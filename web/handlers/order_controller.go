@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -24,7 +26,15 @@ func (cc *orderController) New(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	_ = cart
+
+	if cart.IsEmpty() {
+		ctx.PutFlash("error", "Your cart is currently empty.")
+		if err := ctx.SaveSession(c.Response()); err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusSeeOther, "/cart")
+	}
 
 	return orders.New(ctx).Render(c.Response())
 }
