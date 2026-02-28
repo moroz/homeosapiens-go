@@ -169,4 +169,24 @@ func TestCartFlow(t *testing.T) {
 
 		assert.NotEmpty(t, flash["error"])
 	})
+
+	t.Run("checkout displays form when there are items in cart", func(t *testing.T) {
+		cartId := uuid.Must(uuid.NewV7())
+		item, err := queries.New(db).InsertCartLineItem(t.Context(), &queries.InsertCartLineItemParams{
+			CartID:  cartId,
+			EventID: PaidEventId,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, item)
+
+		client, err := clientWithSession(store, origin, session.Payload{
+			config.CartIdSessionKey: cartId,
+		})
+		require.NoError(t, err)
+
+		resp, err := client.Get(srv.URL + "/checkout")
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+	})
 }
