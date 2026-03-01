@@ -14,14 +14,16 @@ require (
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.47.0
 	golang.org/x/oauth2 v0.33.0
-	golang.org/x/text v0.33.0
+	golang.org/x/text v0.34.0
 	google.golang.org/api v0.256.0
 	maragu.dev/gomponents v1.2.0
 )
 
 require (
 	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a // indirect
+	github.com/nyaruka/phonenumbers v1.6.10 // indirect
 	github.com/stripe/stripe-go/v84 v84.3.0 // indirect
+	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
 )
 
 require (
@@ -60,7 +62,7 @@ require (
 	golang.org/x/sys v0.40.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251103181224-f26f9409b101 // indirect
 	google.golang.org/grpc v1.76.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/gorm v1.31.1 // indirect
 )

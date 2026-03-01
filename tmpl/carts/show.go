@@ -82,7 +82,7 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 					HelperText:   l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_phone_helper_text"}),
 					Localizer:    l,
 				}),
-			
+
 				components.InputField(&components.InputFieldOptions{
 					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_street"}),
 					Name:         "billing_street",
