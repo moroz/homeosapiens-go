@@ -32,6 +32,10 @@ func All() []CountryOption {
 	return append([]CountryOption(nil), all...)
 }
 
+func EuMemberStates() []CountryOption {
+	return OptionsFromISOCodeList(EuMemberStatesISO)
+}
+
 func SortByLabel(list []CountryOption, langCode string) []CountryOption {
 	collation := collate.New(language.English)
 	if langCode == "pl" {

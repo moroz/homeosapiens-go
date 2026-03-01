@@ -14,6 +14,7 @@ type SelectOptions struct {
 	Value        string
 	Required     bool
 	Autocomplete string
+	HelperText   string
 	Options      []SelectOption
 	Localizer    *i18n.Localizer
 }
@@ -41,7 +42,8 @@ func SelectComponent(opts *SelectOptions) Node {
 		Class(class),
 		Label(
 			For(id), Class("label grid gap-1"),
-			Span(
+			Div(
+				Class("leading-tight"),
 				Span(
 					Class("font-semibold"),
 					Text(opts.Label),
@@ -59,6 +61,12 @@ func SelectComponent(opts *SelectOptions) Node {
 						Text("*"),
 					),
 				),
+
+				If(opts.HelperText != "", Span(
+					Class("helper-text block text-sm"),
+					ID(opts.ID+"-helper"),
+					Text(opts.HelperText),
+				)),
 			),
 
 			Div(

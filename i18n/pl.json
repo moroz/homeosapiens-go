@@ -141,5 +141,15 @@
 			"confirmation": "Czy na pewno chcesz usunąć to wydarzenie z koszyka?",
 			"success": "Wydarzenie zostało usunięte z koszyka."
 		}
+	},
+	"orders": {
+		"form": {
+			"billing_country": "Kraj:",
+			"billing_street": "Ulica:",
+			"billing_house_number": "Numer domu:",
+			"billing_phone": "Numer telefonu lub WhatsApp:",
+			"billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. +44 7700 900 123.",
+			"billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej."
+		}
 	}
 }

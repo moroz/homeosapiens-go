@@ -1,13 +1,11 @@
 package carts
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
-	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
-	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -41,70 +39,57 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 		Div(Class("card"),
 			H2(Class("page-title"), Text(title)),
 
-			Table(
-				Class("cart-table"),
-				THead(
-					Tr(
-						Th(
-							Class("text-left"),
-							Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart.table.product_title"})),
-						),
-						Th(
-							Class("w-25"),
-							Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart.table.unit_price"})),
-						),
-						Th(
-							Class("w-25"),
-							Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart.table.quantity"})),
-						),
-						Th(
-							Class("w-25"),
-							Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart.table.subtotal"})),
-						),
-					),
-				),
-				TBody(
-					Map(cart.CartItems, func(item *queries.GetCartItemsByCartIdRow) Node {
-						title := item.Event.TitleEn
-						if ctx.Language == "pl" {
-							title = item.Event.TitlePl
-						}
+			CartTable(ctx, cart),
 
-						return Tr(
-							Td(
-								Class("text-left py-0"),
-								Div(
-									Class("flex items-center gap-2"),
-									A(
-										Href(fmt.Sprintf("/events/%s", item.Event.Slug)),
-										Text(title),
-									),
-									deleteItemButton(ctx, item.Event.ID),
-								),
-							),
-							Td(Text(helpers.FormatPrice(*item.Event.BasePriceAmount, "PLN", ctx.Language))),
-							Td(Raw(fmt.Sprintf("&times; %d", item.CartLineItem.Quantity))),
-							Td(Text(helpers.FormatPrice(item.Subtotal, "PLN", ctx.Language))),
-						)
+			H3(Class("text-2xl font-bold text-primary my-3"), Text("Billing address")),
+
+			Form(
+				Action("/orders"),
+				Method("POST"),
+				Class("grid gap-4"),
+				components.InputGroup(
+					components.InputField(&components.InputFieldOptions{
+						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "common.users.given_name"}),
+						Name:         "billing_given_name",
+						Autocomplete: "given-name",
+						Required:     true,
+						Localizer:    l,
+					}),
+
+					components.InputField(&components.InputFieldOptions{
+						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "common.users.family_name"}),
+						Name:         "billing_family_name",
+						Autocomplete: "family-name",
+						Required:     true,
+						Localizer:    l,
 					}),
 				),
-				TFoot(
-					Tr(
-						Th(Class("text-right"), Scope("row"), ColSpan("3"), Text(l.MustLocalizeMessage(&i18n.Message{
-							ID: "cart.table.grand_total",
-						}))),
-						Td(Text(helpers.FormatPrice(cart.GrandTotal, "PLN", ctx.Language))),
-					),
-				),
-			),
-			Section(
-				Class("flex justify-between"),
-				A(Href("/"), Class("button secondary"), Text(l.MustLocalizeMessage(&i18n.Message{
-					ID: "cart.continue_shopping",
-				}))),
-				A(Href("/checkout"), Class("button"), Text(l.MustLocalizeMessage(&i18n.Message{
-					ID: "cart.go_to_checkout",
-				}))),
+				components.CountrySelect(&components.CountrySelectOptions{
+					Name:       "billing_country",
+					Language:   ctx.Language,
+					Value:      "",
+					Required:   true,
+					Label:      l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_country"}),
+					HelperText: l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_country_helper_text"}),
+					Countries:  countries.EuMemberStates(),
+				}),
+
+				components.InputField(&components.InputFieldOptions{
+					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_phone"}),
+					Name:         "billing_phone",
+					Autocomplete: "tel",
+					Required:     false,
+					HelperText:   l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_phone_helper_text"}),
+					Localizer:    l,
+				}),
+			
+				components.InputField(&components.InputFieldOptions{
+					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_street"}),
+					Name:         "billing_street",
+					Autocomplete: "billing street-address",
+					Required:     true,
+					Localizer:    l,
+				}),
 			),
 		),
 	)

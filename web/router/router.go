@@ -32,6 +32,7 @@ func Router(db queries.DBTX, store *session.Store) *echo.Echo {
 	}))
 	r.Use(echomiddleware.RequestID())
 	r.Use(echomiddleware.RequestLogger())
+	r.Use(echomiddleware.Recover())
 
 	if config.IsProd {
 		r.IPExtractor = echo.ExtractIPFromXFFHeader()
@@ -81,9 +82,6 @@ func Router(db queries.DBTX, store *session.Store) *echo.Echo {
 	cartItems := handlers.CartItemController(db)
 	r.POST("/cart_items", cartItems.Create)
 	r.DELETE("/cart_items", cartItems.Delete)
-
-	orders := handlers.OrderController(db)
-	r.GET("/checkout", orders.New)
 
 	Group(r, "", func(r *echo.Group) {
 		r.Use(middleware.RequireAuthenticatedUser)

@@ -130,5 +130,14 @@
 			"confirmation": "Do you really want to remove this event from your cart?",
 			"success": "The event has been successfully removed from your cart."
 		}
+	},
+	"orders": {
+		"form": {
+			"billing_country": "Country:",
+			"billing_street": "Street:",
+			"billing_house_number": "House number:",
+			"billing_phone": "Phone number or WhatsApp:",
+			"billing_phone_helper_text": "For numbers from outside Poland, include the country code (e.g., +44 7700 900123)."
+		}
 	}
 }

@@ -69,7 +69,7 @@
 	}
 
 	.input-field {
-		@apply grid gap-1;
+		@apply grid w-full gap-1;
 	}
 
 	.input {

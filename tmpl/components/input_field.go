@@ -95,3 +95,10 @@ func InputField(opts *InputFieldOptions) Node {
 		)),
 	)
 }
+
+func InputGroup(children ...Node) Node {
+	return Div(
+		Class("flex gap-6"),
+		Group(children),
+	)
+}
