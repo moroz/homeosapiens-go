@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/countries"
@@ -16,6 +18,7 @@ import (
 type orderController struct {
 	cartService  *services.CartService
 	eventService *services.EventService
+	orderService *services.OrderService
 }
 
 func OrderController(db queries.DBTX) *orderController {
@@ -48,7 +51,7 @@ func (cc *orderController) New(c *echo.Context) error {
 		params.Email = ctx.User.Email.String()
 	}
 
-	return orders.New(ctx, cart, params).Render(c.Response())
+	return orders.New(ctx, cart, params, validation.Errors{}).Render(c.Response())
 }
 
 func (cc *orderController) Create(c *echo.Context) error {
@@ -62,6 +65,9 @@ func (cc *orderController) Create(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
+	if cart.IsEmpty() {
+		return echo.NewHTTPError(http.StatusBadRequest, "Empty cart")
+	}
 
 	var params types.OrderParams
 	if err := c.Bind(&params); err != nil {
@@ -69,4 +75,10 @@ func (cc *orderController) Create(c *echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
+	_, err = cc.orderService.CreateOrder(c.Request().Context(), *ctx.CartId, ctx.User, &params)
+	if validationError, ok := errors.AsType[validation.Errors](err); ok {
+		return orders.New(ctx, cart, &params, validationError).Render(c.Response())
+	}
+
+	return nil
 }

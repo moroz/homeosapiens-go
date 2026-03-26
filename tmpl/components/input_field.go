@@ -1,6 +1,7 @@
 package components
 
 import (
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -11,13 +12,13 @@ type InputFieldOptions struct {
 	Name         string
 	ID           string
 	Type         string
-	Error        string
 	HelperText   string
 	Value        string
 	Autocomplete string
 	Autofocus    bool
 	Required     bool
 	Readonly     bool
+	Error        any
 	Localizer    *i18n.Localizer
 }
 
@@ -36,6 +37,8 @@ func InputField(opts *InputFieldOptions) Node {
 	if opts.Required {
 		class += " required"
 	}
+
+	errMessage := resolveErrorMessage(opts.Error, opts.Name)
 
 	return Div(
 		Class(class),
@@ -89,11 +92,26 @@ func InputField(opts *InputFieldOptions) Node {
 			If(opts.Required, Required()),
 			If(opts.Readonly, ReadOnly()),
 		),
-		If(opts.Error != "", Span(
+		If(errMessage != "", Span(
 			Class("error-explanation"),
-			Text(opts.Error),
+			Text(errMessage),
 		)),
 	)
+}
+
+func resolveErrorMessage(err any, name string) string {
+	switch err := err.(type) {
+	case string:
+		return err
+	case validation.Errors:
+		value := err[name]
+		if value != nil {
+			return err.Error()
+		}
+	case error:
+		return err.Error()
+	}
+	return ""
 }
 
 func InputGroup(children ...Node) Node {

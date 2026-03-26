@@ -33,6 +33,10 @@ func maybeEncrypt(str string) *sqlcrypter.EncryptedBytes {
 }
 
 func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *queries.User, params *types.OrderParams) (*queries.Order, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
 	db, ok := s.db.(*pgxpool.Pool)
 	if !ok {
 		return nil, fmt.Errorf("failed to cast connection as *pgxpool.Pool, got: %T", db)

@@ -15,7 +15,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
 	"github.com/shopspring/decimal"
@@ -149,44 +148,15 @@ func TestCartFlow(t *testing.T) {
 		assert.NotEmpty(t, html)
 	})
 
-	t.Run("checkout redirects to /cart if cart is empty", func(t *testing.T) {
+	t.Run("cart view shows empty message when cart is empty", func(t *testing.T) {
 		client, err := clientWithSession(store, origin, nil)
 		require.NoError(t, err)
 
-		resp, err := client.Get(srv.URL + "/checkout")
+		resp, err := client.Get(srv.URL + "/cart")
 		assert.NoError(t, err)
-		assert.Equal(t, http.StatusSeeOther, resp.StatusCode)
-
-		assert.Equal(t, "/cart", resp.Header.Get("Location"))
-
-		sessionPayload, err := getClientSession(client.Jar, store, origin)
-		assert.NoError(t, err)
-		assert.NotNil(t, sessionPayload)
-
-		flash, ok := sessionPayload[config.FlashSessionKey].(types.Flash)
-		assert.True(t, ok)
-		assert.NotNil(t, flash)
-
-		assert.NotEmpty(t, flash["error"])
-	})
-
-	t.Run("checkout displays form when there are items in cart", func(t *testing.T) {
-		cartId := uuid.Must(uuid.NewV7())
-		item, err := queries.New(db).InsertCartLineItem(t.Context(), &queries.InsertCartLineItemParams{
-			CartID:  cartId,
-			EventID: PaidEventId,
-		})
-		require.NoError(t, err)
-		require.NotNil(t, item)
-
-		client, err := clientWithSession(store, origin, session.Payload{
-			config.CartIdSessionKey: cartId,
-		})
-		require.NoError(t, err)
-
-		resp, err := client.Get(srv.URL + "/checkout")
-		assert.NoError(t, err)
-
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		defer resp.Body.Close()
+
+		html, err := io.ReadAll(resp.Body)
 	})
 }

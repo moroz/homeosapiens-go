@@ -1,6 +1,7 @@
 package orders
 
 import (
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/internal/phone"
@@ -30,7 +31,7 @@ func deleteItemButton(ctx *types.CustomContext, eventId uuid.UUID) Node {
 	)
 }
 
-func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.OrderParams) Node {
+func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.OrderParams, errors validation.Errors) Node {
 	l := ctx.Localizer
 	title := l.MustLocalizeMessage(&i18n.Message{
 		ID: "cart.title",
@@ -88,6 +89,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Localizer:    l,
 							Value:        params.Email,
 							HelperText:   l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_email_helper_text"}),
+							Error:        errors,
 						}),
 					),
 
@@ -99,6 +101,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Autocomplete: "given-name",
 							Required:     true,
 							Localizer:    l,
+							Error:        errors,
 						}),
 
 						components.InputField(&components.InputFieldOptions{
@@ -108,6 +111,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Autocomplete: "family-name",
 							Required:     true,
 							Localizer:    l,
+							Error:        errors,
 						}),
 					),
 				),
@@ -138,6 +142,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 						}),
 						Localizer: l,
 						Value:     params.BillingPhone,
+						Error:     errors,
 					}),
 
 					components.InputField(&components.InputFieldOptions{
@@ -147,6 +152,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 						Required:     true,
 						Localizer:    l,
 						Value:        params.BillingAddressLine1,
+						Error:        errors,
 					}),
 
 					components.InputField(&components.InputFieldOptions{
@@ -155,6 +161,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 						Autocomplete: "address-line2",
 						Localizer:    l,
 						Value:        params.BillingAddressLine2,
+						Error:        errors,
 					}),
 
 					components.InputGroup(
@@ -165,6 +172,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Required:     true,
 							Localizer:    l,
 							Value:        params.BillingCity,
+							Error:        errors,
 						}),
 
 						components.InputField(&components.InputFieldOptions{
@@ -174,6 +182,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Required:     true,
 							Localizer:    l,
 							Value:        params.BillingPostalCode,
+							Error:        errors,
 						}),
 					),
 				),
