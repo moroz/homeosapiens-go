@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
@@ -153,10 +154,15 @@ func TestCartFlow(t *testing.T) {
 		require.NoError(t, err)
 
 		resp, err := client.Get(srv.URL + "/cart")
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, resp.StatusCode)
 		defer resp.Body.Close()
 
-		html, err := io.ReadAll(resp.Body)
+		doc, err := goquery.NewDocumentFromReader(resp.Body)
+		require.NoError(t, err)
+
+		assert.Zero(t, doc.Find("table").Length())
+		assert.Zero(t, doc.Find("form").Length())
+		assert.NotZero(t, doc.Find("[data-testid=empty-message]").Length())
 	})
 }

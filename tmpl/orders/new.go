@@ -48,7 +48,10 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 				Class("card"),
 				H2(Class("page-title"), Text(title)),
 
-				Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart.cart_empty"})),
+				P(
+					Data("testid", "empty-message"),
+					Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart.cart_empty"})),
+				),
 			),
 		)
 	}
