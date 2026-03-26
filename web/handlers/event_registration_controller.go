@@ -26,17 +26,24 @@ func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
 	}
 }
 
+func (cc *eventRegistrationController) findEventFromRequest(c *echo.Context) (*queries.Event, error) {
+	eventId, err := uuid.Parse(c.Param("event_id"))
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "Missing or invalid required parameter: event_id")
+	}
+
+	return cc.eventService.GetRegisterableEventById(c.Request().Context(), eventId)
+}
+
 func (cc *eventRegistrationController) Create(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	eventId, err := uuid.Parse(c.Param("event_id"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Missing or invalid required parameter: event_id")
-	}
-
-	event, err := cc.eventService.GetRegisterableEventById(c.Request().Context(), eventId)
+	event, err := cc.findEventFromRequest(c)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return echo.ErrNotFound
+	}
+	if err != nil {
+		return err
 	}
 
 	registered, err := cc.eventRegistrationService.CreateEventRegistration(c.Request().Context(), ctx.User, event)
@@ -57,14 +64,12 @@ func (cc *eventRegistrationController) Create(c *echo.Context) error {
 func (cc *eventRegistrationController) Delete(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	eventId, err := uuid.Parse(c.Param("event_id"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Missing or invalid required parameter: event_id")
-	}
-
-	event, err := cc.eventService.GetEventById(c.Request().Context(), eventId)
+	event, err := cc.findEventFromRequest(c)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return echo.ErrNotFound
+	}
+	if err != nil {
+		return err
 	}
 
 	_, err = cc.eventRegistrationService.DeleteEventRegistration(c.Request().Context(), ctx.User, event)

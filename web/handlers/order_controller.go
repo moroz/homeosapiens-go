@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/countries"
@@ -46,4 +49,24 @@ func (cc *orderController) New(c *echo.Context) error {
 	}
 
 	return orders.New(ctx, cart, params).Render(c.Response())
+}
+
+func (cc *orderController) Create(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+
+	if ctx.CartId == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "No cart ID in session")
+	}
+
+	cart, err := cc.cartService.GetCartItemsByCartId(c.Request().Context(), ctx.CartId)
+	if err != nil {
+		return err
+	}
+
+	var params types.OrderParams
+	if err := c.Bind(&params); err != nil {
+		log.Print(err)
+		return echo.ErrBadRequest
+	}
+
 }

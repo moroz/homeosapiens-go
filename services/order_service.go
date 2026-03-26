@@ -40,25 +40,34 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 
 	tx, err := db.Begin(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("CreateOrder: failed to begin transaction: %w", err)
 	}
 	defer tx.Rollback(ctx)
 
-	items, err := queries.New(tx).GetCart(ctx, cartId)
+	cart, err := queries.New(tx).GetCart(ctx, cartId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("CreateOrder: %w", err)
+	}
+
+	if cart.ItemCount == 0 {
+		return nil, fmt.Errorf("CreateOrder: cart is empty")
+	}
+
+	items, err := queries.New(tx).GetCartItemsByCartId(ctx, cartId)
+	if err != nil {
+		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
 
 	if user == nil {
 		user, err = s.findOrCreateUserForOrder(ctx, tx, params)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("CreateOrder: %w", err)
 		}
 	}
 
 	order, err := queries.New(tx).InsertOrder(ctx, &queries.InsertOrderParams{
 		UserID:              user.ID,
-		GrandTotal:          items.ProductTotal,
+		GrandTotal:          cart.ProductTotal,
 		Currency:            "PLN",
 		BillingGivenName:    sqlcrypter.NewEncryptedBytes(params.BillingGivenName),
 		BillingFamilyName:   sqlcrypter.NewEncryptedBytes(params.BillingFamilyName),
@@ -72,6 +81,23 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	for _, item := range items {
+		if item.Event.BasePriceAmount == nil {
+			return nil, fmt.Errorf("CreateOrder: event %s has no price set", item.Event.ID)
+		}
+
+		_, err := queries.New(tx).InsertOrderLineItem(ctx, &queries.InsertOrderLineItemParams{
+			OrderID:          order.ID,
+			EventID:          item.Event.ID,
+			EventTitle:       item.Event.TitleEn,
+			EventPriceAmount: item.Subtotal,
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("CreateOrder: %w", err)
+		}
 	}
 
 	if err := queries.New(tx).DeleteCart(ctx, cartId); err != nil {

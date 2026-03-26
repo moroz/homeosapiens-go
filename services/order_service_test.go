@@ -37,16 +37,14 @@ func TestCreateOrder(t *testing.T) {
 
 	srv := services.NewOrderService(db)
 	order, err := srv.CreateOrder(t.Context(), cartId, nil, &types.OrderParams{
-		Email:                  "user@example.com",
-		BillingGivenName:       "John",
-		BillingFamilyName:      "Smith",
-		BillingPhone:           "+48555123456",
-		BillingStreet:          "ul. Półwiejska",
-		BillingHouseNumber:     "20",
-		BillingApartmentNumber: "",
-		BillingCity:            "Poznań",
-		BillingPostalCode:      "12-345",
-		BillingCountry:         "PL",
+		Email:               "user@example.com",
+		BillingGivenName:    "John",
+		BillingFamilyName:   "Smith",
+		BillingPhone:        "+48555123456",
+		BillingAddressLine1: "ul. Półwiejska 20",
+		BillingCity:         "Poznań",
+		BillingPostalCode:   "12-345",
+		BillingCountry:      "PL",
 	})
 
 	assert.NotNil(t, order)
@@ -54,4 +52,8 @@ func TestCreateOrder(t *testing.T) {
 	countAfter, err := count(db, t.Context(), "orders")
 	assert.NoError(t, err)
 	assert.Equal(t, countBefore+1, countAfter)
+
+	countAfter, err = count(db, t.Context(), "cart_line_items")
+	assert.NoError(t, err)
+	assert.Zero(t, countAfter)
 }

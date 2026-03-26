@@ -72,6 +72,39 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 	return &i, err
 }
 
+const insertOrderLineItem = `-- name: InsertOrderLineItem :one
+insert into order_line_items (order_id, event_id, event_title, event_price_amount) VALUES ($1, $2, $3, $4) returning id, order_id, event_id, event_title, event_price_amount, event_price_currency, quantity, inserted_at, updated_at
+`
+
+type InsertOrderLineItemParams struct {
+	OrderID          uuid.UUID
+	EventID          uuid.UUID
+	EventTitle       string
+	EventPriceAmount decimal.Decimal
+}
+
+func (q *Queries) InsertOrderLineItem(ctx context.Context, arg *InsertOrderLineItemParams) (*OrderLineItem, error) {
+	row := q.db.QueryRow(ctx, insertOrderLineItem,
+		arg.OrderID,
+		arg.EventID,
+		arg.EventTitle,
+		arg.EventPriceAmount,
+	)
+	var i OrderLineItem
+	err := row.Scan(
+		&i.ID,
+		&i.OrderID,
+		&i.EventID,
+		&i.EventTitle,
+		&i.EventPriceAmount,
+		&i.EventPriceCurrency,
+		&i.Quantity,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
 const listOrders = `-- name: ListOrders :many
 select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted from orders order by id
 `
