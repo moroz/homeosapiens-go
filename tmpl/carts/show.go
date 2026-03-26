@@ -98,13 +98,61 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Or
 					Value:        params.BillingPhone,
 				}),
 
+				components.InputGroup(
+					components.InputField(&components.InputFieldOptions{
+						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_street"}),
+						Name:         "billing_street",
+						Autocomplete: "billing street-address",
+						Required:     true,
+						Localizer:    l,
+						Value:        params.BillingStreet,
+					}),
+
+					components.InputField(&components.InputFieldOptions{
+						Label:     l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_house_number"}),
+						Name:      "billing_house_number",
+						Required:  true,
+						Localizer: l,
+						Value:     params.BillingHouseNumber,
+					}),
+				),
+
 				components.InputField(&components.InputFieldOptions{
-					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_street"}),
-					Name:         "billing_street",
-					Autocomplete: "billing street-address",
+					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_apartment_number"}),
+					Name:         "billing_apartment_number",
+					Autocomplete: "billing address-line2",
+					Required:     false,
+					Localizer:    l,
+					Value:        params.BillingApartmentNumber,
+				}),
+
+				components.InputGroup(
+					components.InputField(&components.InputFieldOptions{
+						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_city"}),
+						Name:         "billing_city",
+						Autocomplete: "billing address-level2",
+						Required:     true,
+						Localizer:    l,
+						Value:        params.BillingCity,
+					}),
+
+					components.InputField(&components.InputFieldOptions{
+						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_postal_code"}),
+						Name:         "billing_postal_code",
+						Autocomplete: "billing postal-code",
+						Required:     true,
+						Localizer:    l,
+						Value:        params.BillingPostalCode,
+					}),
+				),
+
+				components.InputField(&components.InputFieldOptions{
+					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_email"}),
+					Name:         "email",
+					Autocomplete: "email",
 					Required:     true,
 					Localizer:    l,
-					Value:        params.BillingStreet,
+					Value:        params.Email,
 				}),
 			),
 		),

@@ -148,6 +148,10 @@
 			"billing_country": "Kraj:",
 			"billing_street": "Ulica:",
 			"billing_house_number": "Numer domu:",
+			"billing_apartment_number": "Numer mieszkania:",
+			"billing_city": "Miasto:",
+			"billing_postal_code": "Kod pocztowy:",
+			"billing_email": "Adres e-mail:",
 			"billing_phone": "Numer telefonu lub WhatsApp:",
 			"billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. +44 7700 900 123.",
 			"billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej."

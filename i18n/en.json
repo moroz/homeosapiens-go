@@ -137,6 +137,10 @@
       "billing_country": "Country:",
       "billing_street": "Street:",
       "billing_house_number": "House number:",
+      "billing_apartment_number": "Apartment number:",
+      "billing_city": "City:",
+      "billing_postal_code": "Postal code:",
+      "billing_email": "Email address:",
       "billing_phone": "Phone number or WhatsApp:",
       "billing_phone_helper_text": "For numbers from outside Poland, include the country code (e.g., +44 7700 900123).",
       "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union."
