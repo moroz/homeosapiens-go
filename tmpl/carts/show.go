@@ -52,12 +52,33 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Or
 
 			CartTable(ctx, cart),
 
-			H3(Class("text-2xl font-bold text-primary my-3"), Text("Billing address")),
-
 			Form(
 				Action("/orders"),
 				Method("POST"),
 				Class("grid gap-4"),
+
+				H3(Class("text-2xl font-bold text-primary"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
+
+				If(ctx.User == nil,
+					P(Raw(l.MustLocalize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID: "orders.already_have_an_account_html",
+						},
+						TemplateData: map[string]string{
+							"Url": "/sign-in?ref=%2Fcart",
+						},
+					}))),
+				),
+
+				components.InputField(&components.InputFieldOptions{
+					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_email"}),
+					Name:         "email",
+					Autocomplete: "email",
+					Required:     true,
+					Localizer:    l,
+					Value:        params.Email,
+				}),
+
 				components.InputGroup(
 					components.InputField(&components.InputFieldOptions{
 						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "common.users.given_name"}),
@@ -78,14 +99,7 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Or
 					}),
 				),
 
-				components.InputField(&components.InputFieldOptions{
-					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_email"}),
-					Name:         "email",
-					Autocomplete: "email",
-					Required:     true,
-					Localizer:    l,
-					Value:        params.Email,
-				}),
+				H3(Class("text-2xl font-bold text-primary"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.billing_address"}))),
 
 				components.CountrySelect(&components.CountrySelectOptions{
 					Name:       "billing_country",

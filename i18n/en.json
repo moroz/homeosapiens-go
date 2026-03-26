@@ -133,6 +133,9 @@
     }
   },
   "orders": {
+		"billing_address": "Billing address",
+		"contact_information": "Contact information",
+		"already_have_an_account_html": "Already have an account? <a href={{.Url}}>Sign in</a>",
     "form": {
       "billing_country": "Country:",
       "billing_address_line1": "Address:",

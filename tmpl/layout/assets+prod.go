@@ -12,8 +12,6 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-const IsProd = true
-
 const ManifestPath = "assets/dist/.vite/manifest.json"
 
 var manifest ViteManifest

@@ -18,7 +18,7 @@ const deleteUserToken = `-- name: DeleteUserToken :one
 delete from user_tokens where token = $1 returning true
 `
 
-func (q *Queries) DeleteUserToken(ctx context.Context, token sqlcrypter.EncryptedBytes) (bool, error) {
+func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, error) {
 	row := q.db.QueryRow(ctx, deleteUserToken, token)
 	var column_1 bool
 	err := row.Scan(&column_1)
@@ -80,10 +80,10 @@ const getUserByAccessToken = `-- name: GetUserByAccessToken :one
 select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > now()
-and ut.token = $1::bytea and ut.context = 'access'
+and ut.token = $1 and ut.context = 'access'
 `
 
-func (q *Queries) GetUserByAccessToken(ctx context.Context, token sqlcrypter.EncryptedBytes) (*User, error) {
+func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByAccessToken, token)
 	var i User
 	err := row.Scan(
@@ -203,7 +203,7 @@ insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $
 type InsertUserTokenParams struct {
 	UserID     uuid.UUID
 	Context    string
-	Token      sqlcrypter.EncryptedBytes
+	Token      []byte
 	ValidUntil pgtype.Timestamp
 }
 

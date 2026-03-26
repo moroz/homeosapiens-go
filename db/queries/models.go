@@ -373,7 +373,7 @@ type UserToken struct {
 	ID         uuid.UUID
 	UserID     uuid.UUID
 	Context    string
-	Token      sqlcrypter.EncryptedBytes
+	Token      []byte
 	InsertedAt pgtype.Timestamp
 	ValidUntil pgtype.Timestamp
 }

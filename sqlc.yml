@@ -70,3 +70,8 @@ sql:
           - column: "users.email_hash"
             go_type:
               type: "[]byte"
+
+          - column: "user_tokens.token"
+            go_type:
+              type: "[]byte"
+

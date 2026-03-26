@@ -144,6 +144,9 @@
 		}
 	},
 	"orders": {
+		"billing_address": "Dane do faktury",
+		"contact_information": "Dane kontaktowe",
+		"already_have_an_account_html": "Masz już konto? <a href={{.Url}}>Zaloguj się</a>",
 		"form": {
 			"billing_country": "Kraj:",
 			"billing_address_line1": "Ulica i numer domu:",

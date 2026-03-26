@@ -8,8 +8,6 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-const IsProd = false
-
 func AssetEntryPoint(ctx *types.CustomContext) Node {
 	entrypoint := "https://assets.hs.localhost/src/main.ts"
 
