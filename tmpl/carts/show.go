@@ -35,6 +35,17 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 		ID: "cart.title",
 	})
 
+	if cart.IsEmpty() {
+		return layout.Layout(ctx, title,
+			Div(
+				Class("card"),
+				H2(Class("page-title"), Text(title)),
+
+				Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart.cart_empty"})),
+			),
+		)
+	}
+
 	return layout.Layout(ctx, title,
 		Div(Class("card"),
 			H2(Class("page-title"), Text(title)),

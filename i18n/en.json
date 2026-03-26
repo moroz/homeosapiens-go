@@ -1,143 +1,145 @@
 {
-	"countries": {
-		"PL": "Poland",
-		"ZA": "South Africa",
-		"IN": "India"
-	},
-	"languages": {
-		"pl": "polski",
-		"en": "English"
-	},
-	"header": {
-		"nav": {
-			"sign_in": "Sign in",
-			"home": "Home",
-			"events": "Events",
-			"videos": "Watch",
-			"my_products": "My products"
-		},
-		"user_dropdown": {
-			"sign_out": "Sign out",
-			"profile": "Profile"
-		},
-		"cart": "View cart"
-	},
-	"locale_switcher": {
-		"switch_to": "Przełącz na język polski"
-	},
-	"common": {
-		"hosts": {
-			"salutation": {
-				"dr": "Dr."
-			}
-		},
-		"events": {
-			"event_type": {
-				"seminar": "Seminar",
-				"webinar": "Webinar"
-			},
-			"attendance_badge": "Going",
-			"nobody_attending": "Be the first to register!",
-			"attendance_count": {
-				"one": "One person is going.",
-				"other": "{{ .Count }} people are going."
-			},
-			"participation_cost": "Participation cost",
-			"free": "Free",
-			"hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
-			"learn_more": "Learn more…",
-			"sign_up": "Register",
-			"add_to_cart": "Add to cart",
-			"added_to_cart": "Added to cart",
-			"view_cart": "View cart"
-		},
-		"users": {
-			"email": "Email:",
-			"given_name": "Given name:",
-			"family_name": "Family name:",
-			"country": "Country or region:",
-			"profession": "Profession:",
-			"licence_number": "Professional licence number:"
-		}
-	},
-	"sessions": {
-		"new": {
-			"email": "Email:",
-			"password": "Password:",
-			"submit": "Submit",
-			"header": "Sign in",
-			"no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
-			"invalid_email_password_combination": "Invalid email/password combination.",
-			"sign_in_with_google": "Sign in with Google"
-		}
-	},
-	"user_registrations": {
-		"new": {
-			"title": "Sign up",
-			"already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
-			"submit": "Sign up",
-			"sign_up_with_google": "Sign up with Google",
-			"form": {
-				"labels": {
-					"password": "Create password:",
-					"password_confirmation": "Confirm password:"
-				},
-				"helper_text": {
-					"password": "{{ .Min }}–{{ .Max }} characters"
-				}
-			}
-		}
-	},
-	"components": {
-		"input_field": {
-			"optional": "(optional)",
-			"required": "required field"
-		}
-	},
-	"events": {
-		"starts_at": "Starts at:",
-		"ends_at": "Ends at:"
-	},
-	"profile": {
-		"title": "Profile",
-		"messages": {
-			"success": "Profile updated successfully."
-		},
-		"form": {
-			"submit": "Save changes"
-		}
-	},
-	"event_registrations": {
-		"create": {
-			"success": "You have successfully registered for this event."
-		}
-	},
-	"cart": {
-		"title": "Cart",
-		"table": {
-			"product_title": "Title",
-			"unit_price": "Unit price",
-			"quantity": "Quantity",
-			"subtotal": "Subtotal",
-			"grand_total": "Grand total",
-			"delete": "Delete"
-		},
-		"go_to_checkout": "Go to checkout",
-		"continue_shopping": "Continue shopping"
-	},
-	"cart_items": {
-		"delete": {
-			"confirmation": "Do you really want to remove this event from your cart?",
-			"success": "The event has been successfully removed from your cart."
-		}
-	},
-	"orders": {
-		"form": {
-			"billing_country": "Country:",
-			"billing_street": "Street:",
-			"billing_house_number": "House number:",
-			"billing_phone": "Phone number or WhatsApp:",
-			"billing_phone_helper_text": "For numbers from outside Poland, include the country code (e.g., +44 7700 900123)."
-		}
-	}
+  "countries": {
+    "PL": "Poland",
+    "ZA": "South Africa",
+    "IN": "India"
+  },
+  "languages": {
+    "pl": "polski",
+    "en": "English"
+  },
+  "header": {
+    "nav": {
+      "sign_in": "Sign in",
+      "home": "Home",
+      "events": "Events",
+      "videos": "Watch",
+      "my_products": "My products"
+    },
+    "user_dropdown": {
+      "sign_out": "Sign out",
+      "profile": "Profile"
+    },
+    "cart": "View cart"
+  },
+  "locale_switcher": {
+    "switch_to": "Przełącz na język polski"
+  },
+  "common": {
+    "hosts": {
+      "salutation": {
+        "dr": "Dr."
+      }
+    },
+    "events": {
+      "event_type": {
+        "seminar": "Seminar",
+        "webinar": "Webinar"
+      },
+      "attendance_badge": "Going",
+      "nobody_attending": "Be the first to register!",
+      "attendance_count": {
+        "one": "One person is going.",
+        "other": "{{ .Count }} people are going."
+      },
+      "participation_cost": "Participation cost",
+      "free": "Free",
+      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
+      "learn_more": "Learn more…",
+      "sign_up": "Register",
+      "add_to_cart": "Add to cart",
+      "added_to_cart": "Added to cart",
+      "view_cart": "View cart"
+    },
+    "users": {
+      "email": "Email:",
+      "given_name": "Given name:",
+      "family_name": "Family name:",
+      "country": "Country or region:",
+      "profession": "Profession:",
+      "licence_number": "Professional licence number:"
+    }
+  },
+  "sessions": {
+    "new": {
+      "email": "Email:",
+      "password": "Password:",
+      "submit": "Submit",
+      "header": "Sign in",
+      "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
+      "invalid_email_password_combination": "Invalid email/password combination.",
+      "sign_in_with_google": "Sign in with Google"
+    }
+  },
+  "user_registrations": {
+    "new": {
+      "title": "Sign up",
+      "already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
+      "submit": "Sign up",
+      "sign_up_with_google": "Sign up with Google",
+      "form": {
+        "labels": {
+          "password": "Create password:",
+          "password_confirmation": "Confirm password:"
+        },
+        "helper_text": {
+          "password": "{{ .Min }}–{{ .Max }} characters"
+        }
+      }
+    }
+  },
+  "components": {
+    "input_field": {
+      "optional": "(optional)",
+      "required": "required field"
+    }
+  },
+  "events": {
+    "starts_at": "Starts at:",
+    "ends_at": "Ends at:"
+  },
+  "profile": {
+    "title": "Profile",
+    "messages": {
+      "success": "Profile updated successfully."
+    },
+    "form": {
+      "submit": "Save changes"
+    }
+  },
+  "event_registrations": {
+    "create": {
+      "success": "You have successfully registered for this event."
+    }
+  },
+  "cart": {
+    "title": "Cart",
+    "table": {
+      "product_title": "Title",
+      "unit_price": "Unit price",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "grand_total": "Grand total",
+      "delete": "Delete"
+    },
+    "go_to_checkout": "Go to checkout",
+    "continue_shopping": "Continue shopping",
+		"cart_empty": "Your cart is currently empty."
+  },
+  "cart_items": {
+    "delete": {
+      "confirmation": "Do you really want to remove this event from your cart?",
+      "success": "The event has been successfully removed from your cart."
+    }
+  },
+  "orders": {
+    "form": {
+      "billing_country": "Country:",
+      "billing_street": "Street:",
+      "billing_house_number": "House number:",
+      "billing_phone": "Phone number or WhatsApp:",
+      "billing_phone_helper_text": "For numbers from outside Poland, include the country code (e.g., +44 7700 900123).",
+      "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union."
+    }
+  }
 }

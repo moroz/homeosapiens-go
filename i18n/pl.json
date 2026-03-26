@@ -134,7 +134,8 @@
 			"delete": "Usuń"
 		},
 		"go_to_checkout": "Przejdź do podsumowania",
-		"continue_shopping": "Kontynuuj zakupy"
+		"continue_shopping": "Kontynuuj zakupy",
+		"cart_empty": "Twój koszyk jest pusty."
 	},
 	"cart_items": {
 		"delete": {
