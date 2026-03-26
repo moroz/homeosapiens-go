@@ -4,11 +4,11 @@ type OrderParams struct {
 	Email                  string
 	BillingGivenName       string
 	BillingFamilyName      string
-	BillingPhone           *string
+	BillingPhone           string
 	BillingStreet          string
 	BillingHouseNumber     string
-	BillingApartmentNumber *string
+	BillingApartmentNumber string
 	BillingCity            string
-	BillingPostalCode      *string
+	BillingPostalCode      string
 	BillingCountry         string
 }

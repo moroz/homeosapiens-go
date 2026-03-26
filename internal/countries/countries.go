@@ -24,16 +24,15 @@ var EuMemberStatesISO = []string{"AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE",
 
 var all []CountryOption
 var mapped map[string]CountryOption
-var OrderedByPolish []CountryOption
-var OrderedByEnglish []CountryOption
 var PopularRegions []CountryOption
-
-func All() []CountryOption {
-	return append([]CountryOption(nil), all...)
-}
+var euMemberMapped map[string]bool
 
 func EuMemberStates() []CountryOption {
 	return OptionsFromISOCodeList(EuMemberStatesISO)
+}
+
+func IsEUMemberState(iso string) bool {
+	return euMemberMapped[iso]
 }
 
 func SortByLabel(list []CountryOption, langCode string) []CountryOption {
@@ -67,8 +66,6 @@ func init() {
 	if err := json.Unmarshal(CountryList, &all); err != nil {
 		log.Fatal(err)
 	}
-	OrderedByEnglish = SortByLabel(all, "en")
-	OrderedByPolish = SortByLabel(all, "pl")
 
 	mapped = make(map[string]CountryOption)
 	for i, option := range all {
@@ -76,4 +73,9 @@ func init() {
 	}
 
 	PopularRegions = OptionsFromISOCodeList(MostPopularRegionsISO)
+
+	euMemberMapped = make(map[string]bool)
+	for _, iso := range EuMemberStatesISO {
+		euMemberMapped[iso] = true
+	}
 }

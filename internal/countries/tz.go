@@ -1,4 +1,4 @@
-package tz
+package countries
 
 import (
 	_ "embed"

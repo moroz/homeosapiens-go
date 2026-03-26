@@ -29,7 +29,7 @@ func deleteItemButton(ctx *types.CustomContext, eventId uuid.UUID) Node {
 	)
 }
 
-func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
+func Show(ctx *types.CustomContext, cart *services.CartViewDto, params *types.OrderParams) Node {
 	l := ctx.Localizer
 	title := l.MustLocalizeMessage(&i18n.Message{
 		ID: "cart.title",
@@ -62,6 +62,7 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 					components.InputField(&components.InputFieldOptions{
 						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "common.users.given_name"}),
 						Name:         "billing_given_name",
+						Value:        params.BillingGivenName,
 						Autocomplete: "given-name",
 						Required:     true,
 						Localizer:    l,
@@ -70,15 +71,17 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 					components.InputField(&components.InputFieldOptions{
 						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "common.users.family_name"}),
 						Name:         "billing_family_name",
+						Value:        params.BillingFamilyName,
 						Autocomplete: "family-name",
 						Required:     true,
 						Localizer:    l,
 					}),
 				),
+
 				components.CountrySelect(&components.CountrySelectOptions{
 					Name:       "billing_country",
 					Language:   ctx.Language,
-					Value:      "",
+					Value:      params.BillingCountry,
 					Required:   true,
 					Label:      l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_country"}),
 					HelperText: l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_country_helper_text"}),
@@ -92,6 +95,7 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 					Required:     false,
 					HelperText:   l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_phone_helper_text"}),
 					Localizer:    l,
+					Value:        params.BillingPhone,
 				}),
 
 				components.InputField(&components.InputFieldOptions{
@@ -100,6 +104,7 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 					Autocomplete: "billing street-address",
 					Required:     true,
 					Localizer:    l,
+					Value:        params.BillingStreet,
 				}),
 			),
 		),

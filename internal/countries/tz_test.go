@@ -1,9 +1,9 @@
-package tz_test
+package countries_test
 
 import (
 	"testing"
 
-	"github.com/moroz/homeosapiens-go/internal/tz"
+	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +25,7 @@ func TestGuessRegionByTimezone(t *testing.T) {
 	}
 
 	for _, example := range examples {
-		actual := tz.GuessRegionByTimezone(example.tzname)
+		actual := countries.GuessRegionByTimezone(example.tzname)
 		assert.Equal(t, example.iso, actual.IsoCode)
 	}
 }

@@ -25,11 +25,11 @@ func NewOrderService(db queries.DBTX) *OrderService {
 	}
 }
 
-func maybeEncrypt(str *string) *sqlcrypter.EncryptedBytes {
-	if str == nil {
+func maybeEncrypt(str string) *sqlcrypter.EncryptedBytes {
+	if str == "" {
 		return nil
 	}
-	return new(sqlcrypter.NewEncryptedBytes(*str))
+	return new(sqlcrypter.NewEncryptedBytes(str))
 }
 
 func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *queries.User, params *types.OrderParams) (*queries.Order, error) {

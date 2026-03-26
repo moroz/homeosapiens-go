@@ -40,12 +40,12 @@ func TestCreateOrder(t *testing.T) {
 		Email:                  "user@example.com",
 		BillingGivenName:       "John",
 		BillingFamilyName:      "Smith",
-		BillingPhone:           new("+48555123456"),
+		BillingPhone:           "+48555123456",
 		BillingStreet:          "ul. Półwiejska",
 		BillingHouseNumber:     "20",
-		BillingApartmentNumber: nil,
+		BillingApartmentNumber: "",
 		BillingCity:            "Poznań",
-		BillingPostalCode:      new("12-345"),
+		BillingPostalCode:      "12-345",
 		BillingCountry:         "PL",
 	})
 
