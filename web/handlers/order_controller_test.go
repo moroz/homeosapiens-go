@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/phone"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
 	"github.com/shopspring/decimal"
@@ -81,6 +82,12 @@ func TestCartFlow(t *testing.T) {
 	db, err := initDB(t.Context())
 	require.NoError(t, err)
 	defer db.Close()
+
+	count := func(ctx context.Context, table string) (int, error) {
+		var val int
+		err := db.QueryRow(ctx, "select count(*) from "+table).Scan(&val)
+		return val, err
+	}
 
 	store, err := session.NewStore(config.SessionKey)
 	require.NoError(t, err)
@@ -176,5 +183,47 @@ func TestCartFlow(t *testing.T) {
 		assert.Zero(t, doc.Find(".cart-table").Length())
 		assert.Zero(t, doc.Find("form[data-testid=checkout-form]").Length())
 		assert.NotZero(t, doc.Find("[data-testid=empty-message]").Length())
+	})
+
+	t.Run("placing order creates an order and a user", func(t *testing.T) {
+		cartId := uuid.Must(uuid.NewV7())
+		item, err := queries.New(db).InsertCartLineItem(t.Context(), &queries.InsertCartLineItemParams{
+			CartID:  cartId,
+			EventID: PaidEventId,
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, item)
+
+		client, err := clientWithSession(store, origin, session.Payload{
+			config.CartIdSessionKey: cartId,
+		})
+		require.NoError(t, err)
+
+		params := url.Values{
+			"email":                 {"user@example.com"},
+			"billing_address_line1": {"Example Street 42"},
+			"billing_given_name":    {"John"},
+			"billing_family_name":   {"Smith"},
+			"billing_country":       {"DE"},
+			"billing_city":          {"Berlin"},
+			"billing_postal_code":   {"12345"},
+			"billing_phone":         {phone.ExamplePhoneNumber("DE")},
+		}
+		body := bytes.NewBufferString(params.Encode())
+		req, _ := http.NewRequest("POST", srv.URL+"/orders", body)
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		countBefore, err := count(t.Context(), "orders")
+		require.NoError(t, err)
+
+		resp, err := client.Do(req)
+
+		countAfter, err := count(t.Context(), "orders")
+		require.NoError(t, err)
+		assert.Equal(t, countBefore+1, countAfter)
+
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
 	})
 }

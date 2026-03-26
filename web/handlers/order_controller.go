@@ -25,6 +25,7 @@ func OrderController(db queries.DBTX) *orderController {
 	return &orderController{
 		cartService:  services.NewCartService(db),
 		eventService: services.NewEventService(db),
+		orderService: services.NewOrderService(db),
 	}
 }
 

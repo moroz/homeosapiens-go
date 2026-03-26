@@ -76,8 +76,9 @@ func Router(db queries.DBTX, store *session.Store) *echo.Echo {
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
-	cart := handlers.OrderController(db)
-	r.GET("/cart", cart.New)
+	orders := handlers.OrderController(db)
+	r.GET("/cart", orders.New)
+	r.POST("/orders", orders.Create)
 
 	cartItems := handlers.CartItemController(db)
 	r.POST("/cart_items", cartItems.Create)
