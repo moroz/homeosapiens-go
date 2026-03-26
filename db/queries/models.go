@@ -315,25 +315,24 @@ type Host struct {
 }
 
 type Order struct {
-	ID                     uuid.UUID                  `json:"id"`
-	UserID                 uuid.UUID                  `json:"userId"`
-	PaidAt                 pgtype.Timestamp           `json:"paidAt"`
-	CancelledAt            pgtype.Timestamp           `json:"cancelledAt"`
-	DiscountCode           *string                    `json:"discountCode"`
-	GrandTotal             decimal.Decimal            `json:"grandTotal"`
-	Currency               string                     `json:"currency"`
-	InsertedAt             pgtype.Timestamp           `json:"insertedAt"`
-	UpdatedAt              pgtype.Timestamp           `json:"updatedAt"`
-	BillingGivenName       sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
-	BillingFamilyName      sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
-	BillingPhone           *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
-	BillingStreet          sqlcrypter.EncryptedBytes  `json:"billingStreetEncrypted"`
-	BillingHouseNumber     sqlcrypter.EncryptedBytes  `json:"billingHouseNumberEncrypted"`
-	BillingApartmentNumber *sqlcrypter.EncryptedBytes `json:"billingApartmentNumberEncrypted"`
-	BillingCity            sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
-	BillingPostalCode      *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
-	BillingCountry         string                     `json:"billingCountry"`
-	Email                  sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
+	ID                uuid.UUID                  `json:"id"`
+	UserID            uuid.UUID                  `json:"userId"`
+	PaidAt            pgtype.Timestamp           `json:"paidAt"`
+	CancelledAt       pgtype.Timestamp           `json:"cancelledAt"`
+	DiscountCode      *string                    `json:"discountCode"`
+	GrandTotal        decimal.Decimal            `json:"grandTotal"`
+	Currency          string                     `json:"currency"`
+	InsertedAt        pgtype.Timestamp           `json:"insertedAt"`
+	UpdatedAt         pgtype.Timestamp           `json:"updatedAt"`
+	BillingGivenName  sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
+	BillingFamilyName sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
+	BillingPhone      *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
+	BillingCity       sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
+	BillingPostalCode *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
+	BillingCountry    string                     `json:"billingCountry"`
+	Email             sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
+	BillingStreet     []byte                     `json:"billingAddressLine1Encrypted"`
+	BillingStreet     []byte                     `json:"billingAddressLine2Encrypted"`
 }
 
 type OrderLineItem struct {

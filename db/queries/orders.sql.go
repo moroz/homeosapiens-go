@@ -14,24 +14,23 @@ import (
 )
 
 const insertOrder = `-- name: InsertOrder :one
-insert into orders (user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_street_encrypted, billing_house_number_encrypted, billing_apartment_number_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted)
-values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_street_encrypted, billing_house_number_encrypted, billing_apartment_number_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted
+insert into orders (user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted)
+values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted
 `
 
 type InsertOrderParams struct {
-	UserID                 uuid.UUID                  `json:"userId"`
-	GrandTotal             decimal.Decimal            `json:"grandTotal"`
-	Currency               string                     `json:"currency"`
-	BillingGivenName       sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
-	BillingFamilyName      sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
-	BillingPhone           *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
-	BillingStreet          sqlcrypter.EncryptedBytes  `json:"billingStreetEncrypted"`
-	BillingHouseNumber     sqlcrypter.EncryptedBytes  `json:"billingHouseNumberEncrypted"`
-	BillingApartmentNumber *sqlcrypter.EncryptedBytes `json:"billingApartmentNumberEncrypted"`
-	BillingCity            sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
-	BillingPostalCode      *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
-	BillingCountry         string                     `json:"billingCountry"`
-	Email                  sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
+	UserID            uuid.UUID                  `json:"userId"`
+	GrandTotal        decimal.Decimal            `json:"grandTotal"`
+	Currency          string                     `json:"currency"`
+	BillingGivenName  sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
+	BillingFamilyName sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
+	BillingPhone      *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
+	BillingCity       sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
+	BillingPostalCode *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
+	BillingCountry    string                     `json:"billingCountry"`
+	Email             sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
+	BillingStreet     []byte                     `json:"billingAddressLine1Encrypted"`
+	BillingStreet_2   []byte                     `json:"billingAddressLine2Encrypted2"`
 }
 
 func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Order, error) {
@@ -42,13 +41,12 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 		arg.BillingGivenName,
 		arg.BillingFamilyName,
 		arg.BillingPhone,
-		arg.BillingStreet,
-		arg.BillingHouseNumber,
-		arg.BillingApartmentNumber,
 		arg.BillingCity,
 		arg.BillingPostalCode,
 		arg.BillingCountry,
 		arg.Email,
+		arg.BillingStreet,
+		arg.BillingStreet_2,
 	)
 	var i Order
 	err := row.Scan(
@@ -64,19 +62,18 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 		&i.BillingGivenName,
 		&i.BillingFamilyName,
 		&i.BillingPhone,
-		&i.BillingStreet,
-		&i.BillingHouseNumber,
-		&i.BillingApartmentNumber,
 		&i.BillingCity,
 		&i.BillingPostalCode,
 		&i.BillingCountry,
 		&i.Email,
+		&i.BillingStreet,
+		&i.BillingStreet,
 	)
 	return &i, err
 }
 
 const listOrders = `-- name: ListOrders :many
-select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_street_encrypted, billing_house_number_encrypted, billing_apartment_number_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted from orders order by id
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted from orders order by id
 `
 
 func (q *Queries) ListOrders(ctx context.Context) ([]*Order, error) {
@@ -101,13 +98,12 @@ func (q *Queries) ListOrders(ctx context.Context) ([]*Order, error) {
 			&i.BillingGivenName,
 			&i.BillingFamilyName,
 			&i.BillingPhone,
-			&i.BillingStreet,
-			&i.BillingHouseNumber,
-			&i.BillingApartmentNumber,
 			&i.BillingCity,
 			&i.BillingPostalCode,
 			&i.BillingCountry,
 			&i.Email,
+			&i.BillingStreet,
+			&i.BillingStreet,
 		); err != nil {
 			return nil, err
 		}
