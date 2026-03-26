@@ -65,6 +65,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 			Form(
 				Action("/orders"),
 				Method("POST"),
+				Data("testid", "checkout-form"),
 
 				H3(Class("text-2xl font-bold text-primary mt-8 mb-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
 

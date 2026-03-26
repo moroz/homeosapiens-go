@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -144,9 +143,22 @@ func TestCartFlow(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 		defer resp.Body.Close()
 
-		html, err := io.ReadAll(resp.Body)
-		assert.NoError(t, err)
-		assert.NotEmpty(t, html)
+		doc, err := goquery.NewDocumentFromReader(resp.Body)
+		require.NoError(t, err)
+
+		assert.Equal(t, 1, doc.Find(".cart-table").Length())
+
+		var actions []string
+		for _, f := range doc.Find("form[method=POST]").Nodes {
+			for _, attr := range f.Attr {
+				if attr.Key == "action" {
+					actions = append(actions, attr.Val)
+				}
+			}
+		}
+
+		assert.Equal(t, 1, doc.Find("form[data-testid=checkout-form]").Length())
+		assert.Zero(t, doc.Find("[data-testid=empty-message]").Length())
 	})
 
 	t.Run("cart view shows empty message when cart is empty", func(t *testing.T) {
@@ -161,8 +173,8 @@ func TestCartFlow(t *testing.T) {
 		doc, err := goquery.NewDocumentFromReader(resp.Body)
 		require.NoError(t, err)
 
-		assert.Zero(t, doc.Find("table").Length())
-		assert.Zero(t, doc.Find("form").Length())
+		assert.Zero(t, doc.Find(".cart-table").Length())
+		assert.Zero(t, doc.Find("form[data-testid=checkout-form]").Length())
 		assert.NotZero(t, doc.Find("[data-testid=empty-message]").Length())
 	})
 }
