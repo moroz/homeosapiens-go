@@ -146,9 +146,8 @@
 	"orders": {
 		"form": {
 			"billing_country": "Kraj:",
-			"billing_street": "Ulica:",
-			"billing_house_number": "Numer domu:",
-			"billing_apartment_number": "Numer mieszkania:",
+			"billing_address_line1": "Ulica i numer domu:",
+			"billing_address_line2": "Numer mieszkania, piętro itp.:",
 			"billing_city": "Miasto:",
 			"billing_postal_code": "Kod pocztowy:",
 			"billing_email": "Adres e-mail:",

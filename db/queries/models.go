@@ -35,8 +35,8 @@ func (e *EventType) Scan(src interface{}) error {
 }
 
 type NullEventType struct {
-	EventType EventType `json:"eventType"`
-	Valid     bool      `json:"valid"` // Valid is true if EventType is not NULL
+	EventType EventType
+	Valid     bool // Valid is true if EventType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -78,8 +78,8 @@ func (e *PriceRuleType) Scan(src interface{}) error {
 }
 
 type NullPriceRuleType struct {
-	PriceRuleType PriceRuleType `json:"priceRuleType"`
-	Valid         bool          `json:"valid"` // Valid is true if PriceRuleType is not NULL
+	PriceRuleType PriceRuleType
+	Valid         bool // Valid is true if PriceRuleType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -122,8 +122,8 @@ func (e *PriceType) Scan(src interface{}) error {
 }
 
 type NullPriceType struct {
-	PriceType PriceType `json:"priceType"`
-	Valid     bool      `json:"valid"` // Valid is true if PriceType is not NULL
+	PriceType PriceType
+	Valid     bool // Valid is true if PriceType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -164,8 +164,8 @@ func (e *UserRole) Scan(src interface{}) error {
 }
 
 type NullUserRole struct {
-	UserRole UserRole `json:"userRole"`
-	Valid    bool     `json:"valid"` // Valid is true if UserRole is not NULL
+	UserRole UserRole
+	Valid    bool // Valid is true if UserRole is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -206,8 +206,8 @@ func (e *VideoProvider) Scan(src interface{}) error {
 }
 
 type NullVideoProvider struct {
-	VideoProvider VideoProvider `json:"videoProvider"`
-	Valid         bool          `json:"valid"` // Valid is true if VideoProvider is not NULL
+	VideoProvider VideoProvider
+	Valid         bool // Valid is true if VideoProvider is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -229,173 +229,173 @@ func (ns NullVideoProvider) Value() (driver.Value, error) {
 }
 
 type Asset struct {
-	ID               uuid.UUID        `json:"id"`
-	ObjectKey        string           `json:"objectKey"`
-	OriginalFilename *string          `json:"originalFilename"`
-	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
+	ID               uuid.UUID
+	ObjectKey        string
+	OriginalFilename *string
+	InsertedAt       pgtype.Timestamp
+	UpdatedAt        pgtype.Timestamp
 }
 
 type CartLineItem struct {
-	ID         uuid.UUID        `json:"id"`
-	CartID     uuid.UUID        `json:"cartId"`
-	EventID    uuid.UUID        `json:"eventId"`
-	Quantity   int32            `json:"quantity"`
-	InsertedAt pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
+	ID         uuid.UUID
+	CartID     uuid.UUID
+	EventID    uuid.UUID
+	Quantity   int32
+	InsertedAt pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
 }
 
 type Event struct {
-	ID                uuid.UUID        `json:"id"`
-	TitleEn           string           `json:"titleEn"`
-	TitlePl           string           `json:"titlePl"`
-	StartsAt          pgtype.Timestamp `json:"startsAt"`
-	EndsAt            pgtype.Timestamp `json:"endsAt"`
-	IsVirtual         bool             `json:"isVirtual"`
-	DescriptionEn     string           `json:"descriptionEn"`
-	DescriptionPl     *string          `json:"descriptionPl"`
-	EventType         EventType        `json:"eventType"`
-	BasePriceAmount   *decimal.Decimal `json:"basePriceAmount"`
-	BasePriceCurrency *string          `json:"basePriceCurrency"`
-	InsertedAt        pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt         pgtype.Timestamp `json:"updatedAt"`
-	Slug              string           `json:"slug"`
-	SubtitleEn        *string          `json:"subtitleEn"`
-	SubtitlePl        *string          `json:"subtitlePl"`
-	VenueNameEn       *string          `json:"venueNameEn"`
-	VenueNamePl       *string          `json:"venueNamePl"`
-	VenueStreet       *string          `json:"venueStreet"`
-	VenueCityEn       *string          `json:"venueCityEn"`
-	VenueCityPl       *string          `json:"venueCityPl"`
-	VenuePostalCode   *string          `json:"venuePostalCode"`
-	VenueCountryCode  *string          `json:"venueCountryCode"`
+	ID                uuid.UUID
+	TitleEn           string
+	TitlePl           string
+	StartsAt          pgtype.Timestamp
+	EndsAt            pgtype.Timestamp
+	IsVirtual         bool
+	DescriptionEn     string
+	DescriptionPl     *string
+	EventType         EventType
+	BasePriceAmount   *decimal.Decimal
+	BasePriceCurrency *string
+	InsertedAt        pgtype.Timestamp
+	UpdatedAt         pgtype.Timestamp
+	Slug              string
+	SubtitleEn        *string
+	SubtitlePl        *string
+	VenueNameEn       *string
+	VenueNamePl       *string
+	VenueStreet       *string
+	VenueCityEn       *string
+	VenueCityPl       *string
+	VenuePostalCode   *string
+	VenueCountryCode  *string
 }
 
 type EventPrice struct {
-	ID            uuid.UUID        `json:"id"`
-	EventID       uuid.UUID        `json:"eventId"`
-	PriceType     PriceType        `json:"priceType"`
-	RuleType      PriceRuleType    `json:"ruleType"`
-	PriceAmount   decimal.Decimal  `json:"priceAmount"`
-	PriceCurrency string           `json:"priceCurrency"`
-	DiscountCode  *string          `json:"discountCode"`
-	Priority      int32            `json:"priority"`
-	IsActive      bool             `json:"isActive"`
-	ValidFrom     pgtype.Timestamp `json:"validFrom"`
-	ValidUntil    pgtype.Timestamp `json:"validUntil"`
-	CreatedAt     pgtype.Timestamp `json:"createdAt"`
-	UpdatedAt     pgtype.Timestamp `json:"updatedAt"`
+	ID            uuid.UUID
+	EventID       uuid.UUID
+	PriceType     PriceType
+	RuleType      PriceRuleType
+	PriceAmount   decimal.Decimal
+	PriceCurrency string
+	DiscountCode  *string
+	Priority      int32
+	IsActive      bool
+	ValidFrom     pgtype.Timestamp
+	ValidUntil    pgtype.Timestamp
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
 }
 
 type EventRegistration struct {
-	ID         uuid.UUID        `json:"id"`
-	EventID    uuid.UUID        `json:"eventId"`
-	UserID     uuid.UUID        `json:"userId"`
-	InsertedAt pgtype.Timestamp `json:"insertedAt"`
+	ID         uuid.UUID
+	EventID    uuid.UUID
+	UserID     uuid.UUID
+	InsertedAt pgtype.Timestamp
 }
 
 type EventsHost struct {
-	ID         uuid.UUID        `json:"id"`
-	EventID    uuid.UUID        `json:"eventId"`
-	HostID     uuid.UUID        `json:"hostId"`
-	Position   int32            `json:"position"`
-	InsertedAt pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
+	ID         uuid.UUID
+	EventID    uuid.UUID
+	HostID     uuid.UUID
+	Position   int32
+	InsertedAt pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
 }
 
 type Host struct {
-	ID               uuid.UUID        `json:"id"`
-	Salutation       *string          `json:"salutation"`
-	GivenName        string           `json:"givenName"`
-	FamilyName       string           `json:"familyName"`
-	ProfilePictureID *uuid.UUID       `json:"profilePictureId"`
-	InsertedAt       pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt        pgtype.Timestamp `json:"updatedAt"`
-	Country          *string          `json:"country"`
+	ID               uuid.UUID
+	Salutation       *string
+	GivenName        string
+	FamilyName       string
+	ProfilePictureID *uuid.UUID
+	InsertedAt       pgtype.Timestamp
+	UpdatedAt        pgtype.Timestamp
+	Country          *string
 }
 
 type Order struct {
-	ID                uuid.UUID                  `json:"id"`
-	UserID            uuid.UUID                  `json:"userId"`
-	PaidAt            pgtype.Timestamp           `json:"paidAt"`
-	CancelledAt       pgtype.Timestamp           `json:"cancelledAt"`
-	DiscountCode      *string                    `json:"discountCode"`
-	GrandTotal        decimal.Decimal            `json:"grandTotal"`
-	Currency          string                     `json:"currency"`
-	InsertedAt        pgtype.Timestamp           `json:"insertedAt"`
-	UpdatedAt         pgtype.Timestamp           `json:"updatedAt"`
-	BillingGivenName  sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
-	BillingFamilyName sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
-	BillingPhone      *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
-	BillingCity       sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
-	BillingPostalCode *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
-	BillingCountry    string                     `json:"billingCountry"`
-	Email             sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
-	BillingStreet     []byte                     `json:"billingAddressLine1Encrypted"`
-	BillingStreet     []byte                     `json:"billingAddressLine2Encrypted"`
+	ID                  uuid.UUID
+	UserID              uuid.UUID
+	PaidAt              pgtype.Timestamp
+	CancelledAt         pgtype.Timestamp
+	DiscountCode        *string
+	GrandTotal          decimal.Decimal
+	Currency            string
+	InsertedAt          pgtype.Timestamp
+	UpdatedAt           pgtype.Timestamp
+	BillingGivenName    sqlcrypter.EncryptedBytes
+	BillingFamilyName   sqlcrypter.EncryptedBytes
+	BillingPhone        *sqlcrypter.EncryptedBytes
+	BillingCity         sqlcrypter.EncryptedBytes
+	BillingPostalCode   *sqlcrypter.EncryptedBytes
+	BillingCountry      string
+	Email               sqlcrypter.EncryptedBytes
+	BillingAddressLine1 sqlcrypter.EncryptedBytes
+	BillingAddressLine2 *sqlcrypter.EncryptedBytes
 }
 
 type OrderLineItem struct {
-	ID                 uuid.UUID        `json:"id"`
-	OrderID            uuid.UUID        `json:"orderId"`
-	EventID            uuid.UUID        `json:"eventId"`
-	EventTitle         string           `json:"eventTitle"`
-	EventPriceAmount   decimal.Decimal  `json:"eventPriceAmount"`
-	EventPriceCurrency string           `json:"eventPriceCurrency"`
-	Quantity           int32            `json:"quantity"`
-	InsertedAt         pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt          pgtype.Timestamp `json:"updatedAt"`
+	ID                 uuid.UUID
+	OrderID            uuid.UUID
+	EventID            uuid.UUID
+	EventTitle         string
+	EventPriceAmount   decimal.Decimal
+	EventPriceCurrency string
+	Quantity           int32
+	InsertedAt         pgtype.Timestamp
+	UpdatedAt          pgtype.Timestamp
 }
 
 type User struct {
-	ID               uuid.UUID                  `json:"id"`
-	Salutation       *string                    `json:"salutation"`
-	Country          *string                    `json:"country"`
-	Profession       *string                    `json:"profession"`
-	Organization     *string                    `json:"organization"`
-	Company          *string                    `json:"company"`
-	PasswordHash     *string                    `json:"passwordHash"`
-	LastLoginAt      pgtype.Timestamp           `json:"lastLoginAt"`
-	LastLoginIp      *netip.Addr                `json:"lastLoginIp"`
-	InsertedAt       pgtype.Timestamp           `json:"insertedAt"`
-	UpdatedAt        pgtype.Timestamp           `json:"updatedAt"`
-	ProfilePicture   *string                    `json:"profilePicture"`
-	UserRole         UserRole                   `json:"userRole"`
-	Email            sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
-	EmailHash        []byte                     `json:"emailHash"`
-	GivenName        sqlcrypter.EncryptedBytes  `json:"givenNameEncrypted"`
-	FamilyName       sqlcrypter.EncryptedBytes  `json:"familyNameEncrypted"`
-	EmailConfirmedAt pgtype.Timestamp           `json:"emailConfirmedAt"`
-	LicenceNumber    *sqlcrypter.EncryptedBytes `json:"licenceNumberEncrypted"`
+	ID               uuid.UUID
+	Salutation       *string
+	Country          *string
+	Profession       *string
+	Organization     *string
+	Company          *string
+	PasswordHash     *string
+	LastLoginAt      pgtype.Timestamp
+	LastLoginIp      *netip.Addr
+	InsertedAt       pgtype.Timestamp
+	UpdatedAt        pgtype.Timestamp
+	ProfilePicture   *string
+	UserRole         UserRole
+	Email            sqlcrypter.EncryptedBytes
+	EmailHash        []byte
+	GivenName        sqlcrypter.EncryptedBytes
+	FamilyName       sqlcrypter.EncryptedBytes
+	EmailConfirmedAt pgtype.Timestamp
+	LicenceNumber    *sqlcrypter.EncryptedBytes
 }
 
 type UserToken struct {
-	ID         uuid.UUID        `json:"id"`
-	UserID     uuid.UUID        `json:"userId"`
-	Context    string           `json:"context"`
-	Token      []byte           `json:"token"`
-	InsertedAt pgtype.Timestamp `json:"insertedAt"`
-	ValidUntil pgtype.Timestamp `json:"validUntil"`
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	Context    string
+	Token      sqlcrypter.EncryptedBytes
+	InsertedAt pgtype.Timestamp
+	ValidUntil pgtype.Timestamp
 }
 
 type Video struct {
-	ID         uuid.UUID        `json:"id"`
-	Provider   VideoProvider    `json:"provider"`
-	IsPublic   bool             `json:"isPublic"`
-	TitleEn    string           `json:"titleEn"`
-	TitlePl    string           `json:"titlePl"`
-	Slug       string           `json:"slug"`
-	InsertedAt pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt  pgtype.Timestamp `json:"updatedAt"`
-	EventID    uuid.UUID        `json:"eventId"`
+	ID         uuid.UUID
+	Provider   VideoProvider
+	IsPublic   bool
+	TitleEn    string
+	TitlePl    string
+	Slug       string
+	InsertedAt pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	EventID    uuid.UUID
 }
 
 type VideoSource struct {
-	ID          uuid.UUID        `json:"id"`
-	ContentType string           `json:"contentType"`
-	Codec       *string          `json:"codec"`
-	VideoID     uuid.UUID        `json:"videoId"`
-	ObjectKey   string           `json:"objectKey"`
-	InsertedAt  pgtype.Timestamp `json:"insertedAt"`
-	UpdatedAt   pgtype.Timestamp `json:"updatedAt"`
+	ID          uuid.UUID
+	ContentType string
+	Codec       *string
+	VideoID     uuid.UUID
+	ObjectKey   string
+	InsertedAt  pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
 }

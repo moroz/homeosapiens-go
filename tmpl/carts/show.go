@@ -106,33 +106,23 @@ func Show(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Or
 					Localizer:    l,
 					Value:        params.BillingPhone,
 				}),
+
 				components.InputField(&components.InputFieldOptions{
-					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_street"}),
-					Name:         "billing_street",
-					Autocomplete: "billing street-address",
+					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_address_line1"}),
+					Name:         "billing_address_line1",
+					Autocomplete: "address-line1",
 					Required:     true,
 					Localizer:    l,
-					Value:        params.BillingStreet,
+					Value:        params.BillingAddressLine1,
 				}),
 
-				components.InputGroup(
-					components.InputField(&components.InputFieldOptions{
-						Label:     l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_house_number"}),
-						Name:      "billing_house_number",
-						Required:  true,
-						Localizer: l,
-						Value:     params.BillingHouseNumber,
-					}),
-
-					components.InputField(&components.InputFieldOptions{
-						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_apartment_number"}),
-						Name:         "billing_apartment_number",
-						Autocomplete: "billing address-line2",
-						Required:     false,
-						Localizer:    l,
-						Value:        params.BillingApartmentNumber,
-					}),
-				),
+				components.InputField(&components.InputFieldOptions{
+					Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_address_line2"}),
+					Name:         "billing_address_line2",
+					Autocomplete: "address-line2",
+					Localizer:    l,
+					Value:        params.BillingAddressLine2,
+				}),
 
 				components.InputGroup(
 					components.InputField(&components.InputFieldOptions{

@@ -18,7 +18,7 @@ const deleteUserToken = `-- name: DeleteUserToken :one
 delete from user_tokens where token = $1 returning true
 `
 
-func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, error) {
+func (q *Queries) DeleteUserToken(ctx context.Context, token sqlcrypter.EncryptedBytes) (bool, error) {
 	row := q.db.QueryRow(ctx, deleteUserToken, token)
 	var column_1 bool
 	err := row.Scan(&column_1)
@@ -34,12 +34,12 @@ returning id, salutation, country, profession, organization, company, password_h
 `
 
 type FindOrCreateUserFromClaimsParams struct {
-	Email          sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
-	EmailHash      []byte                    `json:"emailHash"`
-	GivenName      sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
-	FamilyName     sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
-	ProfilePicture *string                   `json:"profilePicture"`
-	EmailConfirmed bool                      `json:"emailConfirmed"`
+	Email          sqlcrypter.EncryptedBytes
+	EmailHash      []byte
+	GivenName      sqlcrypter.EncryptedBytes
+	FamilyName     sqlcrypter.EncryptedBytes
+	ProfilePicture *string
+	EmailConfirmed bool
 }
 
 func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCreateUserFromClaimsParams) (*User, error) {
@@ -83,7 +83,7 @@ where ut.valid_until > now()
 and ut.token = $1::bytea and ut.context = 'access'
 `
 
-func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User, error) {
+func (q *Queries) GetUserByAccessToken(ctx context.Context, token sqlcrypter.EncryptedBytes) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByAccessToken, token)
 	var i User
 	err := row.Scan(
@@ -146,16 +146,16 @@ insert into users (email_encrypted, email_hash, salutation, given_name_encrypted
 `
 
 type InsertUserParams struct {
-	Email        sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
-	EmailHash    []byte                    `json:"emailHash"`
-	Salutation   *string                   `json:"salutation"`
-	GivenName    sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
-	FamilyName   sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
-	Country      *string                   `json:"country"`
-	Profession   *string                   `json:"profession"`
-	Organization *string                   `json:"organization"`
-	Company      *string                   `json:"company"`
-	PasswordHash *string                   `json:"passwordHash"`
+	Email        sqlcrypter.EncryptedBytes
+	EmailHash    []byte
+	Salutation   *string
+	GivenName    sqlcrypter.EncryptedBytes
+	FamilyName   sqlcrypter.EncryptedBytes
+	Country      *string
+	Profession   *string
+	Organization *string
+	Company      *string
+	PasswordHash *string
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User, error) {
@@ -201,10 +201,10 @@ insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $
 `
 
 type InsertUserTokenParams struct {
-	UserID     uuid.UUID        `json:"userId"`
-	Context    string           `json:"context"`
-	Token      []byte           `json:"token"`
-	ValidUntil pgtype.Timestamp `json:"validUntil"`
+	UserID     uuid.UUID
+	Context    string
+	Token      sqlcrypter.EncryptedBytes
+	ValidUntil pgtype.Timestamp
 }
 
 func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParams) (*UserToken, error) {
@@ -276,8 +276,8 @@ where id = $2
 `
 
 type SetUserLastLoginParams struct {
-	LastLoginIp *netip.Addr `json:"lastLoginIp"`
-	ID          uuid.UUID   `json:"id"`
+	LastLoginIp *netip.Addr
+	ID          uuid.UUID
 }
 
 func (q *Queries) SetUserLastLogin(ctx context.Context, arg *SetUserLastLoginParams) error {
@@ -292,12 +292,12 @@ where id = $6 returning id, salutation, country, profession, organization, compa
 `
 
 type UpdateUserProfileParams struct {
-	GivenName     sqlcrypter.EncryptedBytes  `json:"givenNameEncrypted"`
-	FamilyName    sqlcrypter.EncryptedBytes  `json:"familyNameEncrypted"`
-	Profession    *string                    `json:"profession"`
-	LicenceNumber *sqlcrypter.EncryptedBytes `json:"licenceNumberEncrypted"`
-	Country       *string                    `json:"country"`
-	ID            uuid.UUID                  `json:"id"`
+	GivenName     sqlcrypter.EncryptedBytes
+	FamilyName    sqlcrypter.EncryptedBytes
+	Profession    *string
+	LicenceNumber *sqlcrypter.EncryptedBytes
+	Country       *string
+	ID            uuid.UUID
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileParams) (*User, error) {
@@ -342,13 +342,13 @@ returning id, salutation, country, profession, organization, company, password_h
 `
 
 type UpsertUserFromSeedDataParams struct {
-	Email        sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
-	EmailHash    []byte                    `json:"emailHash"`
-	GivenName    sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
-	FamilyName   sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
-	Country      *string                   `json:"country"`
-	PasswordHash *string                   `json:"passwordHash"`
-	UserRole     UserRole                  `json:"userRole"`
+	Email        sqlcrypter.EncryptedBytes
+	EmailHash    []byte
+	GivenName    sqlcrypter.EncryptedBytes
+	FamilyName   sqlcrypter.EncryptedBytes
+	Country      *string
+	PasswordHash *string
+	UserRole     UserRole
 }
 
 func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFromSeedDataParams) (*User, error) {

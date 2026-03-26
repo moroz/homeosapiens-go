@@ -1,0 +1,7 @@
+hs.localhost {
+	reverse_proxy localhost:5000
+}
+
+assets.hs.localhost {
+    reverse_proxy localhost:5173
+}

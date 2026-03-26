@@ -19,18 +19,18 @@ values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning id, user_id, paid_at, 
 `
 
 type InsertOrderParams struct {
-	UserID            uuid.UUID                  `json:"userId"`
-	GrandTotal        decimal.Decimal            `json:"grandTotal"`
-	Currency          string                     `json:"currency"`
-	BillingGivenName  sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
-	BillingFamilyName sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
-	BillingPhone      *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
-	BillingCity       sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
-	BillingPostalCode *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
-	BillingCountry    string                     `json:"billingCountry"`
-	Email             sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
-	BillingStreet     []byte                     `json:"billingAddressLine1Encrypted"`
-	BillingStreet_2   []byte                     `json:"billingAddressLine2Encrypted2"`
+	UserID              uuid.UUID
+	GrandTotal          decimal.Decimal
+	Currency            string
+	BillingGivenName    sqlcrypter.EncryptedBytes
+	BillingFamilyName   sqlcrypter.EncryptedBytes
+	BillingPhone        *sqlcrypter.EncryptedBytes
+	BillingCity         sqlcrypter.EncryptedBytes
+	BillingPostalCode   *sqlcrypter.EncryptedBytes
+	BillingCountry      string
+	Email               sqlcrypter.EncryptedBytes
+	BillingAddressLine1 sqlcrypter.EncryptedBytes
+	BillingAddressLine2 *sqlcrypter.EncryptedBytes
 }
 
 func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Order, error) {
@@ -45,8 +45,8 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 		arg.BillingPostalCode,
 		arg.BillingCountry,
 		arg.Email,
-		arg.BillingStreet,
-		arg.BillingStreet_2,
+		arg.BillingAddressLine1,
+		arg.BillingAddressLine2,
 	)
 	var i Order
 	err := row.Scan(
@@ -66,8 +66,8 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 		&i.BillingPostalCode,
 		&i.BillingCountry,
 		&i.Email,
-		&i.BillingStreet,
-		&i.BillingStreet,
+		&i.BillingAddressLine1,
+		&i.BillingAddressLine2,
 	)
 	return &i, err
 }
@@ -102,8 +102,8 @@ func (q *Queries) ListOrders(ctx context.Context) ([]*Order, error) {
 			&i.BillingPostalCode,
 			&i.BillingCountry,
 			&i.Email,
-			&i.BillingStreet,
-			&i.BillingStreet,
+			&i.BillingAddressLine1,
+			&i.BillingAddressLine2,
 		); err != nil {
 			return nil, err
 		}

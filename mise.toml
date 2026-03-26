@@ -1,4 +1,5 @@
 [tools]
+caddy = "latest"
 go = "1.26"
 "go:github.com/air-verse/air" = "latest"
 "go:github.com/pressly/goose/v3/cmd/goose" = "latest"

@@ -57,19 +57,18 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 	}
 
 	order, err := queries.New(tx).InsertOrder(ctx, &queries.InsertOrderParams{
-		UserID:                 user.ID,
-		GrandTotal:             items.ProductTotal,
-		Currency:               "PLN",
-		BillingGivenName:       sqlcrypter.NewEncryptedBytes(params.BillingGivenName),
-		BillingFamilyName:      sqlcrypter.NewEncryptedBytes(params.BillingFamilyName),
-		BillingPhone:           maybeEncrypt(params.BillingPhone),
-		BillingStreet:          sqlcrypter.NewEncryptedBytes(params.BillingStreet),
-		BillingHouseNumber:     sqlcrypter.NewEncryptedBytes(params.BillingHouseNumber),
-		BillingApartmentNumber: maybeEncrypt(params.BillingApartmentNumber),
-		BillingCity:            sqlcrypter.NewEncryptedBytes(params.BillingCity),
-		BillingPostalCode:      maybeEncrypt(params.BillingPostalCode),
-		BillingCountry:         params.BillingCountry,
-		Email:                  sqlcrypter.NewEncryptedBytes(params.Email),
+		UserID:              user.ID,
+		GrandTotal:          items.ProductTotal,
+		Currency:            "PLN",
+		BillingGivenName:    sqlcrypter.NewEncryptedBytes(params.BillingGivenName),
+		BillingFamilyName:   sqlcrypter.NewEncryptedBytes(params.BillingFamilyName),
+		BillingPhone:        maybeEncrypt(params.BillingPhone),
+		BillingAddressLine1: sqlcrypter.NewEncryptedBytes(params.BillingAddressLine1),
+		BillingAddressLine2: maybeEncrypt(params.BillingAddressLine1),
+		BillingCity:         sqlcrypter.NewEncryptedBytes(params.BillingCity),
+		BillingPostalCode:   maybeEncrypt(params.BillingPostalCode),
+		BillingCountry:      params.BillingCountry,
+		Email:               sqlcrypter.NewEncryptedBytes(params.Email),
 	})
 	if err != nil {
 		return nil, err

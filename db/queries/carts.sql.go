@@ -19,13 +19,13 @@ where c.event_id = any($1::uuid[]) and c.cart_id = $2::uuid
 `
 
 type CountCartLineItemQuantitiesForEventsParams struct {
-	EventIds []uuid.UUID `json:"eventIds"`
-	CartID   uuid.UUID   `json:"cartId"`
+	EventIds []uuid.UUID
+	CartID   uuid.UUID
 }
 
 type CountCartLineItemQuantitiesForEventsRow struct {
-	EventID  uuid.UUID `json:"eventId"`
-	Quantity int32     `json:"quantity"`
+	EventID  uuid.UUID
+	Quantity int32
 }
 
 func (q *Queries) CountCartLineItemQuantitiesForEvents(ctx context.Context, arg *CountCartLineItemQuantitiesForEventsParams) ([]*CountCartLineItemQuantitiesForEventsRow, error) {
@@ -62,8 +62,8 @@ delete from cart_line_items cli where cart_id = $1::uuid and event_id = $2::uuid
 `
 
 type DeleteCartItemParams struct {
-	CartID  uuid.UUID `json:"cartId"`
-	EventID uuid.UUID `json:"eventId"`
+	CartID  uuid.UUID
+	EventID uuid.UUID
 }
 
 func (q *Queries) DeleteCartItem(ctx context.Context, arg *DeleteCartItemParams) (uuid.UUID, error) {
@@ -82,9 +82,9 @@ group by 1
 `
 
 type GetCartRow struct {
-	CartID       uuid.UUID       `json:"cartId"`
-	ItemCount    int64           `json:"itemCount"`
-	ProductTotal decimal.Decimal `json:"productTotal"`
+	CartID       uuid.UUID
+	ItemCount    int64
+	ProductTotal decimal.Decimal
 }
 
 func (q *Queries) GetCart(ctx context.Context, cartID uuid.UUID) (*GetCartRow, error) {
@@ -102,9 +102,9 @@ where c.cart_id = $1::uuid
 `
 
 type GetCartItemsByCartIdRow struct {
-	CartLineItem CartLineItem    `json:"cartLineItem"`
-	Event        Event           `json:"event"`
-	Subtotal     decimal.Decimal `json:"subtotal"`
+	CartLineItem CartLineItem
+	Event        Event
+	Subtotal     decimal.Decimal
 }
 
 func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([]*GetCartItemsByCartIdRow, error) {
@@ -164,8 +164,8 @@ do update set quantity = cli.quantity + excluded.quantity returning id, cart_id,
 `
 
 type InsertCartLineItemParams struct {
-	CartID  uuid.UUID `json:"cartId"`
-	EventID uuid.UUID `json:"eventId"`
+	CartID  uuid.UUID
+	EventID uuid.UUID
 }
 
 func (q *Queries) InsertCartLineItem(ctx context.Context, arg *InsertCartLineItemParams) (*CartLineItem, error) {
