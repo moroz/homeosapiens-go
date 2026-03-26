@@ -13,6 +13,8 @@
 	--color-primary: var(--color-blue-800);
 	--color-primary-hover: var(--color-blue-700);
 
+	--color-focus: var(--color-blue-600);
+
 	--spacing-header: calc(70 / 4 * var(--spacing));
 
 	--breakpoint-*: initial;
@@ -73,10 +75,10 @@
 	}
 
 	.input {
-		@apply h-10 rounded-sm border px-2 shadow;
+		@apply focus:outline-focus h-10 rounded-sm border px-2 shadow focus:outline-2;
 
 		&:read-only {
-			@apply cursor-default border-gray-500 bg-gray-100 text-gray-600 shadow-none focus:shadow-none focus:outline-none;
+			@apply cursor-default border-gray-500 bg-gray-100 text-gray-600 shadow-none focus:outline-2 focus:outline-gray-500;
 		}
 	}
 

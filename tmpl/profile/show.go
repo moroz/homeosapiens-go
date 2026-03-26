@@ -26,13 +26,9 @@ func Show(ctx *types.CustomContext) Node {
 				Action("/profile"),
 				Class("mt-6 space-y-4"),
 				Input(Type("hidden"), Name("_method"), Value("PUT")),
-				components.InputField(&components.InputFieldOptions{
-					Label: l.MustLocalizeMessage(&i18n.Message{
-						ID: "common.users.email",
-					}),
-					ID:       "email",
-					Value:    ctx.User.Email.String(),
-					Readonly: true,
+				components.DisplayField(&components.DisplayFieldOptions{
+					Label: l.MustLocalizeMessage(&i18n.Message{ID: "common.users.email"}),
+					Value: ctx.User.Email.String(),
 				}),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{

@@ -18,7 +18,7 @@ func New(ctx *types.CustomContext, email string, msg string) Node {
 	return layout.AuthLayout(ctx, title,
 		components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{
 			ID: "sessions.new.sign_in_with_google",
-		}), ""),
+		}), "", "w-full flex"),
 		Hr(Class("my-6")),
 		Form(
 			Class("grid gap-4"),
