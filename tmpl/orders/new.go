@@ -3,6 +3,7 @@ package orders
 import (
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/internal/countries"
+	"github.com/moroz/homeosapiens-go/internal/phone"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
@@ -35,6 +36,11 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 		ID: "cart.title",
 	})
 
+	examplePhone := phone.ExamplePhoneNumber(params.BillingCountry)
+	if params.BillingCountry == "PL" {
+		examplePhone = phone.ExamplePhoneNumber("GB")
+	}
+
 	if cart.IsEmpty() {
 		return layout.Layout(ctx, title,
 			Div(
@@ -56,24 +62,16 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 				Action("/orders"),
 				Method("POST"),
 
-				H3(Class("text-2xl font-bold text-primary mt-8 mb-0"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
+				H3(Class("text-2xl font-bold text-primary mt-8 mb-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
 
 				If(ctx.User == nil,
-					components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{ID: "orders.checkout_with_google"}), "/sign-in?ref=%2Fcart"),
+					Group{
+						components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{ID: "orders.checkout_with_google"}), "/cart", "my-0"),
+						P(Class("my-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.or_continue_with_email"}))),
+					},
 				),
 
-				Section(Class("gap-4 grid my-4"),
-					If(ctx.User == nil,
-						P(Raw(l.MustLocalize(&i18n.LocalizeConfig{
-							DefaultMessage: &i18n.Message{
-								ID: "orders.already_have_an_account_html",
-							},
-							TemplateData: map[string]string{
-								"Url": "/sign-in?ref=%2Fcart",
-							},
-						}))),
-					),
-
+				Section(Class("gap-4 grid mb-4"),
 					If(ctx.User != nil,
 						components.DisplayField(&components.DisplayFieldOptions{
 							Label: l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_email"}),
@@ -89,6 +87,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Required:     true,
 							Localizer:    l,
 							Value:        params.Email,
+							HelperText:   l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_email_helper_text"}),
 						}),
 					),
 
@@ -131,9 +130,14 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 						Name:         "billing_phone",
 						Autocomplete: "tel",
 						Required:     false,
-						HelperText:   l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_phone_helper_text"}),
-						Localizer:    l,
-						Value:        params.BillingPhone,
+						HelperText: l.MustLocalize(&i18n.LocalizeConfig{
+							DefaultMessage: &i18n.Message{ID: "orders.form.billing_phone_helper_text"},
+							TemplateData: map[string]string{
+								"Example": examplePhone,
+							},
+						}),
+						Localizer: l,
+						Value:     params.BillingPhone,
 					}),
 
 					components.InputField(&components.InputFieldOptions{

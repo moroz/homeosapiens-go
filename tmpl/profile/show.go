@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
@@ -50,9 +51,11 @@ func Show(ctx *types.CustomContext) Node {
 					Label: l.MustLocalizeMessage(&i18n.Message{
 						ID: "common.users.country",
 					}),
-					Value:    helpers.DerefOrEmpty(ctx.User.Country),
-					Language: ctx.Language,
-					Required: true,
+					Value:                 helpers.DerefOrEmpty(ctx.User.Country),
+					Language:              ctx.Language,
+					Required:              true,
+					Countries:             countries.All(),
+					IncludePopularRegions: true,
 				}),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{

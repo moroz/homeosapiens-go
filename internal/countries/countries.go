@@ -62,6 +62,10 @@ func OptionsFromISOCodeList(codes []string) []CountryOption {
 	return result
 }
 
+func All() []CountryOption {
+	return append([]CountryOption(nil), all...)
+}
+
 func init() {
 	if err := json.Unmarshal(CountryList, &all); err != nil {
 		log.Fatal(err)

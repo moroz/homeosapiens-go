@@ -147,6 +147,8 @@
 		"billing_address": "Dane do faktury",
 		"contact_information": "Dane kontaktowe",
 		"already_have_an_account_html": "Masz już konto? <a href={{.Url}}>Zaloguj się</a>",
+		"checkout_with_google": "Zaloguj się przez Google",
+		"or_continue_with_email": "lub kontynuuj przy użyciu adresu e-mail",
 		"form": {
 			"billing_country": "Kraj:",
 			"billing_address_line1": "Ulica i numer domu:",
@@ -154,8 +156,9 @@
 			"billing_city": "Miasto:",
 			"billing_postal_code": "Kod pocztowy:",
 			"billing_email": "Adres e-mail:",
+			"billing_email_helper_text": "Upewnij się, że Twój adres e-mail jest poprawny.",
 			"billing_phone": "Numer telefonu lub WhatsApp:",
-			"billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. +44 7700 900 123.",
+			"billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. {{.Example}}.",
 			"billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej."
 		}
 	}

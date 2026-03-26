@@ -137,15 +137,17 @@
 		"contact_information": "Contact information",
 		"already_have_an_account_html": "Already have an account? <a href={{.Url}}>Sign in</a>",
 		"checkout_with_google": "Continue with Google",
+		"or_continue_with_email": "or continue with email",
     "form": {
       "billing_country": "Country:",
       "billing_address_line1": "Address:",
-			"billing_address_line2": "Apartment, suite, etc.:",
+			"billing_address_line2": "Address continuation:",
       "billing_city": "City:",
       "billing_postal_code": "Postal code:",
       "billing_email": "Email address:",
+			"billing_email_helper_text": "Please make sure your email address is correct.",
       "billing_phone": "Phone number or WhatsApp:",
-      "billing_phone_helper_text": "For numbers from outside Poland, include the country code (e.g., +44 7700 900123).",
+      "billing_phone_helper_text": "Please include the country code (e.g., {{.Example}}).",
       "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union."
     }
   }
