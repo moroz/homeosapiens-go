@@ -1,6 +1,7 @@
 ﻿package router
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v5"
@@ -81,6 +82,9 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 	r.GET("/cart", orders.New)
 	r.POST("/orders", orders.Create)
 	r.GET("/orders/success", orders.Success)
+
+	stripe := handlers.StripeWebhookController(db, stripeClient)
+	r.POST("/webhooks/stripe", echo.WrapHandler(http.HandlerFunc(stripe.StripeWebhook)))
 
 	cartItems := handlers.CartItemController(db)
 	r.POST("/cart_items", cartItems.Create)
