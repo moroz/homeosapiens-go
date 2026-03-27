@@ -24,7 +24,7 @@ func deleteItemButton(ctx *types.CustomContext, eventId uuid.UUID) Node {
 		})),
 		Input(Type("hidden"), Name("_method"), Value("DELETE")),
 		Input(Type("hidden"), Name("event_id"), Value(eventId.String())),
-		Button(Class("button tertiary p-2 font-normal text-xs"),
+		Button(Class("button tertiary p-2 text-xs font-normal"),
 			icons.Icon(&icons.IconProps{Name: "xmark", Classes: "h-4 w-4"}),
 			Text(ctx.Localizer.MustLocalizeMessage(&i18n.Message{ID: "cart.table.delete"})),
 		),
@@ -68,16 +68,16 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 				Attr("novalidate", ""),
 				Data("testid", "checkout-form"),
 
-				H3(Class("text-2xl font-bold text-primary mt-8 mb-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
+				H3(Class("text-primary mt-8 mb-4 text-2xl font-bold"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
 
 				If(ctx.User == nil,
 					Group{
 						components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{ID: "orders.checkout_with_google"}), "/cart", "my-0 mobile:w-full"),
-						P(Class("my-4 mobile:text-center"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.or_continue_with_email"}))),
+						P(Class("mobile:text-center my-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.or_continue_with_email"}))),
 					},
 				),
 
-				Section(Class("gap-4 grid mb-4"),
+				Section(Class("mb-4 grid gap-4"),
 					If(ctx.User != nil,
 						components.DisplayField(&components.DisplayFieldOptions{
 							Label: l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_email"}),
@@ -121,9 +121,9 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 					),
 				),
 
-				H3(Class("text-2xl font-bold text-primary mt-8 mb-0"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.billing_address"}))),
+				H3(Class("text-primary mt-8 mb-0 text-2xl font-bold"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.billing_address"}))),
 
-				Section(Class("grid gap-4 mt-4"),
+				Section(Class("mt-4 grid gap-4"),
 					components.CountrySelect(&components.CountrySelectOptions{
 						Name:       "billing_country",
 						Language:   ctx.Language,
@@ -192,7 +192,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 					),
 					Footer(
 						Button(
-							Class("button primary mobile:w-full"), Type("submit"),
+							Class("button primary mobile:w-full desktop:px-8"), Type("submit"),
 							Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.submit"})),
 						),
 					),

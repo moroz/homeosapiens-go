@@ -46,7 +46,7 @@ func CartTable(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 
 				return Tr(
 					Td(
-						Class("text-left py-0"),
+						Class("py-0 text-left"),
 						Div(
 							Class("flex items-center gap-2"),
 							A(

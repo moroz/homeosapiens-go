@@ -53,7 +53,7 @@ func InputField(opts *InputFieldOptions) Node {
 				If(opts.Required,
 					Span(
 						Aria("hidden", "true"),
-						Class("ml-1 inline-block text-danger"),
+						Class("text-danger ml-1 inline-block"),
 						Iff(opts.Localizer != nil, func() Node {
 							return Title(opts.Localizer.MustLocalizeMessage(&i18n.Message{
 								ID: "components.input_field.required",
@@ -116,7 +116,7 @@ func resolveErrorMessage(err any, name string) string {
 
 func InputGroup(children ...Node) Node {
 	return Div(
-		Class("grid desktop:grid-cols-[repeat(auto-fill,minmax(0,1fr))] desktop:gap-6 gap-4"),
+		Class("desktop:flex desktop:gap-6 grid gap-4"),
 		Group(children),
 	)
 }

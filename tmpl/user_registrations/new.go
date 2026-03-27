@@ -22,7 +22,7 @@ func New(ctx *types.CustomContext) Node {
 	return layout.AuthLayout(ctx, pageTitle,
 		components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{
 			ID: "user_registrations.new.sign_up_with_google",
-		}), ""),
+		}), "", "w-full flex"),
 		Hr(Class("my-4")),
 
 		Form(

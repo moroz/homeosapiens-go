@@ -14,7 +14,7 @@ type DisplayFieldOptions struct {
 
 func DisplayField(opts *DisplayFieldOptions) Node {
 	return Div(Class("input-field"),
-		Label(Class("label font-semibold leading-tight"), Text(opts.Label)),
+		Label(Class("label leading-tight font-semibold"), Text(opts.Label)),
 		P(Text(opts.Value)),
 		If(opts.Name != "", Input(Type("hidden"), Name(opts.Name), Value(opts.Value))),
 	)
