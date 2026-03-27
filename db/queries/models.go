@@ -8,10 +8,10 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"net/netip"
+	"time"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
@@ -232,8 +232,8 @@ type Asset struct {
 	ID               uuid.UUID
 	ObjectKey        string
 	OriginalFilename *string
-	InsertedAt       pgtype.Timestamp
-	UpdatedAt        pgtype.Timestamp
+	InsertedAt       time.Time
+	UpdatedAt        time.Time
 }
 
 type CartLineItem struct {
@@ -241,24 +241,24 @@ type CartLineItem struct {
 	CartID     uuid.UUID
 	EventID    uuid.UUID
 	Quantity   int32
-	InsertedAt pgtype.Timestamp
-	UpdatedAt  pgtype.Timestamp
+	InsertedAt time.Time
+	UpdatedAt  time.Time
 }
 
 type Event struct {
 	ID                uuid.UUID
 	TitleEn           string
 	TitlePl           string
-	StartsAt          pgtype.Timestamp
-	EndsAt            pgtype.Timestamp
+	StartsAt          time.Time
+	EndsAt            time.Time
 	IsVirtual         bool
 	DescriptionEn     string
 	DescriptionPl     *string
 	EventType         EventType
 	BasePriceAmount   *decimal.Decimal
 	BasePriceCurrency *string
-	InsertedAt        pgtype.Timestamp
-	UpdatedAt         pgtype.Timestamp
+	InsertedAt        time.Time
+	UpdatedAt         time.Time
 	Slug              string
 	SubtitleEn        *string
 	SubtitlePl        *string
@@ -281,17 +281,17 @@ type EventPrice struct {
 	DiscountCode  *string
 	Priority      int32
 	IsActive      bool
-	ValidFrom     pgtype.Timestamp
-	ValidUntil    pgtype.Timestamp
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
+	ValidFrom     *time.Time
+	ValidUntil    *time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type EventRegistration struct {
 	ID         uuid.UUID
 	EventID    uuid.UUID
 	UserID     uuid.UUID
-	InsertedAt pgtype.Timestamp
+	InsertedAt time.Time
 }
 
 type EventsHost struct {
@@ -299,8 +299,8 @@ type EventsHost struct {
 	EventID    uuid.UUID
 	HostID     uuid.UUID
 	Position   int32
-	InsertedAt pgtype.Timestamp
-	UpdatedAt  pgtype.Timestamp
+	InsertedAt time.Time
+	UpdatedAt  time.Time
 }
 
 type Host struct {
@@ -309,21 +309,21 @@ type Host struct {
 	GivenName        string
 	FamilyName       string
 	ProfilePictureID *uuid.UUID
-	InsertedAt       pgtype.Timestamp
-	UpdatedAt        pgtype.Timestamp
+	InsertedAt       time.Time
+	UpdatedAt        time.Time
 	Country          *string
 }
 
 type Order struct {
 	ID                      uuid.UUID
 	UserID                  uuid.UUID
-	PaidAt                  pgtype.Timestamp
-	CancelledAt             pgtype.Timestamp
+	PaidAt                  *time.Time
+	CancelledAt             *time.Time
 	DiscountCode            *string
 	GrandTotal              decimal.Decimal
 	Currency                string
-	InsertedAt              pgtype.Timestamp
-	UpdatedAt               pgtype.Timestamp
+	InsertedAt              time.Time
+	UpdatedAt               time.Time
 	BillingGivenName        sqlcrypter.EncryptedBytes
 	BillingFamilyName       sqlcrypter.EncryptedBytes
 	BillingPhone            *sqlcrypter.EncryptedBytes
@@ -344,8 +344,8 @@ type OrderLineItem struct {
 	EventPriceAmount   decimal.Decimal
 	EventPriceCurrency string
 	Quantity           int32
-	InsertedAt         pgtype.Timestamp
-	UpdatedAt          pgtype.Timestamp
+	InsertedAt         time.Time
+	UpdatedAt          time.Time
 }
 
 type User struct {
@@ -356,17 +356,17 @@ type User struct {
 	Organization     *string
 	Company          *string
 	PasswordHash     *string
-	LastLoginAt      pgtype.Timestamp
+	LastLoginAt      *time.Time
 	LastLoginIp      *netip.Addr
-	InsertedAt       pgtype.Timestamp
-	UpdatedAt        pgtype.Timestamp
+	InsertedAt       time.Time
+	UpdatedAt        time.Time
 	ProfilePicture   *string
 	UserRole         UserRole
 	Email            sqlcrypter.EncryptedBytes
 	EmailHash        []byte
 	GivenName        sqlcrypter.EncryptedBytes
 	FamilyName       sqlcrypter.EncryptedBytes
-	EmailConfirmedAt pgtype.Timestamp
+	EmailConfirmedAt *time.Time
 	LicenceNumber    *sqlcrypter.EncryptedBytes
 }
 
@@ -375,8 +375,8 @@ type UserToken struct {
 	UserID     uuid.UUID
 	Context    string
 	Token      []byte
-	InsertedAt pgtype.Timestamp
-	ValidUntil pgtype.Timestamp
+	InsertedAt time.Time
+	ValidUntil time.Time
 }
 
 type Video struct {
@@ -386,8 +386,8 @@ type Video struct {
 	TitleEn    string
 	TitlePl    string
 	Slug       string
-	InsertedAt pgtype.Timestamp
-	UpdatedAt  pgtype.Timestamp
+	InsertedAt time.Time
+	UpdatedAt  time.Time
 	EventID    uuid.UUID
 }
 
@@ -397,6 +397,6 @@ type VideoSource struct {
 	Codec       *string
 	VideoID     uuid.UUID
 	ObjectKey   string
-	InsertedAt  pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
+	InsertedAt  time.Time
+	UpdatedAt   time.Time
 }

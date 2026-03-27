@@ -8,10 +8,10 @@ package queries
 import (
 	"context"
 	"net/netip"
+	"time"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteUserToken = `-- name: DeleteUserToken :one
@@ -204,7 +204,7 @@ type InsertUserTokenParams struct {
 	UserID     uuid.UUID
 	Context    string
 	Token      []byte
-	ValidUntil pgtype.Timestamp
+	ValidUntil time.Time
 }
 
 func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParams) (*UserToken, error) {

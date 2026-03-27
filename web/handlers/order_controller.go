@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -85,5 +87,22 @@ func (cc *orderController) Create(c *echo.Context) error {
 }
 
 func (cc *orderController) Success(c *echo.Context) error {
+	sessionID := c.Request().URL.Query().Get("session_id")
+
+	order, err := cc.orderService.GetOrderByCheckoutSessionID(c.Request().Context(), sessionID)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Could not find an order with the checkout session ID %s.", sessionID))
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if order.PaidAt != nil {
+		c.Response().Write([]byte("Order paid"))
+	} else {
+		c.Response().Write([]byte("Order not paid"))
+	}
+
 	return nil
 }

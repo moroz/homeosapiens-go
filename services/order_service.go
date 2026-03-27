@@ -153,3 +153,43 @@ func (s *OrderService) findOrCreateUserForOrder(ctx context.Context, tx pgx.Tx, 
 
 	return nil, err
 }
+
+func (s *OrderService) GetOrderByCheckoutSessionID(ctx context.Context, sessionID string) (*queries.Order, error) {
+	return queries.New(s.db).GetOrderByCheckoutSessionID(ctx, sessionID)
+}
+
+var ErrOrderAlreadyPaid = fmt.Errorf("MarkOrderPaidByCheckoutSessionID: order has already been marked as paid")
+
+func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, sessionID string) (*queries.Order, error) {
+	conn, ok := s.db.(*pgxpool.Pool)
+	if !ok {
+		return nil, fmt.Errorf("want *pgxpool.Conn, got %T", s.db)
+	}
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	// Locks the row with SELECT FOR UPDATE
+	order, err := queries.New(tx).GetOrderByCheckoutSessionIDForUpdate(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	if order.PaidAt != nil {
+		return nil, ErrOrderAlreadyPaid
+	}
+
+	order, err = queries.New(tx).MarkOrderAsPaid(ctx, order.ID)
+	if err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	return order, err
+}

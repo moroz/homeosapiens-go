@@ -103,7 +103,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
 	tz := ctx.Timezone
 
-	isFuture := e.StartsAt.Time.After(time.Now())
+	isFuture := e.StartsAt.After(time.Now())
 	isFree := e.BasePriceAmount == nil
 
 	return Article(
@@ -116,7 +116,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 				If(e.EventRegistration != nil, EventAttendanceBadge(localizer)),
 
 				P(
-					Text(helpers.FormatDateRange(e.StartsAt.Time, e.EndsAt.Time, tz, ctx.Language)),
+					Text(helpers.FormatDateRange(e.StartsAt, e.EndsAt, tz, ctx.Language)),
 				),
 			),
 

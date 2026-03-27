@@ -7,9 +7,9 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
@@ -50,8 +50,8 @@ type UpsertEventParams struct {
 	TitleEn           string
 	TitlePl           string
 	Slug              string
-	StartsAt          pgtype.Timestamp
-	EndsAt            pgtype.Timestamp
+	StartsAt          time.Time
+	EndsAt            time.Time
 	IsVirtual         bool
 	DescriptionEn     string
 	DescriptionPl     *string
@@ -166,8 +166,8 @@ type UpsertEventPriceParams struct {
 	DiscountCode  *string
 	Priority      int32
 	IsActive      bool
-	ValidFrom     pgtype.Timestamp
-	ValidUntil    pgtype.Timestamp
+	ValidFrom     *time.Time
+	ValidUntil    *time.Time
 }
 
 func (q *Queries) UpsertEventPrice(ctx context.Context, arg *UpsertEventPriceParams) (*EventPrice, error) {

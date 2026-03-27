@@ -10,3 +10,12 @@ insert into order_line_items (order_id, event_id, event_title, event_price_amoun
 
 -- name: StoreCheckoutSessionIDOnOrder :one
 update orders set stripe_checkout_session_id = $1, updated_at = now() where id = $2 returning *;
+
+-- name: GetOrderByCheckoutSessionID :one
+select * from orders where stripe_checkout_session_id = @session_id::text;
+
+-- name: GetOrderByCheckoutSessionIDForUpdate :one
+select * from orders where stripe_checkout_session_id = @session_id::text for update;
+
+-- name: MarkOrderAsPaid :one
+update orders set paid_at = now(), updated_at = now() where id = $1 returning *;

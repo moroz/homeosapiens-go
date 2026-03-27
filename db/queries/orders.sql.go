@@ -13,6 +13,68 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const getOrderByCheckoutSessionID = `-- name: GetOrderByCheckoutSessionID :one
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id from orders where stripe_checkout_session_id = $1::text
+`
+
+func (q *Queries) GetOrderByCheckoutSessionID(ctx context.Context, sessionID string) (*Order, error) {
+	row := q.db.QueryRow(ctx, getOrderByCheckoutSessionID, sessionID)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PaidAt,
+		&i.CancelledAt,
+		&i.DiscountCode,
+		&i.GrandTotal,
+		&i.Currency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.BillingGivenName,
+		&i.BillingFamilyName,
+		&i.BillingPhone,
+		&i.BillingCity,
+		&i.BillingPostalCode,
+		&i.BillingCountry,
+		&i.Email,
+		&i.BillingAddressLine1,
+		&i.BillingAddressLine2,
+		&i.StripeCheckoutSessionID,
+	)
+	return &i, err
+}
+
+const getOrderByCheckoutSessionIDForUpdate = `-- name: GetOrderByCheckoutSessionIDForUpdate :one
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id from orders where stripe_checkout_session_id = $1::text for update
+`
+
+func (q *Queries) GetOrderByCheckoutSessionIDForUpdate(ctx context.Context, sessionID string) (*Order, error) {
+	row := q.db.QueryRow(ctx, getOrderByCheckoutSessionIDForUpdate, sessionID)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PaidAt,
+		&i.CancelledAt,
+		&i.DiscountCode,
+		&i.GrandTotal,
+		&i.Currency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.BillingGivenName,
+		&i.BillingFamilyName,
+		&i.BillingPhone,
+		&i.BillingCity,
+		&i.BillingPostalCode,
+		&i.BillingCountry,
+		&i.Email,
+		&i.BillingAddressLine1,
+		&i.BillingAddressLine2,
+		&i.StripeCheckoutSessionID,
+	)
+	return &i, err
+}
+
 const insertOrder = `-- name: InsertOrder :one
 insert into orders (user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted)
 values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id
@@ -148,6 +210,37 @@ func (q *Queries) ListOrders(ctx context.Context) ([]*Order, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const markOrderAsPaid = `-- name: MarkOrderAsPaid :one
+update orders set paid_at = now(), updated_at = now() where id = $1 returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id
+`
+
+func (q *Queries) MarkOrderAsPaid(ctx context.Context, id uuid.UUID) (*Order, error) {
+	row := q.db.QueryRow(ctx, markOrderAsPaid, id)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PaidAt,
+		&i.CancelledAt,
+		&i.DiscountCode,
+		&i.GrandTotal,
+		&i.Currency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.BillingGivenName,
+		&i.BillingFamilyName,
+		&i.BillingPhone,
+		&i.BillingCity,
+		&i.BillingPostalCode,
+		&i.BillingCountry,
+		&i.Email,
+		&i.BillingAddressLine1,
+		&i.BillingAddressLine2,
+		&i.StripeCheckoutSessionID,
+	)
+	return &i, err
 }
 
 const storeCheckoutSessionIDOnOrder = `-- name: StoreCheckoutSessionIDOnOrder :one

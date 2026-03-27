@@ -7,9 +7,9 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
@@ -206,8 +206,8 @@ type ListEventsRow struct {
 	BasePriceAmount   *decimal.Decimal
 	BasePriceCurrency *string
 	EventType         EventType
-	StartsAt          pgtype.Timestamp
-	EndsAt            pgtype.Timestamp
+	StartsAt          time.Time
+	EndsAt            time.Time
 	SubtitlePl        *string
 	SubtitleEn        *string
 	VenueStreet       *string
@@ -269,8 +269,8 @@ type ListHostsForEventsRow struct {
 	GivenName         string
 	FamilyName        string
 	ProfilePictureID  *uuid.UUID
-	InsertedAt        pgtype.Timestamp
-	UpdatedAt         pgtype.Timestamp
+	InsertedAt        time.Time
+	UpdatedAt         time.Time
 	Country           *string
 	ProfilePictureUrl *string
 }

@@ -84,7 +84,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 				}))),
 				Text(" "),
 				Time(
-					Text(helpers.FormatDateTime(event.StartsAt.Time, tz, lang)),
+					Text(helpers.FormatDateTime(event.StartsAt, tz, lang)),
 				),
 			),
 			P(
@@ -93,7 +93,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 				}))),
 				Text(" "),
 				Time(
-					Text(helpers.FormatDateTime(event.EndsAt.Time, tz, lang)),
+					Text(helpers.FormatDateTime(event.EndsAt, tz, lang)),
 				),
 			),
 		),

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +12,7 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/stripe/stripe-go/v84"
 	"github.com/stripe/stripe-go/v84/webhook"
 )
 
@@ -33,9 +36,12 @@ func (cc *stripeWebhookController) StripeWebhook(w http.ResponseWriter, r *http.
 		return
 	}
 
-	event, err := webhook.ConstructEventWithOptions(payload, r.Header.Get("Stripe-Signature"), config.StripeWebhookSigningSecret, webhook.ConstructEventOptions{
-		IgnoreAPIVersionMismatch: !config.IsProd,
-	})
+	event, err := webhook.ConstructEventWithOptions(
+		payload,
+		r.Header.Get("Stripe-Signature"),
+		config.StripeWebhookSigningSecret,
+		webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: !config.IsProd},
+	)
 	if err != nil {
 		log.Printf("Webhook signature validation failed: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -44,6 +50,24 @@ func (cc *stripeWebhookController) StripeWebhook(w http.ResponseWriter, r *http.
 
 	switch event.Type {
 	case "checkout.session.completed":
-		log.Printf("%#v", event)
+		var payload stripe.CheckoutSession
+		if err := json.Unmarshal(event.Data.Raw, &payload); err != nil {
+			log.Printf("Error parsing webhook JSON: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		_, err = cc.orderService.MarkOrderPaidByCheckoutSessionID(r.Context(), payload.ID)
+		if err != nil && errors.Is(err, services.ErrOrderAlreadyPaid) {
+			log.Printf("Order already paid: %s", payload.ID)
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		if err != nil {
+			log.Printf("Error marking order as paid: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
 
@@ -27,13 +26,10 @@ func (s *UserTokenService) IssueAccessTokenForUser(ctx context.Context, user *qu
 	}
 
 	return queries.New(s.db).InsertUserToken(ctx, &queries.InsertUserTokenParams{
-		UserID:  user.ID,
-		Context: "access",
-		Token:   token,
-		ValidUntil: pgtype.Timestamp{
-			Valid: true,
-			Time:  time.Now().Add(validity),
-		},
+		UserID:     user.ID,
+		Context:    "access",
+		Token:      token,
+		ValidUntil: time.Now().Add(validity),
 	})
 }
 
