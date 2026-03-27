@@ -114,13 +114,13 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
 
-	session, err := s.paymentIntentService.CreateCheckoutSession(ctx, &result)
+	result.CheckoutSession, err = s.paymentIntentService.CreateCheckoutSession(ctx, &result)
 	if err != nil {
 		return nil, fmt.Errorf("CreateOrder: stripe error: %w", err)
 	}
 
 	result.Order, err = queries.New(tx).StoreCheckoutSessionIDOnOrder(ctx, &queries.StoreCheckoutSessionIDOnOrderParams{
-		StripeCheckoutSessionID: &session.ID,
+		StripeCheckoutSessionID: &result.CheckoutSession.ID,
 		ID:                      result.ID,
 	})
 	if err != nil {

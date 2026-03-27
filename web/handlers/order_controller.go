@@ -76,10 +76,14 @@ func (cc *orderController) Create(c *echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	_, err = cc.orderService.CreateOrder(c.Request().Context(), *ctx.CartId, ctx.User, &params)
+	order, err := cc.orderService.CreateOrder(c.Request().Context(), *ctx.CartId, ctx.User, &params)
 	if validationError, ok := errors.AsType[validation.Errors](err); ok {
 		return orders.New(ctx, cart, &params, validationError).Render(c.Response())
 	}
 
+	return c.Redirect(http.StatusFound, order.CheckoutSession.URL)
+}
+
+func (cc *orderController) Success(c *echo.Context) error {
 	return nil
 }

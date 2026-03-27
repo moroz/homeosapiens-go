@@ -173,7 +173,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 						components.InputField(&components.InputFieldOptions{
 							Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_city"}),
 							Name:         "billing_city",
-							Autocomplete: "billing address-level2",
+							Autocomplete: "address-level2",
 							Required:     true,
 							Localizer:    l,
 							Value:        params.BillingCity,
@@ -183,7 +183,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 						components.InputField(&components.InputFieldOptions{
 							Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_postal_code"}),
 							Name:         "billing_postal_code",
-							Autocomplete: "billing postal-code",
+							Autocomplete: "postal-code",
 							Required:     true,
 							Localizer:    l,
 							Value:        params.BillingPostalCode,

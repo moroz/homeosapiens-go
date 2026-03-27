@@ -5,6 +5,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/stripe/stripe-go/v84"
 )
 
 var EmailValidationRegexp = regexp.MustCompile(`^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$`)
@@ -35,5 +36,6 @@ func (p *OrderParams) Validate() error {
 
 type OrderDTO struct {
 	*queries.Order
-	LineItems []*queries.OrderLineItem
+	LineItems       []*queries.OrderLineItem
+	CheckoutSession *stripe.CheckoutSession
 }

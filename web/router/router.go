@@ -80,6 +80,7 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 	orders := handlers.OrderController(db, stripeClient)
 	r.GET("/cart", orders.New)
 	r.POST("/orders", orders.Create)
+	r.GET("/orders/success", orders.Success)
 
 	cartItems := handlers.CartItemController(db)
 	r.POST("/cart_items", cartItems.Create)
