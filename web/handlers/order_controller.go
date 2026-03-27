@@ -21,7 +21,7 @@ type orderController struct {
 	orderService *services.OrderService
 }
 
-func OrderController(db queries.DBTX, service services.PaymentIntentService) *orderController {
+func OrderController(db queries.DBTX, service services.StripeService) *orderController {
 	return &orderController{
 		cartService:  services.NewCartService(db),
 		eventService: services.NewEventService(db),

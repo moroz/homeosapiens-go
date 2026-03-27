@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
 )
@@ -17,8 +18,13 @@ func main() {
 	}
 
 	sessionStore, err := session.NewStore(config.SessionKey)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	r := router.Router(db, sessionStore)
+	stripeService := services.NewStripeService(config.StripeSecretKey)
+
+	r := router.Router(db, sessionStore, stripeService)
 	listenOn := ":" + config.AppPort
 	log.Fatal(r.Start(listenOn))
 }

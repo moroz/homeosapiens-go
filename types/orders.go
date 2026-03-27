@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/moroz/homeosapiens-go/db/queries"
 )
 
 var EmailValidationRegexp = regexp.MustCompile(`^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$`)
@@ -30,4 +31,9 @@ func (p *OrderParams) Validate() error {
 		validation.Field(&p.BillingCountry, validation.Required),
 		validation.Field(&p.BillingPostalCode, validation.Required),
 	)
+}
+
+type OrderDTO struct {
+	*queries.Order
+	LineItems []*queries.OrderLineItem
 }

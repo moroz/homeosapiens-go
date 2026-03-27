@@ -20,7 +20,7 @@ func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db queries.DBTX, store *session.Store, stripeClient services.PaymentIntentService) *echo.Echo {
+func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeService) *echo.Echo {
 	r := echo.New()
 
 	bundle, err := i18n.InitBundle()

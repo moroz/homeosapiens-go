@@ -80,6 +80,8 @@ var IsProd = os.Getenv("GO_ENV") == "prod"
 var GoogleClientId = RequireInProduction("GOOGLE_CLIENT_ID", "")
 var GoogleClientSecret = RequireInProduction("GOOGLE_CLIENT_SECRET", "")
 var PublicUrl = RequireInProduction("PUBLIC_URL", "http://localhost:3000")
+var StripeSecretKey = RequireInProduction("STRIPE_SECRET_KEY", "")
+var StripePublishableKey = RequireInProduction("STRIPE_PUBLISHABLE_KEY", "")
 
 const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 const SessionCookieName = "_hs_session"

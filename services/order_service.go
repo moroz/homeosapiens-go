@@ -17,10 +17,10 @@ import (
 
 type OrderService struct {
 	db                   queries.DBTX
-	paymentIntentService PaymentIntentService
+	paymentIntentService StripeService
 }
 
-func NewOrderService(db queries.DBTX, service PaymentIntentService) *OrderService {
+func NewOrderService(db queries.DBTX, service StripeService) *OrderService {
 	return &OrderService{
 		db:                   db,
 		paymentIntentService: service,
@@ -34,7 +34,7 @@ func maybeEncrypt(str string) *sqlcrypter.EncryptedBytes {
 	return new(sqlcrypter.NewEncryptedBytes(str))
 }
 
-func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *queries.User, params *types.OrderParams) (*queries.Order, error) {
+func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *queries.User, params *types.OrderParams) (*types.OrderDTO, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -71,7 +71,9 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		}
 	}
 
-	order, err := queries.New(tx).InsertOrder(ctx, &queries.InsertOrderParams{
+	var result types.OrderDTO
+
+	result.Order, err = queries.New(tx).InsertOrder(ctx, &queries.InsertOrderParams{
 		UserID:              user.ID,
 		GrandTotal:          cart.ProductTotal,
 		Currency:            "PLN",
@@ -94,8 +96,8 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 			return nil, fmt.Errorf("CreateOrder: event %s has no price set", item.Event.ID)
 		}
 
-		_, err := queries.New(tx).InsertOrderLineItem(ctx, &queries.InsertOrderLineItemParams{
-			OrderID:          order.ID,
+		lineItem, err := queries.New(tx).InsertOrderLineItem(ctx, &queries.InsertOrderLineItemParams{
+			OrderID:          result.Order.ID,
 			EventID:          item.Event.ID,
 			EventTitle:       item.Event.TitleEn,
 			EventPriceAmount: item.Subtotal,
@@ -104,17 +106,32 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		if err != nil {
 			return nil, fmt.Errorf("CreateOrder: %w", err)
 		}
+
+		result.LineItems = append(result.LineItems, lineItem)
 	}
 
 	if err := queries.New(tx).DeleteCart(ctx, cartId); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("CreateOrder: %w", err)
+	}
+
+	session, err := s.paymentIntentService.CreateCheckoutSession(ctx, &result)
+	if err != nil {
+		return nil, fmt.Errorf("CreateOrder: stripe error: %w", err)
+	}
+
+	result.Order, err = queries.New(tx).StoreCheckoutSessionIDOnOrder(ctx, &queries.StoreCheckoutSessionIDOnOrderParams{
+		StripeCheckoutSessionID: &session.ID,
+		ID:                      result.ID,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("CreateOrder: could not commit transaction: %w", err)
 	}
 
-	return order, nil
+	return &result, nil
 }
 
 func (s *OrderService) findOrCreateUserForOrder(ctx context.Context, tx pgx.Tx, params *types.OrderParams) (*queries.User, error) {

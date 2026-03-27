@@ -7,3 +7,6 @@ values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning *;
 
 -- name: InsertOrderLineItem :one
 insert into order_line_items (order_id, event_id, event_title, event_price_amount) VALUES ($1, $2, $3, $4) returning *;
+
+-- name: StoreCheckoutSessionIDOnOrder :one
+update orders set stripe_checkout_session_id = $1, updated_at = now() where id = $2 returning *;

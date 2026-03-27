@@ -315,24 +315,25 @@ type Host struct {
 }
 
 type Order struct {
-	ID                  uuid.UUID
-	UserID              uuid.UUID
-	PaidAt              pgtype.Timestamp
-	CancelledAt         pgtype.Timestamp
-	DiscountCode        *string
-	GrandTotal          decimal.Decimal
-	Currency            string
-	InsertedAt          pgtype.Timestamp
-	UpdatedAt           pgtype.Timestamp
-	BillingGivenName    sqlcrypter.EncryptedBytes
-	BillingFamilyName   sqlcrypter.EncryptedBytes
-	BillingPhone        *sqlcrypter.EncryptedBytes
-	BillingCity         sqlcrypter.EncryptedBytes
-	BillingPostalCode   *sqlcrypter.EncryptedBytes
-	BillingCountry      string
-	Email               sqlcrypter.EncryptedBytes
-	BillingAddressLine1 sqlcrypter.EncryptedBytes
-	BillingAddressLine2 *sqlcrypter.EncryptedBytes
+	ID                      uuid.UUID
+	UserID                  uuid.UUID
+	PaidAt                  pgtype.Timestamp
+	CancelledAt             pgtype.Timestamp
+	DiscountCode            *string
+	GrandTotal              decimal.Decimal
+	Currency                string
+	InsertedAt              pgtype.Timestamp
+	UpdatedAt               pgtype.Timestamp
+	BillingGivenName        sqlcrypter.EncryptedBytes
+	BillingFamilyName       sqlcrypter.EncryptedBytes
+	BillingPhone            *sqlcrypter.EncryptedBytes
+	BillingCity             sqlcrypter.EncryptedBytes
+	BillingPostalCode       *sqlcrypter.EncryptedBytes
+	BillingCountry          string
+	Email                   sqlcrypter.EncryptedBytes
+	BillingAddressLine1     sqlcrypter.EncryptedBytes
+	BillingAddressLine2     *sqlcrypter.EncryptedBytes
+	StripeCheckoutSessionID *string
 }
 
 type OrderLineItem struct {
