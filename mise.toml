@@ -1,4 +1,5 @@
 [tools]
+ansible = { version = "latest", pipx_args = "--include-deps", uvx = "false" }
 caddy = "latest"
 go = "1.26"
 "go:github.com/air-verse/air" = "latest"

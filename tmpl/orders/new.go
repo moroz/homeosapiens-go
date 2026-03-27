@@ -72,8 +72,8 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 
 				If(ctx.User == nil,
 					Group{
-						components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{ID: "orders.checkout_with_google"}), "/cart", "my-0"),
-						P(Class("my-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.or_continue_with_email"}))),
+						components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{ID: "orders.checkout_with_google"}), "/cart", "my-0 mobile:w-full"),
+						P(Class("my-4 mobile:text-center"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.or_continue_with_email"}))),
 					},
 				),
 
@@ -192,7 +192,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 					),
 					Footer(
 						Button(
-							Class("button primary"), Type("submit"),
+							Class("button primary mobile:w-full"), Type("submit"),
 							Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.submit"})),
 						),
 					),
