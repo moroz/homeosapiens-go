@@ -65,6 +65,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 			Form(
 				Action("/orders"),
 				Method("POST"),
+				Attr("novalidate", ""),
 				Data("testid", "checkout-form"),
 
 				H3(Class("text-2xl font-bold text-primary mt-8 mb-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
@@ -122,7 +123,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 
 				H3(Class("text-2xl font-bold text-primary mt-8 mb-0"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.billing_address"}))),
 
-				Section(Class("grid gap-4 my-4"),
+				Section(Class("grid gap-4 mt-4"),
 					components.CountrySelect(&components.CountrySelectOptions{
 						Name:       "billing_country",
 						Language:   ctx.Language,
@@ -188,6 +189,12 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Value:        params.BillingPostalCode,
 							Error:        errors,
 						}),
+					),
+					Footer(
+						Button(
+							Class("button primary"), Type("submit"),
+							Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.submit"})),
+						),
 					),
 				),
 			),

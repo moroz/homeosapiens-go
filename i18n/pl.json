@@ -159,7 +159,8 @@
 			"billing_email_helper_text": "Upewnij się, że Twój adres e-mail jest poprawny.",
 			"billing_phone": "Numer telefonu lub WhatsApp:",
 			"billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. {{.Example}}.",
-			"billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej."
+			"billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej.",
+			"submit": "Złóż zamówienie"
 		}
 	}
 }

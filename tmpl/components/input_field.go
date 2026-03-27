@@ -106,7 +106,7 @@ func resolveErrorMessage(err any, name string) string {
 	case validation.Errors:
 		value := err[name]
 		if value != nil {
-			return err.Error()
+			return value.Error()
 		}
 	case error:
 		return err.Error()

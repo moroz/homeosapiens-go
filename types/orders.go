@@ -25,5 +25,9 @@ func (p *OrderParams) Validate() error {
 		validation.Field(&p.Email, validation.Required, validation.Match(EmailValidationRegexp)),
 		validation.Field(&p.BillingGivenName, validation.Required),
 		validation.Field(&p.BillingFamilyName, validation.Required),
+		validation.Field(&p.BillingAddressLine1, validation.Required),
+		validation.Field(&p.BillingCity, validation.Required),
+		validation.Field(&p.BillingCountry, validation.Required),
+		validation.Field(&p.BillingPostalCode, validation.Required),
 	)
 }

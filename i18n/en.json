@@ -148,7 +148,8 @@
 			"billing_email_helper_text": "Please make sure your email address is correct.",
       "billing_phone": "Phone number or WhatsApp:",
       "billing_phone_helper_text": "Please include the country code (e.g., {{.Example}}).",
-      "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union."
+      "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union.",
+			"submit": "Place order"
     }
   }
 }

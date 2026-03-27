@@ -15,6 +15,8 @@
 
 	--color-focus: var(--color-blue-600);
 
+	--color-danger: var(--color-red-800);
+
 	--spacing-header: calc(70 / 4 * var(--spacing));
 
 	--breakpoint-*: initial;
@@ -80,6 +82,10 @@
 		&:read-only {
 			@apply cursor-default border-gray-500 bg-gray-100 text-gray-600 shadow-none focus:outline-2 focus:outline-gray-500;
 		}
+	}
+
+	.error-explanation {
+		@apply text-danger my-0 text-sm leading-tight;
 	}
 
 	.hamburger-menu {
