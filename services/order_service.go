@@ -16,12 +16,14 @@ import (
 )
 
 type OrderService struct {
-	db queries.DBTX
+	db                   queries.DBTX
+	paymentIntentService PaymentIntentService
 }
 
-func NewOrderService(db queries.DBTX) *OrderService {
+func NewOrderService(db queries.DBTX, service PaymentIntentService) *OrderService {
 	return &OrderService{
-		db: db,
+		db:                   db,
+		paymentIntentService: service,
 	}
 }
 

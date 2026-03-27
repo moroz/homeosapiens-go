@@ -8,6 +8,7 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
+	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/handlers"
 	"github.com/moroz/homeosapiens-go/web/middleware"
@@ -19,7 +20,7 @@ func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db queries.DBTX, store *session.Store) *echo.Echo {
+func Router(db queries.DBTX, store *session.Store, stripeClient services.PaymentIntentService) *echo.Echo {
 	r := echo.New()
 
 	bundle, err := i18n.InitBundle()
@@ -76,7 +77,7 @@ func Router(db queries.DBTX, store *session.Store) *echo.Echo {
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
-	orders := handlers.OrderController(db)
+	orders := handlers.OrderController(db, stripeClient)
 	r.GET("/cart", orders.New)
 	r.POST("/orders", orders.Create)
 
