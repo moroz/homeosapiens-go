@@ -1,8 +1,9 @@
 package types
 
 import (
+	"time"
+
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
 
@@ -40,8 +41,8 @@ type CreateEventParams struct {
 	SubtitleEn        *string
 	SubtitlePl        *string
 	Slug              string
-	StartsAt          pgtype.Timestamp
-	EndsAt            pgtype.Timestamp
+	StartsAt          time.Time
+	EndsAt            time.Time
 	IsVirtual         bool
 	DescriptionEn     string
 	DescriptionPl     *string
@@ -72,8 +73,8 @@ type CreateEventPriceParams struct {
 	DiscountCode  *string
 	Priority      int32
 	IsActive      bool
-	ValidFrom     pgtype.Timestamp
-	ValidUntil    pgtype.Timestamp
+	ValidFrom     *time.Time
+	ValidUntil    *time.Time
 }
 
 type CreateVideoParams struct {

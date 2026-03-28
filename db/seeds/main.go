@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -17,15 +16,12 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func MustParseTimestamp(t string) pgtype.Timestamp {
+func MustParseTimestamp(t string) time.Time {
 	parsed, err := time.Parse(time.RFC3339, t)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return pgtype.Timestamp{
-		Time:  parsed,
-		Valid: true,
-	}
+	return parsed
 }
 
 func MustParseDecimal(d string) decimal.Decimal {
@@ -354,7 +350,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			PriceAmount:   "560.00000000",
 			PriceCurrency: "PLN",
 			RuleType:      queries.PriceRuleTypeEarlyBird,
-			ValidUntil:    MustParseTimestamp("2025-09-20T21:59:59Z"),
+			ValidUntil:    new(MustParseTimestamp("2025-09-20T21:59:59Z")),
 			Priority:      10,
 			IsActive:      true,
 			PriceType:     queries.PriceTypeFixed,
