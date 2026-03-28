@@ -1,5 +1,6 @@
 [tools]
 ansible = { version = "latest", pipx_args = "--include-deps", uvx = "false" }
+"aqua:axllent/mailpit" = "latest"
 caddy = "latest"
 go = "1.26"
 "go:github.com/air-verse/air" = "latest"

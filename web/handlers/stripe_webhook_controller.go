@@ -40,7 +40,8 @@ func (cc *stripeWebhookController) StripeWebhook(w http.ResponseWriter, r *http.
 		payload,
 		r.Header.Get("Stripe-Signature"),
 		config.StripeWebhookSigningSecret,
-		webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: !config.IsProd},
+		// TODO: Can we get Stripe to actually support the latest version of their own API with their own Go SDK?
+		webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true},
 	)
 	if err != nil {
 		log.Printf("Webhook signature validation failed: %s", err)

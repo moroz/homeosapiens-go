@@ -25,6 +25,7 @@ require (
 	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a // indirect
 	github.com/nyaruka/phonenumbers v1.6.10 // indirect
 	github.com/stripe/stripe-go/v84 v84.3.0 // indirect
+	github.com/wneessen/go-mail v0.7.2 // indirect
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
 )
 

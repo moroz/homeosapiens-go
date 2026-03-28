@@ -9,6 +9,7 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
+	"github.com/moroz/homeosapiens-go/internal/mailer"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/handlers"
@@ -21,7 +22,7 @@ func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeService) *echo.Echo {
+func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeService, smtp mailer.Mailer) *echo.Echo {
 	r := echo.New()
 
 	bundle, err := i18n.InitBundle()

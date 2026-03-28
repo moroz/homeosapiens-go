@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/alexedwards/argon2id"
 	"golang.org/x/crypto/hkdf"
@@ -43,6 +44,14 @@ func MustDeriveKey(base []byte, info string, lengthInBytes int) []byte {
 		log.Fatalf("Failed to derive key (info: %s): %s", info, err)
 	}
 	return buf
+}
+
+func MustParsePort(val string) int {
+	parsed, err := strconv.ParseInt(val, 10, 64)
+	if err != nil {
+		log.Fatalf("Failed to parse value %v as port number: %s", val, err)
+	}
+	return int(parsed)
 }
 
 func RequireInProduction(name string, defaultValue string) string {
@@ -83,6 +92,11 @@ var PublicUrl = RequireInProduction("PUBLIC_URL", "http://localhost:3000")
 var StripeSecretKey = RequireInProduction("STRIPE_SECRET_KEY", "")
 var StripePublishableKey = RequireInProduction("STRIPE_PUBLISHABLE_KEY", "")
 var StripeWebhookSigningSecret = RequireInProduction("STRIPE_WEBHOOK_SIGNING_SECRET", "")
+
+var SMTPHost = RequireInProduction("SMTP_HOST", "localhost")
+var SMTPPort = MustParsePort(RequireInProduction("SMTP_PORT", "1025"))
+var SMTPUsername = RequireInProduction("SMTP_USERNAME", "smtpuser")
+var SMTPPassword = RequireInProduction("SMTP_PASSWORD", "smtppassword")
 
 const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 const SessionCookieName = "_hs_session"
