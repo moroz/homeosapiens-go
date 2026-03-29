@@ -1,193 +1,176 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{.Subject}}</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Your Email Subject Line</title>
     <style type="text/css">
-      body {
-        margin: 0;
-        padding: 0;
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-      }
-      table {
-        border-collapse: collapse;
-        mso-table-lspace: 0pt;
-        mso-table-rspace: 0pt;
-      }
-      img {
-        border: 0;
-        height: auto;
-        line-height: 100%;
-        outline: none;
-        text-decoration: none;
-        -ms-interpolation-mode: bicubic;
-      }
-      p {
-        display: block;
-        margin: 13px 0;
-      }
-    </style>
-    <!--[if mso]>
-      <style type="text/css">
-        body,
-        table,
-        td,
-        a {
-          font-family: Arial, sans-serif !important;
+        /* Email Client Resets */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            font-family: system-ui, sans-serif;
         }
-      </style>
-    <![endif]-->
-  </head>
-  <body style="margin: 0; padding: 0; background-color: #f4f4f4">
-    <!-- Wrapper table for background color -->
-    <table
-      border="0"
-      cellpadding="0"
-      cellspacing="0"
-      width="100%"
-      style="background-color: #f4f4f4"
-    >
-      <tr>
-        <td align="center" style="padding: 20px 0">
-          <!-- Main container table -->
-          <table
-            border="0"
-            cellpadding="0"
-            cellspacing="0"
-            width="600"
-            style="background-color: #ffffff; border: 1px solid #dddddd"
-          >
-            <!-- Header -->
-            <tr>
-              <td
-                align="center"
-                style="padding: 40px 30px; background-color: #2c3e50"
-              >
-                <font
-                  face="Arial, sans-serif"
-                  size="6"
-                  color="#ffffff"
-                  style="font-size: 28px; font-weight: bold; line-height: 1.2"
-                >
-                  {{.CompanyName}}
-                </font>
-              </td>
-            </tr>
+        
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0;
+            mso-table-rspace: 0;
+        }
+        
+        /* Outlook.com fixes */
+        .ExternalClass {
+            width: 100%;
+        }
+        
+        .ExternalClass, .ExternalClass p, .ExternalClass span, 
+        .ExternalClass font, .ExternalClass td, .ExternalClass div {
+            line-height: 100%;
+        }
+    </style>
+</head>
+<body>
+<body style="margin: 0; padding: 0; background-color: #f0f0f0;">
+    <!-- Centered container -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#f0f0f0">
+        <tr>
+            <td align="center" style="padding: 20px 10px;">
+                <!-- Main content table -->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#ffffff" style="max-width: 600px; width: 100%; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 30px;">
+                          <!-- Header Section -->
+                          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                  <td align="left" style="padding-bottom: 20px">
+                                      <img src={{.LogoURL}}
+                                           alt="Homeo sapiens" 
+                                           width="200" 
+                                           height="47" 
+                                           style="display: block; width: 100%; max-width: 200px; height: auto; border: 0;"
+                                           class="fluid">
+                                  </td>
+                              </tr>
+                          </table>
+                          <!-- End Header Section -->
+                            
+                          <!-- Hero Section -->
+                          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                  <td style="padding: 30px 0 20px 0;">
+                                      <h1 style="font-size: 32px; font-weight: bold; margin: 0 0 15px 0; color: #333333; text-align: center;">
+                                          Your Main Headline Here
+                                      </h1>
+                                      <p style="font-size: 18px; line-height: 1.6; margin: 0 0 25px 0; color: #666666; text-align: center;">
+                                          This is your engaging subheadline or introduction text that draws readers in and makes them want to learn more.
+                                      </p>
+                                  </td>
+                              </tr>
+                          </table>
+                          <!-- End Hero Section -->
 
-            <!-- Main content -->
-            <tr>
-              <td style="padding: 40px 30px">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                  <tr>
-                    <td>
-                      <font
-                        face="Arial, sans-serif"
-                        size="4"
-                        color="#333333"
-                        style="
-                          font-size: 18px;
-                          font-weight: bold;
-                          line-height: 1.4;
-                        "
-                      >
-                        {{.Heading}}
-                      </font>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding-top: 20px">
-                      <font
-                        face="Arial, sans-serif"
-                        size="3"
-                        color="#555555"
-                        style="font-size: 16px; line-height: 1.6"
-                      >
-                        {{.Body}}
-                      </font>
-                    </td>
-                  </tr>
+                          <!-- Call to Action Button -->
+                          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                  <td align="center" style="padding: 0 0 30px 0;">
+                                      <!-- Bulletproof Button (works in Outlook) -->
+                                      <table cellpadding="0" cellspacing="0" border="0" align="center">
+                                          <tr>
+                                              <td align="center" bgcolor="#3498db" style="background-color: #3498db; padding: 12px 30px; border-radius: 50px;">
+                                                  <a href="https://yourwebsite.com" target="_blank" style="font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; display: inline-block;">
+                                                      Call to Action →
+                                                  </a>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                      <!-- End Bulletproof Button -->
+                                  </td>
+                              </tr>
+                          </table>
+                          <!-- End Hero Section -->
 
-                  <!-- Call to action button -->
-                  {{if .ButtonText}}
-                  <tr>
-                    <td align="center" style="padding-top: 30px">
-                      <table border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                          <td
-                            align="center"
-                            bgcolor="#3498db"
-                            style="border-radius: 4px"
-                          >
-                            <a
-                              href="{{.ButtonURL}}"
-                              target="_blank"
-                              style="
-                                display: inline-block;
-                                padding: 15px 30px;
-                                font-family: Arial, sans-serif;
-                                font-size: 16px;
-                                color: #ffffff;
-                                text-decoration: none;
-                                border-radius: 4px;
-                              "
-                            >
-                              <font
-                                face="Arial, sans-serif"
-                                color="#ffffff"
-                                style="font-size: 16px"
-                              >
-                                {{.ButtonText}}
-                              </font>
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                  {{end}}
+                          <!-- Footer Section -->
+                          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                              <tr>
+                                  <td style="padding: 30px 0 0 0;">
+                                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                          <tr>
+                                              <td style="padding: 20px 0 0 0; border-top: 1px solid #eeeeee; text-align: center;">
+                                                  <p style="font-size: 14px; line-height: 1.5; margin: 0 0 10px 0; color: #999999;">
+                                                      © 2026 Homeo sapiens. All rights reserved.
+                                                  </p>
+                                                  <p style="font-size: 14px; line-height: 1.5; margin: 0 0 15px 0; color: #999999;">
+                                                      123 Main Street, Suite 100<br>
+                                                      City, State 12345
+                                                  </p>
+                                                  
+                                                  <!-- Social Media Links -->
+                                                  <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 20px auto;">
+                                                      <tr>
+                                                          <td style="padding: 0 10px;">
+                                                              <a href="#">
+                                                                  <img src="https://via.placeholder.com/32x32/3b5998/ffffff?text=f" 
+                                                                       alt="Facebook" 
+                                                                       width="32" 
+                                                                       height="32" 
+                                                                       style="display: block; border: 0; border-radius: 50%;">
+                                                              </a>
+                                                          </td>
+                                                          <td style="padding: 0 10px;">
+                                                              <a href="#">
+                                                                  <img src="https://via.placeholder.com/32x32/00acee/ffffff?text=t" 
+                                                                       alt="Twitter" 
+                                                                       width="32" 
+                                                                       height="32" 
+                                                                       style="display: block; border: 0; border-radius: 50%;">
+                                                              </a>
+                                                          </td>
+                                                          <td style="padding: 0 10px;">
+                                                              <a href="#">
+                                                                  <img src="https://via.placeholder.com/32x32/0077b5/ffffff?text=in" 
+                                                                       alt="LinkedIn" 
+                                                                       width="32" 
+                                                                       height="32" 
+                                                                       style="display: block; border: 0; border-radius: 50%;">
+                                                              </a>
+                                                          </td>
+                                                          <td style="padding: 0 10px;">
+                                                              <a href="#">
+                                                                  <img src="https://via.placeholder.com/32x32/e4405f/ffffff?text=ig" 
+                                                                       alt="Instagram" 
+                                                                       width="32" 
+                                                                       height="32" 
+                                                                       style="display: block; border: 0; border-radius: 50%;">
+                                                              </a>
+                                                          </td>
+                                                      </tr>
+                                                  </table>
+                                                  
+                                                  <!-- Utility Links -->
+                                                  <p style="font-size: 13px; line-height: 1.5; margin: 0 0 5px 0; color: #999999;">
+                                                      <a href="#" style="color: #999999; text-decoration: underline;">Unsubscribe</a> | 
+                                                      <a href="#" style="color: #999999; text-decoration: underline;">Privacy Policy</a> | 
+                                                      <a href="#" style="color: #999999; text-decoration: underline;">View in Browser</a>
+                                                  </p>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                  </td>
+                              </tr>
+                          </table>
+                          <!-- End Footer Section -->
+
+                        </td>
+                    </tr>
                 </table>
-              </td>
-            </tr>
-
-            <!-- Divider -->
-            <tr>
-              <td style="padding: 0 30px">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                  <tr>
-                    <td style="border-top: 1px solid #eeeeee"></td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-
-            <!-- Footer -->
-            <tr>
-              <td
-                align="center"
-                style="padding: 30px; background-color: #f9f9f9"
-              >
-                <font
-                  face="Arial, sans-serif"
-                  size="2"
-                  color="#999999"
-                  style="font-size: 14px; line-height: 1.6"
-                >
-                  {{.FooterText}}<br />
-                  {{if .UnsubscribeURL}}
-                  <a
-                    href="{{.UnsubscribeURL}}"
-                    style="color: #999999; text-decoration: underline"
-                    >Unsubscribe</a
-                  >
-                  {{end}}
-                </font>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
+                <!-- End main content table -->
+            </td>
+        </tr>
     </table>
-  </body>
+    <!-- End centered container -->
+</body>
+</body>
 </html>
+

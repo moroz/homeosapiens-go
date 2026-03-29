@@ -17,6 +17,7 @@ type LayoutProps struct {
 	FooterText     template.HTML
 	ButtonURL      string
 	UnsubscribeURL string
+	LogoURL        string
 }
 
 var LayoutTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl"))

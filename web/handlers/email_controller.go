@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/tmpl/email"
 )
 
@@ -19,6 +20,7 @@ func (c *emailController) Show(r *echo.Context) error {
 		Body:        "The quick brown fox jumps over the lazy dog.",
 		ButtonText:  "Call to action",
 		FooterText:  "&copy; 2024&ndash;2026 by Wydawnictwo Homeo Sapiens. All rights reserved.",
+		LogoURL:     config.PublicUrl + "/assets/logo.png",
 	}
 
 	return email.LayoutTemplate.Execute(r.Response(), props)
