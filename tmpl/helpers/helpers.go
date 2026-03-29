@@ -101,9 +101,11 @@ func FormatDateRange(start, end time.Time, tz *time.Location, locale string) str
 var CurrencyFormats = map[string]map[string]string{
 	"pl": {
 		"PLN": "%v zł",
+		"EUR": "%v €",
 	},
 	"en": {
 		"PLN": "PLN %v",
+		"EUR": "€%v",
 	},
 }
 

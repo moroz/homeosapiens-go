@@ -124,7 +124,7 @@
     },
     "go_to_checkout": "Go to checkout",
     "continue_shopping": "Continue shopping",
-		"cart_empty": "Your cart is currently empty."
+    "cart_empty": "Your cart is currently empty."
   },
   "cart_items": {
     "delete": {
@@ -134,27 +134,31 @@
   },
   "emails": {
     "order_confirmation": {
-      "body": "We have received your order."
+      "body": "We have received your order.",
+      "table": {
+        "event_title": "Event title",
+        "price": "Price"
+      }
     }
   },
   "orders": {
-		"billing_address": "Billing address",
-		"contact_information": "Contact information",
-		"already_have_an_account_html": "Already have an account? <a href={{.Url}}>Sign in</a>",
-		"checkout_with_google": "Continue with Google",
-		"or_continue_with_email": "or continue with email",
+    "billing_address": "Billing address",
+    "contact_information": "Contact information",
+    "already_have_an_account_html": "Already have an account? <a href={{.Url}}>Sign in</a>",
+    "checkout_with_google": "Continue with Google",
+    "or_continue_with_email": "or continue with email",
     "form": {
       "billing_country": "Country:",
       "billing_address_line1": "Address:",
-			"billing_address_line2": "Address continuation:",
+      "billing_address_line2": "Address continuation:",
       "billing_city": "City:",
       "billing_postal_code": "Postal code:",
       "billing_email": "Email address:",
-			"billing_email_helper_text": "Please make sure your email address is correct.",
+      "billing_email_helper_text": "Please make sure your email address is correct.",
       "billing_phone": "Phone number or WhatsApp:",
       "billing_phone_helper_text": "Please include the country code (e.g., {{.Example}}).",
       "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union.",
-			"submit": "Place order"
+      "submit": "Place order"
     }
   }
 }

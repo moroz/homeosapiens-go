@@ -4,7 +4,9 @@ import (
 	"embed"
 	"html/template"
 
+	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/shopspring/decimal"
 
 	"github.com/moroz/homeosapiens-go/types"
 )
@@ -13,6 +15,7 @@ import (
 var templateFS embed.FS
 
 type LayoutProps struct {
+	Language  string
 	LogoURL   string
 	Localizer *goi18n.Localizer
 }
@@ -23,6 +26,10 @@ func (p *LayoutProps) T(messageID string) string {
 	}
 	msg, _ := p.Localizer.Localize(&goi18n.LocalizeConfig{MessageID: messageID})
 	return msg
+}
+
+func (p *LayoutProps) FormatPrice(amount decimal.Decimal, currency string) string {
+	return helpers.FormatPrice(amount, currency, p.Language)
 }
 
 type OrderConfirmationEmailProps struct {

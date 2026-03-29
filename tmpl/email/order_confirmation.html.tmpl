@@ -1,5 +1,23 @@
 {{define "content"}}
 
-{{ .T "emails.order_confirmation.body" }}
+    <p>{{ .T "emails.order_confirmation.body" }}</p>
+
+    <table style="width: 100%; table-layout: fixed; margin: 10px 0">
+        <thead>
+            <tr>
+                <th align="left">{{ .T "emails.order_confirmation.table.event_title" }}</th>
+                <th align="left">{{ .T "emails.order_confirmation.table.price" }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{- /*gotype: github.com/moroz/homeosapiens-go/tmpl/email.OrderConfirmationEmailProps*/ -}}
+        {{ range .Order.LineItems }}
+            <tr>
+                <td>{{.EventTitle}}</td>
+                <td>{{ $.FormatPrice .EventPriceAmount .EventPriceCurrency }}</td>
+            </tr>
+        {{end}}
+        </tbody>
+    </table>
 
 {{end}}

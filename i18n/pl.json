@@ -1,171 +1,175 @@
 {
-	"countries": {
-		"PL": "Polska",
-		"ZA": "RPA",
-		"IN": "Indie"
-	},
-	"languages": {
-		"pl": "polski",
-		"en": "English"
-	},
-	"header": {
-		"nav": {
-			"home": "Strona główna",
-			"sign_in": "Logowanie",
-			"events": {
-				"other": "Wydarzenia"
-			},
-			"videos": {
-				"other": "Wideo"
-			},
-			"my_products": {
-				"other": "Moje produkty"
-			}
-		},
-		"user_dropdown": {
-			"profile": "Profil",
-			"sign_out": "Wyloguj się"
-		},
-		"cart": "Przejdź do koszyka"
-	},
-	"locale_switcher": {
-		"switch_to": {
-			"other": "Switch to English"
-		}
-	},
-	"common": {
-		"hosts": {
-			"salutation": {
-				"dr": {
-					"other": "dr"
-				}
-			}
-		},
-		"events": {
-			"event_type": {
-				"seminar": "Seminarium",
-				"webinar": "Webinar"
-			},
-			"attendance_badge": "Wezmę udział",
-			"nobody_attending": "Bądź pierwszą osobą, która weźmie udział!",
-			"attendance_count": {
-				"one": "Jedna osoba weźmie udział.",
-				"few": "{{ .Count }} osoby wezmą udział.",
-				"many": "{{ .Count }} osób weźmie udział."
-			},
-			"participation_cost": "Koszt udziału",
-			"free": "Bezpłatne",
-			"hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
-			"learn_more": "Więcej informacji…",
-			"sign_up": "Rejestracja",
-			"add_to_cart": "Dodaj do koszyka",
-			"added_to_cart": "W koszyku",
-			"view_cart": "Przejdź do koszyka"
-		},
-		"users": {
-			"email": "Email:",
-			"given_name": "Imię:",
-			"family_name": "Nazwisko:",
-			"profession": "Zawód:",
-			"country": "Kraj lub region:",
-			"licence_number": "Numer prawa do wykonywania zawodu:"
-		}
-	},
-	"sessions": {
-		"new": {
-			"email": "Email:",
-			"password": "Hasło:",
-			"submit": "Zaloguj się",
-			"header": "Logowanie",
-			"no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
-			"invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
-			"sign_in_with_google": "Zaloguj się przez Google"
-		}
-	},
-	"user_registrations": {
-		"new": {
-			"title": "Rejestracja",
-			"already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
-			"submit": "Zarejestruj się",
-			"sign_up_with_google": "Zarejestruj się przez Google",
-			"form": {
-				"labels": {
-					"password": "Utwórz hasło:",
-					"password_confirmation": "Powtórz hasło:"
-				},
-				"helper_text": {
-					"password": "{{ .Min }}–{{ .Max }} znaków"
-				}
-			}
-		}
-	},
-	"components": {
-		"input_field": {
-			"optional": "(opcjonalne)",
-			"required": "wymagane pole"
-		}
-	},
-	"events": {
-		"starts_at": "Data i godzina rozpoczęcia:",
-		"ends_at": "Data i godzina zakończenia:"
-	},
-	"profile": {
-		"title": "Profil",
-		"messages": {
-			"success": "Twój profil został zaktualizowany."
-		},
-		"form": {
-			"submit": "Zapisz zmiany"
-		}
-	},
-	"event_registrations": {
-		"create": {
-			"success": "Rejestracja na wydarzenie przebiegła pomyślnie."
-		}
-	},
-	"cart": {
-		"title": "Koszyk",
-		"table": {
-			"product_title": "Artykuł",
-			"unit_price": "Cena",
-			"quantity": "Ilość",
-			"subtotal": "Podsuma",
-			"grand_total": "Łącznie",
-			"delete": "Usuń"
-		},
-		"go_to_checkout": "Przejdź do podsumowania",
-		"continue_shopping": "Kontynuuj zakupy",
-		"cart_empty": "Twój koszyk jest pusty."
-	},
-	"cart_items": {
-		"delete": {
-			"confirmation": "Czy na pewno chcesz usunąć to wydarzenie z koszyka?",
-			"success": "Wydarzenie zostało usunięte z koszyka."
-		}
-	},
-	"emails": {
-		"order_confirmation": {
-			"body": "Otrzymaliśmy Twoje zamówienie."
-		}
-	},
-	"orders": {
-		"billing_address": "Dane do faktury",
-		"contact_information": "Dane kontaktowe",
-		"already_have_an_account_html": "Masz już konto? <a href={{.Url}}>Zaloguj się</a>",
-		"checkout_with_google": "Zaloguj się przez Google",
-		"or_continue_with_email": "lub kontynuuj przy użyciu adresu e-mail",
-		"form": {
-			"billing_country": "Kraj:",
-			"billing_address_line1": "Ulica i numer domu:",
-			"billing_address_line2": "Numer mieszkania, piętro itp.:",
-			"billing_city": "Miasto:",
-			"billing_postal_code": "Kod pocztowy:",
-			"billing_email": "Adres e-mail:",
-			"billing_email_helper_text": "Upewnij się, że Twój adres e-mail jest poprawny.",
-			"billing_phone": "Numer telefonu lub WhatsApp:",
-			"billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. {{.Example}}.",
-			"billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej.",
-			"submit": "Złóż zamówienie"
-		}
-	}
+  "countries": {
+    "PL": "Polska",
+    "ZA": "RPA",
+    "IN": "Indie"
+  },
+  "languages": {
+    "pl": "polski",
+    "en": "English"
+  },
+  "header": {
+    "nav": {
+      "home": "Strona główna",
+      "sign_in": "Logowanie",
+      "events": {
+        "other": "Wydarzenia"
+      },
+      "videos": {
+        "other": "Wideo"
+      },
+      "my_products": {
+        "other": "Moje produkty"
+      }
+    },
+    "user_dropdown": {
+      "profile": "Profil",
+      "sign_out": "Wyloguj się"
+    },
+    "cart": "Przejdź do koszyka"
+  },
+  "locale_switcher": {
+    "switch_to": {
+      "other": "Switch to English"
+    }
+  },
+  "common": {
+    "hosts": {
+      "salutation": {
+        "dr": {
+          "other": "dr"
+        }
+      }
+    },
+    "events": {
+      "event_type": {
+        "seminar": "Seminarium",
+        "webinar": "Webinar"
+      },
+      "attendance_badge": "Wezmę udział",
+      "nobody_attending": "Bądź pierwszą osobą, która weźmie udział!",
+      "attendance_count": {
+        "one": "Jedna osoba weźmie udział.",
+        "few": "{{ .Count }} osoby wezmą udział.",
+        "many": "{{ .Count }} osób weźmie udział."
+      },
+      "participation_cost": "Koszt udziału",
+      "free": "Bezpłatne",
+      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
+      "learn_more": "Więcej informacji…",
+      "sign_up": "Rejestracja",
+      "add_to_cart": "Dodaj do koszyka",
+      "added_to_cart": "W koszyku",
+      "view_cart": "Przejdź do koszyka"
+    },
+    "users": {
+      "email": "Email:",
+      "given_name": "Imię:",
+      "family_name": "Nazwisko:",
+      "profession": "Zawód:",
+      "country": "Kraj lub region:",
+      "licence_number": "Numer prawa do wykonywania zawodu:"
+    }
+  },
+  "sessions": {
+    "new": {
+      "email": "Email:",
+      "password": "Hasło:",
+      "submit": "Zaloguj się",
+      "header": "Logowanie",
+      "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
+      "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
+      "sign_in_with_google": "Zaloguj się przez Google"
+    }
+  },
+  "user_registrations": {
+    "new": {
+      "title": "Rejestracja",
+      "already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
+      "submit": "Zarejestruj się",
+      "sign_up_with_google": "Zarejestruj się przez Google",
+      "form": {
+        "labels": {
+          "password": "Utwórz hasło:",
+          "password_confirmation": "Powtórz hasło:"
+        },
+        "helper_text": {
+          "password": "{{ .Min }}–{{ .Max }} znaków"
+        }
+      }
+    }
+  },
+  "components": {
+    "input_field": {
+      "optional": "(opcjonalne)",
+      "required": "wymagane pole"
+    }
+  },
+  "events": {
+    "starts_at": "Data i godzina rozpoczęcia:",
+    "ends_at": "Data i godzina zakończenia:"
+  },
+  "profile": {
+    "title": "Profil",
+    "messages": {
+      "success": "Twój profil został zaktualizowany."
+    },
+    "form": {
+      "submit": "Zapisz zmiany"
+    }
+  },
+  "event_registrations": {
+    "create": {
+      "success": "Rejestracja na wydarzenie przebiegła pomyślnie."
+    }
+  },
+  "cart": {
+    "title": "Koszyk",
+    "table": {
+      "product_title": "Artykuł",
+      "unit_price": "Cena",
+      "quantity": "Ilość",
+      "subtotal": "Podsuma",
+      "grand_total": "Łącznie",
+      "delete": "Usuń"
+    },
+    "go_to_checkout": "Przejdź do podsumowania",
+    "continue_shopping": "Kontynuuj zakupy",
+    "cart_empty": "Twój koszyk jest pusty."
+  },
+  "cart_items": {
+    "delete": {
+      "confirmation": "Czy na pewno chcesz usunąć to wydarzenie z koszyka?",
+      "success": "Wydarzenie zostało usunięte z koszyka."
+    }
+  },
+  "emails": {
+    "order_confirmation": {
+      "body": "Otrzymaliśmy Twoje zamówienie.",
+      "table": {
+        "event_title": "Wydarzenie",
+        "price": "Cena"
+      }
+    }
+  },
+  "orders": {
+    "billing_address": "Dane do faktury",
+    "contact_information": "Dane kontaktowe",
+    "already_have_an_account_html": "Masz już konto? <a href={{.Url}}>Zaloguj się</a>",
+    "checkout_with_google": "Zaloguj się przez Google",
+    "or_continue_with_email": "lub kontynuuj przy użyciu adresu e-mail",
+    "form": {
+      "billing_country": "Kraj:",
+      "billing_address_line1": "Ulica i numer domu:",
+      "billing_address_line2": "Numer mieszkania, piętro itp.:",
+      "billing_city": "Miasto:",
+      "billing_postal_code": "Kod pocztowy:",
+      "billing_email": "Adres e-mail:",
+      "billing_email_helper_text": "Upewnij się, że Twój adres e-mail jest poprawny.",
+      "billing_phone": "Numer telefonu lub WhatsApp:",
+      "billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. {{.Example}}.",
+      "billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej.",
+      "submit": "Złóż zamówienie"
+    }
+  }
 }

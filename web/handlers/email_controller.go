@@ -41,6 +41,7 @@ func (cc *emailController) Show(c *echo.Context) error {
 		LayoutProps: &email.LayoutProps{
 			LogoURL:   config.PublicUrl + "/assets/logo.png",
 			Localizer: ctx.Localizer,
+			Language:  ctx.Language,
 		},
 		Order: order,
 	}
