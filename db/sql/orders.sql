@@ -11,6 +11,15 @@ insert into order_line_items (order_id, event_id, event_title, event_price_amoun
 -- name: StoreCheckoutSessionIDOnOrder :one
 update orders set stripe_checkout_session_id = $1, updated_at = now() where id = $2 returning *;
 
+-- name: GetLastOrderID :one
+select id from orders order by id desc limit 1;
+
+-- name: GetOrderByID :one
+select * from orders where id = $1;
+
+-- name: GetOrderLineItemsForOrderID :many
+select * from order_line_items where order_id = $1 order by id;
+
 -- name: GetOrderByCheckoutSessionID :one
 select * from orders where stripe_checkout_session_id = @session_id::text;
 

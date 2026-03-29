@@ -34,7 +34,9 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 		Getter: echomiddleware.MethodFromForm("_method"),
 	}))
 	r.Use(echomiddleware.RequestID())
-	r.Use(echomiddleware.RequestLogger())
+	if !config.IsTest {
+		r.Use(echomiddleware.RequestLogger())
+	}
 	r.Use(echomiddleware.Recover())
 
 	if config.IsProd {
@@ -115,7 +117,7 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 	})
 
 	if !config.IsProd {
-		email := handlers.EmailController()
+		email := handlers.EmailController(db)
 		r.GET("/dev/email", email.Show)
 	}
 

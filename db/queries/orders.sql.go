@@ -13,6 +13,17 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const getLastOrderID = `-- name: GetLastOrderID :one
+select id from orders order by id desc limit 1
+`
+
+func (q *Queries) GetLastOrderID(ctx context.Context) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, getLastOrderID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getOrderByCheckoutSessionID = `-- name: GetOrderByCheckoutSessionID :one
 select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id from orders where stripe_checkout_session_id = $1::text
 `
@@ -73,6 +84,71 @@ func (q *Queries) GetOrderByCheckoutSessionIDForUpdate(ctx context.Context, sess
 		&i.StripeCheckoutSessionID,
 	)
 	return &i, err
+}
+
+const getOrderByID = `-- name: GetOrderByID :one
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id from orders where id = $1
+`
+
+func (q *Queries) GetOrderByID(ctx context.Context, id uuid.UUID) (*Order, error) {
+	row := q.db.QueryRow(ctx, getOrderByID, id)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PaidAt,
+		&i.CancelledAt,
+		&i.DiscountCode,
+		&i.GrandTotal,
+		&i.Currency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.BillingGivenName,
+		&i.BillingFamilyName,
+		&i.BillingPhone,
+		&i.BillingCity,
+		&i.BillingPostalCode,
+		&i.BillingCountry,
+		&i.Email,
+		&i.BillingAddressLine1,
+		&i.BillingAddressLine2,
+		&i.StripeCheckoutSessionID,
+	)
+	return &i, err
+}
+
+const getOrderLineItemsForOrderID = `-- name: GetOrderLineItemsForOrderID :many
+select id, order_id, event_id, event_title, event_price_amount, event_price_currency, quantity, inserted_at, updated_at from order_line_items where order_id = $1 order by id
+`
+
+func (q *Queries) GetOrderLineItemsForOrderID(ctx context.Context, orderID uuid.UUID) ([]*OrderLineItem, error) {
+	rows, err := q.db.Query(ctx, getOrderLineItemsForOrderID, orderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*OrderLineItem
+	for rows.Next() {
+		var i OrderLineItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrderID,
+			&i.EventID,
+			&i.EventTitle,
+			&i.EventPriceAmount,
+			&i.EventPriceCurrency,
+			&i.Quantity,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertOrder = `-- name: InsertOrder :one

@@ -76,7 +76,7 @@ run = """
 #!/usr/bin/env -S bash -euo pipefail
 
 mise r db:test:prepare
-go test -v ./...
+env GO_ENV=test go test -v ./...
 """
 
 [tasks.format]

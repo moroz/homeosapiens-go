@@ -193,3 +193,20 @@ func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, ses
 
 	return order, err
 }
+
+func (s *OrderService) GetOrderDetails(ctx context.Context, orderID uuid.UUID) (*types.OrderDTO, error) {
+	var result types.OrderDTO
+	var err error
+
+	result.Order, err = queries.New(s.db).GetOrderByID(ctx, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	result.LineItems, err = queries.New(s.db).GetOrderLineItemsForOrderID(ctx, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}

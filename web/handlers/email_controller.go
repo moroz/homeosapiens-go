@@ -1,27 +1,46 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
+	"net/http"
+
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/email"
 )
 
-type emailController struct{}
+type emailController struct {
+	db           queries.DBTX
+	orderService *services.OrderService
+}
 
-func EmailController() *emailController {
-	return &emailController{}
+func EmailController(db queries.DBTX) *emailController {
+	return &emailController{
+		orderService: services.NewOrderService(db, services.MockStripeService()),
+		db:           db,
+	}
 }
 
 func (c *emailController) Show(r *echo.Context) error {
-	props := email.LayoutProps{
-		Subject:     "Test subject",
-		CompanyName: "Homeo sapiens",
-		Heading:     "Confirm your email",
-		Body:        "The quick brown fox jumps over the lazy dog.",
-		ButtonText:  "Call to action",
-		FooterText:  "&copy; 2024&ndash;2026 by Wydawnictwo Homeo Sapiens. All rights reserved.",
-		LogoURL:     config.PublicUrl + "/assets/logo.png",
+	lastID, err := queries.New(c.db).GetLastOrderID(r.Request().Context())
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return echo.NewHTTPError(http.StatusNotFound, "No Order found in the DB")
 	}
 
-	return email.LayoutTemplate.Execute(r.Response(), props)
+	order, err := c.orderService.GetOrderDetails(r.Request().Context(), lastID)
+	if err != nil {
+		return err
+	}
+
+	props := email.OrderConfirmationEmailProps{
+		LayoutProps: &email.LayoutProps{
+			LogoURL: config.PublicUrl + "/assets/logo.png",
+		},
+		Order: order,
+	}
+
+	return email.OrderConfirmationTemplate.Execute(r.Response(), props)
 }
