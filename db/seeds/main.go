@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -41,7 +40,6 @@ func MaybeDecimal(d *string) *decimal.Decimal {
 }
 
 func main() {
-	fmt.Println(config.DatabaseUrl)
 	db, err := pgxpool.New(context.Background(), config.DatabaseUrl)
 	if err != nil {
 		log.Fatal(err)

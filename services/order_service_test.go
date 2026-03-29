@@ -35,7 +35,7 @@ func TestCreateOrder(t *testing.T) {
 	countBefore, err := count(db, t.Context(), "orders")
 	assert.NoError(t, err)
 
-	srv := services.NewOrderService(db)
+	srv := services.NewOrderService(db, services.MockStripeService())
 	order, err := srv.CreateOrder(t.Context(), cartId, nil, &types.OrderParams{
 		Email:               "user@example.com",
 		BillingGivenName:    "John",
@@ -47,7 +47,8 @@ func TestCreateOrder(t *testing.T) {
 		BillingCountry:      "PL",
 	})
 
-	assert.NotNil(t, order)
+	require.NoError(t, err)
+	require.NotNil(t, order)
 
 	countAfter, err := count(db, t.Context(), "orders")
 	assert.NoError(t, err)

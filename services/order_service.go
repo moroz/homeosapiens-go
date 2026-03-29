@@ -136,11 +136,11 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 
 func (s *OrderService) findOrCreateUserForOrder(ctx context.Context, tx pgx.Tx, params *types.OrderParams) (*queries.User, error) {
 	user, err := NewUserService(tx).FindUserByEmail(ctx, params.Email)
-	if user != nil {
+	if err == nil {
 		return user, nil
 	}
 
-	if err != nil && errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(err, sql.ErrNoRows) {
 		// TODO: Should this be in UserService?
 		return queries.New(tx).InsertUser(ctx, &queries.InsertUserParams{
 			Email:      sqlcrypter.NewEncryptedBytes(params.Email),

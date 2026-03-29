@@ -8,6 +8,7 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
@@ -15,7 +16,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/mailer"
 	"github.com/moroz/homeosapiens-go/internal/phone"
+	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
 	"github.com/shopspring/decimal"
@@ -92,7 +95,9 @@ func TestCartFlow(t *testing.T) {
 	store, err := session.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
-	r := router.Router(db, store)
+	mailer := mailer.MockMailer()
+
+	r := router.Router(db, store, services.MockStripeService(), mailer)
 	require.NoError(t, err)
 
 	srv := httptest.NewServer(r)
@@ -223,6 +228,9 @@ func TestCartFlow(t *testing.T) {
 		assert.Equal(t, countBefore+1, countAfter)
 
 		assert.NoError(t, err)
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+
+		redirectedTo := resp.Header.Get("Location")
+		assert.True(t, strings.HasPrefix(redirectedTo, "https://checkout.stripe.com/c/pay/"))
 	})
 }
