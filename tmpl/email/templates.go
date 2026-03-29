@@ -4,6 +4,8 @@ import (
 	"embed"
 	"html/template"
 
+	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
+
 	"github.com/moroz/homeosapiens-go/types"
 )
 
@@ -11,7 +13,16 @@ import (
 var templateFS embed.FS
 
 type LayoutProps struct {
-	LogoURL string
+	LogoURL   string
+	Localizer *goi18n.Localizer
+}
+
+func (p *LayoutProps) T(messageID string) string {
+	if p.Localizer == nil {
+		return messageID
+	}
+	msg, _ := p.Localizer.Localize(&goi18n.LocalizeConfig{MessageID: messageID})
+	return msg
 }
 
 type OrderConfirmationEmailProps struct {

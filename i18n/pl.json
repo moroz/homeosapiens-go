@@ -143,6 +143,11 @@
 			"success": "Wydarzenie zostało usunięte z koszyka."
 		}
 	},
+	"emails": {
+		"order_confirmation": {
+			"body": "Otrzymaliśmy Twoje zamówienie."
+		}
+	},
 	"orders": {
 		"billing_address": "Dane do faktury",
 		"contact_information": "Dane kontaktowe",
