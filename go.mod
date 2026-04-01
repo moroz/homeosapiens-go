@@ -4,14 +4,19 @@ go 1.26.0
 
 require (
 	github.com/Oudwins/tailwind-merge-go v0.2.1
+	github.com/PuerkitoBio/goquery v1.12.0
 	github.com/alexedwards/argon2id v1.0.0
 	github.com/bincyber/go-sqlcrypter v0.2.0
+	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/moroz/securecookie v0.0.0-20250207075547-a6abdbe4e5e4
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
+	github.com/nyaruka/phonenumbers v1.6.10
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.11.1
+	github.com/stripe/stripe-go/v84 v84.3.0
+	github.com/wneessen/go-mail v0.7.2
 	golang.org/x/crypto v0.49.0
 	golang.org/x/oauth2 v0.33.0
 	golang.org/x/text v0.35.0
@@ -20,12 +25,8 @@ require (
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.12.0 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
-	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a // indirect
-	github.com/nyaruka/phonenumbers v1.6.10 // indirect
-	github.com/stripe/stripe-go/v84 v84.3.0 // indirect
-	github.com/wneessen/go-mail v0.7.2 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
 )
 

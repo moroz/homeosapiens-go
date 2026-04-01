@@ -1,0 +1,4 @@
+packages:
+  github.com/moroz/homeosapiens-go/services:
+    interfaces:
+      StripeService:

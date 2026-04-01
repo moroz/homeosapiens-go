@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -9,58 +8,45 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/stripe/stripe-go/v84"
-	"github.com/stripe/stripe-go/v84/webhook"
 )
 
 type stripeWebhookController struct {
-	orderService *services.OrderService
+	orderService  *services.OrderService
+	stripeService services.StripeService
 }
 
 func StripeWebhookController(db queries.DBTX, stripeClient services.StripeService) *stripeWebhookController {
 	return &stripeWebhookController{
-		orderService: services.NewOrderService(db, stripeClient),
+		stripeService: stripeClient,
+		orderService:  services.NewOrderService(db, stripeClient),
 	}
 }
 
 func (cc *stripeWebhookController) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)
 	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)
-	payload, err := io.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading request body: %v\n", err)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
 
-	event, err := webhook.ConstructEventWithOptions(
-		payload,
-		r.Header.Get("Stripe-Signature"),
-		config.StripeWebhookSigningSecret,
-		// TODO: Can we get Stripe to actually support the latest version of their own API with their own Go SDK?
-		webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true},
-	)
+	event, err := cc.stripeService.DecodeWebhook(body, r.Header.Get("Stripe-Signature"))
 	if err != nil {
-		log.Printf("Webhook signature validation failed: %s", err)
+		log.Printf("Processing Stripe webhook failed: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	switch event.Type {
-	case "checkout.session.completed":
-		var payload stripe.CheckoutSession
-		if err := json.Unmarshal(event.Data.Raw, &payload); err != nil {
-			log.Printf("Error parsing webhook JSON: %s", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		_, err = cc.orderService.MarkOrderPaidByCheckoutSessionID(r.Context(), payload.ID)
+	switch event := event.(type) {
+	case *stripe.CheckoutSession:
+		_, err = cc.orderService.MarkOrderPaidByCheckoutSessionID(r.Context(), event.ID)
 		if err != nil && errors.Is(err, services.ErrOrderAlreadyPaid) {
-			log.Printf("Order already paid: %s", payload.ID)
+			log.Printf("Order already paid: %s", event.ID)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
