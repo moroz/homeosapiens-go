@@ -1,4 +1,9 @@
+pkgname: 'mocks'
+
 packages:
   github.com/moroz/homeosapiens-go/services:
     interfaces:
       StripeService:
+        config:
+          dir: services/mocks
+          filename: "mock_stripe_service.go"
