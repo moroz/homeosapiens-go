@@ -7,8 +7,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -35,7 +37,12 @@ func TestCreateOrder(t *testing.T) {
 	countBefore, err := count(db, t.Context(), "orders")
 	assert.NoError(t, err)
 
-	srv := services.NewOrderService(db, services.MockStripeService())
+	cs := mocks.GenerateCheckoutSession()
+
+	stripe := mocks.NewMockStripeService(t)
+	stripe.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)
+
+	srv := services.NewOrderService(db, stripe)
 	order, err := srv.CreateOrder(t.Context(), cartId, nil, &types.OrderParams{
 		Email:               "user@example.com",
 		BillingGivenName:    "John",

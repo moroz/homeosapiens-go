@@ -23,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	stripeService := services.NewStripeService(config.StripeSecretKey)
+	stripeService := services.NewStripeService(config.StripeSecretKey, config.StripeWebhookSigningSecret)
 
 	mailer, err := mailer.NewSMTPMailer(config.SMTPHost, config.SMTPPort, config.SMTPUsername, config.SMTPPassword)
 	if err != nil {

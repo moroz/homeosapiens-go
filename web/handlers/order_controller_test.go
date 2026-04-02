@@ -18,11 +18,12 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/mailer"
 	"github.com/moroz/homeosapiens-go/internal/phone"
-	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -97,8 +98,12 @@ func TestCartFlow(t *testing.T) {
 
 	mailer := mailer.MockMailer()
 
-	r := router.Router(db, store, services.MockStripeService(), mailer)
-	require.NoError(t, err)
+	cs := mocks.GenerateCheckoutSession()
+
+	stripeSrv := mocks.NewMockStripeService(t)
+	stripeSrv.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)
+
+	r := router.Router(db, store, stripeSrv, mailer)
 
 	srv := httptest.NewServer(r)
 	defer srv.Close()
