@@ -1,0 +1,10 @@
+{{define "content"}}
+{{- /*gotype: github.com/moroz/homeosapiens-go/tmpl/email.PaymentConfirmationEmailProps*/ -}}
+
+    <h2 style="margin: 0 0 16px;">{{ .T "emails.payment_confirmation.heading" }}</h2>
+
+    <p>{{ .T "emails.payment_confirmation.body" }}</p>
+
+    {{template "order_summary" .}}
+
+{{end}}

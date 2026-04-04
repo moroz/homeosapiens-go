@@ -37,6 +37,13 @@ type OrderConfirmationEmailProps struct {
 	Order *types.OrderDTO
 }
 
+type PaymentConfirmationEmailProps struct {
+	*LayoutProps
+	Order *types.OrderDTO
+}
+
 var LayoutTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl"))
 
-var OrderConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "order_confirmation.html.tmpl"))
+var OrderConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "order_confirmation.html.tmpl"))
+
+var PaymentConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "payment_confirmation.html.tmpl"))

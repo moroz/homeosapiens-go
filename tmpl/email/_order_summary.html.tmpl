@@ -1,0 +1,24 @@
+{{ define "order_summary" }}
+<table style="width: 100%; table-layout: fixed; margin: 10px 0">
+    <thead>
+    <tr style="border-bottom: 1px solid #e0e0e0">
+        <th align="left">{{ .T "emails.order_confirmation.table.event_title" }}</th>
+        <th align="left" style="width: 120px; padding: 8px">{{ .T "emails.order_confirmation.table.price" }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range .Order.LineItems }}
+        <tr>
+            <td>{{.EventTitle}}</td>
+            <td style="padding: 8px;">{{ $.FormatPrice .EventPriceAmount .EventPriceCurrency }}</td>
+        </tr>
+    {{end}}
+    </tbody>
+    <tfoot>
+    <tr style="border-top: 1px solid #e0e0e0;">
+        <td align="right" style="padding: 8px 8px 0;"><strong>{{ .T "emails.order_confirmation.total" }}</strong></td>
+        <td style="padding: 8px 8px 0;"><strong>{{ .FormatPrice .Order.GrandTotal .Order.Currency }}</strong></td>
+    </tr>
+    </tfoot>
+</table>
+{{ end }}

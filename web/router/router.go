@@ -118,7 +118,8 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 
 	if !config.IsProd {
 		email := handlers.EmailController(db)
-		r.GET("/dev/email", email.Show)
+		r.GET("/dev/email/order", email.OrderConfirmation)
+		r.GET("/dev/email/payment", email.PaymentConfirmation)
 	}
 
 	return r

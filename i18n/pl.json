@@ -144,12 +144,19 @@
     }
   },
   "emails": {
+    "opening": "Szanowny Panie, Szanowna Pani, (adresatem tej wiadomości jest {{.BillingGivenName}} {{.BillingFamilyName}}),",
     "order_confirmation": {
-      "body": "Otrzymaliśmy Twoje zamówienie.",
+      "heading": "Potwierdzenie zamówienia",
+      "body": "Dziękujemy za zamówienie w Homeo sapiens! Otrzymaliśmy Twoje zamówienie i oczekujemy na płatność.",
+      "total": "Łącznie",
       "table": {
         "event_title": "Wydarzenie",
         "price": "Cena"
       }
+    },
+    "payment_confirmation": {
+      "heading": "Potwierdzenie płatności",
+      "body": "Otrzymaliśmy płatność za Twoje zamówienie"
     }
   },
   "orders": {

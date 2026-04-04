@@ -89,4 +89,8 @@ func TestStripeWebhook(t *testing.T) {
 
 	resp := rr.Result()
 	assert.Equal(t, 200, resp.StatusCode)
+
+	order, err = queries.New(db).GetOrderByID(t.Context(), order.ID)
+	assert.NoError(t, err)
+	assert.NotNil(t, order.PaidAt)
 }

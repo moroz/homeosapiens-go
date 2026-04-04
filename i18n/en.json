@@ -134,7 +134,18 @@
   },
   "emails": {
     "order_confirmation": {
-      "body": "We have received your order.",
+      "heading": "Order Confirmation",
+      "body": "Thank you for ordering with Homeo sapiens! We have received your order and are awaiting payment.",
+      "total": "Total",
+      "table": {
+        "event_title": "Event title",
+        "price": "Price"
+      }
+    },
+    "payment_confirmation": {
+      "heading": "Payment Confirmed",
+      "body": "Your payment has been successfully processed. Thank you for your purchase!",
+      "total": "Total",
       "table": {
         "event_title": "Event title",
         "price": "Price"
