@@ -190,6 +190,15 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 							Error:        errors,
 						}),
 					),
+					components.InputField(&components.InputFieldOptions{
+						Label:        l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_tax_id"}),
+						HelperText:   l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.billing_tax_id_helper_text"}),
+						Name:         "billing_tax_id",
+						Autocomplete: "postal-code",
+						Localizer:    l,
+						Value:        params.BillingTaxID,
+						Error:        errors,
+					}),
 					Footer(
 						Button(
 							Class("button primary mobile:w-full desktop:px-8"), Type("submit"),

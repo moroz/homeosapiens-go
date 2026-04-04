@@ -15,6 +15,7 @@ import (
 var templateFS embed.FS
 
 type LayoutProps struct {
+	Title     string
 	Language  string
 	LogoURL   string
 	Localizer *goi18n.Localizer
@@ -26,6 +27,17 @@ func (p *LayoutProps) T(messageID string) string {
 	}
 	msg, _ := p.Localizer.Localize(&goi18n.LocalizeConfig{MessageID: messageID})
 	return msg
+}
+
+func (p *LayoutProps) Translate(messageID string, data any) template.HTML {
+	if p.Localizer == nil {
+		return template.HTML(messageID)
+	}
+	msg, _ := p.Localizer.Localize(&goi18n.LocalizeConfig{
+		MessageID:    messageID,
+		TemplateData: data,
+	})
+	return template.HTML(msg)
 }
 
 func (p *LayoutProps) FormatPrice(amount decimal.Decimal, currency string) string {

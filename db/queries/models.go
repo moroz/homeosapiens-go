@@ -334,6 +334,8 @@ type Order struct {
 	BillingAddressLine1     sqlcrypter.EncryptedBytes
 	BillingAddressLine2     *sqlcrypter.EncryptedBytes
 	StripeCheckoutSessionID *string
+	OrderNumber             int64
+	BillingTaxID            *sqlcrypter.EncryptedBytes
 }
 
 type OrderLineItem struct {

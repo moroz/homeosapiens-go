@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log"
+
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -8,6 +10,7 @@ import (
 	"github.com/moroz/homeosapiens-go/tmpl/email"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type emailController struct {
@@ -38,8 +41,15 @@ func (cc *emailController) OrderConfirmation(c *echo.Context) error {
 	}
 
 	ctx := helpers.GetRequestContext(c)
+
+	subject := ctx.Localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    "emails.order_confirmation.subject",
+		TemplateData: order,
+	})
+
 	props := email.OrderConfirmationEmailProps{
 		LayoutProps: &email.LayoutProps{
+			Title:     subject,
 			LogoURL:   config.PublicUrl + "/assets/logo.png",
 			Localizer: ctx.Localizer,
 			Language:  ctx.Language,
@@ -47,7 +57,12 @@ func (cc *emailController) OrderConfirmation(c *echo.Context) error {
 		Order: order,
 	}
 
-	return email.OrderConfirmationTemplate.Execute(c.Response(), props)
+	if err := email.OrderConfirmationTemplate.Execute(c.Response(), props); err != nil {
+		log.Print(err)
+		return err
+	}
+
+	return nil
 }
 
 func (cc *emailController) PaymentConfirmation(c *echo.Context) error {

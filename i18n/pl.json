@@ -144,10 +144,12 @@
     }
   },
   "emails": {
-    "opening": "Szanowny Panie, Szanowna Pani, (adresatem tej wiadomości jest {{.BillingGivenName}} {{.BillingFamilyName}}),",
+    "opening_html": "<p><small>Wiadomość skierowana do: {{.BillingGivenName}} {{.BillingFamilyName}}</small></p><p>Szanowni Państwo,</p>",
     "order_confirmation": {
       "heading": "Potwierdzenie zamówienia",
-      "body": "Dziękujemy za zamówienie w Homeo sapiens! Otrzymaliśmy Twoje zamówienie i oczekujemy na płatność.",
+      "subject": "Potwierdzenie zamówienia nr {{.OrderNumber}} — Homeo sapiens",
+      "body": "Dziękujemy za zamówienie w Homeo sapiens! Otrzymaliśmy Państwa zamówienie&nbsp;<strong>nr&nbsp;{{.OrderNumber}}</strong> i oczekujemy na płatność.",
+      "order_summary": "Podsumowanie zamówienia",
       "total": "Łącznie",
       "table": {
         "event_title": "Wydarzenie",
@@ -176,7 +178,9 @@
       "billing_phone": "Numer telefonu lub WhatsApp:",
       "billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. {{.Example}}.",
       "billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej.",
-      "submit": "Złóż zamówienie"
+      "submit": "Złóż zamówienie",
+      "billing_tax_id": "NIP/VAT EU:",
+      "billing_tax_id_helper_text": "Wypełnij to pole, jeżeli potrzebujesz faktury VAT na firmę."
     }
   }
 }

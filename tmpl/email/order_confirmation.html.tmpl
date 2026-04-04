@@ -3,9 +3,9 @@
 
     <h2 style="margin: 0 0 16px; text-align: center">{{ .T "emails.order_confirmation.heading" }}</h2>
 
-    <p>{{.T "emails.opening" .Order}}</p>
+    {{.Translate "emails.opening_html" .Order}}
 
-    <p>{{ .T "emails.order_confirmation.body" }}</p>
+    <p>{{ .Translate "emails.order_confirmation.body" .Order }}</p>
 
     {{template "order_summary" .}}
 {{end}}

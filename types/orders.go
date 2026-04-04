@@ -20,6 +20,7 @@ type OrderParams struct {
 	BillingCity         string `form:"billing_city" json:"billing_city"`
 	BillingPostalCode   string `form:"billing_postal_code" json:"billing_postal_code"`
 	BillingCountry      string `form:"billing_country" json:"billing_country"`
+	BillingTaxID        string `form:"billing_tax_id" json:"billing_tax_id"`
 }
 
 func (p *OrderParams) Validate() error {
