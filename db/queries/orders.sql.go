@@ -47,7 +47,7 @@ func (q *Queries) GetLastOrderID(ctx context.Context) (uuid.UUID, error) {
 }
 
 const getOrderByCheckoutSessionID = `-- name: GetOrderByCheckoutSessionID :one
-select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id from orders where stripe_checkout_session_id = $1::text
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale from orders where stripe_checkout_session_id = $1::text
 `
 
 func (q *Queries) GetOrderByCheckoutSessionID(ctx context.Context, sessionID string) (*Order, error) {
@@ -75,12 +75,13 @@ func (q *Queries) GetOrderByCheckoutSessionID(ctx context.Context, sessionID str
 		&i.StripeCheckoutSessionID,
 		&i.OrderNumber,
 		&i.BillingTaxID,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
 
 const getOrderByCheckoutSessionIDForUpdate = `-- name: GetOrderByCheckoutSessionIDForUpdate :one
-select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id from orders where stripe_checkout_session_id = $1::text for update
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale from orders where stripe_checkout_session_id = $1::text for update
 `
 
 func (q *Queries) GetOrderByCheckoutSessionIDForUpdate(ctx context.Context, sessionID string) (*Order, error) {
@@ -108,12 +109,13 @@ func (q *Queries) GetOrderByCheckoutSessionIDForUpdate(ctx context.Context, sess
 		&i.StripeCheckoutSessionID,
 		&i.OrderNumber,
 		&i.BillingTaxID,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
 
 const getOrderByID = `-- name: GetOrderByID :one
-select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id from orders where id = $1
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale from orders where id = $1
 `
 
 func (q *Queries) GetOrderByID(ctx context.Context, id uuid.UUID) (*Order, error) {
@@ -141,6 +143,7 @@ func (q *Queries) GetOrderByID(ctx context.Context, id uuid.UUID) (*Order, error
 		&i.StripeCheckoutSessionID,
 		&i.OrderNumber,
 		&i.BillingTaxID,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
@@ -180,8 +183,8 @@ func (q *Queries) GetOrderLineItemsForOrderID(ctx context.Context, orderID uuid.
 }
 
 const insertOrder = `-- name: InsertOrder :one
-insert into orders (order_number, user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, billing_tax_id)
-values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id
+insert into orders (order_number, user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, billing_tax_id, preferred_locale)
+values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale
 `
 
 type InsertOrderParams struct {
@@ -199,6 +202,7 @@ type InsertOrderParams struct {
 	BillingAddressLine1 sqlcrypter.EncryptedBytes
 	BillingAddressLine2 *sqlcrypter.EncryptedBytes
 	BillingTaxID        *sqlcrypter.EncryptedBytes
+	PreferredLocale     Locale
 }
 
 func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Order, error) {
@@ -217,6 +221,7 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 		arg.BillingAddressLine1,
 		arg.BillingAddressLine2,
 		arg.BillingTaxID,
+		arg.PreferredLocale,
 	)
 	var i Order
 	err := row.Scan(
@@ -241,6 +246,7 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 		&i.StripeCheckoutSessionID,
 		&i.OrderNumber,
 		&i.BillingTaxID,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
@@ -279,7 +285,7 @@ func (q *Queries) InsertOrderLineItem(ctx context.Context, arg *InsertOrderLineI
 }
 
 const listOrders = `-- name: ListOrders :many
-select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id from orders order by id
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale from orders order by id
 `
 
 func (q *Queries) ListOrders(ctx context.Context) ([]*Order, error) {
@@ -313,6 +319,7 @@ func (q *Queries) ListOrders(ctx context.Context) ([]*Order, error) {
 			&i.StripeCheckoutSessionID,
 			&i.OrderNumber,
 			&i.BillingTaxID,
+			&i.PreferredLocale,
 		); err != nil {
 			return nil, err
 		}
@@ -325,7 +332,7 @@ func (q *Queries) ListOrders(ctx context.Context) ([]*Order, error) {
 }
 
 const markOrderAsPaid = `-- name: MarkOrderAsPaid :one
-update orders set paid_at = now(), updated_at = now() where id = $1 returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id
+update orders set paid_at = now(), updated_at = now() where id = $1 returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale
 `
 
 func (q *Queries) MarkOrderAsPaid(ctx context.Context, id uuid.UUID) (*Order, error) {
@@ -353,12 +360,13 @@ func (q *Queries) MarkOrderAsPaid(ctx context.Context, id uuid.UUID) (*Order, er
 		&i.StripeCheckoutSessionID,
 		&i.OrderNumber,
 		&i.BillingTaxID,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
 
 const storeCheckoutSessionIDOnOrder = `-- name: StoreCheckoutSessionIDOnOrder :one
-update orders set stripe_checkout_session_id = $1, updated_at = now() where id = $2 returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id
+update orders set stripe_checkout_session_id = $1, updated_at = now() where id = $2 returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale
 `
 
 type StoreCheckoutSessionIDOnOrderParams struct {
@@ -391,6 +399,7 @@ func (q *Queries) StoreCheckoutSessionIDOnOrder(ctx context.Context, arg *StoreC
 		&i.StripeCheckoutSessionID,
 		&i.OrderNumber,
 		&i.BillingTaxID,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }

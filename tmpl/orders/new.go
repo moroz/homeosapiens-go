@@ -68,6 +68,8 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 				Attr("novalidate", ""),
 				Data("testid", "checkout-form"),
 
+				Input(Type("hidden"), Name("locale"), Value(ctx.Language)),
+
 				H3(Class("text-primary mt-8 mb-4 text-2xl font-bold"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
 
 				If(ctx.User == nil,

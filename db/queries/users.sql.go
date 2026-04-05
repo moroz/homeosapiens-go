@@ -30,7 +30,7 @@ insert into users (email_encrypted, email_hash, given_name_encrypted, family_nam
 values ($1, $2, $3, $4, $5, case when $6::boolean then now() end)
 on conflict (email_hash) do update
 set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
-returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
 
 type FindOrCreateUserFromClaimsParams struct {
@@ -72,12 +72,13 @@ func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCre
 		&i.FamilyName,
 		&i.EmailConfirmedAt,
 		&i.LicenceNumber,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
 
 const getUserByAccessToken = `-- name: GetUserByAccessToken :one
-select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted from user_tokens ut
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > now()
 and ut.token = $1 and ut.context = 'access'
@@ -106,12 +107,13 @@ func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User
 		&i.FamilyName,
 		&i.EmailConfirmedAt,
 		&i.LicenceNumber,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted from users where email_hash = $1
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale from users where email_hash = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, error) {
@@ -137,12 +139,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, 
 		&i.FamilyName,
 		&i.EmailConfirmedAt,
 		&i.LicenceNumber,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
 
 const insertUser = `-- name: InsertUser :one
-insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
+insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
 
 type InsertUserParams struct {
@@ -192,6 +195,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		&i.FamilyName,
 		&i.EmailConfirmedAt,
 		&i.LicenceNumber,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
@@ -227,7 +231,7 @@ func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParam
 }
 
 const listUsers = `-- name: ListUsers :many
-select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted from users order by id
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale from users order by id
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]*User, error) {
@@ -259,6 +263,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]*User, error) {
 			&i.FamilyName,
 			&i.EmailConfirmedAt,
 			&i.LicenceNumber,
+			&i.PreferredLocale,
 		); err != nil {
 			return nil, err
 		}
@@ -288,7 +293,7 @@ func (q *Queries) SetUserLastLogin(ctx context.Context, arg *SetUserLastLoginPar
 const updateUserProfile = `-- name: UpdateUserProfile :one
 update users
 set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5, updated_at = now()
-where id = $6 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
+where id = $6 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
 
 type UpdateUserProfileParams struct {
@@ -330,6 +335,7 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileP
 		&i.FamilyName,
 		&i.EmailConfirmedAt,
 		&i.LicenceNumber,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }
@@ -338,7 +344,7 @@ const upsertUserFromSeedData = `-- name: UpsertUserFromSeedData :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role)
 values ($1, $2, $3, $4, $5, $6, $7)
 on conflict (email_hash) do update set updated_at = now()
-returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
 
 type UpsertUserFromSeedDataParams struct {
@@ -382,6 +388,7 @@ func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFro
 		&i.FamilyName,
 		&i.EmailConfirmedAt,
 		&i.LicenceNumber,
+		&i.PreferredLocale,
 	)
 	return &i, err
 }

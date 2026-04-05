@@ -44,6 +44,7 @@ func TestCreateOrder(t *testing.T) {
 
 	srv := services.NewOrderService(db, stripe)
 	order, err := srv.CreateOrder(t.Context(), cartId, nil, &types.OrderParams{
+		PreferredLocale:     "pl",
 		Email:               "user@example.com",
 		BillingGivenName:    "John",
 		BillingFamilyName:   "Smith",

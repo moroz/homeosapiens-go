@@ -11,8 +11,9 @@ import (
 var EmailValidationRegexp = regexp.MustCompile(`^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$`)
 
 type OrderParams struct {
+	PreferredLocale     string `form:"locale" json:"locale"`
 	Email               string `form:"email" json:"email"`
-	BillingGivenName    string `form:"billing_given_name" json:"billing_given_name""`
+	BillingGivenName    string `form:"billing_given_name" json:"billing_given_name"`
 	BillingFamilyName   string `form:"billing_family_name" json:"billing_family_name"`
 	BillingPhone        string `form:"billing_phone" json:"billing_phone"`
 	BillingAddressLine1 string `form:"billing_address_line1" json:"billing_address_line1"`
@@ -25,6 +26,7 @@ type OrderParams struct {
 
 func (p *OrderParams) Validate() error {
 	return validation.ValidateStruct(p,
+		validation.Field(&p.PreferredLocale, validation.In("pl", "en")),
 		validation.Field(&p.Email, validation.Required, validation.Match(EmailValidationRegexp)),
 		validation.Field(&p.BillingGivenName, validation.Required),
 		validation.Field(&p.BillingFamilyName, validation.Required),

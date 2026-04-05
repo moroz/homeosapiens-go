@@ -54,6 +54,7 @@ func TestStripeWebhook(t *testing.T) {
 	require.NoError(t, err)
 
 	order, err := queries.New(db).InsertOrder(t.Context(), &queries.InsertOrderParams{
+		PreferredLocale:     "en",
 		UserID:              user.ID,
 		GrandTotal:          decimal.NewFromFloat(42.),
 		Currency:            "PLN",

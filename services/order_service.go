@@ -90,6 +90,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 	var result types.OrderDTO
 
 	result.Order, err = queries.New(tx).InsertOrder(ctx, &queries.InsertOrderParams{
+		PreferredLocale:     queries.Locale(params.PreferredLocale),
 		OrderNumber:         orderNumber,
 		UserID:              user.ID,
 		GrandTotal:          cart.ProductTotal,

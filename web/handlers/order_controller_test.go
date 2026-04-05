@@ -210,6 +210,7 @@ func TestCartFlow(t *testing.T) {
 		require.NoError(t, err)
 
 		params := url.Values{
+			"locale":                {"en"},
 			"email":                 {"user@example.com"},
 			"billing_address_line1": {"Example Street 42"},
 			"billing_given_name":    {"John"},
