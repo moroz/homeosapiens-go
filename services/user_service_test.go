@@ -30,11 +30,12 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 	require.NoError(t, err)
 
 	user, err := queries.New(db).InsertUser(t.Context(), &queries.InsertUserParams{
-		Email:        sqlcrypter.NewEncryptedBytes("user@example.com"),
-		EmailHash:    crypto.HashEmail("user@example.com"),
-		GivenName:    sqlcrypter.NewEncryptedBytes("Example"),
-		FamilyName:   sqlcrypter.NewEncryptedBytes("User"),
-		PasswordHash: &hash,
+		Email:           sqlcrypter.NewEncryptedBytes("user@example.com"),
+		EmailHash:       crypto.HashEmail("user@example.com"),
+		GivenName:       sqlcrypter.NewEncryptedBytes("Example"),
+		FamilyName:      sqlcrypter.NewEncryptedBytes("User"),
+		PreferredLocale: "en",
+		PasswordHash:    &hash,
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, user)

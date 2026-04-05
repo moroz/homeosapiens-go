@@ -8,7 +8,7 @@ where ut.valid_until > now()
 and ut.token = @token and ut.context = 'access';
 
 -- name: InsertUser :one
-insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;
+insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *;
 
 -- name: UpsertUserFromSeedData :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role)
@@ -40,3 +40,6 @@ select * from users order by id;
 -- name: SetUserLastLogin :exec
 update users set last_login_ip = $1, last_login_at = now(), updated_at = now()
 where id = $2;
+
+-- name: UpdateUserPreferredLocale :exec
+update users set preferred_locale = $1 where id = $2;

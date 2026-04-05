@@ -162,11 +162,12 @@ func (s *OrderService) findOrCreateUserForOrder(ctx context.Context, tx pgx.Tx, 
 	if errors.Is(err, sql.ErrNoRows) {
 		// TODO: Should this be in UserService?
 		return queries.New(tx).InsertUser(ctx, &queries.InsertUserParams{
-			Email:      sqlcrypter.NewEncryptedBytes(params.Email),
-			EmailHash:  crypto.HashEmail(params.Email),
-			GivenName:  sqlcrypter.NewEncryptedBytes(params.BillingGivenName),
-			FamilyName: sqlcrypter.NewEncryptedBytes(params.BillingFamilyName),
-			Country:    &params.BillingCountry,
+			PreferredLocale: queries.Locale(params.PreferredLocale),
+			Email:           sqlcrypter.NewEncryptedBytes(params.Email),
+			EmailHash:       crypto.HashEmail(params.Email),
+			GivenName:       sqlcrypter.NewEncryptedBytes(params.BillingGivenName),
+			FamilyName:      sqlcrypter.NewEncryptedBytes(params.BillingFamilyName),
+			Country:         &params.BillingCountry,
 		})
 	}
 

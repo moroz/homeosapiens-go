@@ -56,6 +56,7 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 	r.Use(middleware.FetchCartFromSession(db))
 	r.Use(middleware.ResolveTimezone)
 	r.Use(middleware.ResolveRequestLocale(bundle))
+	r.Use(middleware.StoreLocalePreference(db))
 
 	pages := handlers.PageController(db)
 	r.GET("/", pages.Index)

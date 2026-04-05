@@ -145,20 +145,21 @@ func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, 
 }
 
 const insertUser = `-- name: InsertUser :one
-insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
+insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
 
 type InsertUserParams struct {
-	Email        sqlcrypter.EncryptedBytes
-	EmailHash    []byte
-	Salutation   *string
-	GivenName    sqlcrypter.EncryptedBytes
-	FamilyName   sqlcrypter.EncryptedBytes
-	Country      *string
-	Profession   *string
-	Organization *string
-	Company      *string
-	PasswordHash *string
+	Email           sqlcrypter.EncryptedBytes
+	EmailHash       []byte
+	Salutation      *string
+	GivenName       sqlcrypter.EncryptedBytes
+	FamilyName      sqlcrypter.EncryptedBytes
+	Country         *string
+	Profession      *string
+	Organization    *string
+	Company         *string
+	PasswordHash    *string
+	PreferredLocale Locale
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User, error) {
@@ -173,6 +174,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		arg.Organization,
 		arg.Company,
 		arg.PasswordHash,
+		arg.PreferredLocale,
 	)
 	var i User
 	err := row.Scan(
@@ -287,6 +289,20 @@ type SetUserLastLoginParams struct {
 
 func (q *Queries) SetUserLastLogin(ctx context.Context, arg *SetUserLastLoginParams) error {
 	_, err := q.db.Exec(ctx, setUserLastLogin, arg.LastLoginIp, arg.ID)
+	return err
+}
+
+const updateUserPreferredLocale = `-- name: UpdateUserPreferredLocale :exec
+update users set preferred_locale = $1 where id = $2
+`
+
+type UpdateUserPreferredLocaleParams struct {
+	PreferredLocale Locale
+	ID              uuid.UUID
+}
+
+func (q *Queries) UpdateUserPreferredLocale(ctx context.Context, arg *UpdateUserPreferredLocaleParams) error {
+	_, err := q.db.Exec(ctx, updateUserPreferredLocale, arg.PreferredLocale, arg.ID)
 	return err
 }
 

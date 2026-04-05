@@ -45,11 +45,12 @@ func TestStripeWebhook(t *testing.T) {
 	email := uniqueEmail()
 
 	user, err := queries.New(db).InsertUser(t.Context(), &queries.InsertUserParams{
-		Email:      sqlcrypter.NewEncryptedBytes(email),
-		EmailHash:  crypto.HashEmail(email),
-		GivenName:  sqlcrypter.NewEncryptedBytes("John"),
-		FamilyName: sqlcrypter.NewEncryptedBytes("Smith"),
-		Country:    new("IE"),
+		PreferredLocale: "en",
+		Email:           sqlcrypter.NewEncryptedBytes(email),
+		EmailHash:       crypto.HashEmail(email),
+		GivenName:       sqlcrypter.NewEncryptedBytes("John"),
+		FamilyName:      sqlcrypter.NewEncryptedBytes("Smith"),
+		Country:         new("IE"),
 	})
 	require.NoError(t, err)
 
