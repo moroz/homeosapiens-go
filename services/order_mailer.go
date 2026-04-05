@@ -12,22 +12,26 @@ import (
 	"github.com/wneessen/go-mail"
 )
 
-type OrderMailer struct {
-	mailer.Mailer
-	Language  string
-	Localizer *i18n.Localizer
+type OrderMailer interface {
+	SendOrderConfirmation(context.Context, *types.OrderDTO) error
 }
 
-func NewOrderMailer(m mailer.Mailer, lang string, l *i18n.Localizer) *OrderMailer {
-	return &OrderMailer{
-		Mailer:    m,
-		Language:  lang,
-		Localizer: l,
+type orderMailer struct {
+	mailer.Mailer
+	bundle *i18n.Bundle
+}
+
+func NewOrderMailer(m mailer.Mailer, bundle *i18n.Bundle) OrderMailer {
+	return &orderMailer{
+		Mailer: m,
+		bundle: bundle,
 	}
 }
 
-func (m *OrderMailer) SendOrderConfirmation(ctx context.Context, order *types.OrderDTO) error {
-	subject, err := m.Localizer.Localize(&i18n.LocalizeConfig{
+func (m *orderMailer) SendOrderConfirmation(ctx context.Context, order *types.OrderDTO) error {
+	l := i18n.NewLocalizer(m.bundle, string(order.PreferredLocale))
+
+	subject, err := l.Localize(&i18n.LocalizeConfig{
 		MessageID:    "emails.order_confirmation.subject",
 		TemplateData: order.Order,
 	})
@@ -39,8 +43,8 @@ func (m *OrderMailer) SendOrderConfirmation(ctx context.Context, order *types.Or
 		LayoutProps: &email.LayoutProps{
 			Title:     subject,
 			LogoURL:   config.PublicUrl + "/assets/logo.png",
-			Localizer: m.Localizer,
-			Language:  m.Language,
+			Localizer: l,
+			Language:  string(order.PreferredLocale),
 		},
 		Order: order,
 	}

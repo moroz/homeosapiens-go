@@ -69,14 +69,16 @@ func (s *UserService) CreateUser(ctx context.Context, params *types.CreateUserPa
 	})
 }
 
-func (s *UserService) FindOrCreateUserFromClaims(ctx context.Context, claims *types.GoogleIDTokenClaims) (*queries.User, error) {
+func (s *UserService) FindOrCreateUserFromClaims(ctx context.Context, locale string, claims *types.GoogleIDTokenClaims) (*queries.User, error) {
+
 	return queries.New(s.db).FindOrCreateUserFromClaims(ctx, &queries.FindOrCreateUserFromClaimsParams{
-		Email:          sqlcrypter.NewEncryptedBytes(claims.Email),
-		EmailHash:      crypto.HashEmail(claims.Email),
-		GivenName:      sqlcrypter.NewEncryptedBytes(claims.GivenName),
-		FamilyName:     sqlcrypter.NewEncryptedBytes(claims.FamilyName),
-		ProfilePicture: &claims.Avatar,
-		EmailConfirmed: true,
+		PreferredLocale: queries.Locale(locale),
+		Email:           sqlcrypter.NewEncryptedBytes(claims.Email),
+		EmailHash:       crypto.HashEmail(claims.Email),
+		GivenName:       sqlcrypter.NewEncryptedBytes(claims.GivenName),
+		FamilyName:      sqlcrypter.NewEncryptedBytes(claims.FamilyName),
+		ProfilePicture:  &claims.Avatar,
+		EmailConfirmed:  true,
 	})
 }
 

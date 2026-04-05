@@ -23,11 +23,11 @@ type orderController struct {
 	orderService *services.OrderService
 }
 
-func OrderController(db queries.DBTX, service services.StripeService) *orderController {
+func OrderController(db queries.DBTX, service services.StripeService, orderMailer services.OrderMailer) *orderController {
 	return &orderController{
 		cartService:  services.NewCartService(db),
 		eventService: services.NewEventService(db),
-		orderService: services.NewOrderService(db, service),
+		orderService: services.NewOrderService(db, service, orderMailer),
 	}
 }
 

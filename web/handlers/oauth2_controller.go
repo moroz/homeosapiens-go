@@ -113,7 +113,7 @@ func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
 		return err
 	}
 
-	user, err := cc.UserService.FindOrCreateUserFromClaims(c.Request().Context(), claims)
+	user, err := cc.UserService.FindOrCreateUserFromClaims(c.Request().Context(), ctx.Language, claims)
 	if err != nil {
 		log.Printf("Failed to create user from claims: %s", err)
 		return err
@@ -132,7 +132,8 @@ func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
 		redirectBackUrl = "/"
 	}
 
-	ctx.Session["access_token"] = userToken.Token
+	ctx.Session[config.AccessTokenSessionKey] = userToken.Token
+	ctx.Session[config.LanguageSessionKey] = string(user.PreferredLocale)
 	delete(ctx.Session, config.OAuth2SessionKey)
 	delete(ctx.Session, config.RedirectBackUrlSessionKey)
 	if err := ctx.SaveSession(c.Response()); err != nil {

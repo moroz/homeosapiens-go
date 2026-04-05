@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/bincyber/go-sqlcrypter"
@@ -20,12 +21,14 @@ import (
 type OrderService struct {
 	db                   queries.DBTX
 	paymentIntentService StripeService
+	mailer               OrderMailer
 }
 
-func NewOrderService(db queries.DBTX, service StripeService) *OrderService {
+func NewOrderService(db queries.DBTX, service StripeService, mailer OrderMailer) *OrderService {
 	return &OrderService{
 		db:                   db,
 		paymentIntentService: service,
+		mailer:               mailer,
 	}
 }
 
@@ -148,6 +151,10 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 
 	if err := tx.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("CreateOrder: could not commit transaction: %w", err)
+	}
+
+	if err := s.mailer.SendOrderConfirmation(ctx, &result); err != nil {
+		log.Printf("Error sending order confirmation email for order %s: %s", result.Order.ID, err)
 	}
 
 	return &result, nil

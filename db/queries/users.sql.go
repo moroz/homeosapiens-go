@@ -26,20 +26,21 @@ func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, erro
 }
 
 const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, email_confirmed_at)
-values ($1, $2, $3, $4, $5, case when $6::boolean then now() end)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, preferred_locale, email_confirmed_at)
+values ($1, $2, $3, $4, $5, $6, case when $7::boolean then now() end)
 on conflict (email_hash) do update
 set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
 
 type FindOrCreateUserFromClaimsParams struct {
-	Email          sqlcrypter.EncryptedBytes
-	EmailHash      []byte
-	GivenName      sqlcrypter.EncryptedBytes
-	FamilyName     sqlcrypter.EncryptedBytes
-	ProfilePicture *string
-	EmailConfirmed bool
+	Email           sqlcrypter.EncryptedBytes
+	EmailHash       []byte
+	GivenName       sqlcrypter.EncryptedBytes
+	FamilyName      sqlcrypter.EncryptedBytes
+	ProfilePicture  *string
+	PreferredLocale Locale
+	EmailConfirmed  bool
 }
 
 func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCreateUserFromClaimsParams) (*User, error) {
@@ -49,6 +50,7 @@ func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCre
 		arg.GivenName,
 		arg.FamilyName,
 		arg.ProfilePicture,
+		arg.PreferredLocale,
 		arg.EmailConfirmed,
 	)
 	var i User

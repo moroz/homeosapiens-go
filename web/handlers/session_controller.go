@@ -61,7 +61,8 @@ func (cc *sessionController) Create(c *echo.Context) error {
 
 	_ = cc.UserService.SetUserLastLogin(c.Request().Context(), c.RealIP(), user.ID)
 
-	ctx.Session["access_token"] = token.Token
+	ctx.Session[config.AccessTokenSessionKey] = token.Token
+	ctx.Session[config.LanguageSessionKey] = string(user.PreferredLocale)
 	redirectTo := helpers.GetRedirectUrl(ctx)
 
 	if err := ctx.SaveSession(c.Response()); err != nil {
@@ -73,13 +74,13 @@ func (cc *sessionController) Create(c *echo.Context) error {
 
 func (cc *sessionController) Delete(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	token, ok := ctx.Session["access_token"].([]byte)
+	token, ok := ctx.Session[config.AccessTokenSessionKey].([]byte)
 	if ok && token != nil {
 		if _, err := cc.UserTokenService.DeleteToken(c.Request().Context(), token); err != nil {
 			log.Printf("Error deleting user token: %s", err)
 		}
 	}
-	delete(ctx.Session, "access_token")
+	delete(ctx.Session, config.AccessTokenSessionKey)
 	if err := ctx.SaveSession(c.Response()); err != nil {
 		return err
 	}

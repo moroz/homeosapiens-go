@@ -18,10 +18,10 @@ type stripeWebhookController struct {
 	stripeService services.StripeService
 }
 
-func StripeWebhookController(db queries.DBTX, stripeClient services.StripeService) *stripeWebhookController {
+func StripeWebhookController(db queries.DBTX, stripeClient services.StripeService, orderMailer services.OrderMailer) *stripeWebhookController {
 	return &stripeWebhookController{
 		stripeService: stripeClient,
-		orderService:  services.NewOrderService(db, stripeClient),
+		orderService:  services.NewOrderService(db, stripeClient, orderMailer),
 	}
 }
 

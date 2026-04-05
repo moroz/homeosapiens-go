@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/web/helpers"
 )
@@ -15,7 +16,7 @@ func FetchUserFromSession(db queries.DBTX) echo.MiddlewareFunc {
 		return func(c *echo.Context) error {
 			ctx := helpers.GetRequestContext(c)
 
-			if token, ok := ctx.Session["access_token"].([]byte); ok {
+			if token, ok := ctx.Session[config.AccessTokenSessionKey].([]byte); ok {
 				if u, err := queries.New(db).GetUserByAccessToken(c.Request().Context(), token); err == nil {
 					ctx.User = u
 				}

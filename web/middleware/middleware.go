@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/types"
@@ -28,12 +29,12 @@ func ResolveRequestLocale(bundle *goi18n.Bundle) echo.MiddlewareFunc {
 
 			langParam := c.FormValue("lang")
 			header := c.Request().Header.Get("Accept-Language")
-			langFromSession, _ := ctx.Session["lang"].(string)
+			langFromSession, _ := ctx.Session[config.LanguageSessionKey].(string)
 
 			lang := i18n.ResolveLocale(langParam, langFromSession, header)
 
 			if langParam != "" && langFromSession != langParam {
-				ctx.Session["lang"] = langParam
+				ctx.Session[config.LanguageSessionKey] = langParam
 				if err := ctx.SaveSession(c.Response()); err != nil {
 					return err
 				}

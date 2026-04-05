@@ -23,10 +23,10 @@ insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $
 delete from user_tokens where token = $1 returning true;
 
 -- name: FindOrCreateUserFromClaims :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, email_confirmed_at)
-values ($1, $2, $3, $4, $5, case when @email_confirmed::boolean then now() end)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, preferred_locale, email_confirmed_at)
+values ($1, $2, $3, $4, $5, $6, case when @email_confirmed::boolean then now() end)
 on conflict (email_hash) do update
-set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at)
+set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at), preferred_locale = coalesce(users.preferred_locale, excluded.preferred_locale)
 returning *;
 
 -- name: UpdateUserProfile :one

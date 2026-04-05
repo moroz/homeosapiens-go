@@ -20,7 +20,7 @@ type emailController struct {
 
 func EmailController(db queries.DBTX) *emailController {
 	return &emailController{
-		orderService: services.NewOrderService(db, nil),
+		orderService: services.NewOrderService(db, nil, nil),
 		db:           db,
 	}
 }

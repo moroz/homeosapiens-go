@@ -2,7 +2,9 @@ package mailer
 
 import (
 	"context"
+	"crypto/tls"
 
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/wneessen/go-mail"
 )
 
@@ -22,6 +24,7 @@ func NewSMTPMailer(host string, port int, username, password string) (Mailer, er
 		mail.WithSMTPAuth(mail.SMTPAuthPlain),
 		mail.WithUsername(username),
 		mail.WithPassword(password),
+		mail.WithTLSConfig(&tls.Config{InsecureSkipVerify: !config.IsProd}),
 	)
 
 	if err != nil {

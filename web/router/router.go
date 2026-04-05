@@ -82,12 +82,14 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
-	orders := handlers.OrderController(db, stripeClient)
+	orderMailer := services.NewOrderMailer(smtp, bundle)
+
+	orders := handlers.OrderController(db, stripeClient, orderMailer)
 	r.GET("/cart", orders.New)
 	r.POST("/orders", orders.Create)
 	r.GET("/orders/success", orders.Success)
 
-	stripe := handlers.StripeWebhookController(db, stripeClient)
+	stripe := handlers.StripeWebhookController(db, stripeClient, orderMailer)
 	r.POST("/webhooks/stripe", echo.WrapHandler(http.HandlerFunc(stripe.StripeWebhook)))
 
 	cartItems := handlers.CartItemController(db)

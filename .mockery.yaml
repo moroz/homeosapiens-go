@@ -7,3 +7,7 @@ packages:
         config:
           dir: services/mocks
           filename: "mock_stripe_service.go"
+      OrderMailer:
+        config:
+          dir: services/mocks
+          filename: "mock_order_mailer.go"
