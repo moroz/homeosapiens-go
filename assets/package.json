@@ -10,23 +10,23 @@
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
 	},
 	"devDependencies": {
-		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tailwindcss/typography": "^0.5.19",
-		"@tsconfig/svelte": "^5.0.5",
-		"@types/node": "^24.10.0",
+		"@tsconfig/svelte": "^5.0.8",
+		"@types/node": "^24.12.2",
 		"@types/video.js": "^7.3.58",
-		"prettier": "^3.6.2",
-		"prettier-plugin-tailwindcss": "^0.7.1",
-		"svelte": "^5.43.5",
-		"svelte-check": "^4.3.3",
+		"prettier": "^3.8.1",
+		"prettier-plugin-tailwindcss": "^0.7.2",
+		"svelte": "^5.55.1",
+		"svelte-check": "^4.4.6",
 		"typescript": "~5.9.3",
 		"vite": "^8.0.3"
 	},
 	"dependencies": {
-		"@tailwindcss/vite": "^4.1.17",
+		"@tailwindcss/vite": "^4.2.2",
 		"@videojs/themes": "^1.0.1",
-		"tailwindcss": "^4.1.17",
+		"tailwindcss": "^4.2.2",
 		"vanilla-hamburger": "^0.2.3",
-		"video.js": "^8.23.4"
+		"video.js": "^8.23.7"
 	}
 }

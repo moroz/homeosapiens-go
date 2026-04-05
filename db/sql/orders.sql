@@ -28,3 +28,16 @@ select * from orders where stripe_checkout_session_id = @session_id::text for up
 
 -- name: MarkOrderAsPaid :one
 update orders set paid_at = now(), updated_at = now() where id = $1 returning *;
+
+-- name: GenerateNextOrderNumberForDate :one
+WITH prefix AS (
+    SELECT (
+        (EXTRACT(YEAR FROM sqlc.arg(date)::date) % 100) * 100_000_000 -- YY
+        + EXTRACT(MONTH FROM sqlc.arg(date)::date)      * 1_000_000   -- MM
+        + EXTRACT(DAY FROM sqlc.arg(date)::date)        * 10_000      -- DD
+    )::bigint AS val
+)
+SELECT ((COALESCE(MAX(order_number) % 10000, 0) + 1) + prefix.val)::bigint
+FROM prefix
+LEFT JOIN orders ON order_number BETWEEN prefix.val and prefix.val + 9999
+GROUP BY prefix.val;

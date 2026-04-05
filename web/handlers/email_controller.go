@@ -72,9 +72,16 @@ func (cc *emailController) PaymentConfirmation(c *echo.Context) error {
 	}
 
 	ctx := helpers.GetRequestContext(c)
+
+	subject := ctx.Localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    "emails.payment_confirmation.subject",
+		TemplateData: order,
+	})
+
 	props := email.PaymentConfirmationEmailProps{
 		LayoutProps: &email.LayoutProps{
 			LogoURL:   config.PublicUrl + "/assets/logo.png",
+			Title:     subject,
 			Localizer: ctx.Localizer,
 			Language:  ctx.Language,
 		},

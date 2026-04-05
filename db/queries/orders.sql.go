@@ -10,8 +10,30 @@ import (
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
+
+const generateNextOrderNumberForDate = `-- name: GenerateNextOrderNumberForDate :one
+WITH prefix AS (
+    SELECT (
+        (EXTRACT(YEAR FROM $1::date) % 100) * 100_000_000 -- YY
+        + EXTRACT(MONTH FROM $1::date)      * 1_000_000   -- MM
+        + EXTRACT(DAY FROM $1::date)        * 10_000      -- DD
+    )::bigint AS val
+)
+SELECT ((COALESCE(MAX(order_number) % 10000, 0) + 1) + prefix.val)::bigint
+FROM prefix
+LEFT JOIN orders ON order_number BETWEEN prefix.val and prefix.val + 9999
+GROUP BY prefix.val
+`
+
+func (q *Queries) GenerateNextOrderNumberForDate(ctx context.Context, date pgtype.Date) (int64, error) {
+	row := q.db.QueryRow(ctx, generateNextOrderNumberForDate, date)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
 
 const getLastOrderID = `-- name: GetLastOrderID :one
 select id from orders order by id desc limit 1

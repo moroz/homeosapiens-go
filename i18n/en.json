@@ -147,6 +147,7 @@
     },
     "payment_confirmation": {
       "heading": "Payment Confirmed",
+      "subject": "Payment confirmation #{{.OrderNumber}} — Homeo sapiens",
       "body": "Your payment has been successfully processed. Thank you for your purchase!",
       "total": "Total",
       "table": {

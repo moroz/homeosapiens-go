@@ -2,16 +2,15 @@ package services
 
 import (
 	"context"
-	"crypto/rand"
 	"database/sql"
 	"errors"
 	"fmt"
-	"math/big"
 	"time"
 
 	"github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
@@ -37,16 +36,13 @@ func maybeEncrypt(str string) *sqlcrypter.EncryptedBytes {
 	return new(sqlcrypter.NewEncryptedBytes(str))
 }
 
-func (s *OrderService) GenerateOrderNumber() int64 {
-	tz, _ := time.LoadLocation("Europe/Warsaw")
+func (s *OrderService) GenerateOrderNumber(ctx context.Context) (int64, error) {
+	tz, err := time.LoadLocation("Europe/Warsaw")
+	if err != nil {
+		return 0, err
+	}
 	today := time.Now().In(tz)
-	yy := today.Year() % 100
-	mm := int(today.Month())
-	dd := today.Day()
-
-	suffix, _ := rand.Int(rand.Reader, big.NewInt(10000))
-
-	return int64(yy)*100_000_000 + int64(mm)*1_000_000 + int64(dd)*10_000 + suffix.Int64()
+	return queries.New(s.db).GenerateNextOrderNumberForDate(ctx, pgtype.Date{Valid: true, Time: today})
 }
 
 func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *queries.User, params *types.OrderParams) (*types.OrderDTO, error) {
@@ -86,10 +82,15 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		}
 	}
 
+	orderNumber, err := s.GenerateOrderNumber(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("CreateOrder: %w", err)
+	}
+
 	var result types.OrderDTO
 
 	result.Order, err = queries.New(tx).InsertOrder(ctx, &queries.InsertOrderParams{
-		OrderNumber:         s.GenerateOrderNumber(),
+		OrderNumber:         orderNumber,
 		UserID:              user.ID,
 		GrandTotal:          cart.ProductTotal,
 		Currency:            "PLN",
