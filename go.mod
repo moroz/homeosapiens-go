@@ -9,7 +9,7 @@ require (
 	github.com/bincyber/go-sqlcrypter v0.2.0
 	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.9.1
 	github.com/moroz/securecookie v0.0.0-20250207075547-a6abdbe4e5e4
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/nyaruka/phonenumbers v1.6.10
@@ -26,7 +26,17 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/riverqueue/river v0.33.0 // indirect
+	github.com/riverqueue/river/riverdriver v0.33.0 // indirect
+	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.33.0 // indirect
+	github.com/riverqueue/river/rivershared v0.33.0 // indirect
+	github.com/riverqueue/river/rivertype v0.33.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
+	github.com/tidwall/match v1.2.0 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
+	go.uber.org/goleak v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
 )
 
