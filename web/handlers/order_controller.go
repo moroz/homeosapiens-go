@@ -11,7 +11,6 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/countries"
-	"github.com/moroz/homeosapiens-go/internal/mailers"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/orders"
 	"github.com/moroz/homeosapiens-go/types"
@@ -24,11 +23,11 @@ type orderController struct {
 	orderService *services.OrderService
 }
 
-func OrderController(db queries.DBTX, service services.StripeService, orderMailer mailers.OrderMailer) *orderController {
+func OrderController(db queries.DBTX, service services.StripeService) *orderController {
 	return &orderController{
 		cartService:  services.NewCartService(db),
 		eventService: services.NewEventService(db),
-		orderService: services.NewOrderService(db, service, orderMailer),
+		orderService: services.NewOrderService(db, service),
 	}
 }
 

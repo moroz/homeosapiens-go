@@ -43,7 +43,7 @@ func main() {
 
 	stripeService := services.NewStripeService(config.StripeSecretKey, config.StripeWebhookSigningSecret)
 
-	r := router.Router(db, sessionStore, stripeService, mailer)
+	r := router.Router(db, sessionStore, stripeService)
 
 	// Stop the River client on SIGINT or SIGTERM
 	go func() {

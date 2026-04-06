@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
@@ -13,21 +12,19 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
-	"github.com/moroz/homeosapiens-go/internal/mailers"
+	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/types"
 )
 
 type OrderService struct {
 	db                   queries.DBTX
 	paymentIntentService StripeService
-	mailer               mailers.OrderMailer
 }
 
-func NewOrderService(db queries.DBTX, service StripeService, mailer mailers.OrderMailer) *OrderService {
+func NewOrderService(db queries.DBTX, service StripeService) *OrderService {
 	return &OrderService{
 		db:                   db,
 		paymentIntentService: service,
-		mailer:               mailer,
 	}
 }
 
@@ -133,12 +130,21 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
 
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("CreateOrder: could not commit transaction: %w", err)
+	river, err := jobs.NewClient(db)
+	if err != nil {
+		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
 
-	if err := s.mailer.SendOrderConfirmation(ctx, &result); err != nil {
-		log.Printf("Error sending order confirmation email for order %s: %s", result.Order.ID, err)
+	_, err = river.InsertTx(ctx, tx, &jobs.SendOrderEmailArgs{
+		OrderID:   result.Order.ID,
+		EmailType: jobs.OrderEmailTypeOrderConfirmation,
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("CreateOrder: could not commit transaction: %w", err)
 	}
 
 	return &result, nil
@@ -163,6 +169,53 @@ func (s *OrderService) findOrCreateUserForOrder(ctx context.Context, tx pgx.Tx, 
 	}
 
 	return nil, err
+}
+
+func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, sessionID string) (*queries.Order, error) {
+	conn, ok := s.db.(*pgxpool.Pool)
+	if !ok {
+		return nil, fmt.Errorf("want *pgxpool.Conn, got %T", s.db)
+	}
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	// Locks the row with SELECT FOR UPDATE
+	order, err := queries.New(tx).GetOrderByCheckoutSessionIDForUpdate(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	if order.PaidAt != nil {
+		return nil, ErrOrderAlreadyPaid
+	}
+
+	order, err = queries.New(tx).MarkOrderAsPaid(ctx, order.ID)
+	if err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	river, err := jobs.NewClient(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = river.InsertTx(ctx, tx, &jobs.SendOrderEmailArgs{
+		OrderID:   order.ID,
+		EmailType: jobs.OrderEmailTypePaymentConfirmation,
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	return order, err
 }
 
 func (s *OrderService) GetOrderByCheckoutSessionID(ctx context.Context, sessionID string) (*queries.Order, error) {

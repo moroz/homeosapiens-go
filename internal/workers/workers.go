@@ -2,7 +2,6 @@ package workers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,7 +16,7 @@ import (
 func workerConfig(db queries.DBTX, mailer mailers.Mailer, bundle *i18n.Bundle) *river.Workers {
 	workers := river.NewWorkers()
 
-	river.AddWorker(workers, &SendOrderConfirmationWorker{
+	river.AddWorker(workers, &SendOrderEmailWorker{
 		db:     db,
 		mailer: mailer,
 		bundle: bundle,
@@ -26,17 +25,11 @@ func workerConfig(db queries.DBTX, mailer mailers.Mailer, bundle *i18n.Bundle) *
 	return workers
 }
 
-func Client(db queries.DBTX) (*river.Client[pgx.Tx], error) {
-	conn, ok := db.(*pgxpool.Pool)
-	if !ok {
-		return nil, fmt.Errorf("Failed to cast database connection as *pgxpool.Pool, got: %T", db)
-	}
-
-	return river.NewClient(riverpgxv5.New(conn), &river.Config{})
-}
-
 func SetupWorkers(ctx context.Context, db *pgxpool.Pool, mailer mailers.Mailer) (*river.Client[pgx.Tx], error) {
 	bundle, err := appi18n.InitBundle()
+	if err != nil {
+		return nil, err
+	}
 
 	client, err := river.NewClient(riverpgxv5.New(db), &river.Config{
 		Queues: map[string]river.QueueConfig{

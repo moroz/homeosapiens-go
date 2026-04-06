@@ -12,9 +12,12 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
+	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/riverqueue/river/riverdriver/riverpgxv5"
+	"github.com/riverqueue/river/rivertest"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -35,9 +38,8 @@ func TestStripeWebhook(t *testing.T) {
 	store, err := session.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
-	mailer := mocks.NewMockMailer(t)
 	stripe := mocks.NewMockStripeService(t)
-	r := router.Router(db, store, stripe, mailer)
+	r := router.Router(db, store, stripe)
 
 	email := uniqueEmail()
 
@@ -78,11 +80,13 @@ func TestStripeWebhook(t *testing.T) {
 
 	assert.Nil(t, order.PaidAt)
 
-	mailer.EXPECT().Send(mock.Anything, mock.Anything).Return(nil)
 	stripe.EXPECT().DecodeWebhook(mock.Anything, mock.Anything).Return(cs, nil)
 
 	req, _ := http.NewRequest("POST", "/webhooks/stripe", bytes.NewBufferString("{}"))
 	req.Header.Add("Stripe-Signature", "PHONY")
+
+	_, err = db.Exec(t.Context(), "truncate river_job")
+	require.NoError(t, err)
 
 	rr := httptest.NewRecorder()
 	r.ServeHTTP(rr, req)
@@ -93,4 +97,6 @@ func TestStripeWebhook(t *testing.T) {
 	order, err = queries.New(db).GetOrderByID(t.Context(), order.ID)
 	assert.NoError(t, err)
 	assert.NotNil(t, order.PaidAt)
+
+	rivertest.RequireInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendOrderEmailArgs{}, nil)
 }

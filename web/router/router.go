@@ -9,7 +9,6 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
-	"github.com/moroz/homeosapiens-go/internal/mailers"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/handlers"
@@ -22,7 +21,7 @@ func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeService, smtp mailers.Mailer) *echo.Echo {
+func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeService) *echo.Echo {
 	r := echo.New()
 
 	bundle, err := i18n.InitBundle()
@@ -82,14 +81,12 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 	r.GET("/oauth/google/redirect", oauth2.GoogleRedirect)
 	r.GET("/oauth/google/callback", oauth2.GoogleCallback)
 
-	orderMailer := mailers.NewOrderMailer(smtp, bundle)
-
-	orders := handlers.OrderController(db, stripeClient, orderMailer)
+	orders := handlers.OrderController(db, stripeClient)
 	r.GET("/cart", orders.New)
 	r.POST("/orders", orders.Create)
 	r.GET("/orders/success", orders.Success)
 
-	stripe := handlers.StripeWebhookController(db, stripeClient, orderMailer)
+	stripe := handlers.StripeWebhookController(db, stripeClient)
 	r.POST("/webhooks/stripe", echo.WrapHandler(http.HandlerFunc(stripe.StripeWebhook)))
 
 	cartItems := handlers.CartItemController(db)

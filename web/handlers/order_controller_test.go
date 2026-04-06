@@ -16,10 +16,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/internal/phone"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/riverqueue/river/riverdriver/riverpgxv5"
+	"github.com/riverqueue/river/rivertest"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -95,15 +98,12 @@ func TestCartFlow(t *testing.T) {
 	store, err := session.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
-	mailer := mocks.NewMockMailer(t)
-	mailer.EXPECT().Send(mock.Anything, mock.Anything).Return(nil)
-
 	cs := mocks.GenerateCheckoutSession()
 
 	stripeSrv := mocks.NewMockStripeService(t)
 	stripeSrv.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)
 
-	r := router.Router(db, store, stripeSrv, mailer)
+	r := router.Router(db, store, stripeSrv)
 
 	srv := httptest.NewServer(r)
 	defer srv.Close()
@@ -227,6 +227,9 @@ func TestCartFlow(t *testing.T) {
 		countBefore, err := count(t.Context(), "orders")
 		require.NoError(t, err)
 
+		_, err = db.Exec(t.Context(), "truncate river_job")
+		require.NoError(t, err)
+
 		resp, err := client.Do(req)
 
 		countAfter, err := count(t.Context(), "orders")
@@ -238,5 +241,7 @@ func TestCartFlow(t *testing.T) {
 
 		redirectedTo := resp.Header.Get("Location")
 		assert.True(t, strings.HasPrefix(redirectedTo, "https://checkout.stripe.com/c/pay/"))
+
+		rivertest.RequireInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendOrderEmailArgs{}, nil)
 	})
 }
