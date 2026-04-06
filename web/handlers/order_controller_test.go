@@ -16,7 +16,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/internal/mailer"
 	"github.com/moroz/homeosapiens-go/internal/phone"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
@@ -96,7 +95,8 @@ func TestCartFlow(t *testing.T) {
 	store, err := session.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
-	mailer := mailer.MockMailer()
+	mailer := mocks.NewMockMailer(t)
+	mailer.EXPECT().Send(mock.Anything, mock.Anything).Return(nil)
 
 	cs := mocks.GenerateCheckoutSession()
 

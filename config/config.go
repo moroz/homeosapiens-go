@@ -98,6 +98,7 @@ var SMTPHost = RequireInProduction("SMTP_HOST", "localhost")
 var SMTPPort = MustParsePort(RequireInProduction("SMTP_PORT", "1025"))
 var SMTPUsername = RequireInProduction("SMTP_USERNAME", "smtpuser")
 var SMTPPassword = RequireInProduction("SMTP_PASSWORD", "smtppassword")
+var SMTPSender = RequireInProduction("SMTP_SENDER", "Homeo sapiens <homeo.zoom@gmail.com>")
 
 const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
 const SessionCookieName = "_hs_session"

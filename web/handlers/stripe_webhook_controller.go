@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"os"
 
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/mailers"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/stripe/stripe-go/v84"
 )
@@ -16,12 +18,14 @@ import (
 type stripeWebhookController struct {
 	orderService  *services.OrderService
 	stripeService services.StripeService
+	orderMailer   mailers.OrderMailer
 }
 
-func StripeWebhookController(db queries.DBTX, stripeClient services.StripeService, orderMailer services.OrderMailer) *stripeWebhookController {
+func StripeWebhookController(db queries.DBTX, stripeClient services.StripeService, orderMailer mailers.OrderMailer) *stripeWebhookController {
 	return &stripeWebhookController{
 		stripeService: stripeClient,
 		orderService:  services.NewOrderService(db, stripeClient, orderMailer),
+		orderMailer:   orderMailer,
 	}
 }
 
@@ -44,7 +48,7 @@ func (cc *stripeWebhookController) StripeWebhook(w http.ResponseWriter, r *http.
 
 	switch event := event.(type) {
 	case *stripe.CheckoutSession:
-		_, err = cc.orderService.MarkOrderPaidByCheckoutSessionID(r.Context(), event.ID)
+		order, err := cc.orderService.MarkOrderPaidByCheckoutSessionID(r.Context(), event.ID)
 		if err != nil && errors.Is(err, services.ErrOrderAlreadyPaid) {
 			log.Printf("Order already paid: %s", event.ID)
 			w.WriteHeader(http.StatusOK)
@@ -55,6 +59,14 @@ func (cc *stripeWebhookController) StripeWebhook(w http.ResponseWriter, r *http.
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		orderDetails, err := cc.orderService.GetOrderDetails(r.Context(), order.ID)
+		if err != nil {
+			log.Printf("Failed to fetch order details for order %s: %s", order.ID, err)
+		}
+
+		go cc.orderMailer.SendPaymentConfirmation(context.Background(), orderDetails)
+
 		w.WriteHeader(http.StatusOK)
 	}
 }

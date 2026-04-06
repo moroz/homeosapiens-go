@@ -94,3 +94,60 @@ func (_c *MockOrderMailer_SendOrderConfirmation_Call) RunAndReturn(run func(cont
 	_c.Call.Return(run)
 	return _c
 }
+
+// SendPaymentConfirmation provides a mock function for the type MockOrderMailer
+func (_mock *MockOrderMailer) SendPaymentConfirmation(context1 context.Context, orderDTO *types.OrderDTO) error {
+	ret := _mock.Called(context1, orderDTO)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPaymentConfirmation")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *types.OrderDTO) error); ok {
+		r0 = returnFunc(context1, orderDTO)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockOrderMailer_SendPaymentConfirmation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPaymentConfirmation'
+type MockOrderMailer_SendPaymentConfirmation_Call struct {
+	*mock.Call
+}
+
+// SendPaymentConfirmation is a helper method to define mock.On call
+//   - context1 context.Context
+//   - orderDTO *types.OrderDTO
+func (_e *MockOrderMailer_Expecter) SendPaymentConfirmation(context1 interface{}, orderDTO interface{}) *MockOrderMailer_SendPaymentConfirmation_Call {
+	return &MockOrderMailer_SendPaymentConfirmation_Call{Call: _e.mock.On("SendPaymentConfirmation", context1, orderDTO)}
+}
+
+func (_c *MockOrderMailer_SendPaymentConfirmation_Call) Run(run func(context1 context.Context, orderDTO *types.OrderDTO)) *MockOrderMailer_SendPaymentConfirmation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *types.OrderDTO
+		if args[1] != nil {
+			arg1 = args[1].(*types.OrderDTO)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockOrderMailer_SendPaymentConfirmation_Call) Return(err error) *MockOrderMailer_SendPaymentConfirmation_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockOrderMailer_SendPaymentConfirmation_Call) RunAndReturn(run func(context1 context.Context, orderDTO *types.OrderDTO) error) *MockOrderMailer_SendPaymentConfirmation_Call {
+	_c.Call.Return(run)
+	return _c
+}

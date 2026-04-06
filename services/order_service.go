@@ -6,25 +6,24 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
+	"github.com/moroz/homeosapiens-go/internal/mailers"
 	"github.com/moroz/homeosapiens-go/types"
 )
 
 type OrderService struct {
 	db                   queries.DBTX
 	paymentIntentService StripeService
-	mailer               OrderMailer
+	mailer               mailers.OrderMailer
 }
 
-func NewOrderService(db queries.DBTX, service StripeService, mailer OrderMailer) *OrderService {
+func NewOrderService(db queries.DBTX, service StripeService, mailer mailers.OrderMailer) *OrderService {
 	return &OrderService{
 		db:                   db,
 		paymentIntentService: service,
@@ -37,15 +36,6 @@ func maybeEncrypt(str string) *sqlcrypter.EncryptedBytes {
 		return nil
 	}
 	return new(sqlcrypter.NewEncryptedBytes(str))
-}
-
-func (s *OrderService) GenerateOrderNumber(ctx context.Context) (int64, error) {
-	tz, err := time.LoadLocation("Europe/Warsaw")
-	if err != nil {
-		return 0, err
-	}
-	today := time.Now().In(tz)
-	return queries.New(s.db).GenerateNextOrderNumberForDate(ctx, pgtype.Date{Valid: true, Time: today})
 }
 
 func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *queries.User, params *types.OrderParams) (*types.OrderDTO, error) {
@@ -85,16 +75,10 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		}
 	}
 
-	orderNumber, err := s.GenerateOrderNumber(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("CreateOrder: %w", err)
-	}
-
 	var result types.OrderDTO
 
 	result.Order, err = queries.New(tx).InsertOrder(ctx, &queries.InsertOrderParams{
 		PreferredLocale:     queries.Locale(params.PreferredLocale),
-		OrderNumber:         orderNumber,
 		UserID:              user.ID,
 		GrandTotal:          cart.ProductTotal,
 		Currency:            "PLN",

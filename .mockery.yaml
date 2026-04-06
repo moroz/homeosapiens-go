@@ -7,6 +7,12 @@ packages:
         config:
           dir: services/mocks
           filename: "mock_stripe_service.go"
+  github.com/moroz/homeosapiens-go/internal/mailers:
+    interfaces:
+      Mailer:
+        config:
+          dir: services/mocks
+          filename: "mock_mailer.go"
       OrderMailer:
         config:
           dir: services/mocks

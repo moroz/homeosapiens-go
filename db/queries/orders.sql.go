@@ -10,30 +10,8 @@ import (
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
-
-const generateNextOrderNumberForDate = `-- name: GenerateNextOrderNumberForDate :one
-WITH prefix AS (
-    SELECT (
-        (EXTRACT(YEAR FROM $1::date) % 100) * 100_000_000 -- YY
-        + EXTRACT(MONTH FROM $1::date)      * 1_000_000   -- MM
-        + EXTRACT(DAY FROM $1::date)        * 10_000      -- DD
-    )::bigint AS val
-)
-SELECT ((COALESCE(MAX(order_number) % 10000, 0) + 1) + prefix.val)::bigint
-FROM prefix
-LEFT JOIN orders ON order_number BETWEEN prefix.val and prefix.val + 9999
-GROUP BY prefix.val
-`
-
-func (q *Queries) GenerateNextOrderNumberForDate(ctx context.Context, date pgtype.Date) (int64, error) {
-	row := q.db.QueryRow(ctx, generateNextOrderNumberForDate, date)
-	var column_1 int64
-	err := row.Scan(&column_1)
-	return column_1, err
-}
 
 const getLastOrderID = `-- name: GetLastOrderID :one
 select id from orders order by id desc limit 1
@@ -184,11 +162,10 @@ func (q *Queries) GetOrderLineItemsForOrderID(ctx context.Context, orderID uuid.
 
 const insertOrder = `-- name: InsertOrder :one
 insert into orders (order_number, user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, billing_tax_id, preferred_locale)
-values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale
+values (generate_order_number(), $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale
 `
 
 type InsertOrderParams struct {
-	OrderNumber         int64
 	UserID              uuid.UUID
 	GrandTotal          decimal.Decimal
 	Currency            string
@@ -207,7 +184,6 @@ type InsertOrderParams struct {
 
 func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Order, error) {
 	row := q.db.QueryRow(ctx, insertOrder,
-		arg.OrderNumber,
 		arg.UserID,
 		arg.GrandTotal,
 		arg.Currency,

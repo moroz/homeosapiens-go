@@ -12,7 +12,6 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
-	"github.com/moroz/homeosapiens-go/internal/mailer"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
@@ -36,11 +35,9 @@ func TestStripeWebhook(t *testing.T) {
 	store, err := session.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
-	mail := mailer.MockMailer()
-
+	mailer := mocks.NewMockMailer(t)
 	stripe := mocks.NewMockStripeService(t)
-	r := router.Router(db, store, stripe, mail)
-	_ = r
+	r := router.Router(db, store, stripe, mailer)
 
 	email := uniqueEmail()
 
@@ -81,6 +78,7 @@ func TestStripeWebhook(t *testing.T) {
 
 	assert.Nil(t, order.PaidAt)
 
+	mailer.EXPECT().Send(mock.Anything, mock.Anything).Return(nil)
 	stripe.EXPECT().DecodeWebhook(mock.Anything, mock.Anything).Return(cs, nil)
 
 	req, _ := http.NewRequest("POST", "/webhooks/stripe", bytes.NewBufferString("{}"))

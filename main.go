@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
-	"github.com/moroz/homeosapiens-go/internal/mailer"
+	"github.com/moroz/homeosapiens-go/internal/mailers"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
@@ -25,7 +25,7 @@ func main() {
 
 	stripeService := services.NewStripeService(config.StripeSecretKey, config.StripeWebhookSigningSecret)
 
-	mailer, err := mailer.NewSMTPMailer(config.SMTPHost, config.SMTPPort, config.SMTPUsername, config.SMTPPassword)
+	mailer, err := mailers.NewSMTPMailer(config.SMTPHost, config.SMTPPort, config.SMTPUsername, config.SMTPPassword)
 	if err != nil {
 		log.Fatal(err)
 	}

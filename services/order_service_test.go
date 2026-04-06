@@ -39,10 +39,13 @@ func TestCreateOrder(t *testing.T) {
 
 	cs := mocks.GenerateCheckoutSession()
 
+	mailer := mocks.NewMockOrderMailer(t)
+	mailer.EXPECT().SendOrderConfirmation(mock.Anything, mock.Anything).Return(nil)
+
 	stripe := mocks.NewMockStripeService(t)
 	stripe.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)
 
-	srv := services.NewOrderService(db, stripe)
+	srv := services.NewOrderService(db, stripe, mailer)
 	order, err := srv.CreateOrder(t.Context(), cartId, nil, &types.OrderParams{
 		PreferredLocale:     "pl",
 		Email:               "user@example.com",
@@ -57,6 +60,8 @@ func TestCreateOrder(t *testing.T) {
 
 	require.NoError(t, err)
 	require.NotNil(t, order)
+
+	assert.NotZero(t, len(mailer.Calls))
 
 	countAfter, err := count(db, t.Context(), "orders")
 	assert.NoError(t, err)
