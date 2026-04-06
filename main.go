@@ -10,23 +10,10 @@ import (
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
-
-	"github.com/riverqueue/river/riverdriver/riverpgxv5"
-	"github.com/riverqueue/river/rivermigrate"
 )
 
 func main() {
 	db, err := pgxpool.New(context.Background(), config.DatabaseUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	migrator, err := rivermigrate.New(riverpgxv5.New(db), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = migrator.Migrate(context.Background(), rivermigrate.DirectionUp, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
