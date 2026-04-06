@@ -50,6 +50,7 @@ func NewMessage() *mail.Msg {
 	)
 
 	msg.From(config.SMTPSender)
+	msg.ReplyTo(config.SMTPReplyTo)
 
 	return msg
 }
