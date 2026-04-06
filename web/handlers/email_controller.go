@@ -15,12 +15,12 @@ import (
 
 type emailController struct {
 	db           queries.DBTX
-	orderService *services.OrderService
+	orderService *services.OrderRepository
 }
 
 func EmailController(db queries.DBTX) *emailController {
 	return &emailController{
-		orderService: services.NewOrderService(db, nil, nil),
+		orderService: services.NewOrderRepository(db),
 		db:           db,
 	}
 }

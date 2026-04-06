@@ -25,7 +25,7 @@ type SendOrderConfirmationWorker struct {
 }
 
 func (w *SendOrderConfirmationWorker) Work(ctx context.Context, job *river.Job[SendOrderConfirmationArgs]) error {
-	srv := services.NewOrderService(w.db, nil, nil)
+	srv := services.NewOrderRepository(w.db)
 	order, err := srv.GetOrderDetails(ctx, job.Args.OrderID)
 	if err != nil {
 		return err

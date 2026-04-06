@@ -16,7 +16,7 @@ import (
 )
 
 type stripeWebhookController struct {
-	orderService  *services.OrderService
+	orderService  *services.OrderRepository
 	stripeService services.StripeService
 	orderMailer   mailers.OrderMailer
 }
@@ -24,7 +24,7 @@ type stripeWebhookController struct {
 func StripeWebhookController(db queries.DBTX, stripeClient services.StripeService, orderMailer mailers.OrderMailer) *stripeWebhookController {
 	return &stripeWebhookController{
 		stripeService: stripeClient,
-		orderService:  services.NewOrderService(db, stripeClient, orderMailer),
+		orderService:  services.NewOrderRepository(db),
 		orderMailer:   orderMailer,
 	}
 }
