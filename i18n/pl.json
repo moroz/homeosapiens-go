@@ -181,6 +181,10 @@
       "submit": "Złóż zamówienie",
       "billing_tax_id": "NIP/VAT EU:",
       "billing_tax_id_helper_text": "Wypełnij to pole, jeżeli potrzebujesz faktury VAT na firmę."
+    },
+    "success": {
+      "title": "Zamówienie opłacone",
+      "body_html": "<p>Otrzymaliśmy płatność w wysokości <strong>{{.Amount}}</strong> za zamówienie <strong>nr {{.OrderNumber}}</strong>. Potwierdzenie zamówienia otrzymasz na adres <strong>{{.Email}}</strong>.</p>"
     }
   }
 }

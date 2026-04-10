@@ -176,6 +176,10 @@
       "billing_tax_id": "Tax Identification Number (VAT EU):",
       "billing_tax_id_helper_text": "Fill this field in if you need a VAT invoice.",
       "submit": "Place order"
+    },
+    "success": {
+      "title": "Order paid",
+      "body_html": "<p>We have received your payment of <strong>{{.Amount}}</strong> for the order <strong>#{{.OrderNumber}}</strong>. We have sent a payment confirmation to  your email address: <strong>{{.Email}}</strong>.</p>"
     }
   }
 }

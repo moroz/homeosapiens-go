@@ -18,16 +18,18 @@ import (
 )
 
 type orderController struct {
-	cartService  *services.CartService
-	eventService *services.EventService
-	orderService *services.OrderService
+	cartService     *services.CartService
+	eventService    *services.EventService
+	orderService    *services.OrderService
+	orderRepository *services.OrderRepository
 }
 
 func OrderController(db queries.DBTX, service services.StripeService) *orderController {
 	return &orderController{
-		cartService:  services.NewCartService(db),
-		eventService: services.NewEventService(db),
-		orderService: services.NewOrderService(db, service),
+		cartService:     services.NewCartService(db),
+		eventService:    services.NewEventService(db),
+		orderService:    services.NewOrderService(db, service),
+		orderRepository: services.NewOrderRepository(db),
 	}
 }
 
@@ -87,9 +89,11 @@ func (cc *orderController) Create(c *echo.Context) error {
 }
 
 func (cc *orderController) Success(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+
 	sessionID := c.Request().URL.Query().Get("session_id")
 
-	order, err := cc.orderService.GetOrderByCheckoutSessionID(c.Request().Context(), sessionID)
+	order, err := cc.orderRepository.GetOrderDetailsByCheckoutSessionID(c.Request().Context(), sessionID)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Could not find an order with the checkout session ID %s.", sessionID))
 	}
@@ -99,7 +103,7 @@ func (cc *orderController) Success(c *echo.Context) error {
 	}
 
 	if order.PaidAt != nil {
-		c.Response().Write([]byte("Order paid"))
+		return orders.Success(ctx, order).Render(c.Response())
 	} else {
 		c.Response().Write([]byte("Order not paid"))
 	}
