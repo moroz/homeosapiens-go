@@ -1,7 +1,7 @@
 package components
 
 import (
-	validation "github.com/go-ozzo/ozzo-validation"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"

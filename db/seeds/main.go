@@ -57,7 +57,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	users := []*types.CreateUserParams{
+	users := []*types.SeedUserParams{
 		{
 			Email:      "karol@moroz.dev",
 			GivenName:  "Karol",

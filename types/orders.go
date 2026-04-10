@@ -3,7 +3,8 @@ package types
 import (
 	"regexp"
 
-	validation "github.com/go-ozzo/ozzo-validation"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/stripe/stripe-go/v84"
 )
@@ -27,7 +28,7 @@ type OrderParams struct {
 func (p *OrderParams) Validate() error {
 	return validation.ValidateStruct(p,
 		validation.Field(&p.PreferredLocale, validation.In("pl", "en")),
-		validation.Field(&p.Email, validation.Required, validation.Match(EmailValidationRegexp)),
+		validation.Field(&p.Email, validation.Required, is.Email),
 		validation.Field(&p.BillingGivenName, validation.Required),
 		validation.Field(&p.BillingFamilyName, validation.Required),
 		validation.Field(&p.BillingAddressLine1, validation.Required),

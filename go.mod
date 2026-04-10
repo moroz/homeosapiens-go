@@ -8,11 +8,14 @@ require (
 	github.com/alexedwards/argon2id v1.0.0
 	github.com/bincyber/go-sqlcrypter v0.2.0
 	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.9.1
 	github.com/moroz/securecookie v0.0.0-20250207075547-a6abdbe4e5e4
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/nyaruka/phonenumbers v1.6.10
+	github.com/riverqueue/river v0.33.0
+	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.33.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.11.1
 	github.com/stripe/stripe-go/v84 v84.3.0
@@ -26,9 +29,7 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
-	github.com/riverqueue/river v0.33.0 // indirect
 	github.com/riverqueue/river/riverdriver v0.33.0 // indirect
-	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.33.0 // indirect
 	github.com/riverqueue/river/rivershared v0.33.0 // indirect
 	github.com/riverqueue/river/rivertype v0.33.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
@@ -54,7 +55,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect

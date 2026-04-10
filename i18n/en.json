@@ -156,6 +156,13 @@
       }
     }
   },
+  "validation": {
+    "validation_required": "cannot be blank",
+    "validation_is_email": "must be a valid email address",
+    "validation_length_out_of_range": "must be between {{.min}} and {{.max}} characters",
+    "validation_in_invalid": "must be a valid value",
+    "validation_password_confirmation": "does not match confirmation"
+  },
   "orders": {
     "billing_address": "Billing address",
     "contact_information": "Contact information",

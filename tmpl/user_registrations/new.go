@@ -3,6 +3,7 @@ package userregistrations
 import (
 	"strconv"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
@@ -13,7 +14,7 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func New(ctx *types.CustomContext) Node {
+func New(ctx *types.CustomContext, params *types.RegisterUserParams, errors validation.Errors) Node {
 	l := ctx.Localizer
 	pageTitle := l.MustLocalizeMessage(&i18n.Message{
 		ID: "user_registrations.new.title",
@@ -29,6 +30,7 @@ func New(ctx *types.CustomContext) Node {
 			Class("grid gap-4"),
 			Method("POST"),
 			Action("/sign-up"),
+			Attr("novalidate", ""),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
@@ -39,12 +41,14 @@ func New(ctx *types.CustomContext) Node {
 				Type:         "email",
 				Autocomplete: "email",
 				Required:     true,
+				Error:        errors,
 			}),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "user_registrations.new.form.labels.password",
 				}),
+				Error:        errors,
 				Name:         "password",
 				ID:           "password",
 				Type:         "password",
@@ -63,6 +67,7 @@ func New(ctx *types.CustomContext) Node {
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "user_registrations.new.form.labels.password_confirmation",
 				}),
+				Error:        errors,
 				Name:         "password_confirmation",
 				ID:           "password_confirmation",
 				Type:         "password",
@@ -74,6 +79,7 @@ func New(ctx *types.CustomContext) Node {
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "common.users.given_name",
 				}),
+				Error:        errors,
 				Name:         "given_name",
 				ID:           "given_name",
 				Type:         "text",
@@ -85,6 +91,7 @@ func New(ctx *types.CustomContext) Node {
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "common.users.family_name",
 				}),
+				Error:        errors,
 				Name:         "family_name",
 				ID:           "family_name",
 				Type:         "text",

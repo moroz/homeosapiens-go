@@ -161,6 +161,13 @@
       "body": "Otrzymaliśmy płatność za Twoje zamówienie"
     }
   },
+  "validation": {
+    "validation_required": "pole nie może być puste",
+    "validation_is_email": "musi być prawidłowym adresem e-mail",
+    "validation_length_out_of_range": "musi zawierać od {{.min}} do {{.max}} znaków",
+    "validation_in_invalid": "nieprawidłowa wartość",
+    "validation_password_confirmation": "hasło nie zgadza się z potwierdzeniem"
+  },
   "orders": {
     "billing_address": "Dane do faktury",
     "contact_information": "Dane kontaktowe",
