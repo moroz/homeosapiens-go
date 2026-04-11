@@ -4,6 +4,8 @@ import (
 	"embed"
 	"html/template"
 
+	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/shopspring/decimal"
@@ -17,8 +19,11 @@ var templateFS embed.FS
 type LayoutProps struct {
 	Title     string
 	Language  string
-	LogoURL   string
 	Localizer *goi18n.Localizer
+}
+
+func (p *LayoutProps) LogoURL() string {
+	return config.PublicUrl + "/assets/logo.png"
 }
 
 func (p *LayoutProps) T(messageID string) string {
@@ -44,18 +49,18 @@ func (p *LayoutProps) FormatPrice(amount decimal.Decimal, currency string) strin
 	return helpers.FormatPrice(amount, currency, p.Language)
 }
 
-type OrderConfirmationEmailProps struct {
+type OrderEmailProps struct {
 	*LayoutProps
 	Order *types.OrderDTO
 }
 
-type PaymentConfirmationEmailProps struct {
+type EmailVerificationEmailProps struct {
 	*LayoutProps
-	Order *types.OrderDTO
+	User *queries.User
 }
-
-var LayoutTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl"))
 
 var OrderConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "order_confirmation.html.tmpl"))
 
 var PaymentConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "payment_confirmation.html.tmpl"))
+
+var EmailVerificationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "email_verification.html.tmpl"))

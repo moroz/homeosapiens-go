@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -42,4 +43,8 @@ type OrderDTO struct {
 	*queries.Order
 	LineItems       []*queries.OrderLineItem
 	CheckoutSession *stripe.CheckoutSession
+}
+
+func (o *OrderDTO) EmailRecipient() string {
+	return fmt.Sprintf("%s %s <%s>", o.BillingGivenName.String(), o.BillingFamilyName.String(), o.Email.String())
 }

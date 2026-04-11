@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/tmpl/email"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -28,6 +27,17 @@ func NewOrderMailer(m Mailer, bundle *i18n.Bundle) OrderMailer {
 	}
 }
 
+func orderEmailProps(l *i18n.Localizer, subject string, order *types.OrderDTO) *email.OrderEmailProps {
+	return &email.OrderEmailProps{
+		LayoutProps: &email.LayoutProps{
+			Title:     subject,
+			Localizer: l,
+			Language:  string(order.PreferredLocale),
+		},
+		Order: order,
+	}
+}
+
 func (m *orderMailer) SendOrderConfirmation(ctx context.Context, order *types.OrderDTO) error {
 	l := i18n.NewLocalizer(m.bundle, string(order.PreferredLocale))
 
@@ -39,21 +49,12 @@ func (m *orderMailer) SendOrderConfirmation(ctx context.Context, order *types.Or
 		return fmt.Errorf("SendOrderConfirmation: %w", err)
 	}
 
-	props := email.OrderConfirmationEmailProps{
-		LayoutProps: &email.LayoutProps{
-			Title:     subject,
-			LogoURL:   config.PublicUrl + "/assets/logo.png",
-			Localizer: l,
-			Language:  string(order.PreferredLocale),
-		},
-		Order: order,
-	}
-
 	msg := NewMessage()
+	props := orderEmailProps(l, subject, order)
 
 	msg.Subject(subject)
 	msg.SetBodyHTMLTemplate(email.OrderConfirmationTemplate, props)
-	msg.To(fmt.Sprintf("%s %s <%s>", order.BillingGivenName.String(), order.BillingFamilyName.String(), order.Email.String()))
+	msg.To(order.EmailRecipient())
 
 	err = m.Mailer.Send(ctx, msg)
 	if err != nil {
@@ -73,21 +74,12 @@ func (m *orderMailer) SendPaymentConfirmation(ctx context.Context, order *types.
 		return fmt.Errorf("SendPaymentConfirmation: %w", err)
 	}
 
-	props := email.PaymentConfirmationEmailProps{
-		LayoutProps: &email.LayoutProps{
-			Title:     subject,
-			LogoURL:   config.PublicUrl + "/assets/logo.png",
-			Localizer: l,
-			Language:  string(order.PreferredLocale),
-		},
-		Order: order,
-	}
-
 	msg := NewMessage()
+	props := orderEmailProps(l, subject, order)
 
 	msg.Subject(subject)
 	msg.SetBodyHTMLTemplate(email.PaymentConfirmationTemplate, props)
-	msg.To(fmt.Sprintf("%s %s <%s>", order.BillingGivenName.String(), order.BillingFamilyName.String(), order.Email.String()))
+	msg.To(order.EmailRecipient())
 
 	err = m.Mailer.Send(ctx, msg)
 	if err != nil {
