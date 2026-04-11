@@ -11,13 +11,11 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/services"
-	"github.com/moroz/homeosapiens-go/services/mocks"
-	"github.com/moroz/homeosapiens-go/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func initDB(ctx context.Context) (queries.DBTX, error) {
+func initDB(ctx context.Context) (*pgxpool.Pool, error) {
 	connString := config.MustGetenv("TEST_DATABASE_URL")
 	return pgxpool.New(ctx, connString)
 }
@@ -25,6 +23,7 @@ func initDB(ctx context.Context) (queries.DBTX, error) {
 func TestAuthenticateUserByEmailPassword(t *testing.T) {
 	db, err := initDB(t.Context())
 	require.NoError(t, err)
+	defer db.Close()
 
 	db.Exec(t.Context(), "truncate users cascade")
 
@@ -72,32 +71,5 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 			assert.Nil(t, actual)
 			assert.ErrorIs(t, err, services.ErrInvalidPassword)
 		}
-	})
-}
-
-func TestRegisterUser(t *testing.T) {
-	db, err := initDB(t.Context())
-	require.NoError(t, err)
-
-	db.Exec(t.Context(), "truncate users cascade")
-
-	params := &types.RegisterUserParams{
-		PreferredLocale:      "en",
-		GivenName:            "John",
-		FamilyName:           "Smith",
-		Email:                mocks.UniqueEmail(),
-		Password:             "foobar2000",
-		PasswordConfirmation: "foobar2000",
-	}
-
-	err = params.Validate()
-	require.NoError(t, err)
-
-	srv := services.NewUserService(db)
-
-	t.Run("registers user with valid params", func(t *testing.T) {
-		user, err := srv.RegisterUser(t.Context(), params)
-		assert.NoError(t, err)
-		assert.NotNil(t, user)
 	})
 }

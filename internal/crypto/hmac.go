@@ -23,3 +23,8 @@ func HashEmail(email string) []byte {
 	hash := hmac.New(sha256.New, config.DatabaseHMACKey)
 	return hash.Sum([]byte(normalized))
 }
+
+func HashUserToken(token []byte) []byte {
+	hash := hmac.New(sha256.New, config.DatabaseHMACKey)
+	return hash.Sum(token)
+}

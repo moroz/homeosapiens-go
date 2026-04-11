@@ -3,14 +3,15 @@ package mailers
 import (
 	"context"
 	"fmt"
+	"log"
 
-	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/tmpl/email"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type UserMailer interface {
-	SendEmailVerification(context.Context, *queries.User) error
+	SendUserEmailVerification(context.Context, *types.UserTokenDTO) error
 }
 
 type userMailer struct {
@@ -25,7 +26,7 @@ func NewUserMailer(m Mailer, bundle *i18n.Bundle) UserMailer {
 	}
 }
 
-func (m userMailer) SendEmailVerification(ctx context.Context, user *queries.User) error {
+func (m userMailer) SendUserEmailVerification(ctx context.Context, user *types.UserTokenDTO) error {
 	l := i18n.NewLocalizer(m.bundle, string(user.PreferredLocale))
 
 	subject, err := l.Localize(&i18n.LocalizeConfig{
@@ -36,12 +37,23 @@ func (m userMailer) SendEmailVerification(ctx context.Context, user *queries.Use
 		return fmt.Errorf("SendEmailVerification: %w", err)
 	}
 
-	props := email.EmailVerificationEmailProps{
+	props := email.UserEmailVerificationEmailProps{
 		LayoutProps: &email.LayoutProps{
 			Title:     subject,
 			Language:  string(user.PreferredLocale),
 			Localizer: l,
 		},
+		UserToken: user,
 	}
-	panic("implement me")
+
+	msg := NewMessage()
+	msg.Subject(subject)
+	msg.SetBodyHTMLTemplate(email.UserEmailVerificationTemplate, props)
+	msg.To(user.EmailRecipient())
+
+	err = m.Mailer.Send(ctx, msg)
+	if err != nil {
+		log.Printf("SendUserEmailVerification for user %v: %s", user.User.ID, err)
+	}
+	return err
 }

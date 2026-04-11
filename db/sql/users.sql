@@ -11,16 +11,10 @@ and ut.token = @token and ut.context = 'access';
 insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *;
 
 -- name: UpsertUserFromSeedData :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role)
-values ($1, $2, $3, $4, $5, $6, $7)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role, email_confirmed_at, preferred_locale)
+values ($1, $2, $3, $4, $5, $6, coalesce(sqlc.narg(user_role)::text::user_role, 'Regular'), $7, coalesce(sqlc.narg(preferred_locale)::text::locale, 'pl'))
 on conflict (email_hash) do update set updated_at = now()
 returning *;
-
--- name: InsertUserToken :one
-insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $3, $4) returning *;
-
--- name: DeleteUserToken :one
-delete from user_tokens where token = $1 returning true;
 
 -- name: FindOrCreateUserFromClaims :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, preferred_locale, email_confirmed_at)
@@ -43,3 +37,12 @@ where id = $2;
 
 -- name: UpdateUserPreferredLocale :exec
 update users set preferred_locale = $1 where id = $2;
+
+-- name: GetUserByID :one
+select * from users where id = $1;
+
+-- name: VerifyEmailAddressByUserToken :one
+update users u set email_confirmed_at = now(), updated_at = now()
+from user_tokens ut
+where ut.token = $1 and ut.valid_until > now() and ut.user_id = u.id and u.email_confirmed_at is null
+returning u.*;

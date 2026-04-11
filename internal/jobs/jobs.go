@@ -15,3 +15,9 @@ type SendOrderEmailArgs struct {
 }
 
 func (SendOrderEmailArgs) Kind() string { return "SendOrderEmail" }
+
+type SendUserEmailArgs struct {
+	UserID uuid.UUID `json:"user_id"`
+}
+
+func (SendUserEmailArgs) Kind() string { return "SendUserEmail" }

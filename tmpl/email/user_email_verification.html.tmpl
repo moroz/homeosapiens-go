@@ -1,0 +1,9 @@
+{{define "content"}}
+{{- /*gotype: github.com/moroz/homeosapiens-go/tmpl/email.UserEmailVerificationEmailProps*/ -}}
+    {{.Translate "emails.user_opening_html" .UserToken.User}}
+
+    {{.Translate "emails.user_email_verification.body_html" .UserToken}}
+
+    <a href="{{.UserToken.ActivationURL}}" target="_blank" rel="noopener noreferrer">{{.T "emails.user_email_verification.cta_text"}}</a>
+
+{{end}}

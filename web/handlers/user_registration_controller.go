@@ -14,12 +14,12 @@ import (
 )
 
 type userRegistrationController struct {
-	userService *services.UserService
+	srv *services.UserRegistrationService
 }
 
 func UserRegistrationController(db queries.DBTX) *userRegistrationController {
 	return &userRegistrationController{
-		userService: services.NewUserService(db),
+		srv: services.NewUserRegistrationService(db),
 	}
 }
 
@@ -37,7 +37,7 @@ func (cc *userRegistrationController) Create(c *echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	_, err := cc.userService.RegisterUser(c.Request().Context(), &params)
+	_, err := cc.srv.RegisterUser(c.Request().Context(), &params)
 	if err, ok := errors.AsType[validation.Errors](err); ok {
 		validationErrors := helpers.LocalizeValidationErrors(ctx.Localizer, err)
 		return userregistrations.New(ctx, &params, validationErrors).Render(c.Response())

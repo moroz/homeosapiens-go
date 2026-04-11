@@ -133,7 +133,8 @@
     }
   },
   "emails": {
-    "opening_html": "<p>Dear {{.BillingGivenName}} {{.BillingFamilyName}},</p>",
+    "order_opening_html": "<p>Dear {{.BillingGivenName}} {{.BillingFamilyName}},</p>",
+    "user_opening_html": "<p>Dear {{.GivenName}} {{.FamilyName}},</p>",
     "order_confirmation": {
       "heading": "Order Confirmation",
       "subject": "Order confirmation #{{.OrderNumber}} — Homeo sapiens",
@@ -154,6 +155,11 @@
         "event_title": "Event title",
         "price": "Price"
       }
+    },
+    "user_email_verification": {
+      "subject": "Activate your account — Homeo sapiens",
+      "body_html": "<p>You have created a new Homeo sapiens account, or you have changed your email address. To log in, please activate your account by clicking the link below:</p>",
+      "cta_text": "Verify email address"
     }
   },
   "validation": {

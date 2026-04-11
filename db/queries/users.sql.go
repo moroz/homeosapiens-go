@@ -14,17 +14,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const deleteUserToken = `-- name: DeleteUserToken :one
-delete from user_tokens where token = $1 returning true
-`
-
-func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, error) {
-	row := q.db.QueryRow(ctx, deleteUserToken, token)
-	var column_1 bool
-	err := row.Scan(&column_1)
-	return column_1, err
-}
-
 const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, preferred_locale, email_confirmed_at)
 values ($1, $2, $3, $4, $5, $6, case when $7::boolean then now() end)
@@ -146,6 +135,38 @@ func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, 
 	return &i, err
 }
 
+const getUserByID = `-- name: GetUserByID :one
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale from users where id = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.ProfilePicture,
+		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.EmailConfirmedAt,
+		&i.LicenceNumber,
+		&i.PreferredLocale,
+	)
+	return &i, err
+}
+
 const insertUser = `-- name: InsertUser :one
 insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
@@ -200,36 +221,6 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		&i.EmailConfirmedAt,
 		&i.LicenceNumber,
 		&i.PreferredLocale,
-	)
-	return &i, err
-}
-
-const insertUserToken = `-- name: InsertUserToken :one
-insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $3, $4) returning id, user_id, context, token, inserted_at, valid_until
-`
-
-type InsertUserTokenParams struct {
-	UserID     uuid.UUID
-	Context    string
-	Token      []byte
-	ValidUntil time.Time
-}
-
-func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParams) (*UserToken, error) {
-	row := q.db.QueryRow(ctx, insertUserToken,
-		arg.UserID,
-		arg.Context,
-		arg.Token,
-		arg.ValidUntil,
-	)
-	var i UserToken
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Context,
-		&i.Token,
-		&i.InsertedAt,
-		&i.ValidUntil,
 	)
 	return &i, err
 }
@@ -359,20 +350,22 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileP
 }
 
 const upsertUserFromSeedData = `-- name: UpsertUserFromSeedData :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role)
-values ($1, $2, $3, $4, $5, $6, $7)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role, email_confirmed_at, preferred_locale)
+values ($1, $2, $3, $4, $5, $6, coalesce($8::text::user_role, 'Regular'), $7, coalesce($9::text::locale, 'pl'))
 on conflict (email_hash) do update set updated_at = now()
 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale
 `
 
 type UpsertUserFromSeedDataParams struct {
-	Email        sqlcrypter.EncryptedBytes
-	EmailHash    []byte
-	GivenName    sqlcrypter.EncryptedBytes
-	FamilyName   sqlcrypter.EncryptedBytes
-	Country      *string
-	PasswordHash *string
-	UserRole     UserRole
+	Email            sqlcrypter.EncryptedBytes
+	EmailHash        []byte
+	GivenName        sqlcrypter.EncryptedBytes
+	FamilyName       sqlcrypter.EncryptedBytes
+	Country          *string
+	PasswordHash     *string
+	EmailConfirmedAt *time.Time
+	UserRole         *string
+	PreferredLocale  *string
 }
 
 func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFromSeedDataParams) (*User, error) {
@@ -383,8 +376,45 @@ func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFro
 		arg.FamilyName,
 		arg.Country,
 		arg.PasswordHash,
+		arg.EmailConfirmedAt,
 		arg.UserRole,
+		arg.PreferredLocale,
 	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.ProfilePicture,
+		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.EmailConfirmedAt,
+		&i.LicenceNumber,
+		&i.PreferredLocale,
+	)
+	return &i, err
+}
+
+const verifyEmailAddressByUserToken = `-- name: VerifyEmailAddressByUserToken :one
+update users u set email_confirmed_at = now(), updated_at = now()
+from user_tokens ut
+where ut.token = $1 and ut.valid_until > now() and ut.user_id = u.id and u.email_confirmed_at is null
+returning u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale
+`
+
+func (q *Queries) VerifyEmailAddressByUserToken(ctx context.Context, token []byte) (*User, error) {
+	row := q.db.QueryRow(ctx, verifyEmailAddressByUserToken, token)
 	var i User
 	err := row.Scan(
 		&i.ID,

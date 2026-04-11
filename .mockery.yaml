@@ -17,3 +17,7 @@ packages:
         config:
           dir: services/mocks
           filename: "mock_order_mailer.go"
+      UserMailer:
+        config:
+          dir: services/mocks
+          filename: "mock_user_mailer.go"

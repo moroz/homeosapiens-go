@@ -9,10 +9,7 @@ import (
 
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
@@ -68,7 +65,7 @@ func (s *UserService) CreateUser(ctx context.Context, params *types.SeedUserPara
 		FamilyName:   sqlcrypter.NewEncryptedBytes(params.FamilyName),
 		Country:      &params.Country,
 		PasswordHash: &passwordHash,
-		UserRole:     params.Role,
+		UserRole:     new(string(params.Role)),
 	})
 }
 
@@ -121,42 +118,4 @@ func (s *UserService) SetUserLastLogin(ctx context.Context, ipAddr string, userI
 		LastLoginIp: &parsed,
 		ID:          userId,
 	})
-}
-
-func (s *UserService) RegisterUser(ctx context.Context, params *types.RegisterUserParams) (*queries.User, error) {
-	if err := params.Validate(); err != nil {
-		return nil, err
-	}
-
-	passwordHash, err := argon2id.CreateHash(params.Password, config.ResolveArgon2Params())
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("RegisterUser: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	user, err := queries.New(tx).InsertUser(ctx, &queries.InsertUserParams{
-		PreferredLocale: queries.Locale(params.PreferredLocale),
-		Email:           sqlcrypter.NewEncryptedBytes(params.Email),
-		EmailHash:       crypto.HashEmail(params.Email),
-		GivenName:       sqlcrypter.NewEncryptedBytes(params.GivenName),
-		FamilyName:      sqlcrypter.NewEncryptedBytes(params.FamilyName),
-		PasswordHash:    &passwordHash,
-	})
-
-	if err, ok := errors.AsType[*pgconn.PgError](err); ok && err.Code == "23505" && err.ConstraintName == "users_email_hash_key" {
-		return nil, validation.Errors{
-			"email": validation.NewError("unique", "has already been taken"),
-		}
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("RegisterUser: %w", err)
-	}
-
-	return user, nil
 }

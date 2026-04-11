@@ -144,7 +144,8 @@
     }
   },
   "emails": {
-    "opening_html": "<p><small>Wiadomość skierowana do: {{.BillingGivenName}} {{.BillingFamilyName}}</small></p><p>Szanowni Państwo,</p>",
+    "order_opening_html": "<p>Drogi użytkowniku,</p>",
+    "user_opening_html": "<p>Drogi użytkowniku,</p>",
     "order_confirmation": {
       "heading": "Potwierdzenie zamówienia",
       "subject": "Potwierdzenie zamówienia nr {{.OrderNumber}} — Homeo sapiens",
@@ -159,6 +160,11 @@
     "payment_confirmation": {
       "heading": "Potwierdzenie płatności",
       "body": "Otrzymaliśmy płatność za Twoje zamówienie"
+    },
+    "user_email_verification": {
+      "subject": "Potwierdź adres e-mail — Homeo sapiens",
+      "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
+      "cta_text": "Potwierdzam rejestrację"
     }
   },
   "validation": {

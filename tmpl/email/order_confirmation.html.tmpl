@@ -1,9 +1,9 @@
 {{define "content"}}
-{{- /*gotype: github.com/moroz/homeosapiens-go/tmpl/email.OrderConfirmationEmailProps*/ -}}
+{{- /*gotype: github.com/moroz/homeosapiens-go/tmpl/email.OrderEmailProps*/ -}}
 
     <h2 style="margin: 0 0 16px; text-align: center">{{ .T "emails.order_confirmation.heading" }}</h2>
 
-    {{.Translate "emails.opening_html" .Order}}
+    {{.Translate "emails.order_opening_html" .Order}}
 
     <p>{{ .Translate "emails.order_confirmation.body" .Order }}</p>
 

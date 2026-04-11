@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/alexedwards/argon2id"
 	"golang.org/x/crypto/hkdf"
@@ -116,3 +117,6 @@ const MaxPasswordLength = 128
 
 var DatabaseEncryptionKey = MustDeriveKey(SecretKeyBase, "ColumnLevelEncryption", 32)
 var DatabaseHMACKey = MustDeriveKey(SecretKeyBase, "DatabaseHMAC", 32)
+
+const EmailVerificationTokenValidity = 24 * 60 * 60 * time.Second
+const AccessTokenValidity = 24 * 60 * 60 * time.Second

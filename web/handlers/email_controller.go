@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/email"
 	"github.com/moroz/homeosapiens-go/types"
@@ -47,10 +48,9 @@ func (cc *emailController) OrderConfirmation(c *echo.Context) error {
 		TemplateData: order,
 	})
 
-	props := email.OrderConfirmationEmailProps{
+	props := email.OrderEmailProps{
 		LayoutProps: &email.LayoutProps{
 			Title:     subject,
-			LogoURL:   config.PublicUrl + "/assets/logo.png",
 			Localizer: ctx.Localizer,
 			Language:  ctx.Language,
 		},
@@ -78,9 +78,8 @@ func (cc *emailController) PaymentConfirmation(c *echo.Context) error {
 		TemplateData: order,
 	})
 
-	props := email.PaymentConfirmationEmailProps{
+	props := email.OrderEmailProps{
 		LayoutProps: &email.LayoutProps{
-			LogoURL:   config.PublicUrl + "/assets/logo.png",
 			Title:     subject,
 			Localizer: ctx.Localizer,
 			Language:  ctx.Language,
@@ -89,4 +88,31 @@ func (cc *emailController) PaymentConfirmation(c *echo.Context) error {
 	}
 
 	return email.PaymentConfirmationTemplate.Execute(c.Response(), props)
+}
+
+func (cc *emailController) UserEmailVerification(c *echo.Context) error {
+	user, err := queries.New(cc.db).GetUserByEmail(c.Request().Context(), crypto.HashEmail("karol@moroz.dev"))
+	if err != nil {
+		return err
+	}
+
+	token, err := services.NewUserTokenService(cc.db).IssueEmailVerificationTokenForUser(c.Request().Context(), user, config.EmailVerificationTokenValidity)
+
+	ctx := helpers.GetRequestContext(c)
+
+	subject := ctx.Localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    "emails.user_email_verification.subject",
+		TemplateData: user,
+	})
+
+	props := email.UserEmailVerificationEmailProps{
+		LayoutProps: &email.LayoutProps{
+			Title:     subject,
+			Language:  ctx.Language,
+			Localizer: ctx.Localizer,
+		},
+		UserToken: token,
+	}
+
+	return email.UserEmailVerificationTemplate.Execute(c.Response(), props)
 }

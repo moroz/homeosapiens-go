@@ -121,6 +121,7 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 		email := handlers.EmailController(db)
 		r.GET("/dev/email/order", email.OrderConfirmation)
 		r.GET("/dev/email/payment", email.PaymentConfirmation)
+		r.GET("/dev/email/email_verification", email.UserEmailVerification)
 	}
 
 	return r

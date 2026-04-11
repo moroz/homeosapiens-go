@@ -3,9 +3,9 @@ package email
 import (
 	"embed"
 	"html/template"
+	"log"
 
 	"github.com/moroz/homeosapiens-go/config"
-	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/shopspring/decimal"
@@ -30,7 +30,10 @@ func (p *LayoutProps) T(messageID string) string {
 	if p.Localizer == nil {
 		return messageID
 	}
-	msg, _ := p.Localizer.Localize(&goi18n.LocalizeConfig{MessageID: messageID})
+	msg, err := p.Localizer.Localize(&goi18n.LocalizeConfig{MessageID: messageID})
+	if err != nil {
+		log.Print(err)
+	}
 	return msg
 }
 
@@ -38,10 +41,13 @@ func (p *LayoutProps) Translate(messageID string, data any) template.HTML {
 	if p.Localizer == nil {
 		return template.HTML(messageID)
 	}
-	msg, _ := p.Localizer.Localize(&goi18n.LocalizeConfig{
+	msg, err := p.Localizer.Localize(&goi18n.LocalizeConfig{
 		MessageID:    messageID,
 		TemplateData: data,
 	})
+	if err != nil {
+		log.Print(err)
+	}
 	return template.HTML(msg)
 }
 
@@ -54,13 +60,13 @@ type OrderEmailProps struct {
 	Order *types.OrderDTO
 }
 
-type EmailVerificationEmailProps struct {
+type UserEmailVerificationEmailProps struct {
 	*LayoutProps
-	User *queries.User
+	UserToken *types.UserTokenDTO
 }
 
 var OrderConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "order_confirmation.html.tmpl"))
 
 var PaymentConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "payment_confirmation.html.tmpl"))
 
-var EmailVerificationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "email_verification.html.tmpl"))
+var UserEmailVerificationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "user_email_verification.html.tmpl"))
