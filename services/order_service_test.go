@@ -23,7 +23,8 @@ func count(db queries.DBTX, ctx context.Context, table string) (int, error) {
 func TestCreateOrder(t *testing.T) {
 	db, err := initDB(t.Context())
 	require.NoError(t, err)
-	_ = db
+
+	_, err = db.Exec(t.Context(), "truncate orders, cart_line_items cascade")
 
 	eventId := uuid.MustParse("019c5c9a-c5a4-7518-8317-65ae90516726")
 	cartId := uuid.Must(uuid.NewV7())

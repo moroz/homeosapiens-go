@@ -18,6 +18,7 @@ type SeedUserParams struct {
 }
 
 type RegisterUserParams struct {
+	PreferredLocale      string `form:"locale" json:"locale"`
 	GivenName            string `form:"given_name" json:"given_name"`
 	FamilyName           string `form:"family_name" json:"family_name"`
 	Email                string `form:"email" json:"email"`
@@ -27,6 +28,7 @@ type RegisterUserParams struct {
 
 func (p *RegisterUserParams) Validate() error {
 	return validation.ValidateStruct(p,
+		validation.Field(&p.PreferredLocale, validation.In("pl", "en")),
 		validation.Field(&p.GivenName, validation.Required),
 		validation.Field(&p.FamilyName, validation.Required),
 		validation.Field(&p.Email, validation.Required, is.Email),

@@ -140,11 +140,12 @@ func (s *UserService) RegisterUser(ctx context.Context, params *types.RegisterUs
 	defer tx.Rollback(ctx)
 
 	user, err := queries.New(tx).InsertUser(ctx, &queries.InsertUserParams{
-		Email:        sqlcrypter.NewEncryptedBytes(params.Email),
-		EmailHash:    crypto.HashEmail(params.Email),
-		GivenName:    sqlcrypter.NewEncryptedBytes(params.GivenName),
-		FamilyName:   sqlcrypter.NewEncryptedBytes(params.FamilyName),
-		PasswordHash: &passwordHash,
+		PreferredLocale: queries.Locale(params.PreferredLocale),
+		Email:           sqlcrypter.NewEncryptedBytes(params.Email),
+		EmailHash:       crypto.HashEmail(params.Email),
+		GivenName:       sqlcrypter.NewEncryptedBytes(params.GivenName),
+		FamilyName:      sqlcrypter.NewEncryptedBytes(params.FamilyName),
+		PasswordHash:    &passwordHash,
 	})
 
 	if err, ok := errors.AsType[*pgconn.PgError](err); ok && err.Code == "23505" && err.ConstraintName == "users_email_hash_key" {

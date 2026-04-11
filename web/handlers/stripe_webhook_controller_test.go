@@ -2,8 +2,6 @@ package handlers_test
 
 import (
 	"bytes"
-	"crypto/rand"
-	"encoding/hex"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,12 +22,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func uniqueEmail() string {
-	unique := make([]byte, 4)
-	_, _ = rand.Read(unique)
-	return "user-" + hex.EncodeToString(unique) + "@example.com"
-}
-
 func TestStripeWebhook(t *testing.T) {
 	db, err := initDB(t.Context())
 	require.NoError(t, err)
@@ -41,7 +33,7 @@ func TestStripeWebhook(t *testing.T) {
 	stripe := mocks.NewMockStripeService(t)
 	r := router.Router(db, store, stripe)
 
-	email := uniqueEmail()
+	email := mocks.UniqueEmail()
 
 	user, err := queries.New(db).InsertUser(t.Context(), &queries.InsertUserParams{
 		PreferredLocale: "en",

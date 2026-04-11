@@ -16,3 +16,9 @@ func GenerateCheckoutSession() *stripe.CheckoutSession {
 		URL: "https://checkout.stripe.com/c/pay/" + id,
 	}
 }
+
+func UniqueEmail() string {
+	unique := make([]byte, 4)
+	_, _ = rand.Read(unique)
+	return "user-" + hex.EncodeToString(unique) + "@example.com"
+}
