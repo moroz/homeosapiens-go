@@ -86,6 +86,9 @@
           "password": "{{ .Min }}–{{ .Max }} characters"
         }
       }
+    },
+    "verify_email": {
+      "success": "Your email has been successfully activated."
     }
   },
   "components": {

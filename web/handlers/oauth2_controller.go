@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
@@ -22,22 +21,24 @@ import (
 )
 
 type oauth2Controller struct {
-	config *oauth2.Config
-	*services.UserService
-	*services.UserTokenService
+	db               queries.DBTX
+	config           *oauth2.Config
+	userService      *services.UserService
+	userTokenService *services.UserTokenService
 }
 
 func OAuth2Controller(db queries.DBTX) *oauth2Controller {
 	return &oauth2Controller{
-		&oauth2.Config{
+		db: db,
+		config: &oauth2.Config{
 			ClientID:     config.GoogleClientId,
 			ClientSecret: config.GoogleClientSecret,
 			Endpoint:     google.Endpoint,
 			RedirectURL:  config.PublicUrl + "/oauth/google/callback",
 			Scopes:       []string{"email", "profile"},
 		},
-		services.NewUserService(db),
-		services.NewUserTokenService(db),
+		userService:      services.NewUserService(db),
+		userTokenService: services.NewUserTokenService(db),
 	}
 }
 
@@ -113,33 +114,11 @@ func (cc *oauth2Controller) GoogleCallback(c *echo.Context) error {
 		return err
 	}
 
-	user, err := cc.UserService.FindOrCreateUserFromClaims(c.Request().Context(), ctx.Language, claims)
+	user, err := cc.userService.FindOrCreateUserFromClaims(c.Request().Context(), ctx.Language, claims)
 	if err != nil {
 		log.Printf("Failed to create user from claims: %s", err)
 		return err
 	}
 
-	userToken, err := cc.UserTokenService.IssueAccessTokenForUser(c.Request().Context(), user, 24*time.Hour)
-	if err != nil {
-		log.Printf("Error issuing access token: %s", err)
-		return err
-	}
-
-	_ = cc.UserService.SetUserLastLogin(c.Request().Context(), c.RealIP(), user.ID)
-
-	redirectBackUrl, ok := ctx.Session[config.RedirectBackUrlSessionKey].(string)
-	if !ok {
-		redirectBackUrl = "/"
-	}
-
-	ctx.Session[config.AccessTokenSessionKey] = userToken.Token
-	ctx.Session[config.LanguageSessionKey] = string(user.PreferredLocale)
-	delete(ctx.Session, config.OAuth2SessionKey)
-	delete(ctx.Session, config.RedirectBackUrlSessionKey)
-	if err := ctx.SaveSession(c.Response()); err != nil {
-		log.Printf("Error serializing session cookie: %s", err)
-		return err
-	}
-
-	return c.Redirect(http.StatusFound, redirectBackUrl)
+	return signUserIn(c, cc.db, user)
 }

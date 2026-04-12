@@ -105,4 +105,26 @@ func TestVerifyEmailAddress(t *testing.T) {
 		assert.Equal(t, user.EmailConfirmedAt, updatedUser.EmailConfirmedAt)
 		assert.Equal(t, user.UpdatedAt, updatedUser.UpdatedAt)
 	})
+
+	t.Run("returns error and does nothing when a token is expired", func(t *testing.T) {
+		user, err := mocks.UniqueUser(db, t.Context(), func(params *queries.UpsertUserFromSeedDataParams) {
+			params.EmailConfirmedAt = nil
+		})
+		require.NoError(t, err)
+		require.Nil(t, user.EmailConfirmedAt)
+
+		token, err := services.NewUserTokenService(db).IssueEmailVerificationTokenForUser(t.Context(), user, config.EmailVerificationTokenValidity)
+		require.NoError(t, err)
+
+		_, err = db.Exec(t.Context(), "update user_tokens set inserted_at = now() - interval '5 days', valid_until = now() - interval '1 day' where id = $1", token.UserToken.ID)
+		require.NoError(t, err)
+
+		actual, err := srv.VerifyEmailAddress(t.Context(), token.EncodeToken())
+		assert.ErrorIs(t, err, services.ErrTokenInvalid)
+		assert.Nil(t, actual)
+
+		user, err = queries.New(db).GetUserByID(t.Context(), user.ID)
+		require.NoError(t, err)
+		assert.Nil(t, user.EmailConfirmedAt)
+	})
 }

@@ -23,9 +23,11 @@ func (u *UserTokenDTO) EncodeToken() string {
 	return base64.RawURLEncoding.EncodeToString(u.PlaintextToken)
 }
 
+func (u *UserTokenDTO) ActivationPath() string {
+	qs := url.Values{"token": {u.EncodeToken()}}.Encode()
+	return "/verify-email?" + qs
+}
+
 func (u *UserTokenDTO) ActivationURL() string {
-	qs := url.Values{
-		"token": {u.EncodeToken()},
-	}.Encode()
-	return config.PublicUrl + "/verify-email?" + qs
+	return config.PublicUrl + u.ActivationPath()
 }

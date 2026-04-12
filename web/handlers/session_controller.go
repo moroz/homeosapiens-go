@@ -3,7 +3,6 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
@@ -15,14 +14,16 @@ import (
 )
 
 type sessionController struct {
-	*services.UserService
-	*services.UserTokenService
+	db               queries.DBTX
+	userService      *services.UserService
+	userTokenService *services.UserTokenService
 }
 
 func SessionController(db queries.DBTX) *sessionController {
 	return &sessionController{
-		services.NewUserService(db),
-		services.NewUserTokenService(db),
+		db:               db,
+		userService:      services.NewUserService(db),
+		userTokenService: services.NewUserTokenService(db),
 	}
 }
 
@@ -44,7 +45,7 @@ func (cc *sessionController) Create(c *echo.Context) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 
-	user, err := cc.UserService.AuthenticateUserByEmailPassword(c.Request().Context(), email, password)
+	user, err := cc.userService.AuthenticateUserByEmailPassword(c.Request().Context(), email, password)
 	if err != nil {
 		l := ctx.Localizer
 		msg := l.MustLocalizeMessage(&i18n.Message{
@@ -54,29 +55,14 @@ func (cc *sessionController) Create(c *echo.Context) error {
 		return sessions.New(ctx, email, msg).Render(c.Response())
 	}
 
-	token, err := cc.UserTokenService.IssueAccessTokenForUser(c.Request().Context(), user, 24*time.Hour)
-	if err != nil {
-		return err
-	}
-
-	_ = cc.UserService.SetUserLastLogin(c.Request().Context(), c.RealIP(), user.ID)
-
-	ctx.Session[config.AccessTokenSessionKey] = token.Token
-	ctx.Session[config.LanguageSessionKey] = string(user.PreferredLocale)
-	redirectTo := helpers.GetRedirectUrl(ctx)
-
-	if err := ctx.SaveSession(c.Response()); err != nil {
-		return err
-	}
-
-	return c.Redirect(http.StatusFound, redirectTo)
+	return signUserIn(c, cc.db, user)
 }
 
 func (cc *sessionController) Delete(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 	token, ok := ctx.Session[config.AccessTokenSessionKey].([]byte)
 	if ok && token != nil {
-		if _, err := cc.UserTokenService.DeleteToken(c.Request().Context(), token); err != nil {
+		if _, err := cc.userTokenService.DeleteToken(c.Request().Context(), token); err != nil {
 			log.Printf("Error deleting user token: %s", err)
 		}
 	}
