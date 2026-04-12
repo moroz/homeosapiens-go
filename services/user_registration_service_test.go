@@ -2,7 +2,6 @@ package services_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -58,9 +57,7 @@ func TestVerifyEmailAddress(t *testing.T) {
 	srv := services.NewUserRegistrationService(db)
 
 	t.Run("marks email verified with valid token", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context(), func(params *queries.UpsertUserFromSeedDataParams) {
-			params.EmailConfirmedAt = nil
-		})
+		user, err := mocks.UniqueUser(db, t.Context())
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 
@@ -82,8 +79,8 @@ func TestVerifyEmailAddress(t *testing.T) {
 	})
 
 	t.Run("does nothing when a user is already confirmed", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context(), func(params *queries.UpsertUserFromSeedDataParams) {
-			params.EmailConfirmedAt = new(time.Now())
+		user, err := mocks.UniqueUser(db, t.Context(), func(params *types.SeedUserParams) {
+			params.EmailConfirmed = true
 		})
 		require.NoError(t, err)
 		require.NotNil(t, user.EmailConfirmedAt)
@@ -107,9 +104,7 @@ func TestVerifyEmailAddress(t *testing.T) {
 	})
 
 	t.Run("returns error and does nothing when a token is expired", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context(), func(params *queries.UpsertUserFromSeedDataParams) {
-			params.EmailConfirmedAt = nil
-		})
+		user, err := mocks.UniqueUser(db, t.Context())
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 

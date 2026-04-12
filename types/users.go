@@ -8,13 +8,14 @@ import (
 
 // SeedUserParams represents the trusted data of a user, coming from a trusted source, such as database data exports. It is intended for backfilling user data, or for seeding the database.
 type SeedUserParams struct {
-	GivenName     string
-	FamilyName    string
-	Email         string
-	LicenceNumber string
-	Role          queries.UserRole
-	Country       string
-	Password      string
+	GivenName      string
+	FamilyName     string
+	Email          string
+	LicenceNumber  string
+	Role           queries.UserRole
+	Country        string
+	Password       string
+	EmailConfirmed bool
 }
 
 type RegisterUserParams struct {

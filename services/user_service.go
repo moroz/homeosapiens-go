@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/netip"
 	"strings"
+	"time"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
@@ -26,12 +27,17 @@ func NewUserService(db queries.DBTX) *UserService {
 
 var ErrInvalidPassword = errors.New("invalid password")
 var ErrNoPasswordHash = errors.New("user has no password set")
+var ErrUnverifiedEmail = errors.New("user email has not been verified")
 
 func (s *UserService) AuthenticateUserByEmailPassword(ctx context.Context, email, password string) (*queries.User, error) {
 	tmpl := "AuthenticateUserByEmailPassword: %w"
 	user, err := s.FindUserByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf(tmpl, err)
+	}
+
+	if user.EmailConfirmedAt == nil {
+		return nil, fmt.Errorf(tmpl, ErrUnverifiedEmail)
 	}
 
 	if user.PasswordHash == nil {
@@ -58,14 +64,24 @@ func (s *UserService) CreateUser(ctx context.Context, params *types.SeedUserPara
 		return nil, err
 	}
 
+	var emailConfirmedAt *time.Time
+	if params.EmailConfirmed {
+		emailConfirmedAt = new(time.Now())
+	}
+
+	if params.Role == "" {
+		params.Role = "Regular"
+	}
+
 	return queries.New(s.db).UpsertUserFromSeedData(ctx, &queries.UpsertUserFromSeedDataParams{
-		Email:        sqlcrypter.NewEncryptedBytes(params.Email),
-		EmailHash:    crypto.HashEmail(params.Email),
-		GivenName:    sqlcrypter.NewEncryptedBytes(params.GivenName),
-		FamilyName:   sqlcrypter.NewEncryptedBytes(params.FamilyName),
-		Country:      &params.Country,
-		PasswordHash: &passwordHash,
-		UserRole:     new(string(params.Role)),
+		Email:            sqlcrypter.NewEncryptedBytes(params.Email),
+		EmailHash:        crypto.HashEmail(params.Email),
+		GivenName:        sqlcrypter.NewEncryptedBytes(params.GivenName),
+		FamilyName:       sqlcrypter.NewEncryptedBytes(params.FamilyName),
+		Country:          &params.Country,
+		PasswordHash:     &passwordHash,
+		UserRole:         new(string(params.Role)),
+		EmailConfirmedAt: emailConfirmedAt,
 	})
 }
 

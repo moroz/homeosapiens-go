@@ -4,13 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/alexedwards/argon2id"
-	"github.com/bincyber/go-sqlcrypter"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
-	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/services/mocks"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,16 +25,10 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 
 	db.Exec(t.Context(), "truncate users cascade")
 
-	hash, err := argon2id.CreateHash("foobar", argon2id.DefaultParams)
-	require.NoError(t, err)
-
-	user, err := queries.New(db).InsertUser(t.Context(), &queries.InsertUserParams{
-		Email:           sqlcrypter.NewEncryptedBytes("user@example.com"),
-		EmailHash:       crypto.HashEmail("user@example.com"),
-		GivenName:       sqlcrypter.NewEncryptedBytes("Example"),
-		FamilyName:      sqlcrypter.NewEncryptedBytes("User"),
-		PreferredLocale: "en",
-		PasswordHash:    &hash,
+	user, err := mocks.UniqueUser(db, t.Context(), func(params *types.SeedUserParams) {
+		params.Email = "user@example.com"
+		params.Password = "foobar"
+		params.EmailConfirmed = true
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, user)

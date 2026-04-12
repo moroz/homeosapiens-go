@@ -5,9 +5,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 
-	"github.com/bincyber/go-sqlcrypter"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/internal/crypto"
+	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/stripe/stripe-go/v84"
 )
 
@@ -27,18 +27,17 @@ func UniqueEmail() string {
 	return "user-" + hex.EncodeToString(unique) + "@example.com"
 }
 
-func UniqueUser(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.UpsertUserFromSeedDataParams)) (*queries.User, error) {
+func UniqueUser(db queries.DBTX, ctx context.Context, overrides ...func(params *types.SeedUserParams)) (*queries.User, error) {
 	email := UniqueEmail()
-	params := &queries.UpsertUserFromSeedDataParams{
-		Email:      sqlcrypter.NewEncryptedBytes(email),
-		EmailHash:  crypto.HashEmail(email),
-		GivenName:  sqlcrypter.NewEncryptedBytes("John"),
-		FamilyName: sqlcrypter.NewEncryptedBytes("Smith"),
+	params := &types.SeedUserParams{
+		Email:      email,
+		GivenName:  "John",
+		FamilyName: "Smith",
 	}
 
 	for _, f := range overrides {
 		f(params)
 	}
 
-	return queries.New(db).UpsertUserFromSeedData(ctx, params)
+	return services.NewUserService(db).CreateUser(ctx, params)
 }
