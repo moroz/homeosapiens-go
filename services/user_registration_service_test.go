@@ -1,8 +1,10 @@
 package services_test
 
 import (
+	"errors"
 	"testing"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
@@ -46,6 +48,16 @@ func TestRegisterUser(t *testing.T) {
 		assert.NotNil(t, user)
 
 		rivertest.RequireInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
+	})
+
+	t.Run("returns validation error on duplicate email address", func(t *testing.T) {
+		user, err := srv.RegisterUser(t.Context(), params)
+		assert.Nil(t, user)
+
+		validationErrors, ok := errors.AsType[validation.Errors](err)
+		assert.True(t, ok)
+
+		assert.NotEmpty(t, validationErrors["email"])
 	})
 }
 

@@ -94,7 +94,6 @@ func (s *UserService) FindOrCreateUserFromClaims(ctx context.Context, locale str
 		GivenName:       sqlcrypter.NewEncryptedBytes(claims.GivenName),
 		FamilyName:      sqlcrypter.NewEncryptedBytes(claims.FamilyName),
 		ProfilePicture:  &claims.Avatar,
-		EmailConfirmed:  true,
 	})
 }
 

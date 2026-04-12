@@ -504,26 +504,27 @@ type RiverQueue struct {
 }
 
 type User struct {
-	ID               uuid.UUID
-	Salutation       *string
-	Country          *string
-	Profession       *string
-	Organization     *string
-	Company          *string
-	PasswordHash     *string
-	LastLoginAt      *time.Time
-	LastLoginIp      *netip.Addr
-	InsertedAt       time.Time
-	UpdatedAt        time.Time
-	ProfilePicture   *string
-	UserRole         UserRole
-	Email            sqlcrypter.EncryptedBytes
-	EmailHash        []byte
-	GivenName        sqlcrypter.EncryptedBytes
-	FamilyName       sqlcrypter.EncryptedBytes
-	EmailConfirmedAt *time.Time
-	LicenceNumber    *sqlcrypter.EncryptedBytes
-	PreferredLocale  Locale
+	ID                    uuid.UUID
+	Salutation            *string
+	Country               *string
+	Profession            *string
+	Organization          *string
+	Company               *string
+	PasswordHash          *string
+	LastLoginAt           *time.Time
+	LastLoginIp           *netip.Addr
+	InsertedAt            time.Time
+	UpdatedAt             time.Time
+	ProfilePicture        *string
+	UserRole              UserRole
+	Email                 sqlcrypter.EncryptedBytes
+	EmailHash             []byte
+	GivenName             sqlcrypter.EncryptedBytes
+	FamilyName            sqlcrypter.EncryptedBytes
+	EmailConfirmedAt      *time.Time
+	LicenceNumber         *sqlcrypter.EncryptedBytes
+	PreferredLocale       Locale
+	GoogleOauthLastUsedAt *time.Time
 }
 
 type UserToken struct {

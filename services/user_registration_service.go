@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
@@ -45,6 +46,8 @@ func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *type
 	}
 	defer tx.Rollback(ctx)
 
+	params.Email = strings.TrimSpace(strings.ToLower(params.Email))
+
 	user, err := queries.New(tx).InsertUser(ctx, &queries.InsertUserParams{
 		PreferredLocale: queries.Locale(params.PreferredLocale),
 		Email:           sqlcrypter.NewEncryptedBytes(params.Email),
@@ -59,17 +62,20 @@ func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *type
 			"email": validation.NewError("unique", "has already been taken"),
 		}
 	}
+	if err != nil {
+		return nil, fmt.Errorf("RegisterUser: %w", err)
+	}
 
 	river, err := jobs.NewClient(s.db)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("RegisterUser: %w", err)
 	}
 
 	_, err = river.InsertTx(ctx, tx, &jobs.SendUserEmailArgs{
 		UserID: user.ID,
 	}, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("RegisterUser: %w", err)
 	}
 
 	if err := tx.Commit(ctx); err != nil {

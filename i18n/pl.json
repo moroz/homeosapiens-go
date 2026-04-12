@@ -97,6 +97,14 @@
           "password": "{{ .Min }}–{{ .Max }} znaków"
         }
       }
+    },
+    "success": {
+      "title": "Rejestracja przebiegła pomyślnie",
+      "body_html": "<p>Twoje konto zostało utworzone. Na Twój adres e-mail: <strong>{{.Email}}</strong> wysłaliśmy wiadomość z linkiem do aktywacji konta.</p>",
+      "gmail_notice_html": "<p>Możesz również potwierdzić adres e-mail, logując się przy użyciu konta Google.</p>"
+    },
+    "verify_email": {
+      "success": "Twoje konto zostało pomyślnie aktywowane."
     }
   },
   "components": {

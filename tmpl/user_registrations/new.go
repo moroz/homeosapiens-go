@@ -31,17 +31,21 @@ func New(ctx *types.CustomContext, params *types.RegisterUserParams, errors vali
 			Method("POST"),
 			Action("/sign-up"),
 			Attr("novalidate", ""),
+		
+			Input(Type("hidden"), Name("locale"), Value(ctx.Language)),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "common.users.email",
 				}),
+				Value:        params.Email,
 				Name:         "email",
 				ID:           "email",
 				Type:         "email",
 				Autocomplete: "email",
 				Required:     true,
 				Error:        errors,
+				Autofocus:    true,
 			}),
 
 			components.InputField(&components.InputFieldOptions{
@@ -79,6 +83,7 @@ func New(ctx *types.CustomContext, params *types.RegisterUserParams, errors vali
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "common.users.given_name",
 				}),
+				Value:        params.GivenName,
 				Error:        errors,
 				Name:         "given_name",
 				ID:           "given_name",
@@ -91,6 +96,7 @@ func New(ctx *types.CustomContext, params *types.RegisterUserParams, errors vali
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "common.users.family_name",
 				}),
+				Value:        params.FamilyName,
 				Error:        errors,
 				Name:         "family_name",
 				ID:           "family_name",

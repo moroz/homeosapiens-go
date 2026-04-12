@@ -41,13 +41,24 @@ func (cc *userRegistrationController) Create(c *echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	_, err := cc.srv.RegisterUser(c.Request().Context(), &params)
+	user, err := cc.srv.RegisterUser(c.Request().Context(), &params)
 	if err, ok := errors.AsType[validation.Errors](err); ok {
 		validationErrors := helpers.LocalizeValidationErrors(ctx.Localizer, err)
 		return userregistrations.New(ctx, &params, validationErrors).Render(c.Response())
 	}
+	if err != nil {
+		ctx.PutFlash("error", err.Error())
+		if err := ctx.SaveSession(c.Response()); err != nil {
+			log.Print(err)
+		}
+		return userregistrations.New(ctx, &params, nil).Render(c.Response())
+	}
 
-	return nil
+	err = userregistrations.Success(ctx, types.NewUserDecorator(user)).Render(c.Response())
+	if err != nil {
+		log.Print(err)
+	}
+	return err
 }
 
 func (cc *userRegistrationController) VerifyEmail(c *echo.Context) error {

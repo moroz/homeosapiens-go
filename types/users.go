@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -29,7 +31,7 @@ type RegisterUserParams struct {
 
 func (p *RegisterUserParams) Validate() error {
 	return validation.ValidateStruct(p,
-		validation.Field(&p.PreferredLocale, validation.In("pl", "en")),
+		validation.Field(&p.PreferredLocale, validation.Required, validation.In("pl", "en")),
 		validation.Field(&p.GivenName, validation.Required),
 		validation.Field(&p.FamilyName, validation.Required),
 		validation.Field(&p.Email, validation.Required, is.Email),
@@ -38,4 +40,20 @@ func (p *RegisterUserParams) Validate() error {
 			validation.NewError("validation_password_confirmation", "does not match"),
 		)),
 	)
+}
+
+type UserDecorator struct {
+	*queries.User
+}
+
+func NewUserDecorator(user *queries.User) *UserDecorator {
+	return &UserDecorator{user}
+}
+
+func (u *UserDecorator) IsGoogleAccount() bool {
+	if u.GoogleOauthLastUsedAt != nil {
+		return true
+	}
+
+	return strings.HasSuffix(u.Email.String(), "@gmail.com")
 }

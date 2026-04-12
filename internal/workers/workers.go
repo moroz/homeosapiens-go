@@ -21,6 +21,11 @@ func workerConfig(db queries.DBTX, mailer mailers.Mailer, bundle *i18n.Bundle) *
 		mailer: mailer,
 		bundle: bundle,
 	})
+	river.AddWorker(workers, &SendUserEmailWorker{
+		db:     db,
+		mailer: mailer,
+		bundle: bundle,
+	})
 
 	return workers
 }

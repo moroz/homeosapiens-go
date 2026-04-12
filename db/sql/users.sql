@@ -17,10 +17,10 @@ on conflict (email_hash) do update set updated_at = now()
 returning *;
 
 -- name: FindOrCreateUserFromClaims :one
-insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, preferred_locale, email_confirmed_at)
-values ($1, $2, $3, $4, $5, $6, case when @email_confirmed::boolean then now() end)
+insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, preferred_locale, email_confirmed_at, google_oauth_last_used_at)
+values ($1, $2, $3, $4, $5, $6, now(), now())
 on conflict (email_hash) do update
-set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at), preferred_locale = coalesce(users.preferred_locale, excluded.preferred_locale)
+set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at), preferred_locale = coalesce(users.preferred_locale, excluded.preferred_locale), google_oauth_last_used_at = now()
 returning *;
 
 -- name: UpdateUserProfile :one
