@@ -46,21 +46,21 @@ func (s *UserTokenService) DeleteToken(ctx context.Context, token []byte) (bool,
 	return queries.New(s.db).DeleteUserToken(ctx, token)
 }
 
-func (s *UserTokenService) IssueEmailVerificationTokenForUser(ctx context.Context, user *queries.User, validity time.Duration) (*types.UserTokenDTO, error) {
+func (s *UserTokenService) IssueHashedTokenForUser(ctx context.Context, user *queries.User, tokenContext string, validity time.Duration) (*types.UserTokenDTO, error) {
 	token, err := generateToken()
 	if err != nil {
-		return nil, fmt.Errorf("IssueEmailVerificationTokenForUser: %w", err)
+		return nil, fmt.Errorf("IssueHashedTokenForUser: %w", err)
 	}
 
 	userToken, err := queries.New(s.db).InsertUserToken(ctx, &queries.InsertUserTokenParams{
 		UserID:     user.ID,
-		Context:    "email_verification",
+		Context:    tokenContext,
 		Token:      crypto.HashUserToken(token),
 		ValidUntil: time.Now().Add(validity),
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("IssueEmailVerificationTokenForUser: %w", err)
+		return nil, fmt.Errorf("IssueHashedTokenForUser: %w", err)
 	}
 
 	return &types.UserTokenDTO{
@@ -68,4 +68,14 @@ func (s *UserTokenService) IssueEmailVerificationTokenForUser(ctx context.Contex
 		User:           user,
 		PlaintextToken: token,
 	}, nil
+}
+
+// IssueEmailVerificationTokenForUser issues a hashed `UserToken` with context set to `email_verification`. These tokens are used in the account activation flow, and are encoded in their plaintext form in email verification URLs.
+func (s *UserTokenService) IssueEmailVerificationTokenForUser(ctx context.Context, user *queries.User, validity time.Duration) (*types.UserTokenDTO, error) {
+	return s.IssueHashedTokenForUser(ctx, user, "email_verification", validity)
+}
+
+// IssueUserRegistrationTokenForUser issues a hashed `UserToken` with context set to `user_registration`. These tokens are used to display the user registration success page with relevant information (such as the user's email address and a link to resend the account validation email).
+func (s *UserTokenService) IssueUserRegistrationTokenForUser(ctx context.Context, user *queries.User, validity time.Duration) (*types.UserTokenDTO, error) {
+	return s.IssueHashedTokenForUser(ctx, user, "user_registration", validity)
 }
