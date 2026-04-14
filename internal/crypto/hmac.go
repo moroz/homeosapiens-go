@@ -21,10 +21,12 @@ func init() {
 func HashEmail(email string) []byte {
 	normalized := strings.TrimSpace(strings.ToLower(email))
 	hash := hmac.New(sha256.New, config.DatabaseHMACKey)
-	return hash.Sum([]byte(normalized))
+	hash.Write([]byte(normalized))
+	return hash.Sum(nil)
 }
 
 func HashUserToken(token []byte) []byte {
 	hash := hmac.New(sha256.New, config.DatabaseHMACKey)
-	return hash.Sum(token)
+	hash.Write(token)
+	return hash.Sum(nil)
 }

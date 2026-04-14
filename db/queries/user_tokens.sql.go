@@ -12,6 +12,15 @@ import (
 	"github.com/google/uuid"
 )
 
+const deletePreexistingEmailVerificationTokens = `-- name: DeletePreexistingEmailVerificationTokens :exec
+delete from user_tokens where user_id = $1 and context = 'email_verification'
+`
+
+func (q *Queries) DeletePreexistingEmailVerificationTokens(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deletePreexistingEmailVerificationTokens, userID)
+	return err
+}
+
 const deleteUserToken = `-- name: DeleteUserToken :one
 delete from user_tokens where token = $1 returning true
 `
@@ -21,6 +30,42 @@ func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, erro
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const findUserByRegistrationToken = `-- name: FindUserByRegistrationToken :one
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at from users u
+join user_tokens ut on u.id = ut.user_id
+where ut.valid_until > now()
+and ut.token = $1 and ut.context = 'user_registration'
+`
+
+func (q *Queries) FindUserByRegistrationToken(ctx context.Context, token []byte) (*User, error) {
+	row := q.db.QueryRow(ctx, findUserByRegistrationToken, token)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.ProfilePicture,
+		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.EmailConfirmedAt,
+		&i.LicenceNumber,
+		&i.PreferredLocale,
+		&i.GoogleOauthLastUsedAt,
+	)
+	return &i, err
 }
 
 const insertUserToken = `-- name: InsertUserToken :one
@@ -51,4 +96,13 @@ func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParam
 		&i.ValidUntil,
 	)
 	return &i, err
+}
+
+const vacuumUserTokens = `-- name: VacuumUserTokens :exec
+delete from user_tokens where valid_until < now()
+`
+
+func (q *Queries) VacuumUserTokens(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, vacuumUserTokens)
+	return err
 }

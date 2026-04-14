@@ -3,6 +3,7 @@ package workers
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
@@ -14,14 +15,26 @@ import (
 
 type SendUserEmailWorker struct {
 	river.WorkerDefaults[jobs.SendUserEmailArgs]
-	db     queries.DBTX
+	db     *pgxpool.Pool
 	mailer mailers.Mailer
 	bundle *i18n.Bundle
 }
 
 func (w *SendUserEmailWorker) Work(ctx context.Context, job *river.Job[jobs.SendUserEmailArgs]) error {
-	userTokenService := services.NewUserTokenService(w.db)
 	user, err := queries.New(w.db).GetUserByID(ctx, job.Args.UserID)
+	if err != nil {
+		return err
+	}
+
+	tx, err := w.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	userTokenService := services.NewUserTokenService(tx)
+
+	err = queries.New(tx).DeletePreexistingEmailVerificationTokens(ctx, user.ID)
 	if err != nil {
 		return err
 	}
@@ -33,5 +46,9 @@ func (w *SendUserEmailWorker) Work(ctx context.Context, job *river.Job[jobs.Send
 
 	userMailer := mailers.NewUserMailer(w.mailer, w.bundle)
 
-	return userMailer.SendUserEmailVerification(ctx, token)
+	if err := userMailer.SendUserEmailVerification(ctx, token); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

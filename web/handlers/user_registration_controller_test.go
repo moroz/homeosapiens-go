@@ -45,7 +45,7 @@ func TestVerifyEmail(t *testing.T) {
 		assert.Nil(t, user.EmailConfirmedAt)
 
 		client, err := clientWithSession(store, origin, nil)
-		req, err := http.NewRequest("GET", server.URL+token.ActivationPath(), nil)
+		req, err := http.NewRequest("GET", server.URL+token.VerifyEmailPath(), nil)
 		require.NoError(t, err)
 
 		resp, err := client.Do(req)
@@ -81,7 +81,7 @@ func TestVerifyEmail(t *testing.T) {
 		require.NoError(t, err)
 
 		client, err := clientWithSession(store, origin, nil)
-		req, err := http.NewRequest("GET", server.URL+token.ActivationPath(), nil)
+		req, err := http.NewRequest("GET", server.URL+token.VerifyEmailPath(), nil)
 		require.NoError(t, err)
 
 		resp, err := client.Do(req)

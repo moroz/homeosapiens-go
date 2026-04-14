@@ -89,6 +89,11 @@
     },
     "verify_email": {
       "success": "Your email has been successfully activated."
+    },
+    "success": {
+      "title": "Registration successful",
+      "body_html": "<p>Your account has been created. An email containing an activation link has been sent to your email address{{ if .Email }}: <strong>{{ .Email }}</strong>{{ end }}.</p>",
+      "gmail_notice_html": "<p>You may also confirm your email address using the <a href=\"{{ .URL }}\">Sign in with Google</a> feature.</p>"
     }
   },
   "components": {

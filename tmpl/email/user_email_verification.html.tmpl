@@ -4,6 +4,6 @@
 
     {{.Translate "emails.user_email_verification.body_html" .UserToken}}
 
-    <a href="{{.UserToken.ActivationURL}}" target="_blank" rel="noopener noreferrer">{{.T "emails.user_email_verification.cta_text"}}</a>
+    <a href="{{.UserToken.VerifyEmailURL}}" target="_blank" rel="noopener noreferrer">{{.T "emails.user_email_verification.cta_text"}}</a>
 
 {{end}}

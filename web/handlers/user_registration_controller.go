@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"errors"
 	"log"
 	"net/http"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	userregistrations "github.com/moroz/homeosapiens-go/tmpl/user_registrations"
@@ -54,11 +56,9 @@ func (cc *userRegistrationController) Create(c *echo.Context) error {
 		return userregistrations.New(ctx, &params, nil).Render(c.Response())
 	}
 
-	err = userregistrations.Success(ctx, types.NewUserDecorator(user)).Render(c.Response())
-	if err != nil {
-		log.Print(err)
-	}
-	return err
+	redirectTo := config.PublicUrl + "/user-registrations/success?token=" + user.UserTokenDTO.EncodeToken()
+
+	return c.Redirect(http.StatusFound, redirectTo)
 }
 
 func (cc *userRegistrationController) VerifyEmail(c *echo.Context) error {
@@ -79,4 +79,18 @@ func (cc *userRegistrationController) VerifyEmail(c *echo.Context) error {
 	}))
 
 	return signUserIn(c, cc.db, user)
+}
+
+func (cc *userRegistrationController) Success(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+
+	param := c.QueryParam("token")
+	token, err := base64.RawURLEncoding.DecodeString(param)
+	if param == "" || err != nil {
+		return echo.ErrBadRequest
+	}
+
+	user, _ := queries.New(cc.db).FindUserByRegistrationToken(c.Request().Context(), token)
+
+	return userregistrations.Success(ctx, user, param).Render(c.Response())
 }

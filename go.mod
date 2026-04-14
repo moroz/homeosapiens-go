@@ -32,6 +32,7 @@ require (
 	github.com/riverqueue/river/riverdriver v0.33.0 // indirect
 	github.com/riverqueue/river/rivershared v0.33.0 // indirect
 	github.com/riverqueue/river/rivertype v0.33.0 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect

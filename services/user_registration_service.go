@@ -30,7 +30,7 @@ func NewUserRegistrationService(db queries.DBTX) *UserRegistrationService {
 	}
 }
 
-func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *types.RegisterUserParams) (*queries.User, error) {
+func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *types.RegisterUserParams) (*types.UserRegistrationDTO, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -71,6 +71,11 @@ func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *type
 		return nil, fmt.Errorf("RegisterUser: %w", err)
 	}
 
+	token, err := NewUserTokenService(tx).IssueUserRegistrationTokenForUser(ctx, user, config.UserRegistrationTokenValidity)
+	if err != nil {
+		return nil, fmt.Errorf("RegisterUser: %w", err)
+	}
+
 	_, err = river.InsertTx(ctx, tx, &jobs.SendUserEmailArgs{
 		UserID: user.ID,
 	}, nil)
@@ -82,7 +87,10 @@ func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *type
 		return nil, fmt.Errorf("RegisterUser: %w", err)
 	}
 
-	return user, nil
+	return &types.UserRegistrationDTO{
+		User:         user,
+		UserTokenDTO: token,
+	}, nil
 }
 
 var ErrTokenInvalid = errors.New("VerifyEmailAddress: token invalid or expired")

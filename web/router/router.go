@@ -72,6 +72,7 @@ func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeS
 	r.GET("/sign-up", userRegistrations.New)
 	r.POST("/sign-up", userRegistrations.Create)
 	r.GET("/verify-email", userRegistrations.VerifyEmail)
+	r.GET("/user-registrations/success", userRegistrations.Success)
 
 	videos := handlers.VideoController(db)
 	r.GET("/videos", videos.Index)

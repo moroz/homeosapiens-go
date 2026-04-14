@@ -14,10 +14,20 @@ type SendOrderEmailArgs struct {
 	EmailType OrderEmailType `json:"email_type"`
 }
 
-func (SendOrderEmailArgs) Kind() string { return "SendOrderEmail" }
+func (SendOrderEmailArgs) Kind() string {
+	return "SendOrderEmail"
+}
 
 type SendUserEmailArgs struct {
 	UserID uuid.UUID `json:"user_id"`
 }
 
-func (SendUserEmailArgs) Kind() string { return "SendUserEmail" }
+func (SendUserEmailArgs) Kind() string {
+	return "SendUserEmail"
+}
+
+type VacuumUserTokensArgs struct{}
+
+func (VacuumUserTokensArgs) Kind() string {
+	return "VacuumUserTokens"
+}

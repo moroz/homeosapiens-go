@@ -1,8 +1,6 @@
 package types
 
 import (
-	"strings"
-
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -42,18 +40,7 @@ func (p *RegisterUserParams) Validate() error {
 	)
 }
 
-type UserDecorator struct {
+type UserRegistrationDTO struct {
 	*queries.User
-}
-
-func NewUserDecorator(user *queries.User) *UserDecorator {
-	return &UserDecorator{user}
-}
-
-func (u *UserDecorator) IsGoogleAccount() bool {
-	if u.GoogleOauthLastUsedAt != nil {
-		return true
-	}
-
-	return strings.HasSuffix(u.Email.String(), "@gmail.com")
+	*UserTokenDTO
 }

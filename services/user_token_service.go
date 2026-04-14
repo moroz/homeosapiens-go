@@ -38,7 +38,7 @@ func (s *UserTokenService) IssueAccessTokenForUser(ctx context.Context, user *qu
 		UserID:     user.ID,
 		Context:    "access",
 		Token:      token,
-		ValidUntil: time.Now().Add(validity),
+		ValidUntil: time.Now().In(time.UTC).Add(validity),
 	})
 }
 
@@ -56,7 +56,7 @@ func (s *UserTokenService) IssueHashedTokenForUser(ctx context.Context, user *qu
 		UserID:     user.ID,
 		Context:    tokenContext,
 		Token:      crypto.HashUserToken(token),
-		ValidUntil: time.Now().Add(validity),
+		ValidUntil: time.Now().In(time.UTC).Add(validity),
 	})
 
 	if err != nil {

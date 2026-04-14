@@ -119,4 +119,5 @@ var DatabaseEncryptionKey = MustDeriveKey(SecretKeyBase, "ColumnLevelEncryption"
 var DatabaseHMACKey = MustDeriveKey(SecretKeyBase, "DatabaseHMAC", 32)
 
 const EmailVerificationTokenValidity = 24 * 60 * 60 * time.Second
+const UserRegistrationTokenValidity = 24 * 60 * 60 * time.Second
 const AccessTokenValidity = 24 * 60 * 60 * time.Second

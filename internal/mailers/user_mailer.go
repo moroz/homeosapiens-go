@@ -30,7 +30,7 @@ func (m userMailer) SendUserEmailVerification(ctx context.Context, user *types.U
 	l := i18n.NewLocalizer(m.bundle, string(user.PreferredLocale))
 
 	subject, err := l.Localize(&i18n.LocalizeConfig{
-		MessageID:    "emails.email_verification.subject",
+		MessageID:    "emails.user_email_verification.subject",
 		TemplateData: user,
 	})
 	if err != nil {
