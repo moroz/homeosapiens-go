@@ -35,8 +35,11 @@ func Success(ctx *types.CustomContext, user *queries.User, tokenParam string) No
 						},
 					}))
 				}),
-				If(isGoogle, Raw(l.MustLocalizeMessage(&i18n.Message{
-					ID: "user_registrations.success.gmail_notice_html",
+				If(isGoogle, Raw(l.MustLocalize(&i18n.LocalizeConfig{
+					MessageID: "user_registrations.success.gmail_notice_html",
+					TemplateData: map[string]string{
+						"URL": "/oauth/google/redirect",
+					},
 				}))),
 			),
 		),

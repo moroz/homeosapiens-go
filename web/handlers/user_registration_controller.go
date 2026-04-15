@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/services"
 	userregistrations "github.com/moroz/homeosapiens-go/tmpl/user_registrations"
 	"github.com/moroz/homeosapiens-go/types"
@@ -90,7 +91,10 @@ func (cc *userRegistrationController) Success(c *echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	user, _ := queries.New(cc.db).FindUserByRegistrationToken(c.Request().Context(), token)
+	user, err := queries.New(cc.db).FindUserByRegistrationToken(c.Request().Context(), crypto.HashUserToken(token))
+	if err != nil {
+		log.Print(err)
+	}
 
 	return userregistrations.Success(ctx, user, param).Render(c.Response())
 }

@@ -61,7 +61,7 @@
 	}
 
 	.page-title {
-		@apply text-primary text-2xl font-bold lg:text-4xl;
+		@apply text-primary text-2xl font-bold lg:text-3xl mb-4;
 	}
 
 	.card {
