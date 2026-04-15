@@ -187,6 +187,48 @@ func (ns NullPriceType) Value() (driver.Value, error) {
 	return string(ns.PriceType), nil
 }
 
+type ProductType string
+
+const (
+	ProductTypeEvent ProductType = "event"
+	ProductTypeBook  ProductType = "book"
+)
+
+func (e *ProductType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ProductType(s)
+	case string:
+		*e = ProductType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ProductType: %T", src)
+	}
+	return nil
+}
+
+type NullProductType struct {
+	ProductType ProductType
+	Valid       bool // Valid is true if ProductType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullProductType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ProductType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ProductType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullProductType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ProductType), nil
+}
+
 type RiverJobState string
 
 const (
@@ -330,36 +372,35 @@ type Asset struct {
 type CartLineItem struct {
 	ID         uuid.UUID
 	CartID     uuid.UUID
-	EventID    uuid.UUID
 	Quantity   int32
 	InsertedAt time.Time
 	UpdatedAt  time.Time
+	ProductID  uuid.UUID
 }
 
 type Event struct {
-	ID                uuid.UUID
-	TitleEn           string
-	TitlePl           string
-	StartsAt          time.Time
-	EndsAt            time.Time
-	IsVirtual         bool
-	DescriptionEn     string
-	DescriptionPl     *string
-	EventType         EventType
-	BasePriceAmount   *decimal.Decimal
-	BasePriceCurrency *string
-	InsertedAt        time.Time
-	UpdatedAt         time.Time
-	Slug              string
-	SubtitleEn        *string
-	SubtitlePl        *string
-	VenueNameEn       *string
-	VenueNamePl       *string
-	VenueStreet       *string
-	VenueCityEn       *string
-	VenueCityPl       *string
-	VenuePostalCode   *string
-	VenueCountryCode  *string
+	ID               uuid.UUID
+	TitleEn          string
+	TitlePl          string
+	StartsAt         time.Time
+	EndsAt           time.Time
+	IsVirtual        bool
+	DescriptionEn    string
+	DescriptionPl    *string
+	EventType        EventType
+	InsertedAt       time.Time
+	UpdatedAt        time.Time
+	Slug             string
+	SubtitleEn       *string
+	SubtitlePl       *string
+	VenueNameEn      *string
+	VenueNamePl      *string
+	VenueStreet      *string
+	VenueCityEn      *string
+	VenueCityPl      *string
+	VenuePostalCode  *string
+	VenueCountryCode *string
+	ProductID        uuid.UUID
 }
 
 type EventPrice struct {
@@ -433,13 +474,24 @@ type Order struct {
 type OrderLineItem struct {
 	ID                 uuid.UUID
 	OrderID            uuid.UUID
-	EventID            uuid.UUID
 	EventTitle         string
 	EventPriceAmount   decimal.Decimal
 	EventPriceCurrency string
 	Quantity           int32
 	InsertedAt         time.Time
 	UpdatedAt          time.Time
+	ProductID          uuid.UUID
+}
+
+type Product struct {
+	ID                uuid.UUID
+	ProductType       ProductType
+	TitlePl           string
+	TitleEn           string
+	BasePriceAmount   decimal.Decimal
+	BasePriceCurrency string
+	InsertedAt        time.Time
+	UpdatedAt         time.Time
 }
 
 type RiverClient struct {

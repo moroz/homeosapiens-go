@@ -43,7 +43,7 @@ func (cc *cartItemController) Create(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	cartItem, err := cc.cartService.AddEventToCart(c.Request().Context(), ctx.CartId, params.EventId)
+	cartItem, err := cc.cartService.AddProductToCart(c.Request().Context(), ctx.CartId, params.EventId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

@@ -14,7 +14,7 @@ import (
 )
 
 const getEventById = `-- name: GetEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where id = $1
 `
 
 func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -30,8 +30,6 @@ func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error
 		&i.DescriptionEn,
 		&i.DescriptionPl,
 		&i.EventType,
-		&i.BasePriceAmount,
-		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.Slug,
@@ -44,12 +42,13 @@ func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error
 		&i.VenueCityPl,
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
+		&i.ProductID,
 	)
 	return &i, err
 }
 
 const getEventBySlug = `-- name: GetEventBySlug :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where slug = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where slug = $1
 `
 
 func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, error) {
@@ -65,8 +64,6 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 		&i.DescriptionEn,
 		&i.DescriptionPl,
 		&i.EventType,
-		&i.BasePriceAmount,
-		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.Slug,
@@ -79,12 +76,13 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 		&i.VenueCityPl,
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
+		&i.ProductID,
 	)
 	return &i, err
 }
 
 const getFreeEventById = `-- name: GetFreeEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where (base_price_amount is null or base_price_amount = 0) and id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where (base_price_amount is null or base_price_amount = 0) and id = $1
 `
 
 func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -100,8 +98,6 @@ func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, e
 		&i.DescriptionEn,
 		&i.DescriptionPl,
 		&i.EventType,
-		&i.BasePriceAmount,
-		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.Slug,
@@ -114,12 +110,13 @@ func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, e
 		&i.VenueCityPl,
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
+		&i.ProductID,
 	)
 	return &i, err
 }
 
 const getPaidEventById = `-- name: GetPaidEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code from events where base_price_amount is not null and base_price_amount > 0 and id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where base_price_amount is not null and base_price_amount > 0 and id = $1
 `
 
 func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -135,8 +132,6 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*Event, e
 		&i.DescriptionEn,
 		&i.DescriptionPl,
 		&i.EventType,
-		&i.BasePriceAmount,
-		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.Slug,
@@ -149,6 +144,7 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*Event, e
 		&i.VenueCityPl,
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
+		&i.ProductID,
 	)
 	return &i, err
 }
@@ -190,10 +186,11 @@ func (q *Queries) ListEventRegistrationsForUserForEvents(ctx context.Context, ar
 }
 
 const listEvents = `-- name: ListEvents :many
-select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, e.base_price_amount, e.base_price_currency,
+select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, p.base_price_amount, p.base_price_currency,
        e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
        e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_country_code
 from events e
+left join products p on e.product_id = p.id
 order by e.starts_at desc
 `
 

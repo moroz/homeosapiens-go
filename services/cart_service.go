@@ -21,14 +21,14 @@ func NewCartService(db queries.DBTX) *CartService {
 	return &CartService{db}
 }
 
-func (s *CartService) AddEventToCart(ctx context.Context, cartId *uuid.UUID, eventId uuid.UUID) (*queries.CartLineItem, error) {
-	if cartId == nil {
-		cartId = new(uuid.Must(uuid.NewV7()))
+func (s *CartService) AddProductToCart(ctx context.Context, cartID *uuid.UUID, productID uuid.UUID) (*queries.CartLineItem, error) {
+	if cartID == nil {
+		cartID = new(uuid.Must(uuid.NewV7()))
 	}
 
 	item, err := queries.New(s.db).InsertCartLineItem(ctx, &queries.InsertCartLineItemParams{
-		CartID:  *cartId,
-		EventID: eventId,
+		CartID:    *cartID,
+		ProductID: productID,
 	})
 	if err != nil {
 		return nil, err
@@ -37,10 +37,10 @@ func (s *CartService) AddEventToCart(ctx context.Context, cartId *uuid.UUID, eve
 	return item, nil
 }
 
-func (s *CartService) DeleteCartItem(ctx context.Context, cartId uuid.UUID, eventId uuid.UUID) (bool, error) {
+func (s *CartService) DeleteCartItem(ctx context.Context, cartID uuid.UUID, productID uuid.UUID) (bool, error) {
 	id, err := queries.New(s.db).DeleteCartItem(ctx, &queries.DeleteCartItemParams{
-		CartID:  cartId,
-		EventID: eventId,
+		CartID:    cartID,
+		ProductID: productID,
 	})
 	return id != uuid.UUID{}, err
 }

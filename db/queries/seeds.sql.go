@@ -39,33 +39,31 @@ func (q *Queries) UpsertAsset(ctx context.Context, arg *UpsertAssetParams) (*Ass
 }
 
 const upsertEvent = `-- name: UpsertEvent :one
-INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, base_price_amount, base_price_currency, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
-returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, base_price_amount, base_price_currency, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code
+INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id
 `
 
 type UpsertEventParams struct {
-	ID                uuid.UUID
-	EventType         EventType
-	TitleEn           string
-	TitlePl           string
-	Slug              string
-	StartsAt          time.Time
-	EndsAt            time.Time
-	IsVirtual         bool
-	DescriptionEn     string
-	DescriptionPl     *string
-	BasePriceAmount   *decimal.Decimal
-	BasePriceCurrency *string
-	SubtitleEn        *string
-	SubtitlePl        *string
-	VenueStreet       *string
-	VenueCityEn       *string
-	VenueCityPl       *string
-	VenueNameEn       *string
-	VenueNamePl       *string
-	VenueCountryCode  *string
-	VenuePostalCode   *string
+	ID               uuid.UUID
+	EventType        EventType
+	TitleEn          string
+	TitlePl          string
+	Slug             string
+	StartsAt         time.Time
+	EndsAt           time.Time
+	IsVirtual        bool
+	DescriptionEn    string
+	DescriptionPl    *string
+	SubtitleEn       *string
+	SubtitlePl       *string
+	VenueStreet      *string
+	VenueCityEn      *string
+	VenueCityPl      *string
+	VenueNameEn      *string
+	VenueNamePl      *string
+	VenueCountryCode *string
+	VenuePostalCode  *string
 }
 
 func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Event, error) {
@@ -80,8 +78,6 @@ func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Eve
 		arg.IsVirtual,
 		arg.DescriptionEn,
 		arg.DescriptionPl,
-		arg.BasePriceAmount,
-		arg.BasePriceCurrency,
 		arg.SubtitleEn,
 		arg.SubtitlePl,
 		arg.VenueStreet,
@@ -103,8 +99,6 @@ func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Eve
 		&i.DescriptionEn,
 		&i.DescriptionPl,
 		&i.EventType,
-		&i.BasePriceAmount,
-		&i.BasePriceCurrency,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.Slug,
@@ -117,6 +111,7 @@ func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Eve
 		&i.VenueCityPl,
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
+		&i.ProductID,
 	)
 	return &i, err
 }

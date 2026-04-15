@@ -216,15 +216,15 @@ func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, e
 	return result, nil
 }
 
-func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartId *uuid.UUID, eventIds []uuid.UUID) (map[uuid.UUID]int, error) {
+func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartId *uuid.UUID, productIDs []uuid.UUID) (map[uuid.UUID]int, error) {
 	result := make(map[uuid.UUID]int)
 	if cartId == nil {
 		return result, nil
 	}
 
-	counts, err := queries.New(s.db).CountCartLineItemQuantitiesForEvents(ctx, &queries.CountCartLineItemQuantitiesForEventsParams{
-		EventIds: eventIds,
-		CartID:   *cartId,
+	counts, err := queries.New(s.db).CountCartLineItemQuantitiesForProducts(ctx, &queries.CountCartLineItemQuantitiesForProductsParams{
+		Productids: productIDs,
+		CartID:     *cartId,
 	})
 	if err != nil {
 		return result, nil

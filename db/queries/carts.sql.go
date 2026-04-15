@@ -12,32 +12,32 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const countCartLineItemQuantitiesForEvents = `-- name: CountCartLineItemQuantitiesForEvents :many
-select c.event_id, c.quantity
+const countCartLineItemQuantitiesForProducts = `-- name: CountCartLineItemQuantitiesForProducts :many
+select c.product_id, c.quantity
 from cart_line_items c
-where c.event_id = any($1::uuid[]) and c.cart_id = $2::uuid
+where c.product_id = any($1::uuid[]) and c.cart_id = $2::uuid
 `
 
-type CountCartLineItemQuantitiesForEventsParams struct {
-	EventIds []uuid.UUID
-	CartID   uuid.UUID
+type CountCartLineItemQuantitiesForProductsParams struct {
+	ProductIds []uuid.UUID
+	CartID     uuid.UUID
 }
 
-type CountCartLineItemQuantitiesForEventsRow struct {
-	EventID  uuid.UUID
-	Quantity int32
+type CountCartLineItemQuantitiesForProductsRow struct {
+	ProductID uuid.UUID
+	Quantity  int32
 }
 
-func (q *Queries) CountCartLineItemQuantitiesForEvents(ctx context.Context, arg *CountCartLineItemQuantitiesForEventsParams) ([]*CountCartLineItemQuantitiesForEventsRow, error) {
-	rows, err := q.db.Query(ctx, countCartLineItemQuantitiesForEvents, arg.EventIds, arg.CartID)
+func (q *Queries) CountCartLineItemQuantitiesForProducts(ctx context.Context, arg *CountCartLineItemQuantitiesForProductsParams) ([]*CountCartLineItemQuantitiesForProductsRow, error) {
+	rows, err := q.db.Query(ctx, countCartLineItemQuantitiesForProducts, arg.ProductIds, arg.CartID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*CountCartLineItemQuantitiesForEventsRow
+	var items []*CountCartLineItemQuantitiesForProductsRow
 	for rows.Next() {
-		var i CountCartLineItemQuantitiesForEventsRow
-		if err := rows.Scan(&i.EventID, &i.Quantity); err != nil {
+		var i CountCartLineItemQuantitiesForProductsRow
+		if err := rows.Scan(&i.ProductID, &i.Quantity); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -58,16 +58,16 @@ func (q *Queries) DeleteCart(ctx context.Context, cartID uuid.UUID) error {
 }
 
 const deleteCartItem = `-- name: DeleteCartItem :one
-delete from cart_line_items cli where cart_id = $1::uuid and event_id = $2::uuid returning id
+delete from cart_line_items cli where cart_id = $1::uuid and product_id = $2::uuid returning id
 `
 
 type DeleteCartItemParams struct {
-	CartID  uuid.UUID
-	EventID uuid.UUID
+	CartID    uuid.UUID
+	ProductID uuid.UUID
 }
 
 func (q *Queries) DeleteCartItem(ctx context.Context, arg *DeleteCartItemParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, deleteCartItem, arg.CartID, arg.EventID)
+	row := q.db.QueryRow(ctx, deleteCartItem, arg.CartID, arg.ProductID)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
@@ -76,7 +76,7 @@ func (q *Queries) DeleteCartItem(ctx context.Context, arg *DeleteCartItemParams)
 const getCart = `-- name: GetCart :one
 select cli.cart_id, count(cli.id) item_count, sum(cli.quantity * e.base_price_amount)::decimal product_total
 from cart_line_items cli
-join events e on cli.event_id = e.id
+join events e on cli.product_id = e.id
 where cli.cart_id = $1::uuid 
 group by 1
 `
@@ -95,15 +95,15 @@ func (q *Queries) GetCart(ctx context.Context, cartID uuid.UUID) (*GetCartRow, e
 }
 
 const getCartItemsByCartId = `-- name: GetCartItemsByCartId :many
-select c.id, c.cart_id, c.event_id, c.quantity, c.inserted_at, c.updated_at, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.base_price_amount, e.base_price_currency, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, (e.base_price_amount * c.quantity)::decimal as subtotal
+select c.id, c.cart_id, c.quantity, c.inserted_at, c.updated_at, c.product_id, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at, (p.base_price_amount * c.quantity)::decimal as subtotal
 from cart_line_items c
-join events e on c.event_id = e.id
+join products p on c.product_id = p.id
 where c.cart_id = $1::uuid
 `
 
 type GetCartItemsByCartIdRow struct {
 	CartLineItem CartLineItem
-	Event        Event
+	Product      Product
 	Subtotal     decimal.Decimal
 }
 
@@ -119,33 +119,18 @@ func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([
 		if err := rows.Scan(
 			&i.CartLineItem.ID,
 			&i.CartLineItem.CartID,
-			&i.CartLineItem.EventID,
 			&i.CartLineItem.Quantity,
 			&i.CartLineItem.InsertedAt,
 			&i.CartLineItem.UpdatedAt,
-			&i.Event.ID,
-			&i.Event.TitleEn,
-			&i.Event.TitlePl,
-			&i.Event.StartsAt,
-			&i.Event.EndsAt,
-			&i.Event.IsVirtual,
-			&i.Event.DescriptionEn,
-			&i.Event.DescriptionPl,
-			&i.Event.EventType,
-			&i.Event.BasePriceAmount,
-			&i.Event.BasePriceCurrency,
-			&i.Event.InsertedAt,
-			&i.Event.UpdatedAt,
-			&i.Event.Slug,
-			&i.Event.SubtitleEn,
-			&i.Event.SubtitlePl,
-			&i.Event.VenueNameEn,
-			&i.Event.VenueNamePl,
-			&i.Event.VenueStreet,
-			&i.Event.VenueCityEn,
-			&i.Event.VenueCityPl,
-			&i.Event.VenuePostalCode,
-			&i.Event.VenueCountryCode,
+			&i.CartLineItem.ProductID,
+			&i.Product.ID,
+			&i.Product.ProductType,
+			&i.Product.TitlePl,
+			&i.Product.TitleEn,
+			&i.Product.BasePriceAmount,
+			&i.Product.BasePriceCurrency,
+			&i.Product.InsertedAt,
+			&i.Product.UpdatedAt,
 			&i.Subtotal,
 		); err != nil {
 			return nil, err
@@ -159,25 +144,25 @@ func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([
 }
 
 const insertCartLineItem = `-- name: InsertCartLineItem :one
-insert into cart_line_items as cli (cart_id, event_id, quantity) values ($1, $2, 1) on conflict (cart_id, event_id)
-do update set quantity = cli.quantity + excluded.quantity returning id, cart_id, event_id, quantity, inserted_at, updated_at
+insert into cart_line_items as cli (cart_id, product_id, quantity) values ($1, $2, 1) on conflict (cart_id, product_id)
+do update set quantity = cli.quantity + excluded.quantity returning id, cart_id, quantity, inserted_at, updated_at, product_id
 `
 
 type InsertCartLineItemParams struct {
-	CartID  uuid.UUID
-	EventID uuid.UUID
+	CartID    uuid.UUID
+	ProductID uuid.UUID
 }
 
 func (q *Queries) InsertCartLineItem(ctx context.Context, arg *InsertCartLineItemParams) (*CartLineItem, error) {
-	row := q.db.QueryRow(ctx, insertCartLineItem, arg.CartID, arg.EventID)
+	row := q.db.QueryRow(ctx, insertCartLineItem, arg.CartID, arg.ProductID)
 	var i CartLineItem
 	err := row.Scan(
 		&i.ID,
 		&i.CartID,
-		&i.EventID,
 		&i.Quantity,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+		&i.ProductID,
 	)
 	return &i, err
 }

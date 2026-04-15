@@ -10,8 +10,8 @@ ON CONFLICT (id) do nothing
 returning *;
 
 -- name: UpsertEvent :one
-INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, base_price_amount, base_price_currency, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
 returning *;
 
 -- name: UpsertEventHost :one

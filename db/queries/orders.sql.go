@@ -127,7 +127,7 @@ func (q *Queries) GetOrderByID(ctx context.Context, id uuid.UUID) (*Order, error
 }
 
 const getOrderLineItemsForOrderID = `-- name: GetOrderLineItemsForOrderID :many
-select id, order_id, event_id, event_title, event_price_amount, event_price_currency, quantity, inserted_at, updated_at from order_line_items where order_id = $1 order by id
+select id, order_id, event_title, event_price_amount, event_price_currency, quantity, inserted_at, updated_at, product_id from order_line_items where order_id = $1 order by id
 `
 
 func (q *Queries) GetOrderLineItemsForOrderID(ctx context.Context, orderID uuid.UUID) ([]*OrderLineItem, error) {
@@ -142,13 +142,13 @@ func (q *Queries) GetOrderLineItemsForOrderID(ctx context.Context, orderID uuid.
 		if err := rows.Scan(
 			&i.ID,
 			&i.OrderID,
-			&i.EventID,
 			&i.EventTitle,
 			&i.EventPriceAmount,
 			&i.EventPriceCurrency,
 			&i.Quantity,
 			&i.InsertedAt,
 			&i.UpdatedAt,
+			&i.ProductID,
 		); err != nil {
 			return nil, err
 		}
@@ -228,12 +228,12 @@ func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Ord
 }
 
 const insertOrderLineItem = `-- name: InsertOrderLineItem :one
-insert into order_line_items (order_id, event_id, event_title, event_price_amount) VALUES ($1, $2, $3, $4) returning id, order_id, event_id, event_title, event_price_amount, event_price_currency, quantity, inserted_at, updated_at
+insert into order_line_items (order_id, product_id, event_title, event_price_amount) VALUES ($1, $2, $3, $4) returning id, order_id, event_title, event_price_amount, event_price_currency, quantity, inserted_at, updated_at, product_id
 `
 
 type InsertOrderLineItemParams struct {
 	OrderID          uuid.UUID
-	EventID          uuid.UUID
+	ProductID        uuid.UUID
 	EventTitle       string
 	EventPriceAmount decimal.Decimal
 }
@@ -241,7 +241,7 @@ type InsertOrderLineItemParams struct {
 func (q *Queries) InsertOrderLineItem(ctx context.Context, arg *InsertOrderLineItemParams) (*OrderLineItem, error) {
 	row := q.db.QueryRow(ctx, insertOrderLineItem,
 		arg.OrderID,
-		arg.EventID,
+		arg.ProductID,
 		arg.EventTitle,
 		arg.EventPriceAmount,
 	)
@@ -249,13 +249,13 @@ func (q *Queries) InsertOrderLineItem(ctx context.Context, arg *InsertOrderLineI
 	err := row.Scan(
 		&i.ID,
 		&i.OrderID,
-		&i.EventID,
 		&i.EventTitle,
 		&i.EventPriceAmount,
 		&i.EventPriceCurrency,
 		&i.Quantity,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+		&i.ProductID,
 	)
 	return &i, err
 }

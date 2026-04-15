@@ -301,6 +301,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		if _, err := q.UpsertEvent(context.Background(), params); err != nil {
 			log.Fatal(err)
 		}
+
 	}
 
 	eventHosts := []*types.CreateEventHostParams{
