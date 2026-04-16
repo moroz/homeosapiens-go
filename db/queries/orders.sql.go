@@ -160,6 +160,20 @@ func (q *Queries) GetOrderLineItemsForOrderID(ctx context.Context, orderID uuid.
 	return items, nil
 }
 
+const grantAccessToProductsForOrder = `-- name: GrantAccessToProductsForOrder :exec
+insert into user_product_access (user_id, product_id, order_id)
+select o.user_id, oli.product_id, o.id
+from orders o
+join order_line_items oli on oli.order_id = o.id
+where o.id = $1
+on conflict (user_id, product_id) do nothing
+`
+
+func (q *Queries) GrantAccessToProductsForOrder(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, grantAccessToProductsForOrder, id)
+	return err
+}
+
 const insertOrder = `-- name: InsertOrder :one
 insert into orders (order_number, user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, billing_tax_id, preferred_locale)
 values (generate_order_number(), $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale

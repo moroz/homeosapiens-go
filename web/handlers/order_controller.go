@@ -8,8 +8,8 @@ import (
 	"net/http"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v5"
-	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/orders"
@@ -24,7 +24,7 @@ type orderController struct {
 	orderRepository *services.OrderRepository
 }
 
-func OrderController(db queries.DBTX, service services.StripeService) *orderController {
+func OrderController(db *pgxpool.Pool, service services.StripeService) *orderController {
 	return &orderController{
 		cartService:     services.NewCartService(db),
 		eventService:    services.NewEventService(db),

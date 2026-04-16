@@ -579,6 +579,14 @@ type User struct {
 	GoogleOauthLastUsedAt *time.Time
 }
 
+type UserProductAccess struct {
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	ProductID  uuid.UUID
+	OrderID    *uuid.UUID
+	InsertedAt time.Time
+}
+
 type UserToken struct {
 	ID         uuid.UUID
 	UserID     uuid.UUID

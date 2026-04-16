@@ -17,11 +17,11 @@ import (
 )
 
 type OrderService struct {
-	db                   queries.DBTX
+	db                   *pgxpool.Pool
 	paymentIntentService StripeService
 }
 
-func NewOrderService(db queries.DBTX, service StripeService) *OrderService {
+func NewOrderService(db *pgxpool.Pool, service StripeService) *OrderService {
 	return &OrderService{
 		db:                   db,
 		paymentIntentService: service,
@@ -40,12 +40,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		return nil, err
 	}
 
-	db, ok := s.db.(*pgxpool.Pool)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast connection as *pgxpool.Pool, got: %T", db)
-	}
-
-	tx, err := db.Begin(ctx)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("CreateOrder: failed to begin transaction: %w", err)
 	}
@@ -126,7 +121,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
 
-	river, err := jobs.NewClient(db)
+	river, err := jobs.NewClient(s.db)
 	if err != nil {
 		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
@@ -168,12 +163,7 @@ func (s *OrderService) findOrCreateUserForOrder(ctx context.Context, tx pgx.Tx, 
 }
 
 func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, sessionID string) (*queries.Order, error) {
-	conn, ok := s.db.(*pgxpool.Pool)
-	if !ok {
-		return nil, fmt.Errorf("want *pgxpool.Conn, got %T", s.db)
-	}
-
-	tx, err := conn.Begin(ctx)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +180,11 @@ func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, ses
 	}
 
 	order, err = queries.New(tx).MarkOrderAsPaid(ctx, order.ID)
+	if err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	err = queries.New(s.db).GrantAccessToProductsForOrder(ctx, order.ID)
 	if err != nil {
 		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
 	}

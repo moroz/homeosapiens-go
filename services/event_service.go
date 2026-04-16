@@ -127,6 +127,12 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 	var dto EventDetailsDto
 	dto.Event = event
 
+	products, err := s.preloadProductsForEvents(ctx, []uuid.UUID{event.ID})
+	if err != nil {
+		return nil, err
+	}
+	dto.Product = products[event.ID]
+
 	prices, err := s.preloadPricesForEvents(ctx, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err

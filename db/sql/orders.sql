@@ -28,3 +28,11 @@ select * from orders where stripe_checkout_session_id = @session_id::text for up
 
 -- name: MarkOrderAsPaid :one
 update orders set paid_at = now(), updated_at = now() where id = $1 returning *;
+
+-- name: GrantAccessToProductsForOrder :exec
+insert into user_product_access (user_id, product_id, order_id)
+select o.user_id, oli.product_id, o.id
+from orders o
+join order_line_items oli on oli.order_id = o.id
+where o.id = $1
+on conflict (user_id, product_id) do nothing;
