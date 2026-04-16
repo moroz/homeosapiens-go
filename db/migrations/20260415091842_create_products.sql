@@ -18,6 +18,8 @@ alter table events add product_id uuid references products (id) on delete cascad
 alter table cart_line_items drop column event_id,
 add product_id uuid not null references products (id) on delete cascade;
 
+create unique index on cart_line_items (cart_id, product_id);
+
 alter table order_line_items drop column event_id,
 add product_id uuid not null references products (id) on delete cascade;
 alter table order_line_items rename event_title to product_title;
@@ -40,8 +42,11 @@ add column event_id uuid not null references events (id) on delete cascade;
 alter table order_line_items rename product_title to event_title;
 alter table order_line_items rename product_price_amount to event_price_amount;
 alter table order_line_items rename product_price_currency to event_price_currency;
+
 alter table cart_line_items drop column product_id,
 add column event_id uuid not null references events (id) on delete cascade;
+create unique index on cart_line_items (cart_id, event_id);
+
 alter table events drop column product_id, add column base_price_amount decimal(20,8), add column base_price_currency text;
 drop table products;
 drop type product_type;

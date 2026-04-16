@@ -14,23 +14,24 @@ import (
 )
 
 const countCartLineItemQuantitiesForProducts = `-- name: CountCartLineItemQuantitiesForProducts :many
-select c.product_id, c.quantity
+select e.id event_id, c.quantity
 from cart_line_items c
-where c.product_id = any($1::uuid[]) and c.cart_id = $2::uuid
+join events e on c.product_id = e.product_id
+where e.id = any($1::uuid[]) and c.cart_id = $2::uuid
 `
 
 type CountCartLineItemQuantitiesForProductsParams struct {
-	ProductIds []uuid.UUID
-	CartID     uuid.UUID
+	EventIds []uuid.UUID
+	CartID   uuid.UUID
 }
 
 type CountCartLineItemQuantitiesForProductsRow struct {
-	ProductID uuid.UUID
-	Quantity  int32
+	EventID  uuid.UUID
+	Quantity int32
 }
 
 func (q *Queries) CountCartLineItemQuantitiesForProducts(ctx context.Context, arg *CountCartLineItemQuantitiesForProductsParams) ([]*CountCartLineItemQuantitiesForProductsRow, error) {
-	rows, err := q.db.Query(ctx, countCartLineItemQuantitiesForProducts, arg.ProductIds, arg.CartID)
+	rows, err := q.db.Query(ctx, countCartLineItemQuantitiesForProducts, arg.EventIds, arg.CartID)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +39,7 @@ func (q *Queries) CountCartLineItemQuantitiesForProducts(ctx context.Context, ar
 	var items []*CountCartLineItemQuantitiesForProductsRow
 	for rows.Next() {
 		var i CountCartLineItemQuantitiesForProductsRow
-		if err := rows.Scan(&i.ProductID, &i.Quantity); err != nil {
+		if err := rows.Scan(&i.EventID, &i.Quantity); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)

@@ -16,12 +16,14 @@ import (
 )
 
 type cartItemController struct {
+	db           queries.DBTX
 	cartService  *services.CartService
 	eventService *services.EventService
 }
 
 func CartItemController(db queries.DBTX) *cartItemController {
 	return &cartItemController{
+		db:           db,
 		cartService:  services.NewCartService(db),
 		eventService: services.NewEventService(db),
 	}
@@ -38,12 +40,12 @@ func (cc *cartItemController) Create(c *echo.Context) error {
 		return err
 	}
 
-	event, err := cc.eventService.GetPaidEventById(c.Request().Context(), params.EventId)
+	event, err := queries.New(cc.db).GetPaidEventById(c.Request().Context(), params.EventId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	cartItem, err := cc.cartService.AddProductToCart(c.Request().Context(), ctx.CartId, params.EventId)
+	cartItem, err := cc.cartService.AddProductToCart(c.Request().Context(), ctx.CartId, event.Product.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -57,7 +59,7 @@ func (cc *cartItemController) Create(c *echo.Context) error {
 
 	redirectTo := c.Request().Referer()
 	if redirectTo == "" {
-		redirectTo = fmt.Sprintf("/events/%s", event.Slug)
+		redirectTo = fmt.Sprintf("/events/%s", event.Event.Slug)
 	}
 
 	return c.Redirect(http.StatusFound, redirectTo)

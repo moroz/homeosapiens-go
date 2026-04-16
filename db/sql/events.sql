@@ -42,4 +42,7 @@ and er.user_id = @UserID::uuid;
 select * from events where (base_price_amount is null or base_price_amount = 0) and id = $1;
 
 -- name: GetPaidEventById :one
-select * from events where base_price_amount is not null and base_price_amount > 0 and id = $1;
+select sqlc.embed(e), sqlc.embed(p)
+from events e
+join products p on e.product_id = p.id
+where e.id = $1;

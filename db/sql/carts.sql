@@ -10,9 +10,10 @@ where cli.cart_id = @cart_id::uuid
 group by 1;
 
 -- name: CountCartLineItemQuantitiesForProducts :many
-select c.product_id, c.quantity
+select e.id event_id, c.quantity
 from cart_line_items c
-where c.product_id = any(@product_ids::uuid[]) and c.cart_id = @cart_id::uuid;
+join events e on c.product_id = e.product_id
+where e.id = any(@event_ids::uuid[]) and c.cart_id = @cart_id::uuid;
 
 -- name: GetCartItemsByCartId :many
 select c.*, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, e.slug::text slug

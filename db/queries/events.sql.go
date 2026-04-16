@@ -116,35 +116,51 @@ func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, e
 }
 
 const getPaidEventById = `-- name: GetPaidEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where base_price_amount is not null and base_price_amount > 0 and id = $1
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
+from events e
+join products p on e.product_id = p.id
+where e.id = $1
 `
 
-func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
+type GetPaidEventByIdRow struct {
+	Event   Event
+	Product Product
+}
+
+func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidEventByIdRow, error) {
 	row := q.db.QueryRow(ctx, getPaidEventById, id)
-	var i Event
+	var i GetPaidEventByIdRow
 	err := row.Scan(
-		&i.ID,
-		&i.TitleEn,
-		&i.TitlePl,
-		&i.StartsAt,
-		&i.EndsAt,
-		&i.IsVirtual,
-		&i.DescriptionEn,
-		&i.DescriptionPl,
-		&i.EventType,
-		&i.InsertedAt,
-		&i.UpdatedAt,
-		&i.Slug,
-		&i.SubtitleEn,
-		&i.SubtitlePl,
-		&i.VenueNameEn,
-		&i.VenueNamePl,
-		&i.VenueStreet,
-		&i.VenueCityEn,
-		&i.VenueCityPl,
-		&i.VenuePostalCode,
-		&i.VenueCountryCode,
-		&i.ProductID,
+		&i.Event.ID,
+		&i.Event.TitleEn,
+		&i.Event.TitlePl,
+		&i.Event.StartsAt,
+		&i.Event.EndsAt,
+		&i.Event.IsVirtual,
+		&i.Event.DescriptionEn,
+		&i.Event.DescriptionPl,
+		&i.Event.EventType,
+		&i.Event.InsertedAt,
+		&i.Event.UpdatedAt,
+		&i.Event.Slug,
+		&i.Event.SubtitleEn,
+		&i.Event.SubtitlePl,
+		&i.Event.VenueNameEn,
+		&i.Event.VenueNamePl,
+		&i.Event.VenueStreet,
+		&i.Event.VenueCityEn,
+		&i.Event.VenueCityPl,
+		&i.Event.VenuePostalCode,
+		&i.Event.VenueCountryCode,
+		&i.Event.ProductID,
+		&i.Product.ID,
+		&i.Product.ProductType,
+		&i.Product.TitlePl,
+		&i.Product.TitleEn,
+		&i.Product.BasePriceAmount,
+		&i.Product.BasePriceCurrency,
+		&i.Product.InsertedAt,
+		&i.Product.UpdatedAt,
 	)
 	return &i, err
 }

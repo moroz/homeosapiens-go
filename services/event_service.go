@@ -24,7 +24,7 @@ func (s *EventService) GetRegisterableEventById(ctx context.Context, id uuid.UUI
 	return queries.New(s.db).GetFreeEventById(ctx, id)
 }
 
-func (s *EventService) GetPaidEventById(ctx context.Context, id uuid.UUID) (*queries.Event, error) {
+func (s *EventService) GetPaidEventById(ctx context.Context, id uuid.UUID) (*queries.GetPaidEventByIdRow, error) {
 	return queries.New(s.db).GetPaidEventById(ctx, id)
 }
 
@@ -238,22 +238,22 @@ func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, e
 	return result, nil
 }
 
-func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartID *uuid.UUID, productIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartID *uuid.UUID, eventIDs []uuid.UUID) (map[uuid.UUID]int, error) {
 	result := make(map[uuid.UUID]int)
 	if cartID == nil {
 		return result, nil
 	}
 
 	counts, err := queries.New(s.db).CountCartLineItemQuantitiesForProducts(ctx, &queries.CountCartLineItemQuantitiesForProductsParams{
-		ProductIds: productIDs,
-		CartID:     *cartID,
+		EventIds: eventIDs,
+		CartID:   *cartID,
 	})
 	if err != nil {
 		return result, nil
 	}
 
 	for _, row := range counts {
-		result[row.ProductID] = int(row.Quantity)
+		result[row.EventID] = int(row.Quantity)
 	}
 	return result, nil
 }
