@@ -95,15 +95,11 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 	}
 
 	for _, item := range items {
-		if item.Event.BasePriceAmount == nil {
-			return nil, fmt.Errorf("CreateOrder: event %s has no price set", item.Event.ID)
-		}
-
 		lineItem, err := queries.New(tx).InsertOrderLineItem(ctx, &queries.InsertOrderLineItemParams{
-			OrderID:          result.Order.ID,
-			EventID:          item.Event.ID,
-			EventTitle:       item.Event.TitleEn,
-			EventPriceAmount: item.Subtotal,
+			OrderID:            result.Order.ID,
+			ProductID:          item.ProductID,
+			ProductTitle:       item.TitleEn,
+			ProductPriceAmount: item.Subtotal,
 		})
 
 		if err != nil {

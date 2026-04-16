@@ -400,23 +400,7 @@ type Event struct {
 	VenueCityPl      *string
 	VenuePostalCode  *string
 	VenueCountryCode *string
-	ProductID        uuid.UUID
-}
-
-type EventPrice struct {
-	ID            uuid.UUID
-	EventID       uuid.UUID
-	PriceType     PriceType
-	RuleType      PriceRuleType
-	PriceAmount   decimal.Decimal
-	PriceCurrency string
-	DiscountCode  *string
-	Priority      int32
-	IsActive      bool
-	ValidFrom     *time.Time
-	ValidUntil    *time.Time
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ProductID        *uuid.UUID
 }
 
 type EventRegistration struct {
@@ -472,15 +456,15 @@ type Order struct {
 }
 
 type OrderLineItem struct {
-	ID                 uuid.UUID
-	OrderID            uuid.UUID
-	EventTitle         string
-	EventPriceAmount   decimal.Decimal
-	EventPriceCurrency string
-	Quantity           int32
-	InsertedAt         time.Time
-	UpdatedAt          time.Time
-	ProductID          uuid.UUID
+	ID                   uuid.UUID
+	OrderID              uuid.UUID
+	ProductTitle         string
+	ProductPriceAmount   decimal.Decimal
+	ProductPriceCurrency string
+	Quantity             int32
+	InsertedAt           time.Time
+	UpdatedAt            time.Time
+	ProductID            uuid.UUID
 }
 
 type Product struct {
@@ -492,6 +476,22 @@ type Product struct {
 	BasePriceCurrency string
 	InsertedAt        time.Time
 	UpdatedAt         time.Time
+}
+
+type ProductPrice struct {
+	ID            uuid.UUID
+	PriceType     PriceType
+	RuleType      PriceRuleType
+	PriceAmount   decimal.Decimal
+	PriceCurrency string
+	DiscountCode  *string
+	Priority      int32
+	IsActive      bool
+	ValidFrom     *time.Time
+	ValidUntil    *time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ProductID     uuid.UUID
 }
 
 type RiverClient struct {

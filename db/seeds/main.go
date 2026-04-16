@@ -52,7 +52,7 @@ func main() {
 	defer tx.Rollback(context.Background())
 
 	log.Printf("Cleaning database...")
-	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, events_hosts, event_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, cart_line_items")
+	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, events_hosts, product_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, cart_line_items")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -275,28 +275,48 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 	log.Printf("Creating events...")
 	q := queries.New(tx)
 	for _, event := range events {
+		var product *queries.Product
+
+		if event.BasePriceCurrency != nil {
+			product, err = q.InsertProduct(context.Background(), &queries.InsertProductParams{
+				ProductType:       queries.ProductTypeEvent,
+				TitlePl:           event.TitlePl,
+				TitleEn:           event.TitleEn,
+				BasePriceAmount:   MustParseDecimal(*event.BasePriceAmount),
+				BasePriceCurrency: *event.BasePriceCurrency,
+			})
+		}
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var productID *uuid.UUID
+		if product != nil {
+			productID = &product.ID
+		}
+
 		params := &queries.UpsertEventParams{
-			ID:                event.ID,
-			EventType:         event.EventType,
-			TitleEn:           event.TitleEn,
-			TitlePl:           event.TitlePl,
-			SubtitleEn:        event.SubtitleEn,
-			SubtitlePl:        event.SubtitlePl,
-			Slug:              event.Slug,
-			StartsAt:          event.StartsAt,
-			EndsAt:            event.EndsAt,
-			IsVirtual:         event.IsVirtual,
-			DescriptionEn:     event.DescriptionEn,
-			DescriptionPl:     event.DescriptionPl,
-			BasePriceAmount:   MaybeDecimal(event.BasePriceAmount),
-			BasePriceCurrency: event.BasePriceCurrency,
-			VenueCountryCode:  event.VenueCountryCode,
-			VenueStreet:       event.VenueStreet,
-			VenueNameEn:       event.VenueNameEn,
-			VenueNamePl:       event.VenueNamePl,
-			VenuePostalCode:   event.VenuePostalCode,
-			VenueCityPl:       event.VenueCityPl,
-			VenueCityEn:       event.VenueCityEn,
+			ID:               event.ID,
+			ProductID:        productID,
+			EventType:        event.EventType,
+			TitleEn:          event.TitleEn,
+			TitlePl:          event.TitlePl,
+			SubtitleEn:       event.SubtitleEn,
+			SubtitlePl:       event.SubtitlePl,
+			Slug:             event.Slug,
+			StartsAt:         event.StartsAt,
+			EndsAt:           event.EndsAt,
+			IsVirtual:        event.IsVirtual,
+			DescriptionEn:    event.DescriptionEn,
+			DescriptionPl:    event.DescriptionPl,
+			VenueCountryCode: event.VenueCountryCode,
+			VenueStreet:      event.VenueStreet,
+			VenueNameEn:      event.VenueNameEn,
+			VenueNamePl:      event.VenueNamePl,
+			VenuePostalCode:  event.VenuePostalCode,
+			VenueCityPl:      event.VenueCityPl,
+			VenueCityEn:      event.VenueCityEn,
 		}
 		if _, err := q.UpsertEvent(context.Background(), params); err != nil {
 			log.Fatal(err)

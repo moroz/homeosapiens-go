@@ -30,8 +30,9 @@ func (s *EventService) GetPaidEventById(ctx context.Context, id uuid.UUID) (*que
 
 type EventListDto struct {
 	*queries.ListEventsRow
+	Product           *queries.Product
 	Hosts             []*queries.ListHostsForEventsRow
-	Prices            []*queries.EventPrice
+	Prices            []*queries.ProductPrice
 	EventRegistration *queries.EventRegistration
 	RegistrationCount int
 	CountInCart       int
@@ -46,6 +47,11 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User, cartI
 	var ids []uuid.UUID
 	for _, event := range events {
 		ids = append(ids, event.ID)
+	}
+
+	products, err := s.preloadProductsForEvents(ctx, ids)
+	if err != nil {
+		return nil, err
 	}
 
 	hosts, err := s.preloadHostsForEvents(ctx, ids)
@@ -77,6 +83,7 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User, cartI
 	for _, event := range events {
 		result = append(result, &EventListDto{
 			ListEventsRow:     event,
+			Product:           products[event.ID],
 			Hosts:             hosts[event.ID],
 			Prices:            prices[event.ID],
 			EventRegistration: registrations[event.ID],
@@ -90,7 +97,8 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User, cartI
 
 type EventDetailsDto struct {
 	*queries.Event
-	Prices            []*queries.EventPrice
+	Product           *queries.Product
+	Prices            []*queries.ProductPrice
 	Hosts             []*queries.ListHostsForEventsRow
 	EventRegistration *queries.EventRegistration
 	RegistrationCount int
@@ -155,6 +163,20 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 
 }
 
+func (s *EventService) preloadProductsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID]*queries.Product, error) {
+	products, err := queries.New(s.db).ListProductsForEvents(ctx, eventIds)
+	if err != nil {
+		return nil, err
+	}
+
+	productMap := make(map[uuid.UUID]*queries.Product)
+	for _, row := range products {
+		productMap[row.EventID] = &row.Product
+	}
+
+	return productMap, nil
+}
+
 func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.ListHostsForEventsRow, error) {
 	hosts, err := queries.New(s.db).ListHostsForEvents(ctx, eventIds)
 	if err != nil {
@@ -169,15 +191,15 @@ func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []uui
 	return hostMap, nil
 }
 
-func (s *EventService) preloadPricesForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.EventPrice, error) {
+func (s *EventService) preloadPricesForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.ProductPrice, error) {
 	prices, err := queries.New(s.db).ListPricesForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
 
-	priceMap := make(map[uuid.UUID][]*queries.EventPrice)
+	priceMap := make(map[uuid.UUID][]*queries.ProductPrice)
 	for _, row := range prices {
-		priceMap[row.EventID] = append(priceMap[row.EventID], row)
+		priceMap[row.EventID] = append(priceMap[row.EventID], &row.ProductPrice)
 	}
 
 	return priceMap, nil
@@ -216,22 +238,22 @@ func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, e
 	return result, nil
 }
 
-func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartId *uuid.UUID, productIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartID *uuid.UUID, productIDs []uuid.UUID) (map[uuid.UUID]int, error) {
 	result := make(map[uuid.UUID]int)
-	if cartId == nil {
+	if cartID == nil {
 		return result, nil
 	}
 
 	counts, err := queries.New(s.db).CountCartLineItemQuantitiesForProducts(ctx, &queries.CountCartLineItemQuantitiesForProductsParams{
-		Productids: productIDs,
-		CartID:     *cartId,
+		ProductIds: productIDs,
+		CartID:     *cartID,
 	})
 	if err != nil {
 		return result, nil
 	}
 
 	for _, row := range counts {
-		result[row.EventID] = int(row.Quantity)
+		result[row.ProductID] = int(row.Quantity)
 	}
 	return result, nil
 }

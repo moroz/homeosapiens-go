@@ -12,6 +12,13 @@ from events e
 left join products p on e.product_id = p.id
 order by e.starts_at desc;
 
+-- name: ListProductsForEvents :many
+select e.id event_id, sqlc.embed(p)
+from events e
+join products p on e.product_id = p.id
+where e.id = any(@EventIDs::uuid[])
+order by 1;
+
 -- name: ListHostsForEvents :many
 select eh.event_id, h.*, a.object_key profile_picture_url
 from hosts h
@@ -21,9 +28,10 @@ where eh.event_id = any(@EventIDs::uuid[])
 order by eh.host_id, eh.position;
 
 -- name: ListPricesForEvents :many
-select p.* from event_prices p
-where p.event_id = any(@EventIDs::uuid[])
-order by p.event_id, p.priority;
+select e.id event_id, sqlc.embed(p) from product_prices p
+join events e on e.product_id = p.id
+where e.id = any(@EventIDs::uuid[])
+order by e.id, p.priority;
 
 -- name: ListEventRegistrationsForUserForEvents :many
 select er.* from event_registrations er

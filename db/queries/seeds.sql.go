@@ -39,13 +39,14 @@ func (q *Queries) UpsertAsset(ctx context.Context, arg *UpsertAssetParams) (*Ass
 }
 
 const upsertEvent = `-- name: UpsertEvent :one
-INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+INSERT INTO events (id, product_id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id
 `
 
 type UpsertEventParams struct {
 	ID               uuid.UUID
+	ProductID        *uuid.UUID
 	EventType        EventType
 	TitleEn          string
 	TitlePl          string
@@ -69,6 +70,7 @@ type UpsertEventParams struct {
 func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Event, error) {
 	row := q.db.QueryRow(ctx, upsertEvent,
 		arg.ID,
+		arg.ProductID,
 		arg.EventType,
 		arg.TitleEn,
 		arg.TitlePl,
@@ -146,14 +148,15 @@ func (q *Queries) UpsertEventHost(ctx context.Context, arg *UpsertEventHostParam
 }
 
 const upsertEventPrice = `-- name: UpsertEventPrice :one
-INSERT INTO event_prices (event_id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+INSERT INTO product_prices (product_id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until)
+select e.product_id, $1, $2, $3, $4, $5, $6, $7, $8, $9
+from events e
+where e.id = $10::uuid
 on conflict do nothing
-returning id, event_id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until, created_at, updated_at
+returning id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until, created_at, updated_at, product_id
 `
 
 type UpsertEventPriceParams struct {
-	EventID       uuid.UUID
 	PriceType     PriceType
 	RuleType      PriceRuleType
 	PriceAmount   decimal.Decimal
@@ -163,11 +166,11 @@ type UpsertEventPriceParams struct {
 	IsActive      bool
 	ValidFrom     *time.Time
 	ValidUntil    *time.Time
+	EventID       uuid.UUID
 }
 
-func (q *Queries) UpsertEventPrice(ctx context.Context, arg *UpsertEventPriceParams) (*EventPrice, error) {
+func (q *Queries) UpsertEventPrice(ctx context.Context, arg *UpsertEventPriceParams) (*ProductPrice, error) {
 	row := q.db.QueryRow(ctx, upsertEventPrice,
-		arg.EventID,
 		arg.PriceType,
 		arg.RuleType,
 		arg.PriceAmount,
@@ -177,11 +180,11 @@ func (q *Queries) UpsertEventPrice(ctx context.Context, arg *UpsertEventPricePar
 		arg.IsActive,
 		arg.ValidFrom,
 		arg.ValidUntil,
+		arg.EventID,
 	)
-	var i EventPrice
+	var i ProductPrice
 	err := row.Scan(
 		&i.ID,
-		&i.EventID,
 		&i.PriceType,
 		&i.RuleType,
 		&i.PriceAmount,
@@ -193,6 +196,7 @@ func (q *Queries) UpsertEventPrice(ctx context.Context, arg *UpsertEventPricePar
 		&i.ValidUntil,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ProductID,
 	)
 	return &i, err
 }

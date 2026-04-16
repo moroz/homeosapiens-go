@@ -3,10 +3,10 @@ insert into cart_line_items as cli (cart_id, product_id, quantity) values ($1, $
 do update set quantity = cli.quantity + excluded.quantity returning *;
 
 -- name: GetCart :one
-select cli.cart_id, count(cli.id) item_count, sum(cli.quantity * e.base_price_amount)::decimal product_total
+select cli.cart_id, count(cli.id) item_count, sum(cli.quantity * p.base_price_amount)::decimal product_total
 from cart_line_items cli
-join events e on cli.product_id = e.id
-where cli.cart_id = @cart_id::uuid 
+join products p on cli.product_id = p.id
+where cli.cart_id = @cart_id::uuid
 group by 1;
 
 -- name: CountCartLineItemQuantitiesForProducts :many
@@ -15,10 +15,11 @@ from cart_line_items c
 where c.product_id = any(@product_ids::uuid[]) and c.cart_id = @cart_id::uuid;
 
 -- name: GetCartItemsByCartId :many
-select sqlc.embed(c), sqlc.embed(p), (p.base_price_amount * c.quantity)::decimal as subtotal
+select c.*, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, e.slug::text slug
 from cart_line_items c
 join products p on c.product_id = p.id
-where c.cart_id = @cart_id::uuid;
+left join events e on e.product_id = p.id
+where c.cart_id = @cart_id::uuid and (e.id is not null);
 
 -- name: DeleteCartItem :one
 delete from cart_line_items cli where cart_id = @cart_id::uuid and product_id = @product_id::uuid returning id;

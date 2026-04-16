@@ -39,9 +39,9 @@ func CartTable(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 		),
 		TBody(
 			Map(cart.CartItems, func(item *queries.GetCartItemsByCartIdRow) Node {
-				title := item.Event.TitleEn
+				title := item.TitleEn
 				if ctx.Language == "pl" {
-					title = item.Event.TitlePl
+					title = item.TitlePl
 				}
 
 				return Tr(
@@ -50,14 +50,14 @@ func CartTable(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 						Div(
 							Class("flex items-center gap-2"),
 							A(
-								Href(fmt.Sprintf("/events/%s", item.Event.Slug)),
+								Href(fmt.Sprintf("/events/%s", item.Slug)),
 								Text(title),
 							),
-							deleteItemButton(ctx, item.Event.ID),
+							deleteItemButton(ctx, item.ProductID),
 						),
 					),
-					Td(Text(helpers.FormatPrice(*item.Event.BasePriceAmount, "PLN", ctx.Language))),
-					Td(Raw(fmt.Sprintf("&times; %d", item.CartLineItem.Quantity))),
+					Td(Text(helpers.FormatPrice(item.BasePriceAmount, "PLN", ctx.Language))),
+					Td(Raw(fmt.Sprintf("&times; %d", item.Quantity))),
 					Td(Text(helpers.FormatPrice(item.Subtotal, "PLN", ctx.Language))),
 				)
 			}),

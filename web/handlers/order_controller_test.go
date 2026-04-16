@@ -143,12 +143,8 @@ func TestCartFlow(t *testing.T) {
 
 	t.Run("cart view", func(t *testing.T) {
 		cartId := uuid.Must(uuid.NewV7())
-		item, err := queries.New(db).InsertCartLineItem(t.Context(), &queries.InsertCartLineItemParams{
-			CartID:  cartId,
-			EventID: PaidEventId,
-		})
-		assert.NoError(t, err)
-		assert.NotNil(t, item)
+		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, PaidEventId)
+		require.NoError(t, err)
 
 		client, err := clientWithSession(store, origin, session.Payload{
 			config.CartIdSessionKey: cartId,
@@ -197,12 +193,8 @@ func TestCartFlow(t *testing.T) {
 
 	t.Run("placing order creates an order and a user", func(t *testing.T) {
 		cartId := uuid.Must(uuid.NewV7())
-		item, err := queries.New(db).InsertCartLineItem(t.Context(), &queries.InsertCartLineItemParams{
-			CartID:  cartId,
-			EventID: PaidEventId,
-		})
-		assert.NoError(t, err)
-		assert.NotNil(t, item)
+		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, PaidEventId)
+		require.NoError(t, err)
 
 		client, err := clientWithSession(store, origin, session.Payload{
 			config.CartIdSessionKey: cartId,

@@ -33,10 +33,7 @@ func TestCreateOrder(t *testing.T) {
 	eventId := uuid.MustParse("019c5c9a-c5a4-7518-8317-65ae90516726")
 	cartId := uuid.Must(uuid.NewV7())
 
-	_, err = queries.New(db).InsertCartLineItem(t.Context(), &queries.InsertCartLineItemParams{
-		CartID:  cartId,
-		EventID: eventId,
-	})
+	_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, eventId)
 	require.NoError(t, err)
 
 	countBefore, err := count(db, t.Context(), "orders")

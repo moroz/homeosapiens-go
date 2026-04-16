@@ -304,34 +304,84 @@ func (q *Queries) ListHostsForEvents(ctx context.Context, eventids []uuid.UUID) 
 }
 
 const listPricesForEvents = `-- name: ListPricesForEvents :many
-select p.id, p.event_id, p.price_type, p.rule_type, p.price_amount, p.price_currency, p.discount_code, p.priority, p.is_active, p.valid_from, p.valid_until, p.created_at, p.updated_at from event_prices p
-where p.event_id = any($1::uuid[])
-order by p.event_id, p.priority
+select e.id event_id, p.id, p.price_type, p.rule_type, p.price_amount, p.price_currency, p.discount_code, p.priority, p.is_active, p.valid_from, p.valid_until, p.created_at, p.updated_at, p.product_id from product_prices p
+join events e on e.product_id = p.id
+where e.id = any($1::uuid[])
+order by e.id, p.priority
 `
 
-func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []uuid.UUID) ([]*EventPrice, error) {
+type ListPricesForEventsRow struct {
+	EventID      uuid.UUID
+	ProductPrice ProductPrice
+}
+
+func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []uuid.UUID) ([]*ListPricesForEventsRow, error) {
 	rows, err := q.db.Query(ctx, listPricesForEvents, eventids)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*EventPrice
+	var items []*ListPricesForEventsRow
 	for rows.Next() {
-		var i EventPrice
+		var i ListPricesForEventsRow
 		if err := rows.Scan(
-			&i.ID,
 			&i.EventID,
-			&i.PriceType,
-			&i.RuleType,
-			&i.PriceAmount,
-			&i.PriceCurrency,
-			&i.DiscountCode,
-			&i.Priority,
-			&i.IsActive,
-			&i.ValidFrom,
-			&i.ValidUntil,
-			&i.CreatedAt,
-			&i.UpdatedAt,
+			&i.ProductPrice.ID,
+			&i.ProductPrice.PriceType,
+			&i.ProductPrice.RuleType,
+			&i.ProductPrice.PriceAmount,
+			&i.ProductPrice.PriceCurrency,
+			&i.ProductPrice.DiscountCode,
+			&i.ProductPrice.Priority,
+			&i.ProductPrice.IsActive,
+			&i.ProductPrice.ValidFrom,
+			&i.ProductPrice.ValidUntil,
+			&i.ProductPrice.CreatedAt,
+			&i.ProductPrice.UpdatedAt,
+			&i.ProductPrice.ProductID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listProductsForEvents = `-- name: ListProductsForEvents :many
+select e.id event_id, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
+from events e
+join products p on e.product_id = p.id
+where e.id = any($1::uuid[])
+order by 1
+`
+
+type ListProductsForEventsRow struct {
+	EventID uuid.UUID
+	Product Product
+}
+
+func (q *Queries) ListProductsForEvents(ctx context.Context, eventids []uuid.UUID) ([]*ListProductsForEventsRow, error) {
+	rows, err := q.db.Query(ctx, listProductsForEvents, eventids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListProductsForEventsRow
+	for rows.Next() {
+		var i ListProductsForEventsRow
+		if err := rows.Scan(
+			&i.EventID,
+			&i.Product.ID,
+			&i.Product.ProductType,
+			&i.Product.TitlePl,
+			&i.Product.TitleEn,
+			&i.Product.BasePriceAmount,
+			&i.Product.BasePriceCurrency,
+			&i.Product.InsertedAt,
+			&i.Product.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

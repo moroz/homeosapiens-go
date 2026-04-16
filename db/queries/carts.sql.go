@@ -7,6 +7,7 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -74,10 +75,10 @@ func (q *Queries) DeleteCartItem(ctx context.Context, arg *DeleteCartItemParams)
 }
 
 const getCart = `-- name: GetCart :one
-select cli.cart_id, count(cli.id) item_count, sum(cli.quantity * e.base_price_amount)::decimal product_total
+select cli.cart_id, count(cli.id) item_count, sum(cli.quantity * p.base_price_amount)::decimal product_total
 from cart_line_items cli
-join events e on cli.product_id = e.id
-where cli.cart_id = $1::uuid 
+join products p on cli.product_id = p.id
+where cli.cart_id = $1::uuid
 group by 1
 `
 
@@ -95,16 +96,25 @@ func (q *Queries) GetCart(ctx context.Context, cartID uuid.UUID) (*GetCartRow, e
 }
 
 const getCartItemsByCartId = `-- name: GetCartItemsByCartId :many
-select c.id, c.cart_id, c.quantity, c.inserted_at, c.updated_at, c.product_id, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at, (p.base_price_amount * c.quantity)::decimal as subtotal
+select c.id, c.cart_id, c.quantity, c.inserted_at, c.updated_at, c.product_id, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, e.slug::text slug
 from cart_line_items c
 join products p on c.product_id = p.id
-where c.cart_id = $1::uuid
+left join events e on e.product_id = p.id
+where c.cart_id = $1::uuid and (e.id is not null)
 `
 
 type GetCartItemsByCartIdRow struct {
-	CartLineItem CartLineItem
-	Product      Product
-	Subtotal     decimal.Decimal
+	ID              uuid.UUID
+	CartID          uuid.UUID
+	Quantity        int32
+	InsertedAt      time.Time
+	UpdatedAt       time.Time
+	ProductID       uuid.UUID
+	Subtotal        decimal.Decimal
+	BasePriceAmount decimal.Decimal
+	TitleEn         string
+	TitlePl         string
+	Slug            string
 }
 
 func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([]*GetCartItemsByCartIdRow, error) {
@@ -117,21 +127,17 @@ func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([
 	for rows.Next() {
 		var i GetCartItemsByCartIdRow
 		if err := rows.Scan(
-			&i.CartLineItem.ID,
-			&i.CartLineItem.CartID,
-			&i.CartLineItem.Quantity,
-			&i.CartLineItem.InsertedAt,
-			&i.CartLineItem.UpdatedAt,
-			&i.CartLineItem.ProductID,
-			&i.Product.ID,
-			&i.Product.ProductType,
-			&i.Product.TitlePl,
-			&i.Product.TitleEn,
-			&i.Product.BasePriceAmount,
-			&i.Product.BasePriceCurrency,
-			&i.Product.InsertedAt,
-			&i.Product.UpdatedAt,
+			&i.ID,
+			&i.CartID,
+			&i.Quantity,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.ProductID,
 			&i.Subtotal,
+			&i.BasePriceAmount,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.Slug,
 		); err != nil {
 			return nil, err
 		}

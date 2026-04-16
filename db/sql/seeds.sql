@@ -10,8 +10,8 @@ ON CONFLICT (id) do nothing
 returning *;
 
 -- name: UpsertEvent :one
-INSERT INTO events (id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+INSERT INTO events (id, product_id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 returning *;
 
 -- name: UpsertEventHost :one
@@ -23,8 +23,10 @@ ON CONFLICT (event_id, host_id) DO UPDATE SET
 returning *;
 
 -- name: UpsertEventPrice :one
-INSERT INTO event_prices (event_id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+INSERT INTO product_prices (product_id, price_type, rule_type, price_amount, price_currency, discount_code, priority, is_active, valid_from, valid_until)
+select e.product_id, $1, $2, $3, $4, $5, $6, $7, $8, $9
+from events e
+where e.id = @event_id::uuid
 on conflict do nothing
 returning *;
 

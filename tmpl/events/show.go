@@ -68,7 +68,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	}
 
 	l := ctx.Localizer
-	isFree := event.BasePriceAmount == nil || event.BasePriceAmount.Equal(decimal.Zero)
+	isFree := event.Product == nil || event.Product.BasePriceAmount.Equal(decimal.Zero)
 
 	return layout.Layout(ctx, event.TitleEn, Div(
 		Class("card mx-auto"),
