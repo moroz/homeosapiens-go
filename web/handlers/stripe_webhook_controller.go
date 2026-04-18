@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/stripe/stripe-go/v84"
 )
@@ -18,7 +18,7 @@ type stripeWebhookController struct {
 	stripeService services.StripeService
 }
 
-func StripeWebhookController(db queries.DBTX, stripeClient services.StripeService) *stripeWebhookController {
+func StripeWebhookController(db *pgxpool.Pool, stripeClient services.StripeService) *stripeWebhookController {
 
 	return &stripeWebhookController{
 		stripeService: stripeClient,

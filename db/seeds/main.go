@@ -52,7 +52,7 @@ func main() {
 	defer tx.Rollback(context.Background())
 
 	log.Printf("Cleaning database...")
-	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, events_hosts, product_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, cart_line_items")
+	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, events_hosts, product_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, cart_line_items, user_product_access")
 	if err != nil {
 		log.Fatal(err)
 	}

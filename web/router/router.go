@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v5"
 	echomiddleware "github.com/labstack/echo/v5/middleware"
 	"github.com/moroz/homeosapiens-go/config"
-	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/admin"
@@ -21,7 +21,7 @@ func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db queries.DBTX, store *session.Store, stripeClient services.StripeService) *echo.Echo {
+func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.StripeService) *echo.Echo {
 	r := echo.New()
 
 	bundle, err := i18n.InitBundle()

@@ -44,11 +44,13 @@ func TestCreateOrder(t *testing.T) {
 	stripe := mocks.NewMockStripeService(t)
 	stripe.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)
 
+	email := mocks.UniqueEmail()
+
 	db.Exec(t.Context(), "truncate river_job")
 	srv := services.NewOrderService(db, stripe)
 	order, err := srv.CreateOrder(t.Context(), cartId, nil, &types.OrderParams{
 		PreferredLocale:     "pl",
-		Email:               "user@example.com",
+		Email:               email,
 		BillingGivenName:    "John",
 		BillingFamilyName:   "Smith",
 		BillingPhone:        "+48555123456",
@@ -70,4 +72,13 @@ func TestCreateOrder(t *testing.T) {
 	assert.Zero(t, countAfter)
 
 	rivertest.RequireInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendOrderEmailArgs{}, nil)
+
+	user, err := services.NewUserService(db).FindUserByEmail(t.Context(), email)
+	require.NoError(t, err)
+	require.NotNil(t, user)
+
+	var hasAccess bool
+	err = db.QueryRow(t.Context(), "select exists (select from user_product_access where user_id = $1)", user.ID).Scan(&hasAccess)
+	require.NoError(t, err)
+	assert.False(t, hasAccess)
 }
