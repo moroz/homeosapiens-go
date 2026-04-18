@@ -1,9 +1,10 @@
 import "./app.css";
 
-import videojs from "video.js";
 import "vanilla-hamburger/fade-burger.js";
 
-document.querySelectorAll(".video-js").forEach((el) => {
+document.querySelectorAll(".video-js").forEach(async (el) => {
+	const videojs = (await import("video.js")).default;
+
 	videojs(el, { controls: true, fluid: true });
 });
 

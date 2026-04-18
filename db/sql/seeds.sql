@@ -31,10 +31,9 @@ on conflict do nothing
 returning *;
 
 -- name: UpsertVideo :one
-INSERT INTO videos (id, event_id, provider, title_en, title_pl, slug, is_public)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO videos (id, provider, title_en, title_pl, slug, is_public)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE SET
-    event_id = excluded.event_id,
     provider = excluded.provider,
     title_en = excluded.title_en,
     title_pl = excluded.title_pl,

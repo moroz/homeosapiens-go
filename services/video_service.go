@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/types"
 )
 
 type VideoService struct {
@@ -20,49 +21,83 @@ type VideoListDto struct {
 	Sources []*queries.VideoSource
 }
 
-func (s *VideoService) ListVideosWithSources(ctx context.Context, user *queries.User) ([]*VideoListDto, error) {
-	var videos []*queries.Video
-	var err error
+func (s *VideoService) CreateVideoGroup(ctx context.Context, params *types.CreateVideoGroupParams) (*queries.VideoGroup, error) {
+	return queries.New(s.db).InsertVideoGroup(ctx, &queries.InsertVideoGroupParams{
+		TitleEn:   params.TitleEn,
+		TitlePl:   params.TitlePl,
+		Slug:      params.Slug,
+		ProductID: params.ProductID,
+	})
+}
 
-	if user == nil {
-		videos, err = queries.New(s.db).ListPublicVideos(ctx)
-	} else {
-		videos, err = queries.New(s.db).ListVideosForUser(ctx, user.ID)
+func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, user *queries.User) ([]*types.VideoGroupListDTO, error) {
+	var userID *uuid.UUID
+	if user != nil {
+		userID = &user.ID
 	}
+
+	videos, err := queries.New(s.db).ListVideoGroupsForUser(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	var ids []uuid.UUID
-	for _, v := range videos {
-		ids = append(ids, v.ID)
-	}
-
-	sources, err := s.preloadSourcesForVideos(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-
-	var result []*VideoListDto
-	for _, v := range videos {
-		result = append(result, &VideoListDto{
-			Video:   v,
-			Sources: sources[v.ID],
+	var result []*types.VideoGroupListDTO
+	for _, vg := range videos {
+		result = append(result, &types.VideoGroupListDTO{
+			VideoGroup: vg,
 		})
 	}
 
 	return result, nil
 }
 
-func (s *VideoService) preloadSourcesForVideos(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID][]*queries.VideoSource, error) {
-	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, ids)
+func (s *VideoService) GetVideoGroupDetails(ctx context.Context, user *queries.User, slug *string) (*types.VideoGroupDetailsDTO, error) {
+	var userID *uuid.UUID
+	if user != nil {
+		userID = &user.ID
+	}
+
+	group, err := queries.New(s.db).GetVideoGroupForUserBySlug(ctx, &queries.GetVideoGroupForUserBySlugParams{
+		Slug:   slug,
+		UserID: userID,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	var result = make(map[uuid.UUID][]*queries.VideoSource)
-	for _, row := range sources {
-		result[row.VideoID] = append(result[row.VideoID], row)
+	videos, err := queries.New(s.db).ListVideosForVideoGroup(ctx, group.ID)
+	if err != nil {
+		return nil, err
 	}
-	return result, nil
+
+	return &types.VideoGroupDetailsDTO{
+		VideoGroup: group,
+		Videos:     videos,
+	}, nil
+}
+
+func (s *VideoService) GetVideoForUser(ctx context.Context, user *queries.User, groupSlug, videoSlug string) (*types.VideoDetailsDTO, error) {
+	var userID *uuid.UUID
+	if user != nil {
+		userID = &user.ID
+	}
+
+	video, err := queries.New(s.db).GetVideoForUser(ctx, &queries.GetVideoForUserParams{
+		VideoSlug: videoSlug,
+		GroupSlug: groupSlug,
+		UserID:    userID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, []uuid.UUID{video.ID})
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.VideoDetailsDTO{
+		Video:   video,
+		Sources: sources,
+	}, nil
 }

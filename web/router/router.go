@@ -75,6 +75,8 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 	r.GET("/user-registrations/success", userRegistrations.Success)
 
 	videos := handlers.VideoController(db)
+	r.GET("/videos/:group_slug/:video_slug", videos.Show)
+	r.GET("/videos/:group_slug", videos.Index)
 	r.GET("/videos", videos.Index)
 
 	prefs := handlers.PreferencesController()

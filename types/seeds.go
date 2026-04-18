@@ -94,3 +94,11 @@ type CreateVideoSourceParams struct {
 	Codec       string
 	ObjectKey   string
 }
+
+type CreateVideoGroupParams struct {
+	ID        uuid.UUID
+	TitleEn   string
+	TitlePl   string
+	Slug      string
+	ProductID *uuid.UUID
+}

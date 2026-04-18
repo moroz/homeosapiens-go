@@ -241,22 +241,20 @@ func (q *Queries) UpsertHost(ctx context.Context, arg *UpsertHostParams) (*Host,
 }
 
 const upsertVideo = `-- name: UpsertVideo :one
-INSERT INTO videos (id, event_id, provider, title_en, title_pl, slug, is_public)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO videos (id, provider, title_en, title_pl, slug, is_public)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE SET
-    event_id = excluded.event_id,
     provider = excluded.provider,
     title_en = excluded.title_en,
     title_pl = excluded.title_pl,
     slug = excluded.slug,
     is_public = excluded.is_public,
     updated_at = now()
-returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, event_id
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at
 `
 
 type UpsertVideoParams struct {
 	ID       uuid.UUID
-	EventID  uuid.UUID
 	Provider VideoProvider
 	TitleEn  string
 	TitlePl  string
@@ -267,7 +265,6 @@ type UpsertVideoParams struct {
 func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Video, error) {
 	row := q.db.QueryRow(ctx, upsertVideo,
 		arg.ID,
-		arg.EventID,
 		arg.Provider,
 		arg.TitleEn,
 		arg.TitlePl,
@@ -284,7 +281,6 @@ func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Vid
 		&i.Slug,
 		&i.InsertedAt,
 		&i.UpdatedAt,
-		&i.EventID,
 	)
 	return &i, err
 }

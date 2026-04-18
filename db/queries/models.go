@@ -605,7 +605,25 @@ type Video struct {
 	Slug       string
 	InsertedAt time.Time
 	UpdatedAt  time.Time
-	EventID    uuid.UUID
+}
+
+type VideoGroup struct {
+	ID         uuid.UUID
+	TitleEn    string
+	TitlePl    string
+	Slug       string
+	ProductID  *uuid.UUID
+	InsertedAt time.Time
+	UpdatedAt  time.Time
+}
+
+type VideoGroupsVideo struct {
+	ID           uuid.UUID
+	Position     int32
+	VideoID      uuid.UUID
+	VideoGroupID uuid.UUID
+	InsertedAt   time.Time
+	UpdatedAt    time.Time
 }
 
 type VideoSource struct {

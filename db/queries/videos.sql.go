@@ -11,31 +11,163 @@ import (
 	"github.com/google/uuid"
 )
 
-const listPublicVideos = `-- name: ListPublicVideos :many
-select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, event_id from videos v
-where is_public = true
-order by v.id desc
+const addVideoToVideoGroup = `-- name: AddVideoToVideoGroup :one
+insert into video_groups_videos (video_id, video_group_id, position)
+select $1, $2, coalesce(max(position), -1) + 1
+from video_groups_videos where video_group_id = $2
+on conflict (video_id, video_group_id) do nothing
+returning id, position, video_id, video_group_id, inserted_at, updated_at
 `
 
-func (q *Queries) ListPublicVideos(ctx context.Context) ([]*Video, error) {
-	rows, err := q.db.Query(ctx, listPublicVideos)
+type AddVideoToVideoGroupParams struct {
+	VideoID      uuid.UUID
+	VideoGroupID uuid.UUID
+}
+
+func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideoGroupParams) (*VideoGroupsVideo, error) {
+	row := q.db.QueryRow(ctx, addVideoToVideoGroup, arg.VideoID, arg.VideoGroupID)
+	var i VideoGroupsVideo
+	err := row.Scan(
+		&i.ID,
+		&i.Position,
+		&i.VideoID,
+		&i.VideoGroupID,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const getVideoForUser = `-- name: GetVideoForUser :one
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at from videos v
+join video_groups_videos vgv on vgv.video_id = v.id
+join video_groups vg on vgv.video_group_id = vg.id
+where v.slug = $1 and vg.slug = $2 and (
+    vg.product_id is null or vg.id in (
+        select vg.id from video_groups vg
+        join user_product_access upa on upa.product_id = vg.product_id
+        where upa.user_id = $3::uuid
+    ) or exists (
+        select from users u where u.id = $3::uuid and u.user_role = 'Administrator'
+    )
+) limit 1
+`
+
+type GetVideoForUserParams struct {
+	VideoSlug string
+	GroupSlug string
+	UserID    *uuid.UUID
+}
+
+func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParams) (*Video, error) {
+	row := q.db.QueryRow(ctx, getVideoForUser, arg.VideoSlug, arg.GroupSlug, arg.UserID)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.IsPublic,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.Slug,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const getVideoGroupForUserBySlug = `-- name: GetVideoGroupForUserBySlug :one
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at from video_groups vg
+where ($1::text is null or vg.slug = $1) and (
+    vg.product_id is null or vg.id in (
+        select vg.id from video_groups vg
+        join user_product_access upa on upa.product_id = vg.product_id
+        where upa.user_id = $2::uuid
+    ) or exists (
+        select from users u where u.id = $2::uuid and u.user_role = 'Administrator'
+    )
+) limit 1
+`
+
+type GetVideoGroupForUserBySlugParams struct {
+	Slug   *string
+	UserID *uuid.UUID
+}
+
+func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoGroupForUserBySlugParams) (*VideoGroup, error) {
+	row := q.db.QueryRow(ctx, getVideoGroupForUserBySlug, arg.Slug, arg.UserID)
+	var i VideoGroup
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.Slug,
+		&i.ProductID,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const insertVideoGroup = `-- name: InsertVideoGroup :one
+insert into video_groups (title_en, title_pl, slug, product_id) values ($1, $2, $3, $4) returning id, title_en, title_pl, slug, product_id, inserted_at, updated_at
+`
+
+type InsertVideoGroupParams struct {
+	TitleEn   string
+	TitlePl   string
+	Slug      string
+	ProductID *uuid.UUID
+}
+
+func (q *Queries) InsertVideoGroup(ctx context.Context, arg *InsertVideoGroupParams) (*VideoGroup, error) {
+	row := q.db.QueryRow(ctx, insertVideoGroup,
+		arg.TitleEn,
+		arg.TitlePl,
+		arg.Slug,
+		arg.ProductID,
+	)
+	var i VideoGroup
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.Slug,
+		&i.ProductID,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const listVideoGroupsForUser = `-- name: ListVideoGroupsForUser :many
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at from video_groups vg
+where vg.product_id is null
+or vg.id in (
+  select vg.id from video_groups vg
+  join user_product_access upa on upa.product_id = vg.product_id
+  where upa.user_id = $1::uuid
+) or exists (
+  select from users u where u.id = $1::uuid and u.user_role = 'Administrator'
+)
+`
+
+func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID *uuid.UUID) ([]*VideoGroup, error) {
+	rows, err := q.db.Query(ctx, listVideoGroupsForUser, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Video
+	var items []*VideoGroup
 	for rows.Next() {
-		var i Video
+		var i VideoGroup
 		if err := rows.Scan(
 			&i.ID,
-			&i.Provider,
-			&i.IsPublic,
 			&i.TitleEn,
 			&i.TitlePl,
 			&i.Slug,
+			&i.ProductID,
 			&i.InsertedAt,
 			&i.UpdatedAt,
-			&i.EventID,
 		); err != nil {
 			return nil, err
 		}
@@ -53,8 +185,8 @@ where vs.video_id = any($1::uuid[])
 order by vs.video_id, vs.id
 `
 
-func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoids []uuid.UUID) ([]*VideoSource, error) {
-	rows, err := q.db.Query(ctx, listVideoSourcesForVideos, videoids)
+func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoIds []uuid.UUID) ([]*VideoSource, error) {
+	rows, err := q.db.Query(ctx, listVideoSourcesForVideos, videoIds)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +214,7 @@ func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoids []uuid
 }
 
 const listVideos = `-- name: ListVideos :many
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.event_id from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at from videos v
 order by v.id desc
 `
 
@@ -104,7 +236,6 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 			&i.Slug,
 			&i.InsertedAt,
 			&i.UpdatedAt,
-			&i.EventID,
 		); err != nil {
 			return nil, err
 		}
@@ -116,16 +247,15 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 	return items, nil
 }
 
-const listVideosForUser = `-- name: ListVideosForUser :many
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.event_id from videos v
-where v.is_public = true
-   or v.id in (select v.id from videos v join event_registrations er on v.event_id = er.event_id
-               where er.user_id = $1::uuid)
-   or exists (select 1 from users u where u.id = $1::uuid and u.user_role = 'Administrator')
+const listVideosForVideoGroup = `-- name: ListVideosForVideoGroup :many
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at from videos v
+join video_groups_videos vgv on vgv.video_id = v.id
+where vgv.video_group_id = $1
+order by position
 `
 
-func (q *Queries) ListVideosForUser(ctx context.Context, userid uuid.UUID) ([]*Video, error) {
-	rows, err := q.db.Query(ctx, listVideosForUser, userid)
+func (q *Queries) ListVideosForVideoGroup(ctx context.Context, videoGroupID uuid.UUID) ([]*Video, error) {
+	rows, err := q.db.Query(ctx, listVideosForVideoGroup, videoGroupID)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +272,6 @@ func (q *Queries) ListVideosForUser(ctx context.Context, userid uuid.UUID) ([]*V
 			&i.Slug,
 			&i.InsertedAt,
 			&i.UpdatedAt,
-			&i.EventID,
 		); err != nil {
 			return nil, err
 		}
@@ -152,4 +281,39 @@ func (q *Queries) ListVideosForUser(ctx context.Context, userid uuid.UUID) ([]*V
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertVideoGroup = `-- name: UpsertVideoGroup :one
+insert into video_groups (id, title_en, title_pl, slug, product_id) values ($1, $2, $3, $4, $5)
+on conflict (slug) do update set title_en = excluded.title_en, title_pl = excluded.title_pl, product_id = excluded.product_id
+returning id, title_en, title_pl, slug, product_id, inserted_at, updated_at
+`
+
+type UpsertVideoGroupParams struct {
+	ID        uuid.UUID
+	TitleEn   string
+	TitlePl   string
+	Slug      string
+	ProductID *uuid.UUID
+}
+
+func (q *Queries) UpsertVideoGroup(ctx context.Context, arg *UpsertVideoGroupParams) (*VideoGroup, error) {
+	row := q.db.QueryRow(ctx, upsertVideoGroup,
+		arg.ID,
+		arg.TitleEn,
+		arg.TitlePl,
+		arg.Slug,
+		arg.ProductID,
+	)
+	var i VideoGroup
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.Slug,
+		&i.ProductID,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
 }

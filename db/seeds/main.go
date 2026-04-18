@@ -52,7 +52,7 @@ func main() {
 	defer tx.Rollback(context.Background())
 
 	log.Printf("Cleaning database...")
-	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, events_hosts, product_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, cart_line_items, user_product_access")
+	_, err = db.Exec(context.Background(), "truncate events, hosts, assets, events_hosts, product_prices, event_registrations, user_tokens, videos, video_sources, orders, order_line_items, cart_line_items, user_product_access, video_groups, video_groups_videos")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -404,6 +404,18 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		}
 	}
 
+	videoGroup := queries.UpsertVideoGroupParams{
+		ID:      uuid.MustParse("019da123-449c-7038-aae3-303255746cc4"),
+		TitleEn: "Dr Sanjay Modi: To Perfect The Art of Homeopathy",
+		TitlePl: "Dr Sanjay Modi: Udoskonalić kunszt homeopatyczny",
+		Slug:    "dr-sanjay-modi-to-perfect-the-art-of-homeopathy",
+	}
+
+	log.Print("Creating video group...")
+	if _, err := q.UpsertVideoGroup(context.Background(), &videoGroup); err != nil {
+		log.Fatal(err)
+	}
+
 	videos := []*types.CreateVideoParams{
 		{
 			ID:       uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
@@ -424,11 +436,11 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			IsPublic: false,
 		},
 	}
+
 	log.Printf("Creating videos...")
 	for _, video := range videos {
 		params := &queries.UpsertVideoParams{
 			ID:       video.ID,
-			EventID:  video.EventID,
 			Provider: video.Provider,
 			TitleEn:  video.TitleEn,
 			TitlePl:  video.TitlePl,
@@ -436,6 +448,12 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			IsPublic: video.IsPublic,
 		}
 		if _, err := q.UpsertVideo(context.Background(), params); err != nil {
+			log.Fatal(err)
+		}
+		if _, err := q.AddVideoToVideoGroup(context.Background(), &queries.AddVideoToVideoGroupParams{
+			VideoID:      params.ID,
+			VideoGroupID: videoGroup.ID,
+		}); err != nil {
 			log.Fatal(err)
 		}
 	}

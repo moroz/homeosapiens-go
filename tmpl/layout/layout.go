@@ -39,6 +39,18 @@ func Layout(ctx *types.CustomContext, title string, children ...Node) Node {
 	)
 }
 
+func BareLayout(ctx *types.CustomContext, title string, children ...Node) Node {
+	return RootLayout(ctx, title,
+		Class("flex min-h-screen max-w-full flex-col overflow-x-hidden"),
+		AppHeader(ctx),
+		Main(
+			Class("flex-1 bg-slate-100 pt-26 pb-6"),
+			Group(children),
+		),
+		AppFooter(),
+	)
+}
+
 func fonts() Node {
 	return Group{
 		Link(

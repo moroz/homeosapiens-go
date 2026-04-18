@@ -61,7 +61,7 @@
 	}
 
 	.page-title {
-		@apply text-primary text-2xl font-bold lg:text-3xl mb-4;
+		@apply text-primary mb-4 text-2xl font-bold lg:text-3xl;
 	}
 
 	.card {
@@ -99,7 +99,8 @@
 	.alert {
 		@apply my-3 rounded-sm border px-4 py-3;
 
-		:is(&).danger, :is(&).error {
+		:is(&).danger,
+		:is(&).error {
 			@apply border-red-900/50 bg-red-100 text-red-900;
 		}
 
@@ -161,6 +162,18 @@
 		th,
 		td {
 			@apply min-h-9 border border-slate-400 px-2 py-1 text-left;
+		}
+	}
+
+	.video-group-menu {
+		@apply grid gap-2;
+
+		> li {
+			@apply inline-flex px-3 py-2;
+
+			&.is-active {
+				@apply bg-primary font-semibold text-white;
+			}
 		}
 	}
 }
