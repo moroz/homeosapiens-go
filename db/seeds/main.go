@@ -460,6 +460,13 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 
 	videoSources := []*types.CreateVideoSourceParams{
 		{
+			ID:          uuid.MustParse("019daa0b-aea2-7136-b0a4-6c96dee4028b"),
+			VideoID:     uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
+			ContentType: "application/vnd.apple.mpegurl",
+			Codec:       "",
+			ObjectKey:   "/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/hls/p1_hls.m3u8",
+		},
+		{
 			ID:          uuid.MustParse("019a8ba6-c5ae-7f6f-becb-94b6957a52b2"),
 			VideoID:     uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
 			ContentType: "video/mp4",
@@ -494,8 +501,10 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			ID:          source.ID,
 			VideoID:     source.VideoID,
 			ContentType: source.ContentType,
-			Codec:       new(source.Codec),
 			ObjectKey:   source.ObjectKey,
+		}
+		if source.Codec != "" {
+			params.Codec = new(source.Codec)
 		}
 		if _, err := q.UpsertVideoSource(context.Background(), params); err != nil {
 			log.Fatal(err)

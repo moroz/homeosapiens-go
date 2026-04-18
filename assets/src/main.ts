@@ -2,12 +2,12 @@ import "./app.css";
 
 import "vanilla-hamburger/fade-burger.js";
 
-document.querySelectorAll(".video-js").forEach(async (el) => {
-	const videojs = (await import("video.js")).default;
-
-	videojs(el, { controls: true, fluid: true });
-});
-
+// document.querySelectorAll(".video-js").forEach(async (el) => {
+// 	const videojs = (await import("video.js")).default;
+//
+// 	videojs(el, { controls: true, fluid: true });
+// });
+//
 document.querySelectorAll(".user-dropdown").forEach((el) => {
 	const dropdown = el.querySelector(".dropdown");
 	if (!dropdown) return;

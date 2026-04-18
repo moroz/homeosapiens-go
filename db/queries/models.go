@@ -634,4 +634,5 @@ type VideoSource struct {
 	ObjectKey   string
 	InsertedAt  time.Time
 	UpdatedAt   time.Time
+	Priority    int32
 }

@@ -43,8 +43,9 @@ ON CONFLICT (id) DO UPDATE SET
 returning *;
 
 -- name: UpsertVideoSource :one
-INSERT INTO video_sources (id, video_id, content_type, codec, object_key)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO video_sources (id, video_id, content_type, codec, object_key, priority)
+SELECT $1, $2, $3, $4, $5, coalesce(MAX(priority), -1) + 1
+from video_sources vs where vs.video_id = $2
 ON CONFLICT (id) DO UPDATE SET
     video_id = excluded.video_id,
     content_type = excluded.content_type,

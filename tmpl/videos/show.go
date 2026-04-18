@@ -20,7 +20,8 @@ func Show(ctx *types.CustomContext, video *types.VideoDetailsDTO) Node {
 	return layout.Layout(ctx, title,
 		Div(Class("card"),
 			Video(
-				Class("video-js vjs-theme-fantasy w-full bg-blue-300"),
+				Controls(),
+				Class("video-js vjs-theme-fantasy w-full bg-gray-100 aspect-video"),
 				Map(video.Sources, func(source *queries.VideoSource) Node {
 					t := source.ContentType
 					if source.Codec != nil {

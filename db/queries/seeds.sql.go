@@ -286,15 +286,16 @@ func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Vid
 }
 
 const upsertVideoSource = `-- name: UpsertVideoSource :one
-INSERT INTO video_sources (id, video_id, content_type, codec, object_key)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO video_sources (id, video_id, content_type, codec, object_key, priority)
+SELECT $1, $2, $3, $4, $5, coalesce(MAX(priority), -1) + 1
+from video_sources vs where vs.video_id = $2
 ON CONFLICT (id) DO UPDATE SET
     video_id = excluded.video_id,
     content_type = excluded.content_type,
     codec = excluded.codec,
     object_key = excluded.object_key,
     updated_at = now()
-returning id, content_type, codec, video_id, object_key, inserted_at, updated_at
+returning id, content_type, codec, video_id, object_key, inserted_at, updated_at, priority
 `
 
 type UpsertVideoSourceParams struct {
@@ -322,6 +323,7 @@ func (q *Queries) UpsertVideoSource(ctx context.Context, arg *UpsertVideoSourceP
 		&i.ObjectKey,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+		&i.Priority,
 	)
 	return &i, err
 }

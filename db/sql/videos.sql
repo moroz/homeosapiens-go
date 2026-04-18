@@ -56,7 +56,7 @@ returning *;
 -- name: ListVideoSourcesForVideos :many
 select * from video_sources vs
 where vs.video_id = any(@video_ids::uuid[])
-order by vs.video_id, vs.id;
+order by vs.video_id, vs.priority;
 
 -- name: AddVideoToVideoGroup :one
 insert into video_groups_videos (video_id, video_group_id, position)

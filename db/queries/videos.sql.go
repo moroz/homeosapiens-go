@@ -180,9 +180,9 @@ func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID *uuid.UUID)
 }
 
 const listVideoSourcesForVideos = `-- name: ListVideoSourcesForVideos :many
-select id, content_type, codec, video_id, object_key, inserted_at, updated_at from video_sources vs
+select id, content_type, codec, video_id, object_key, inserted_at, updated_at, priority from video_sources vs
 where vs.video_id = any($1::uuid[])
-order by vs.video_id, vs.id
+order by vs.video_id, vs.priority
 `
 
 func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoIds []uuid.UUID) ([]*VideoSource, error) {
@@ -202,6 +202,7 @@ func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoIds []uuid
 			&i.ObjectKey,
 			&i.InsertedAt,
 			&i.UpdatedAt,
+			&i.Priority,
 		); err != nil {
 			return nil, err
 		}

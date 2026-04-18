@@ -17,6 +17,6 @@ cp -R $gitroot/assets/dist rel/assets
 cp -R $gitroot/db/migrations rel/
 
 # Remove hidden sql files, if any
-rm $gitroot/db/migrations/._* || true
+rm $gitroot/rel/migrations/._* || true
 
 cd rel && tar czf release.tar.gz server assets/ migrations/

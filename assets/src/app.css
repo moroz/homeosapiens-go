@@ -1,5 +1,5 @@
-@import "video.js/dist/video-js.css";
-@import "@videojs/themes/dist/fantasy/index.css";
+/* @import "video.js/dist/video-js.css"; */
+/* @import "@videojs/themes/dist/fantasy/index.css"; */
 @import "tailwindcss";
 
 @config "../tailwind.config.js";
