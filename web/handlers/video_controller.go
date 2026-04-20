@@ -44,5 +44,10 @@ func (cc *videoController) Show(c *echo.Context) error {
 		return err
 	}
 
-	return videos.Show(ctx, video).Render(c.Response())
+	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User, new(c.Param("group_slug")))
+	if err != nil {
+		return err
+	}
+
+	return videos.Show(ctx, group, video).Render(c.Response())
 }

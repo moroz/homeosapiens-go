@@ -207,5 +207,11 @@
       "title": "Zamówienie opłacone",
       "body_html": "<p>Otrzymaliśmy płatność w wysokości <strong>{{.Amount}}</strong> za zamówienie <strong>nr {{.OrderNumber}}</strong>. Potwierdzenie zamówienia otrzymasz na adres <strong>{{.Email}}</strong>.</p>"
     }
+  },
+  "videos": {
+    "show": {
+      "back_to_group": "Seria: {{ .GroupName }}",
+      "video_group_name_html": "<p>Wideo nr {{ .CurrentIndex }} z {{ .TotalCount }} z serii: <a href=\"{{.GroupURL}}\">{{ .GroupName }}</a></p>"
+    }
   }
 }
