@@ -48,6 +48,21 @@
         owner: "{{ deploy_user }}"
         group: "{{ app_user }}"
 
+    - name: Find macOS metadata files in migrations directory
+      ansible.builtin.find:
+        paths: "{{ app_base_dir }}/current/migrations"
+        patterns: "._*.sql"
+        hidden: true
+      register: macos_metadata_files
+
+    - name: Delete macOS metadata files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ macos_metadata_files.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+
     - name: Restart service
       service:
         name: "{{ app_name }}"
