@@ -41,6 +41,8 @@ Repackage the file as M3U8 (VOD playlist):
 ffmpeg -i hvc1_1080.mp4 -c:v copy -c:a copy -tag:v hvc1 -hls_time 6 -hls_playlist_type vod -hls_segment_type fmp4 -hls_fmp4_init_filename "init.mp4" -hls_segment_filename "seg%03d.m4s" p1_hls.m3u8
 ```
 
+TODO: Variable bitrates.
+
 Upload the file to S3 with the correct headers:
 
 ```
@@ -67,3 +69,5 @@ aws s3 cp . s3://homeosapiens-staging-assets/videos/$video_id/hls/ \
   --content-type "application/vnd.apple.mpegurl" \
   --cache-control "public, max-age=3600"
 ```
+
+If requests show stale cache you may need to create a CloudFront invalidation.
