@@ -404,16 +404,38 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		}
 	}
 
-	videoGroup := queries.UpsertVideoGroupParams{
-		ID:      uuid.MustParse("019da123-449c-7038-aae3-303255746cc4"),
-		TitleEn: "Dr Sanjay Modi: To Perfect The Art of Homeopathy",
-		TitlePl: "Dr Sanjay Modi: Udoskonalić kunszt homeopatyczny",
-		Slug:    "dr-sanjay-modi-to-perfect-the-art-of-homeopathy",
+	videoGroups := []queries.UpsertVideoGroupParams{
+		{
+			ID:      uuid.MustParse("019da123-449c-7038-aae3-303255746cc4"),
+			TitleEn: "Dr Sanjay Modi: To Perfect The Art of Homeopathy",
+			TitlePl: "Udoskonalić kunszt homeopatyczny: Seminarium dra Sanjaya Modiego",
+			Slug:    "dr-sanjay-modi-to-perfect-the-art-of-homeopathy",
+		},
+		{
+			ID:      uuid.MustParse("019daf95-04e3-7615-99fc-ba808d1dd589"),
+			TitleEn: "Dr Asher Shaikh webinar",
+			TitlePl: "Webinarium z drem Asherem Shaikh",
+			Slug:    "dr-asher-shaikh-webinar",
+		},
+		{
+			ID:      uuid.MustParse("019daf95-d855-748d-93a9-4c17d0536f2f"),
+			TitleEn: "Dr Sanjay Modi webinar",
+			TitlePl: "Webinarium z drem Sanjayem Modim",
+			Slug:    "dr-sanjay-modi-webinar",
+		},
+		{
+			ID:      uuid.MustParse("019daf9b-7234-71bb-be93-f9f965d56ac6"),
+			TitleEn: "",
+			TitlePl: "",
+			Slug:    "",
+		},
 	}
 
 	log.Print("Creating video group...")
-	if _, err := q.UpsertVideoGroup(context.Background(), &videoGroup); err != nil {
-		log.Fatal(err)
+	for _, vg := range videoGroups {
+		if _, err := q.UpsertVideoGroup(context.Background(), &vg); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	videos := []*types.CreateVideoParams{
@@ -452,7 +474,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		}
 		if _, err := q.AddVideoToVideoGroup(context.Background(), &queries.AddVideoToVideoGroupParams{
 			VideoID:      params.ID,
-			VideoGroupID: videoGroup.ID,
+			VideoGroupID: videoGroups[0].ID,
 		}); err != nil {
 			log.Fatal(err)
 		}
