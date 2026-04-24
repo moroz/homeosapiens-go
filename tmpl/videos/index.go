@@ -14,7 +14,7 @@ import (
 func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *types.VideoGroupDetailsDTO) Node {
 	return layout.BareLayout(ctx, "Videos",
 		Div(
-			Class("mx-auto lg:w-7xl grid grid-cols-[1fr_3fr] gap-8 card"),
+			Class("card mx-auto grid grid-cols-[1fr_3fr] gap-8 lg:w-7xl"),
 			Aside(
 				H2(Class("page-title"), Text("Videos")),
 				Nav(
@@ -50,7 +50,7 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 					}
 
 					return Group{
-						H3(Class("text-primary font-bold text-xl mb-4"), Text(title)),
+						H3(Class("mb-4 text-xl font-bold text-primary"), Text(title)),
 						Div(
 							Class("video-grid"),
 							Map(group.Videos, func(video *queries.ListVideosForVideoGroupRow) Node {
@@ -65,7 +65,7 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 									Article(
 										Class("card video p-0"),
 										Header(
-											Class("aspect-video bg-slate-200 p-8 flex items-center justify-center"),
+											Class("flex aspect-video items-center justify-center bg-slate-200 p-8"),
 											components.Logo("text-slate-400"),
 										),
 										Footer(

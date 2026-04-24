@@ -1,18 +1,21 @@
-#!/usr/bin/env -S deno run --allow-write --allow-sys --allow-env --allow-read
+#!/usr/bin/env -S deno run --allow-write --allow-sys --allow-env --allow-read --allow-ffi
 // tools/sort-tailwind.js
-// Sorts Tailwind classes inside gomponents Class("...") calls using prettier-plugin-tailwindcss.
+// Sorts Tailwind classes inside gomponents Class("...") calls using oxfmt.
 import fs from "node:fs";
 import path from "node:path";
 import {format} from "npm:oxfmt"
 
+const stylesheet = new URL("../assets/src/app.css", import.meta.url).pathname;
+const oxfmtOptions = {
+  sortTailwindcss: { stylesheet },
+};
+
 const classCallRx = /Class\("([^"]+)"\)/g;
 
 async function sortOne(classStr) {
-  // Feed into Prettier so the plugin reorders.
   const fake = `<div class="${classStr}"></div>`;
-  const formatted = await format('_.html', fake);
-  // Extract reordered classes.
-  const m = formatted.match(/class="([^"]*)"/);
+  const formatted = await format('_.html', fake, oxfmtOptions);
+  const m = formatted.code.match(/class="([^"]*)"/);
   return m ? m[1].trim() : classStr;
 }
 

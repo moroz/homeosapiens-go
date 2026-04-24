@@ -43,7 +43,7 @@ func Show(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, video *ty
 					"GroupName": groupTitle,
 				},
 			}))),
-			H3(Class("font-bold text-primary text-2xl"), Text(title)),
+			H3(Class("text-2xl font-bold text-primary"), Text(title)),
 			Raw(l.MustLocalize(&i18n.LocalizeConfig{
 				MessageID: "videos.show.video_group_name_html",
 				TemplateData: map[string]any{
@@ -55,7 +55,7 @@ func Show(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, video *ty
 			})),
 			Video(
 				Controls(),
-				Class("video-js vjs-theme-fantasy w-full bg-gray-100 aspect-video"),
+				Class("video-js vjs-theme-fantasy aspect-video w-full bg-gray-100"),
 				Map(video.Sources, func(source *queries.VideoSource) Node {
 					t := source.ContentType
 					if source.Codec != nil {

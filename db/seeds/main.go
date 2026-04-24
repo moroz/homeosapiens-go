@@ -366,7 +366,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 	eventPrices := []*types.CreateEventPriceParams{
 		{
 			EventID:       uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
-			PriceAmount:   "560.00000000",
+			PriceAmount:   "560",
 			PriceCurrency: "PLN",
 			RuleType:      queries.PriceRuleTypeEarlyBird,
 			ValidUntil:    new(MustParseTimestamp("2025-09-20T21:59:59Z")),
@@ -376,7 +376,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		},
 		{
 			EventID:       uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
-			PriceAmount:   "500.00000000",
+			PriceAmount:   "500",
 			PriceCurrency: "PLN",
 			RuleType:      queries.PriceRuleTypeDiscountCode,
 			DiscountCode:  new("wshlif"),
@@ -405,87 +405,148 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 	}
 
 	videoGroups := []queries.UpsertVideoGroupParams{
-		{
+		{ // [0]
 			ID:      uuid.MustParse("019da123-449c-7038-aae3-303255746cc4"),
 			TitleEn: "Dr Sanjay Modi: To Perfect the Art of Homeopathy",
 			TitlePl: "Udoskonalić kunszt homeopatyczny: Seminarium z drem Sanjayem Modim",
 			Slug:    "dr-sanjay-modi-to-perfect-the-art-of-homeopathy",
 		},
-		{
+		{ // [1]
 			ID:      uuid.MustParse("019daf95-04e3-7615-99fc-ba808d1dd589"),
-			TitleEn: "Dr Asher Shaikh webinar",
+			TitleEn: "Dr Asher Shaikh Webinar",
 			TitlePl: "Webinarium z drem Asherem Shaikh",
 			Slug:    "dr-asher-shaikh-webinar",
 		},
-		{
+		{ // [2]
 			ID:      uuid.MustParse("019daf95-d855-748d-93a9-4c17d0536f2f"),
-			TitleEn: "Dr Sanjay Modi webinar",
+			TitleEn: "Dr Sanjay Modi Webinar",
 			TitlePl: "Webinarium z drem Sanjayem Modim",
 			Slug:    "dr-sanjay-modi-webinar",
 		},
-		{
+		{ // [3]
 			ID:      uuid.MustParse("019daf9b-7234-71bb-be93-f9f965d56ac6"),
 			TitleEn: "Dr Sanjay Modi: To Perfect the Art of Homeopathy 2",
 			TitlePl: "Udoskonalić kunszt homeopatyczny 2: Seminarium z drem Sanjayem Modim",
 			Slug:    "dr-sanjay-modi-to-perfect-the-art-of-homeopathy-2",
 		},
+		{ // [4]
+			ID:      uuid.MustParse("019dc005-f4a8-76fb-afdd-2e5caff8fb5a"),
+			TitleEn: "Dr Herman Jeggels Webinar",
+			TitlePl: "Webinarium z drem Hermanem Jeggelsem",
+			Slug:    "dr-herman-jeggels-webinar",
+		},
 	}
 
-	log.Print("Creating video group...")
+	log.Print("Creating video groups...")
 	for _, vg := range videoGroups {
 		if _, err := q.UpsertVideoGroup(context.Background(), &vg); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	videos := []*types.CreateVideoParams{
+	type videoEntry struct {
+		params       queries.UpsertVideoParams
+		videoGroupID uuid.UUID
+	}
+
+	videos := []videoEntry{
+		// To Perfect 1
 		{
-			ID:       uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
-			EventID:  uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
-			Provider: queries.VideoProviderCloudfront,
-			TitleEn:  "Day 1, Part 1",
-			TitlePl:  "Dzień 1, Część 1",
-			Slug:     "day-1-part-1",
-			IsPublic: false,
+			params: queries.UpsertVideoParams{
+				ID:       uuid.MustParse("019dbfeb-e6f2-7521-b990-119d82b8665f"),
+				Provider: queries.VideoProviderCloudfront,
+				TitleEn:  "Day 1",
+				TitlePl:  "Dzień 1",
+				Slug:     "to-perfect-1-day-1",
+			},
+			videoGroupID: videoGroups[0].ID,
 		},
 		{
-			ID:       uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
-			EventID:  uuid.MustParse("0199c2fa-7e9d-72f6-ada1-88b5d04d9a58"),
-			Provider: queries.VideoProviderCloudfront,
-			TitleEn:  "Day 1, Part 2",
-			TitlePl:  "Dzień 1, Część 2",
-			Slug:     "day-1-part-2",
-			IsPublic: false,
+			params: queries.UpsertVideoParams{
+				ID:       uuid.MustParse("019dbfeb-e5ec-73ae-881a-d76c8582644e"),
+				Provider: queries.VideoProviderCloudfront,
+				TitleEn:  "Day 2",
+				TitlePl:  "Dzień 2",
+				Slug:     "to-perfect-1-day-2",
+			},
+			videoGroupID: videoGroups[0].ID,
+		},
+		// To Perfect 2
+		{
+			params: queries.UpsertVideoParams{
+				ID:       uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
+				Provider: queries.VideoProviderCloudfront,
+				TitleEn:  "Day 1, Part 1",
+				TitlePl:  "Dzień 1, Część 1",
+				Slug:     "to-perfect-2-day-1-part-1",
+			},
+			videoGroupID: videoGroups[3].ID,
+		},
+		{
+			params: queries.UpsertVideoParams{
+				ID:       uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
+				Provider: queries.VideoProviderCloudfront,
+				TitleEn:  "Day 1, Part 2",
+				TitlePl:  "Dzień 1, Część 2",
+				Slug:     "to-perfect-2-day-1-part-2",
+			},
+			videoGroupID: videoGroups[3].ID,
+		},
+		// Dr Sanjay Modi webinar
+		{
+			params: queries.UpsertVideoParams{
+				ID:       uuid.MustParse("019dbfeb-e512-740f-80ea-d8c30a99fa5b"),
+				Provider: queries.VideoProviderCloudfront,
+				TitleEn:  "Dutiful Remedies: Differential Diagnosis",
+				TitlePl:  "Sumienne leki: Diagnostyka różnicowa",
+				Slug:     "sanjay-modi-dutiful-remedies",
+			},
+			videoGroupID: videoGroups[2].ID,
+		},
+		// Dr Asher Shaikh webinar
+		{
+			params: queries.UpsertVideoParams{
+				ID:       uuid.MustParse("019dbfeb-e43a-7324-bb52-65457afc331b"),
+				Provider: queries.VideoProviderCloudfront,
+				TitleEn:  "Webinar Recording",
+				TitlePl:  "Nagranie webinarium",
+				Slug:     "asher-shaikh-webinar-recording",
+			},
+			videoGroupID: videoGroups[1].ID,
+		},
+		// Dr Herman Jeggels webinar
+		{
+			params: queries.UpsertVideoParams{
+				ID:       uuid.MustParse("019dbfec-770a-702f-aa5c-e2431a930395"),
+				Provider: queries.VideoProviderCloudfront,
+				TitleEn:  "Series of Cardiac Cases",
+				TitlePl:  "Seria przypadków kardiologicznych",
+				Slug:     "jeggels-cardiac-cases",
+			},
+			videoGroupID: videoGroups[4].ID,
 		},
 	}
 
 	log.Printf("Creating videos...")
-	for _, video := range videos {
-		params := &queries.UpsertVideoParams{
-			ID:       video.ID,
-			Provider: video.Provider,
-			TitleEn:  video.TitleEn,
-			TitlePl:  video.TitlePl,
-			Slug:     video.Slug,
-			IsPublic: video.IsPublic,
-		}
-		if _, err := q.UpsertVideo(context.Background(), params); err != nil {
+
+	for _, v := range videos {
+		if _, err := q.UpsertVideo(context.Background(), &v.params); err != nil {
 			log.Fatal(err)
 		}
 		if _, err := q.AddVideoToVideoGroup(context.Background(), &queries.AddVideoToVideoGroupParams{
-			VideoID:      params.ID,
-			VideoGroupID: videoGroups[0].ID,
+			VideoID:      v.params.ID,
+			VideoGroupID: v.videoGroupID,
 		}); err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	videoSources := []*types.CreateVideoSourceParams{
+		// To Perfect 2 - Day 1, Part 1 (existing HEVC + WebM sources)
 		{
-			ID:          uuid.MustParse("019daa0b-aea2-7136-b0a4-6c96dee4028b"),
+			ID:          uuid.MustParse("019dc00d-97b0-743c-9146-f214dacc65f7"),
 			VideoID:     uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
 			ContentType: "application/vnd.apple.mpegurl",
-			Codec:       "",
 			ObjectKey:   "/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/hls/p1_hls.m3u8",
 		},
 		{
@@ -502,6 +563,7 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			Codec:       "vp9,opus",
 			ObjectKey:   "/videos/019a8668-bb4f-7c9c-b9b8-3f274de96566/webm_1080.webm",
 		},
+		// To Perfect 2 - Day 1, Part 2
 		{
 			ID:          uuid.MustParse("019a8bab-135e-7321-9857-f74d2dcda427"),
 			VideoID:     uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
@@ -515,6 +577,76 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 			ContentType: "video/webm",
 			Codec:       "vp9,opus",
 			ObjectKey:   "/videos/019a8ba5-fe29-7af8-bf54-b8d96af38461/webm_1080.webm",
+		},
+		// To Perfect 1 - Day 1
+		{
+			ID:          uuid.MustParse("019dc005-f553-7766-aaaa-b48b30707c22"),
+			VideoID:     uuid.MustParse("019dbfeb-e6f2-7521-b990-119d82b8665f"),
+			ContentType: "video/mp4",
+			Codec:       "avc1.640028,mp4a.40.2",
+			ObjectKey:   "/videos/019dbfeb-e6f2-7521-b990-119d82b8665f/avc1_1080.mp4",
+		},
+		{
+			ID:          uuid.MustParse("019dc00b-eb9d-749e-98bf-5ff4b4b76716"),
+			VideoID:     uuid.MustParse("019dbfeb-e6f2-7521-b990-119d82b8665f"),
+			ContentType: "application/vnd.apple.mpegurl",
+			ObjectKey:   "/videos/019dbfeb-e6f2-7521-b990-119d82b8665f/hls/index.m3u8",
+		},
+		// To Perfect 1 - Day 2
+		{
+			ID:          uuid.MustParse("019dc005-f5f7-773f-8e4d-a73fbae12631"),
+			VideoID:     uuid.MustParse("019dbfeb-e5ec-73ae-881a-d76c8582644e"),
+			ContentType: "video/mp4",
+			Codec:       "avc1.640028,mp4a.40.2",
+			ObjectKey:   "/videos/019dbfeb-e5ec-73ae-881a-d76c8582644e/avc1_1080.mp4",
+		},
+		{
+			ID:          uuid.MustParse("019dc00b-ec50-7460-9633-c09016979e48"),
+			VideoID:     uuid.MustParse("019dbfeb-e5ec-73ae-881a-d76c8582644e"),
+			ContentType: "application/vnd.apple.mpegurl",
+			ObjectKey:   "/videos/019dbfeb-e5ec-73ae-881a-d76c8582644e/hls/index.m3u8",
+		},
+		// Dr Sanjay Modi webinar (720p)
+		{
+			ID:          uuid.MustParse("019dc005-f68e-73db-8700-ec654ffe675c"),
+			VideoID:     uuid.MustParse("019dbfeb-e512-740f-80ea-d8c30a99fa5b"),
+			ContentType: "video/mp4",
+			Codec:       "avc1.64001f,mp4a.40.2",
+			ObjectKey:   "/videos/019dbfeb-e512-740f-80ea-d8c30a99fa5b/avc1_720.mp4",
+		},
+		{
+			ID:          uuid.MustParse("019dc00b-ed09-759f-b756-3968e8e49531"),
+			VideoID:     uuid.MustParse("019dbfeb-e512-740f-80ea-d8c30a99fa5b"),
+			ContentType: "application/vnd.apple.mpegurl",
+			ObjectKey:   "/videos/019dbfeb-e512-740f-80ea-d8c30a99fa5b/hls/index.m3u8",
+		},
+		// Dr Asher Shaikh webinar
+		{
+			ID:          uuid.MustParse("019dc005-f735-765f-a735-f1c66e74e860"),
+			VideoID:     uuid.MustParse("019dbfeb-e43a-7324-bb52-65457afc331b"),
+			ContentType: "video/mp4",
+			Codec:       "avc1.640028,mp4a.40.2",
+			ObjectKey:   "/videos/019dbfeb-e43a-7324-bb52-65457afc331b/avc1_1080.mp4",
+		},
+		{
+			ID:          uuid.MustParse("019dc00b-edba-70ef-80b9-12b5fdf8f35d"),
+			VideoID:     uuid.MustParse("019dbfeb-e43a-7324-bb52-65457afc331b"),
+			ContentType: "application/vnd.apple.mpegurl",
+			ObjectKey:   "/videos/019dbfeb-e43a-7324-bb52-65457afc331b/hls/index.m3u8",
+		},
+		// Dr Herman Jeggels webinar
+		{
+			ID:          uuid.MustParse("019dc005-f7df-7661-8c0c-af1a4c4a8f33"),
+			VideoID:     uuid.MustParse("019dbfec-770a-702f-aa5c-e2431a930395"),
+			ContentType: "video/mp4",
+			Codec:       "avc1.640028,mp4a.40.2",
+			ObjectKey:   "/videos/019dbfec-770a-702f-aa5c-e2431a930395/avc1_1080.mp4",
+		},
+		{
+			ID:          uuid.MustParse("019dc00b-ee64-77ce-b15e-2e03b8c573b2"),
+			VideoID:     uuid.MustParse("019dbfec-770a-702f-aa5c-e2431a930395"),
+			ContentType: "application/vnd.apple.mpegurl",
+			ObjectKey:   "/videos/019dbfec-770a-702f-aa5c-e2431a930395/hls/index.m3u8",
 		},
 	}
 	log.Printf("Creating video sources...")

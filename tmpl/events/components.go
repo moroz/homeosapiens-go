@@ -53,7 +53,7 @@ func EventAttendanceBadge(l *i18n.Localizer) Node {
 	messageKey := "common.events.attendance_badge"
 
 	return Span(
-		Class("border-primary/20 bg-primary/10 text-primary inline-flex items-center justify-center gap-1 rounded-sm border px-2 py-1 text-sm font-semibold"),
+		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-primary/20 bg-primary/10 px-2 py-1 text-sm font-semibold text-primary"),
 		EventAttendanceIcon(true),
 		Text(l.MustLocalizeMessage(&i18n.Message{
 			ID: messageKey,
@@ -79,7 +79,7 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 			}),
 		),
 		Footer(
-			Class("text-primary border-primary/20 flex h-10 w-full items-center justify-center rounded-b-sm border border-t-0 text-center text-sm"),
+			Class("flex h-10 w-full items-center justify-center rounded-b-sm border border-t-0 border-primary/20 text-center text-sm text-primary"),
 			Span(
 				Text(salutation),
 				Strong(
@@ -121,9 +121,9 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			),
 
 			H3(
-				Class("text-primary mobile:text-lg mobile:leading-tight text-2xl font-bold"),
+				Class("text-2xl font-bold text-primary mobile:text-lg mobile:leading-tight"),
 				A(
-					Class("hover:text-primary-hover decoration-2 underline-offset-3 transition-colors hover:underline"),
+					Class("decoration-2 underline-offset-3 transition-colors hover:text-primary-hover hover:underline"),
 					Href(eventUrl),
 					Text(title),
 				),
@@ -140,17 +140,17 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			),
 
 			P(
-				Class("desktop:mb-4 text-gray-600"),
+				Class("text-gray-600 desktop:mb-4"),
 				Text(helpers.TranslateEventType(localizer, e.EventType)),
 				Text(", "),
 				Text(helpers.FormatHosts(localizer, e.Hosts)),
 			),
 
 			Div(
-				Class("mobile:grid mt-auto flex w-full items-center gap-4"),
+				Class("mt-auto flex w-full items-center gap-4 mobile:grid"),
 				If(isFuture && isFree && e.EventRegistration == nil, A(
 					Href(eventUrl+"/register"),
-					Class("button mobile:w-full px-6"),
+					Class("button px-6 mobile:w-full"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "common.events.sign_up",
 					})),
@@ -172,7 +172,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			),
 		),
 
-		Div(Class("mobile:hidden flex items-center gap-6"),
+		Div(Class("flex items-center gap-6 mobile:hidden"),
 			Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
 				return HostCard(localizer, host)
 			}),
@@ -197,8 +197,8 @@ func formatEventPrice(ctx *types.CustomContext, e *services.EventListDto) Node {
 	}
 
 	return Div(
-		Class("desktop:grid mobile:row-start-1 leading-tight"),
-		Span(Class("desktop:text-xs desktop:text-gray-500 desktop:uppercase mobile:after:content-[':_'] font-semibold"), Text(label)),
+		Class("leading-tight desktop:grid mobile:row-start-1"),
+		Span(Class("font-semibold desktop:text-xs desktop:text-gray-500 desktop:uppercase mobile:after:content-[':_']"), Text(label)),
 		Span(Class("text-lg"), Text(priceFormatted)),
 	)
 }

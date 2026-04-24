@@ -24,7 +24,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 	l := ctx.Localizer
 
 	return Group{
-		Nav(Class("mobile:hidden absolute inset-0 grid place-items-center"),
+		Nav(Class("absolute inset-0 grid place-items-center mobile:hidden"),
 			Ul(
 				Class("flex items-center gap-1"),
 				NavLink("/", l.MustLocalizeMessage(&i18n.Message{
@@ -39,7 +39,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 			),
 		),
 		Div(
-			Class("mobile:hidden z-20 flex items-center gap-1"),
+			Class("z-20 flex items-center gap-1 mobile:hidden"),
 			Iff(ctx.Cart != nil && !ctx.Cart.ProductTotal.Equal(decimal.Zero), func() Node {
 				return A(Href("/cart"), Class("button tertiary z-20 gap-1"),
 					Title(l.MustLocalizeMessage(&i18n.Message{
@@ -61,14 +61,14 @@ func desktopNav(ctx *types.CustomContext) Node {
 }
 
 func hamburgerTrigger() Node {
-	return El("fade-burger", Attr("size", "lg"), Class("text-primary z-10"), ID("hamburger-toggle"))
+	return El("fade-burger", Attr("size", "lg"), Class("z-10 text-primary"), ID("hamburger-toggle"))
 }
 
 func HamburgerItem(href string, text string) Node {
 	return Li(
 		A(
 			Href(href),
-			Class("text-primary flex h-12 w-full items-center justify-center text-center text-lg font-semibold hover:bg-slate-100"),
+			Class("flex h-12 w-full items-center justify-center text-center text-lg font-semibold text-primary hover:bg-slate-100"),
 			Text(text),
 		),
 	)
@@ -79,7 +79,7 @@ func mobileNav(ctx *types.CustomContext) Node {
 	//user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
 	return Div(
-		Class("not-mobile:hidden z-10"),
+		Class("z-10 not-mobile:hidden"),
 		hamburgerTrigger(),
 		Nav(
 			Class("hamburger-menu pt-20"),
@@ -103,12 +103,12 @@ func mobileNav(ctx *types.CustomContext) Node {
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("border-primary/50 fixed inset-0 z-10 h-20 border-b bg-white shadow"),
-		Div(Class("mobile:px-2 flex h-full items-center justify-between px-6"),
+		Class("fixed inset-0 z-10 h-20 border-b border-primary/50 bg-white shadow"),
+		Div(Class("flex h-full items-center justify-between px-6 mobile:px-2"),
 			H1(
 				Class("z-20"),
 				A(
-					Class("text-primary hover:text-primary-hover text-4xl font-bold no-underline transition-colors"),
+					Class("text-4xl font-bold text-primary no-underline transition-colors hover:text-primary-hover"),
 					Href("/"),
 					components.Logo("h-15 mobile:h-12"),
 				),

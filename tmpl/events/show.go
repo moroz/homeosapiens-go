@@ -73,7 +73,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	return layout.Layout(ctx, event.TitleEn, Div(
 		Class("card mx-auto"),
 		H2(
-			Class("text-primary text-2xl leading-normal font-bold"),
+			Class("text-2xl leading-normal font-bold text-primary"),
 			Text(title),
 		),
 		Div(

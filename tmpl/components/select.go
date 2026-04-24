@@ -75,7 +75,7 @@ func SelectComponent(opts *SelectOptions) Node {
 				Select(
 					ID(id),
 					Name(opts.Name),
-					Class("focus:outline-focus h-10 w-full appearance-none rounded-sm border px-2 pr-8 font-normal shadow focus:outline-2"),
+					Class("h-10 w-full appearance-none rounded-sm border px-2 pr-8 font-normal shadow focus:outline-2 focus:outline-focus"),
 					If(opts.Autocomplete != "", AutoComplete(opts.Autocomplete)),
 
 					Map(opts.Options, func(option SelectOption) Node {

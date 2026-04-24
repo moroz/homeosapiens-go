@@ -70,12 +70,12 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 
 				Input(Type("hidden"), Name("locale"), Value(ctx.Language)),
 
-				H3(Class("text-primary mt-8 mb-4 text-2xl font-bold"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
+				H3(Class("mt-8 mb-4 text-2xl font-bold text-primary"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.contact_information"}))),
 
 				If(ctx.User == nil,
 					Group{
 						components.GoogleButton(l.MustLocalizeMessage(&i18n.Message{ID: "orders.checkout_with_google"}), "/cart", "my-0 mobile:w-full"),
-						P(Class("mobile:text-center my-4"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.or_continue_with_email"}))),
+						P(Class("my-4 mobile:text-center"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.or_continue_with_email"}))),
 					},
 				),
 
@@ -123,7 +123,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 					),
 				),
 
-				H3(Class("text-primary mt-8 mb-0 text-2xl font-bold"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.billing_address"}))),
+				H3(Class("mt-8 mb-0 text-2xl font-bold text-primary"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.billing_address"}))),
 
 				Section(Class("mt-4 grid gap-4"),
 					components.CountrySelect(&components.CountrySelectOptions{
@@ -203,7 +203,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 					}),
 					Footer(
 						Button(
-							Class("button primary mobile:w-full desktop:px-8"), Type("submit"),
+							Class("button primary desktop:px-8 mobile:w-full"), Type("submit"),
 							Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.submit"})),
 						),
 					),
