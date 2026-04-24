@@ -597,14 +597,16 @@ type UserToken struct {
 }
 
 type Video struct {
-	ID         uuid.UUID
-	Provider   VideoProvider
-	IsPublic   bool
-	TitleEn    string
-	TitlePl    string
-	Slug       string
-	InsertedAt time.Time
-	UpdatedAt  time.Time
+	ID              uuid.UUID
+	Provider        VideoProvider
+	IsPublic        bool
+	TitleEn         string
+	TitlePl         string
+	Slug            string
+	InsertedAt      time.Time
+	UpdatedAt       time.Time
+	DurationSeconds *int32
+	ThumbnailID     *uuid.UUID
 }
 
 type VideoGroup struct {

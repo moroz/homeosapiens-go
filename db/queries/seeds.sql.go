@@ -250,7 +250,7 @@ ON CONFLICT (id) DO UPDATE SET
     slug = excluded.slug,
     is_public = excluded.is_public,
     updated_at = now()
-returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, thumbnail_id
 `
 
 type UpsertVideoParams struct {
@@ -281,6 +281,8 @@ func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Vid
 		&i.Slug,
 		&i.InsertedAt,
 		&i.UpdatedAt,
+		&i.DurationSeconds,
+		&i.ThumbnailID,
 	)
 	return &i, err
 }

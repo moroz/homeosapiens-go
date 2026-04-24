@@ -101,3 +101,41 @@ func (s *VideoService) GetVideoForUser(ctx context.Context, user *queries.User, 
 		Sources: sources,
 	}, nil
 }
+
+func (s *VideoService) ListVideosForVideoGroup(ctx context.Context, groupID uuid.UUID) ([]*types.VideoListDTO, error) {
+	videos, err := queries.New(s.db).ListVideosForVideoGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]*types.VideoListDTO, len(videos))
+
+	var thumbnailIDs []uuid.UUID
+	for i, video := range videos {
+		results[i] = &types.VideoListDTO{
+			Video: video,
+		}
+
+		if video.ThumbnailID != nil {
+			thumbnailIDs = append(thumbnailIDs, *video.ThumbnailID)
+		}
+	}
+
+	thumbnails, err := queries.New(s.db).ListAssetsByIDs(ctx, thumbnailIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	assetsByID := make(map[uuid.UUID]*queries.Asset)
+	for _, thumbnail := range thumbnails {
+		assetsByID[thumbnail.ID] = thumbnail
+	}
+
+	for _, dto := range results {
+		if dto.ThumbnailID != nil {
+			dto.Thumbnail = assetsByID[*dto.ThumbnailID]
+		}
+	}
+
+	return results, nil
+}

@@ -6,9 +6,14 @@ type VideoGroupListDTO struct {
 	*queries.VideoGroup
 }
 
+type VideoListDTO struct {
+	*queries.Video
+	Thumbnail *queries.Asset
+}
+
 type VideoGroupDetailsDTO struct {
 	*queries.VideoGroup
-	Videos []*queries.Video
+	Videos []*VideoListDTO
 }
 
 type VideoDetailsDTO struct {
