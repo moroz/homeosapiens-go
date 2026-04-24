@@ -407,8 +407,8 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 	videoGroups := []queries.UpsertVideoGroupParams{
 		{
 			ID:      uuid.MustParse("019da123-449c-7038-aae3-303255746cc4"),
-			TitleEn: "Dr Sanjay Modi: To Perfect The Art of Homeopathy",
-			TitlePl: "Udoskonalić kunszt homeopatyczny: Seminarium dra Sanjaya Modiego",
+			TitleEn: "Dr Sanjay Modi: To Perfect the Art of Homeopathy",
+			TitlePl: "Udoskonalić kunszt homeopatyczny: Seminarium z drem Sanjayem Modim",
 			Slug:    "dr-sanjay-modi-to-perfect-the-art-of-homeopathy",
 		},
 		{
@@ -425,9 +425,9 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		},
 		{
 			ID:      uuid.MustParse("019daf9b-7234-71bb-be93-f9f965d56ac6"),
-			TitleEn: "",
-			TitlePl: "",
-			Slug:    "",
+			TitleEn: "Dr Sanjay Modi: To Perfect the Art of Homeopathy 2",
+			TitlePl: "Udoskonalić kunszt homeopatyczny 2: Seminarium z drem Sanjayem Modim",
+			Slug:    "dr-sanjay-modi-to-perfect-the-art-of-homeopathy-2",
 		},
 	}
 

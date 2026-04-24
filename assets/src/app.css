@@ -168,12 +168,21 @@
 	.video-group-menu {
 		@apply grid gap-2;
 
-		> li {
-			@apply inline-flex px-3 py-2;
+		a {
+			@apply inline-flex px-3 py-2 w-full transition;
+      @apply no-underline font-semibold text-inherit;
 
 			&.is-active {
 				@apply bg-primary font-semibold text-white;
+
+        &:hover {
+          @apply bg-primary-hover;
+        }
 			}
+
+      &:hover {
+        @apply bg-slate-200;
+      }
 		}
 	}
 }

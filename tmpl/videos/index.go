@@ -31,8 +31,11 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 							}
 
 							return Li(
-								Class(class),
-								Text(title),
+								A(
+									Class(class),
+									Href(fmt.Sprintf("/videos/%s", vg.Slug)),
+									Text(title),
+								),
 							)
 						}),
 					),
