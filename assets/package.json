@@ -15,17 +15,18 @@
 		"@tsconfig/svelte": "^5.0.8",
 		"@types/node": "^24.12.2",
 		"@types/video.js": "^7.3.58",
-		"prettier": "^3.8.1",
-		"prettier-plugin-tailwindcss": "^0.7.2",
-		"svelte": "^5.55.1",
+		"oxfmt": "^0.46.0",
+		"prettier": "^3.8.3",
+		"prettier-plugin-tailwindcss": "^0.7.3",
+		"svelte": "^5.55.5",
 		"svelte-check": "^4.4.6",
 		"typescript": "~5.9.3",
-		"vite": "^8.0.3"
+		"vite": "^8.0.10"
 	},
 	"dependencies": {
-		"@tailwindcss/vite": "^4.2.2",
+		"@tailwindcss/vite": "^4.2.4",
 		"@videojs/themes": "^1.0.1",
-		"tailwindcss": "^4.2.2",
+		"tailwindcss": "^4.2.4",
 		"vanilla-hamburger": "^0.2.3",
 		"video.js": "^8.23.7"
 	}

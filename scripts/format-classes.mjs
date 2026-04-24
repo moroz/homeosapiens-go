@@ -3,18 +3,14 @@
 // Sorts Tailwind classes inside gomponents Class("...") calls using prettier-plugin-tailwindcss.
 import fs from "node:fs";
 import path from "node:path";
-import prettier from "npm:prettier";
-import * as pluginTailwind from "npm:prettier-plugin-tailwindcss";
+import {format} from "npm:oxfmt"
 
 const classCallRx = /Class\("([^"]+)"\)/g;
 
 async function sortOne(classStr) {
   // Feed into Prettier so the plugin reorders.
   const fake = `<div class="${classStr}"></div>`;
-  const formatted = await prettier.format(fake, {
-    parser: "html",
-    plugins: [pluginTailwind],
-  });
+  const formatted = await format('_.html', fake);
   // Extract reordered classes.
   const m = formatted.match(/class="([^"]*)"/);
   return m ? m[1].trim() : classStr;

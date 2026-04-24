@@ -40,7 +40,7 @@ where v.slug = @video_slug and vg.slug = @group_slug and (
 ) limit 1;
 
 -- name: ListVideosForVideoGroup :many
-select sqlc.embed(v), sqlc.embed(a) from videos v
+select v.*, a.object_key thumbnail_object_key from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 left join assets a on v.thumbnail_id = a.id
 where vgv.video_group_id = $1

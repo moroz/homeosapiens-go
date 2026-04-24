@@ -14,7 +14,7 @@ func AuthLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 			Div(
 				Class("desktop:-mt-25 flex w-full flex-col items-center gap-4"),
 				A(Href("/"), Class("text-primary hover:text-primary-hover mobile:mt-8 transition-colors"),
-					logo("h-15"),
+					components.Logo("h-15"),
 				),
 				Div(Class("card desktop:w-100 w-full"),
 					H2(

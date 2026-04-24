@@ -1,6 +1,7 @@
 package layout
 
 import (
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -8,16 +9,6 @@ import (
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
-
-func logo(class string) Node {
-	return SVG(
-		Attr("viewBox", "0 0 1538 361"),
-		Class(class),
-		El("use",
-			Href("/assets/logo.svg#logo"),
-		),
-	)
-}
 
 func NavLink(href string, text string) Node {
 	return Li(
@@ -119,7 +110,7 @@ func AppHeader(ctx *types.CustomContext) Node {
 				A(
 					Class("text-primary hover:text-primary-hover text-4xl font-bold no-underline transition-colors"),
 					Href("/"),
-					logo("h-15 mobile:h-12"),
+					components.Logo("h-15 mobile:h-12"),
 				),
 			),
 			mobileNav(ctx),

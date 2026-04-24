@@ -7,6 +7,7 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -253,7 +254,7 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 }
 
 const listVideosForVideoGroup = `-- name: ListVideosForVideoGroup :many
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.thumbnail_id, a.id, a.object_key, a.original_filename, a.inserted_at, a.updated_at from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.thumbnail_id, a.object_key thumbnail_object_key from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 left join assets a on v.thumbnail_id = a.id
 where vgv.video_group_id = $1
@@ -261,8 +262,17 @@ order by position
 `
 
 type ListVideosForVideoGroupRow struct {
-	Video Video
-	Asset Asset
+	ID                 uuid.UUID
+	Provider           VideoProvider
+	IsPublic           bool
+	TitleEn            string
+	TitlePl            string
+	Slug               string
+	InsertedAt         time.Time
+	UpdatedAt          time.Time
+	DurationSeconds    *int32
+	ThumbnailID        *uuid.UUID
+	ThumbnailObjectKey *string
 }
 
 func (q *Queries) ListVideosForVideoGroup(ctx context.Context, videoGroupID uuid.UUID) ([]*ListVideosForVideoGroupRow, error) {
@@ -275,21 +285,17 @@ func (q *Queries) ListVideosForVideoGroup(ctx context.Context, videoGroupID uuid
 	for rows.Next() {
 		var i ListVideosForVideoGroupRow
 		if err := rows.Scan(
-			&i.Video.ID,
-			&i.Video.Provider,
-			&i.Video.IsPublic,
-			&i.Video.TitleEn,
-			&i.Video.TitlePl,
-			&i.Video.Slug,
-			&i.Video.InsertedAt,
-			&i.Video.UpdatedAt,
-			&i.Video.DurationSeconds,
-			&i.Video.ThumbnailID,
-			&i.Asset.ID,
-			&i.Asset.ObjectKey,
-			&i.Asset.OriginalFilename,
-			&i.Asset.InsertedAt,
-			&i.Asset.UpdatedAt,
+			&i.ID,
+			&i.Provider,
+			&i.IsPublic,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.Slug,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.DurationSeconds,
+			&i.ThumbnailID,
+			&i.ThumbnailObjectKey,
 		); err != nil {
 			return nil, err
 		}

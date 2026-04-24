@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
@@ -50,17 +51,29 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 
 					return Group{
 						H3(Class("text-primary font-bold text-xl mb-4"), Text(title)),
-						Ul(
-							Map(group.Videos, func(video *queries.Video) Node {
+						Div(
+							Class("video-grid"),
+							Map(group.Videos, func(video *queries.ListVideosForVideoGroupRow) Node {
 								title := video.TitleEn
 								if ctx.Language == "pl" {
 									title = video.TitlePl
 								}
 
-								return Li(
-									A(
-										Href(fmt.Sprintf("/videos/%s/%s", group.Slug, video.Slug)),
-										Text(title),
+								return A(
+									Class("no-underline"),
+									Href(fmt.Sprintf("/videos/%s/%s", group.Slug, video.Slug)),
+									Article(
+										Class("card video p-0"),
+										Header(
+											Class("aspect-video bg-slate-200 p-8 flex items-center justify-center"),
+											components.Logo("text-slate-400"),
+										),
+										Footer(
+											Class("p-4"),
+											H4(
+												Class("font-semibold"),
+												Text(title)),
+										),
 									),
 								)
 							}),
