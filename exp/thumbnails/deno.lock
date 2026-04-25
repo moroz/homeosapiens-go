@@ -3,6 +3,7 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.13",
+    "npm:@playwright/test@^1.59.1": "1.59.1",
     "npm:playwright@*": "1.59.1"
   },
   "jsr": {
@@ -17,6 +18,13 @@
     }
   },
   "npm": {
+    "@playwright/test@1.59.1": {
+      "integrity": "sha512-PG6q63nQg5c9rIi4/Z5lR5IVF7yU5MqmKaPOe0HSc0O2cX1fPi96sUQu5j7eo4gKCkB2AnNGoWt7y4/Xx3Kcqg==",
+      "dependencies": [
+        "playwright"
+      ],
+      "bin": true
+    },
     "fsevents@2.3.2": {
       "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
       "os": ["darwin"],
@@ -39,7 +47,8 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/assert@1"
+      "jsr:@std/assert@1",
+      "npm:@playwright/test@^1.59.1"
     ]
   }
 }
