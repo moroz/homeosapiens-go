@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-env --allow-sys --allow-read --allow-write main.ts"
+    "dev": "deno run --watch --allow-env --allow-sys --allow-read --allow-write --allow-run main.ts"
   },
   "imports": {
     "@playwright/test": "npm:@playwright/test@^1.59.1",
