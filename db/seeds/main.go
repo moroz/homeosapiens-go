@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -21,6 +22,18 @@ func MustParseTimestamp(t string) time.Time {
 		log.Fatal(err)
 	}
 	return parsed
+}
+
+func MustParseDate(t string) pgtype.Date {
+	parsed, err := time.Parse(time.DateOnly, t)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return pgtype.Date{
+		Time:             parsed,
+		InfinityModifier: 0,
+		Valid:            true,
+	}
 }
 
 func MustParseDecimal(d string) decimal.Decimal {
@@ -453,75 +466,89 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 		// To Perfect 1
 		{
 			params: queries.UpsertVideoParams{
-				ID:       uuid.MustParse("019dbfeb-e6f2-7521-b990-119d82b8665f"),
-				Provider: queries.VideoProviderCloudfront,
-				TitleEn:  "Day 1",
-				TitlePl:  "Dzień 1",
-				Slug:     "to-perfect-1-day-1",
+				ID:         uuid.MustParse("019dbfeb-e6f2-7521-b990-119d82b8665f"),
+				Provider:   queries.VideoProviderCloudfront,
+				TitleEn:    "To Perfect the Art of Homeopathy: Day 1",
+				TitlePl:    "Udoskonalić kunszt homeopatyczny: Dzień 1",
+				Slug:       "to-perfect-the-art-of-homeopathy-day-1",
+				RecordedOn: MustParseDate("2025-10-24"),
+				HostID:     new(hosts[0].ID),
 			},
 			videoGroupID: videoGroups[0].ID,
 		},
 		{
 			params: queries.UpsertVideoParams{
-				ID:       uuid.MustParse("019dbfeb-e5ec-73ae-881a-d76c8582644e"),
-				Provider: queries.VideoProviderCloudfront,
-				TitleEn:  "Day 2",
-				TitlePl:  "Dzień 2",
-				Slug:     "to-perfect-1-day-2",
+				ID:         uuid.MustParse("019dbfeb-e5ec-73ae-881a-d76c8582644e"),
+				Provider:   queries.VideoProviderCloudfront,
+				TitleEn:    "To Perfect the Art of Homeopathy: Day 2",
+				TitlePl:    "Udoskonalić kunszt homeopatyczny: Dzień 2",
+				Slug:       "to-perfect-the-art-of-homeopathy-day-2",
+				RecordedOn: MustParseDate("2025-10-25"),
+				HostID:     new(hosts[0].ID),
 			},
 			videoGroupID: videoGroups[0].ID,
 		},
 		// To Perfect 2
 		{
 			params: queries.UpsertVideoParams{
-				ID:       uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
-				Provider: queries.VideoProviderCloudfront,
-				TitleEn:  "Day 1, Part 1",
-				TitlePl:  "Dzień 1, Część 1",
-				Slug:     "to-perfect-2-day-1-part-1",
+				ID:         uuid.MustParse("019a8668-bb4f-7c9c-b9b8-3f274de96566"),
+				Provider:   queries.VideoProviderCloudfront,
+				TitleEn:    "To Perfect the Art of Homeopathy 2: Day 1, Part 1",
+				TitlePl:    "Udoskonalić kunszt homeopatyczny 2: Dzień 1, Część 1",
+				Slug:       "to-perfect-the-art-of-homeopathy-2-day-1-part-1",
+				RecordedOn: MustParseDate("2025-05-31"),
+				HostID:     new(hosts[0].ID),
 			},
 			videoGroupID: videoGroups[3].ID,
 		},
 		{
 			params: queries.UpsertVideoParams{
-				ID:       uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
-				Provider: queries.VideoProviderCloudfront,
-				TitleEn:  "Day 1, Part 2",
-				TitlePl:  "Dzień 1, Część 2",
-				Slug:     "to-perfect-2-day-1-part-2",
+				ID:         uuid.MustParse("019a8ba5-fe29-7af8-bf54-b8d96af38461"),
+				Provider:   queries.VideoProviderCloudfront,
+				TitleEn:    "To Perfect the Art of Homeopathy 2: Day 1, Part 2",
+				TitlePl:    "Udoskonalić kunszt homeopatyczny 2: Dzień 1, Część 2",
+				Slug:       "to-perfect-the-art-of-homeopathy-2-day-1-part-2",
+				RecordedOn: MustParseDate("2025-05-30"),
+				HostID:     new(hosts[0].ID),
 			},
 			videoGroupID: videoGroups[3].ID,
 		},
 		// Dr Sanjay Modi webinar
 		{
 			params: queries.UpsertVideoParams{
-				ID:       uuid.MustParse("019dbfeb-e512-740f-80ea-d8c30a99fa5b"),
-				Provider: queries.VideoProviderCloudfront,
-				TitleEn:  "Dutiful Remedies: Differential Diagnosis",
-				TitlePl:  "Sumienne leki: Diagnostyka różnicowa",
-				Slug:     "sanjay-modi-dutiful-remedies",
+				ID:         uuid.MustParse("019dbfeb-e512-740f-80ea-d8c30a99fa5b"),
+				Provider:   queries.VideoProviderCloudfront,
+				TitleEn:    "Dutiful Remedies: Differential Diagnosis",
+				TitlePl:    "Sumienne leki: Diagnostyka różnicowa",
+				Slug:       "sanjay-modi-dutiful-remedies",
+				RecordedOn: MustParseDate("2025-03-22"),
+				HostID:     new(hosts[0].ID),
 			},
 			videoGroupID: videoGroups[2].ID,
 		},
 		// Dr Asher Shaikh webinar
 		{
 			params: queries.UpsertVideoParams{
-				ID:       uuid.MustParse("019dbfeb-e43a-7324-bb52-65457afc331b"),
-				Provider: queries.VideoProviderCloudfront,
-				TitleEn:  "Webinar Recording",
-				TitlePl:  "Nagranie webinarium",
-				Slug:     "asher-shaikh-webinar-recording",
+				ID:         uuid.MustParse("019dbfeb-e43a-7324-bb52-65457afc331b"),
+				Provider:   queries.VideoProviderCloudfront,
+				TitleEn:    "What prevents me from moving on?",
+				TitlePl:    "What prevents me from moving on?",
+				Slug:       "asher-shaikh-what-prevents-me-from-moving-on",
+				RecordedOn: MustParseDate("2026-02-08"),
+				HostID:     new(hosts[1].ID),
 			},
 			videoGroupID: videoGroups[1].ID,
 		},
 		// Dr Herman Jeggels webinar
 		{
 			params: queries.UpsertVideoParams{
-				ID:       uuid.MustParse("019dbfec-770a-702f-aa5c-e2431a930395"),
-				Provider: queries.VideoProviderCloudfront,
-				TitleEn:  "Series of Cardiac Cases",
-				TitlePl:  "Seria przypadków kardiologicznych",
-				Slug:     "jeggels-cardiac-cases",
+				ID:         uuid.MustParse("019dbfec-770a-702f-aa5c-e2431a930395"),
+				Provider:   queries.VideoProviderCloudfront,
+				TitleEn:    "A Series of Critical Cardiac Cases",
+				TitlePl:    "Seria krytycznych przypadków kardiologicznych",
+				Slug:       "jeggels-critical-cardiac-cases",
+				RecordedOn: MustParseDate("2025-12-13"),
+				HostID:     new(hosts[2].ID),
 			},
 			videoGroupID: videoGroups[4].ID,
 		},

@@ -1,6 +1,7 @@
-import { mount, unmount } from "svelte";
+import { mount, unmount, tick } from "svelte";
 import "./app.css";
-import App from "./App.svelte";
+import App from "./Thumbnail.svelte";
+import Test from "./Test.svelte";
 
 export interface ThumbnailProps {
   pp: string;
@@ -12,7 +13,7 @@ export interface ThumbnailProps {
 
 let app: any = null;
 
-export function renderThumbnail(props: ThumbnailProps | string) {
+export async function renderThumbnail(props: ThumbnailProps | string) {
   if (typeof props === "string") {
     props = JSON.parse(props) as ThumbnailProps;
   }
@@ -20,10 +21,21 @@ export function renderThumbnail(props: ThumbnailProps | string) {
     target: document.getElementById("app")!,
     props,
   });
+  await tick();
 }
 
 export async function destroyApp() {
   if (!app) return;
-  unmount(app);
+  await unmount(app);
   app = null;
+}
+
+export function renderTest() {
+  mount(Test, {
+    target: document.getElementById("app")!,
+  });
+}
+
+if (import.meta.env.DEV && !navigator.webdriver) {
+  renderTest();
 }

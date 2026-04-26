@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addVideoToVideoGroup = `-- name: AddVideoToVideoGroup :one
@@ -40,7 +41,7 @@ func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideo
 }
 
 const getVideoForUser = `-- name: GetVideoForUser :one
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.thumbnail_id from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 join video_groups vg on vgv.video_group_id = vg.id
 where v.slug = $1 and vg.slug = $2 and (
@@ -73,7 +74,10 @@ func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParam
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.DurationSeconds,
-		&i.ThumbnailID,
+		&i.RecordedOn,
+		&i.HostID,
+		&i.ThumbnailEnID,
+		&i.ThumbnailPlID,
 	)
 	return &i, err
 }
@@ -218,7 +222,7 @@ func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoIds []uuid
 }
 
 const listVideos = `-- name: ListVideos :many
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.thumbnail_id from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id from videos v
 order by v.id desc
 `
 
@@ -241,7 +245,10 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 			&i.InsertedAt,
 			&i.UpdatedAt,
 			&i.DurationSeconds,
-			&i.ThumbnailID,
+			&i.RecordedOn,
+			&i.HostID,
+			&i.ThumbnailEnID,
+			&i.ThumbnailPlID,
 		); err != nil {
 			return nil, err
 		}
@@ -254,7 +261,7 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 }
 
 const listVideosForVideoGroup = `-- name: ListVideosForVideoGroup :many
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.thumbnail_id, a.object_key thumbnail_object_key from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, a.object_key thumbnail_object_key from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 left join assets a on v.thumbnail_id = a.id
 where vgv.video_group_id = $1
@@ -271,7 +278,10 @@ type ListVideosForVideoGroupRow struct {
 	InsertedAt         time.Time
 	UpdatedAt          time.Time
 	DurationSeconds    *int32
-	ThumbnailID        *uuid.UUID
+	RecordedOn         pgtype.Date
+	HostID             *uuid.UUID
+	ThumbnailEnID      *uuid.UUID
+	ThumbnailPlID      *uuid.UUID
 	ThumbnailObjectKey *string
 }
 
@@ -294,7 +304,10 @@ func (q *Queries) ListVideosForVideoGroup(ctx context.Context, videoGroupID uuid
 			&i.InsertedAt,
 			&i.UpdatedAt,
 			&i.DurationSeconds,
-			&i.ThumbnailID,
+			&i.RecordedOn,
+			&i.HostID,
+			&i.ThumbnailEnID,
+			&i.ThumbnailPlID,
 			&i.ThumbnailObjectKey,
 		); err != nil {
 			return nil, err

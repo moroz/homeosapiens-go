@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
@@ -241,25 +242,33 @@ func (q *Queries) UpsertHost(ctx context.Context, arg *UpsertHostParams) (*Host,
 }
 
 const upsertVideo = `-- name: UpsertVideo :one
-INSERT INTO videos (id, provider, title_en, title_pl, slug, is_public)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO videos (id, provider, title_en, title_pl, slug, is_public, host_id, recorded_on, thumbnail_pl_id, thumbnail_en_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (id) DO UPDATE SET
     provider = excluded.provider,
     title_en = excluded.title_en,
     title_pl = excluded.title_pl,
     slug = excluded.slug,
     is_public = excluded.is_public,
-    updated_at = now()
-returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, thumbnail_id
+    updated_at = now(),
+    host_id = excluded.host_id,
+    recorded_on = excluded.recorded_on,
+    thumbnail_en_id = excluded.thumbnail_en_id,
+    thumbnail_pl_id = excluded.thumbnail_pl_id
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id
 `
 
 type UpsertVideoParams struct {
-	ID       uuid.UUID
-	Provider VideoProvider
-	TitleEn  string
-	TitlePl  string
-	Slug     string
-	IsPublic bool
+	ID            uuid.UUID
+	Provider      VideoProvider
+	TitleEn       string
+	TitlePl       string
+	Slug          string
+	IsPublic      bool
+	HostID        *uuid.UUID
+	RecordedOn    pgtype.Date
+	ThumbnailPlID *uuid.UUID
+	ThumbnailEnID *uuid.UUID
 }
 
 func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Video, error) {
@@ -270,6 +279,10 @@ func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Vid
 		arg.TitlePl,
 		arg.Slug,
 		arg.IsPublic,
+		arg.HostID,
+		arg.RecordedOn,
+		arg.ThumbnailPlID,
+		arg.ThumbnailEnID,
 	)
 	var i Video
 	err := row.Scan(
@@ -282,7 +295,10 @@ func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Vid
 		&i.InsertedAt,
 		&i.UpdatedAt,
 		&i.DurationSeconds,
-		&i.ThumbnailID,
+		&i.RecordedOn,
+		&i.HostID,
+		&i.ThumbnailEnID,
+		&i.ThumbnailPlID,
 	)
 	return &i, err
 }

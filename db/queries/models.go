@@ -606,7 +606,10 @@ type Video struct {
 	InsertedAt      time.Time
 	UpdatedAt       time.Time
 	DurationSeconds *int32
-	ThumbnailID     *uuid.UUID
+	RecordedOn      pgtype.Date
+	HostID          *uuid.UUID
+	ThumbnailEnID   *uuid.UUID
+	ThumbnailPlID   *uuid.UUID
 }
 
 type VideoGroup struct {
