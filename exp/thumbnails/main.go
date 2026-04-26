@@ -11,6 +11,8 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
+const AssetsHost = "http://localhost:5173"
+
 type ThumbnailProps struct {
 	PP     string `json:"pp"`
 	Title  string `json:"title"`
@@ -21,7 +23,7 @@ type ThumbnailProps struct {
 
 const script = `
 (async () => {
-	const mod = await import("http://localhost:5174/src/main.ts");
+	const mod = await import("` + AssetsHost + `/src/main.ts");
 	return mod.renderThumbnail;
 })()
 `
@@ -33,7 +35,7 @@ func main() {
 	}
 
 	browser, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
-		Headless: new(false),
+		ExecutablePath: new("/usr/bin/chromium"),
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -49,7 +51,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_, err = page.Goto("http://localhost:5174", playwright.PageGotoOptions{
+	_, err = page.Goto(AssetsHost, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateDomcontentloaded,
 	})
 	if err != nil {

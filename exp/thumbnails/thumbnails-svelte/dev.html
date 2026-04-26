@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>thumbnails-svelte</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { renderThumbnail } from "/src/main.ts";
+
+      renderThumbnail({
+        date: "2026-02-08",
+        host: "Dr Asher Shaikh",
+        locale: "en",
+        pp: "/dr-asher.jpeg",
+        title: "What prevents me from moving on?",
+      });
+    </script>
+  </body>
+</html>
