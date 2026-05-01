@@ -8,7 +8,7 @@ type VideoGroupListDTO struct {
 
 type VideoGroupDetailsDTO struct {
 	*queries.VideoGroup
-	Videos []*queries.ListVideosForVideoGroupRow
+	Videos []*queries.Video
 }
 
 type VideoDetailsDTO struct {
