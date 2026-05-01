@@ -18,7 +18,7 @@ recorded_on::text from (
 `
 
 const insertAssetQuery = `
-insert into assets (id, object_key) values ($1, $2)
+insert into assets (id, scaled) values ($1, true)
 `
 
 const setThumbnailQuery = `

@@ -6,14 +6,19 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"path"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/playwright-community/playwright-go"
 )
 
 const AssetsHost = "http://localhost:5173"
+const Bucket = "homeosapiens-staging-assets"
 
 const script = `
 (async () => {
@@ -79,6 +84,72 @@ func buildProps(v *VideoItem) *ThumbnailProps {
 	}
 }
 
+func callMagick(args ...string) error {
+	cmd := exec.Command("convert", args...)
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func processImage(assetID uuid.UUID) error {
+	outDir := path.Join("screenshots", assetID.String())
+	if err := os.MkdirAll(outDir, 0755); err != nil {
+		return err
+	}
+
+	srcImg := fmt.Sprintf("screenshots/%s.png", assetID)
+
+	variants := [][]string{
+		{srcImg, "-quality", "80", "-strip", path.Join(outDir, "2x.webp")},
+		{srcImg, "-quality", "80", "-strip", path.Join(outDir, "2x.png")},
+		{srcImg, "-quality", "80", "-resize", "50%", "-strip", path.Join(outDir, "1x.webp")},
+		{srcImg, "-quality", "80", "-resize", "50%", "-strip", path.Join(outDir, "1x.png")},
+	}
+
+	for _, variant := range variants {
+		if err := callMagick(variant...); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func uploadImages(client *s3.Client, assetID uuid.UUID) error {
+	outDir := path.Join("screenshots", assetID.String())
+	files, err := os.ReadDir(outDir)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		contentType := "image/png"
+		if strings.HasSuffix(file.Name(), ".webp") {
+			contentType = "image/webp"
+		}
+
+		reader, err := os.Open(path.Join(outDir, file.Name()))
+		if err != nil {
+			return err
+		}
+
+		params := &s3.PutObjectInput{
+			Bucket:       new(Bucket),
+			Key:          new(fmt.Sprintf("images/%s/%s", assetID, file.Name())),
+			CacheControl: new("public, max-age=31536000, immutable"),
+			ContentType:  new(contentType),
+			Body:         reader,
+		}
+
+		if _, err := client.PutObject(context.Background(), params); err != nil {
+			return err
+		}
+
+		reader.Close()
+	}
+
+	return nil
+}
+
 func main() {
 	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -86,11 +157,12 @@ func main() {
 	}
 	defer db.Close()
 
-	awsCfg, err := config.LoadDefaultConfig(context.TODO())
+	awsCfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-1"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	s3Client := s3.NewFrom
+	s3Client := s3.NewFromConfig(awsCfg)
+	_ = s3Client
 
 	videos, err := getVideos(db, context.Background())
 	if err != nil {
@@ -144,8 +216,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for _, video := range videos {
+	assetIDs := make([]uuid.UUID, len(videos))
+
+	for i, video := range videos {
 		assetID := uuid.Must(uuid.NewV7())
+		assetIDs[i] = assetID
 
 		props, err := json.Marshal(buildProps(video))
 		if err != nil {
@@ -169,7 +244,17 @@ func main() {
 			log.Fatal(err)
 		}
 
+		if err := processImage(assetID); err != nil {
+			log.Fatal(err)
+		}
+
 		db.Exec(context.Background(), insertAssetQuery, assetID, fmt.Sprintf("images/%s.png", assetID))
 		db.Exec(context.Background(), setThumbnailQuery, video.Locale, assetID, video.ID)
+	}
+
+	for _, assetID := range assetIDs {
+		if err := uploadImages(s3Client, assetID); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
