@@ -7,20 +7,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/playwright-community/playwright-go"
 )
 
 const AssetsHost = "http://localhost:5173"
-
-type ThumbnailProps struct {
-	PP     string `json:"pp"`
-	Title  string `json:"title"`
-	Date   string `json:"date"`
-	Host   string `json:"host"`
-	Locale string `json:"locale"` // "en" | "pl"
-}
 
 const script = `
 (async () => {
@@ -29,34 +22,8 @@ const script = `
 })()
 `
 
-type VideoItem struct {
-	Locale         string
-	ID             uuid.UUID
-	Title          string
-	Host           string
-	ProfilePicture string
-	RecordedOn     string
-}
-
-const query = `
-select locale, id, title,
-    'Dr ' || host host,
-	case host
-		when 'Sanjay Modi' then '/modi.jpeg'
-		when 'Asher Shaikh' then '/dr-asher.jpeg'
-		when 'Herman Jeggels' then '/jeggels.jpeg'
-	end profile_picture,
-recorded_on::text from (
-	select 'en' locale, v.id, v.title_en title, h.given_name || ' ' || h.family_name host, recorded_on from videos v
-	join hosts h on v.host_id = h.id
-	union all
-	select 'pl' locale, v.id, v.title_pl, h.given_name || ' ' || h.family_name, recorded_on from videos v
-	join hosts h on v.host_id = h.id
-) s order by s.id;
-`
-
 func getVideos(db *pgxpool.Pool, ctx context.Context) ([]*VideoItem, error) {
-	rows, err := db.Query(ctx, query)
+	rows, err := db.Query(ctx, listVideosQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +86,12 @@ func main() {
 	}
 	defer db.Close()
 
+	awsCfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatal(err)
+	}
+	s3Client := s3.NewFrom
+
 	videos, err := getVideos(db, context.Background())
 	if err != nil {
 		log.Fatal(err)
@@ -172,6 +145,8 @@ func main() {
 	}
 
 	for _, video := range videos {
+		assetID := uuid.Must(uuid.NewV7())
+
 		props, err := json.Marshal(buildProps(video))
 		if err != nil {
 			log.Fatal(err)
@@ -183,7 +158,7 @@ func main() {
 		}
 
 		_, err = page.Screenshot(playwright.PageScreenshotOptions{
-			Path: new(fmt.Sprintf("screenshots/%s.png", uuid.Must(uuid.NewV7()))),
+			Path: new(fmt.Sprintf("screenshots/%s.png", assetID)),
 		})
 		if err != nil {
 			log.Fatal(err)
@@ -193,5 +168,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		db.Exec(context.Background(), insertAssetQuery, assetID, fmt.Sprintf("images/%s.png", assetID))
+		db.Exec(context.Background(), setThumbnailQuery, video.Locale, assetID, video.ID)
 	}
 }
