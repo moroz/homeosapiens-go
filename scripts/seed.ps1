@@ -58,6 +58,8 @@ $uri = [System.UriBuilder]$databaseUrl
 $uri.Host = "127.0.0.1"
 $uri.Port = $port
 
+psql "$uri" -f "db/seeds/data.sql"
+
 cd db/seeds && env SECRET_KEY_BASE="$secretKeyBase" DATABASE_URL="$uri" go run .
 
 Stop-Process -Id $tunnel.Id
