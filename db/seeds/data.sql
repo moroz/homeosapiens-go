@@ -7,6 +7,29 @@ insert into assets (id, object_key, original_filename) values
   ('019b0c7c-c3c4-71c3-a630-7b33a847ca2a', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a.jpg'),
   ('019beef9-ad4c-736f-9bb0-965b59ca21ae', '019beef9-ad4c-736f-9bb0-965b59ca21ae.png', 'drasher.png');
 
+insert into assets (id, scaled) values
+  -- To Perfect 2: Day 1, Part 1
+  ('019de856-e5a2-7edb-9bba-215d32de9250', true),
+  ('019de856-e4bd-799d-a689-8d4d5cf7370b', true),
+  -- To Perfect 2: Day 1, Part 2
+  ('019de856-e6ef-73f3-88f6-9b1772fdf073', true),
+  ('019de856-e650-7d54-a6ba-ff70c8e812fb', true),
+  -- What prevents me from moving on?
+  ('019de856-e865-79a5-829a-45cad21e4e34', true),
+  ('019de856-e799-70b2-85a6-0c36770b45e3', true),
+  -- Dutiful Remedies
+  ('019de856-e903-7939-ad2b-8a3f0abc43b1', true),
+  ('019de856-e9bb-7ad6-81ea-04c12e24768b', true),
+  -- To Perfect 1: Day 2
+  ('019de856-ea73-7a5b-9798-a0b68193ebe5', true),
+  ('019de856-eb1b-779d-85a1-95e040bfc733', true),
+  -- To Perfect 1: Day 1
+  ('019de856-ec6e-76f6-a5cc-10508960adc8', true),
+  ('019de856-ebc5-79ee-ab25-a7482adebcb0', true),
+  -- Critical Cardiac Cases
+  ('019de856-ed0c-7bb5-931c-4061cf50e25d', true),
+  ('019de856-edd2-7494-9d7e-0f69f3629301', true);
+
 insert into hosts (id, salutation, given_name, family_name, profile_picture_id, country) values
   ('0199c2f2-528b-7e88-96e3-5e5088333a8a', 'common.hosts.salutation.dr', 'Sanjay', 'Modi',   '0199c2f2-528b-7e88-96e3-5e5088333a8b', 'IN'),
   ('019beef9-4287-714f-982b-2524fdef7063', 'common.hosts.salutation.dr', 'Asher',  'Shaikh', '019beef9-ad4c-736f-9bb0-965b59ca21ae', 'IN'),
@@ -222,14 +245,14 @@ insert into video_groups (id, title_en, title_pl, slug) values
   ('019daf9b-7234-71bb-be93-f9f965d56ac6', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy 2', 'Udoskonalić kunszt homeopatyczny 2: Seminarium z drem Sanjayem Modim', 'dr-sanjay-modi-to-perfect-the-art-of-homeopathy-2'),
   ('019dc005-f4a8-76fb-afdd-2e5caff8fb5a', 'Dr Herman Jeggels Webinar',                           'Webinarium z drem Hermanem Jeggelsem',                                 'dr-herman-jeggels-webinar');
 
-insert into videos (id, provider, title_en, title_pl, slug, recorded_on, host_id) values
-  ('019dbfeb-e6f2-7521-b990-119d82b8665f', 'cloudfront', 'To Perfect the Art of Homeopathy: Day 1',          'Udoskonalić kunszt homeopatyczny: Dzień 1',                         'to-perfect-the-art-of-homeopathy-day-1',          '2025-10-24', '0199c2f2-528b-7e88-96e3-5e5088333a8a'),
-  ('019dbfeb-e5ec-73ae-881a-d76c8582644e', 'cloudfront', 'To Perfect the Art of Homeopathy: Day 2',          'Udoskonalić kunszt homeopatyczny: Dzień 2',                         'to-perfect-the-art-of-homeopathy-day-2',          '2025-10-25', '0199c2f2-528b-7e88-96e3-5e5088333a8a'),
-  ('019a8668-bb4f-7c9c-b9b8-3f274de96566', 'cloudfront', 'To Perfect the Art of Homeopathy 2: Day 1, Part 1','Udoskonalić kunszt homeopatyczny 2: Dzień 1, Część 1',              'to-perfect-the-art-of-homeopathy-2-day-1-part-1', '2025-05-31', '0199c2f2-528b-7e88-96e3-5e5088333a8a'),
-  ('019a8ba5-fe29-7af8-bf54-b8d96af38461', 'cloudfront', 'To Perfect the Art of Homeopathy 2: Day 1, Part 2','Udoskonalić kunszt homeopatyczny 2: Dzień 1, Część 2',              'to-perfect-the-art-of-homeopathy-2-day-1-part-2', '2025-05-30', '0199c2f2-528b-7e88-96e3-5e5088333a8a'),
-  ('019dbfeb-e512-740f-80ea-d8c30a99fa5b', 'cloudfront', 'Dutiful Remedies: Differential Diagnosis',         'Sumienne leki: Diagnostyka różnicowa',                              'sanjay-modi-dutiful-remedies',                    '2025-03-22', '0199c2f2-528b-7e88-96e3-5e5088333a8a'),
-  ('019dbfeb-e43a-7324-bb52-65457afc331b', 'cloudfront', 'What prevents me from moving on?',                 'What prevents me from moving on?',                                  'asher-shaikh-what-prevents-me-from-moving-on',   '2026-02-08', '019beef9-4287-714f-982b-2524fdef7063'),
-  ('019dbfec-770a-702f-aa5c-e2431a930395', 'cloudfront', 'A Series of Critical Cardiac Cases',               'Seria krytycznych przypadków kardiologicznych',                     'jeggels-critical-cardiac-cases',                  '2025-12-13', '019b0c71-fde2-76b7-8c71-21c2e9ea23a5');
+insert into videos (id, provider, title_en, title_pl, slug, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id) values
+  ('019dbfeb-e6f2-7521-b990-119d82b8665f', 'cloudfront', 'To Perfect the Art of Homeopathy: Day 1',          'Udoskonalić kunszt homeopatyczny: Dzień 1',           'to-perfect-the-art-of-homeopathy-day-1',          '2025-10-24', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019de856-ec6e-76f6-a5cc-10508960adc8', '019de856-ebc5-79ee-ab25-a7482adebcb0'),
+  ('019dbfeb-e5ec-73ae-881a-d76c8582644e', 'cloudfront', 'To Perfect the Art of Homeopathy: Day 2',          'Udoskonalić kunszt homeopatyczny: Dzień 2',           'to-perfect-the-art-of-homeopathy-day-2',          '2025-10-25', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019de856-ea73-7a5b-9798-a0b68193ebe5', '019de856-eb1b-779d-85a1-95e040bfc733'),
+  ('019a8668-bb4f-7c9c-b9b8-3f274de96566', 'cloudfront', 'To Perfect the Art of Homeopathy 2: Day 1, Part 1','Udoskonalić kunszt homeopatyczny 2: Dzień 1, Część 1','to-perfect-the-art-of-homeopathy-2-day-1-part-1', '2025-05-31', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019de856-e5a2-7edb-9bba-215d32de9250', '019de856-e4bd-799d-a689-8d4d5cf7370b'),
+  ('019a8ba5-fe29-7af8-bf54-b8d96af38461', 'cloudfront', 'To Perfect the Art of Homeopathy 2: Day 1, Part 2','Udoskonalić kunszt homeopatyczny 2: Dzień 1, Część 2','to-perfect-the-art-of-homeopathy-2-day-1-part-2', '2025-05-30', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019de856-e6ef-73f3-88f6-9b1772fdf073', '019de856-e650-7d54-a6ba-ff70c8e812fb'),
+  ('019dbfeb-e512-740f-80ea-d8c30a99fa5b', 'cloudfront', 'Dutiful Remedies: Differential Diagnosis',         'Sumienne leki: Diagnostyka różnicowa',                'sanjay-modi-dutiful-remedies',                    '2025-03-22', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019de856-e903-7939-ad2b-8a3f0abc43b1', '019de856-e9bb-7ad6-81ea-04c12e24768b'),
+  ('019dbfeb-e43a-7324-bb52-65457afc331b', 'cloudfront', 'What prevents me from moving on?',                 'What prevents me from moving on?',                    'asher-shaikh-what-prevents-me-from-moving-on',    '2026-02-08', '019beef9-4287-714f-982b-2524fdef7063', '019de856-e865-79a5-829a-45cad21e4e34', '019de856-e799-70b2-85a6-0c36770b45e3'),
+  ('019dbfec-770a-702f-aa5c-e2431a930395', 'cloudfront', 'A Series of Critical Cardiac Cases',               'Seria krytycznych przypadków kardiologicznych',       'jeggels-critical-cardiac-cases',                  '2025-12-13', '019b0c71-fde2-76b7-8c71-21c2e9ea23a5', '019de856-ed0c-7bb5-931c-4061cf50e25d', '019de856-edd2-7494-9d7e-0f69f3629301');
 
 insert into video_groups_videos (video_id, video_group_id, position) values
   ('019dbfeb-e6f2-7521-b990-119d82b8665f', '019da123-449c-7038-aae3-303255746cc4', 0),

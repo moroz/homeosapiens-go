@@ -24,13 +24,13 @@
 </script>
 
 <div
-  class="aspect-video bg-slate-900 w-160 flex overflow-hidden outline-pink-300 outline-3"
+  class="aspect-video bg-slate-100 w-160 flex overflow-hidden outline-pink-300 outline-3"
 >
   <!-- Host photo -->
   <div class="relative h-full shrink-0 overflow-hidden p-4 w-68">
     <img
       src={pp}
-      class="w-full h-full object-cover rounded-md outline outline-white/70"
+      class="w-full h-full object-cover rounded-md outline outline-slate-500"
       alt=""
     />
   </div>
@@ -40,7 +40,7 @@
     <!-- Logo -->
     <svg
       viewBox="0 0 1538 361"
-      class={twMerge("w-[220px] text-white h-auto", smallerText && "w-50")}
+      class={twMerge("w-[220px] text-slate-900 h-auto", smallerText && "w-50")}
     >
       <use href="/logo.svg#logo" />
     </svg>
@@ -48,13 +48,13 @@
     <!-- Title -->
     <h1
       class={twMerge(
-        "text-white font-bold text-[40px] leading-tight",
+        "text-slate-900 font-bold text-[40px] leading-tight",
         smallerText && "text-4xl",
       )}
     >
       {title}
       {#if subtitle}
-        <small class="text-white/90 mt-3 block">{subtitle}</small>
+        <small class="text-slate-700 mt-3 block">{subtitle}</small>
       {/if}
     </h1>
 
@@ -62,7 +62,7 @@
     <div class="flex flex-col gap-1">
       <p
         class={twMerge(
-          "text-slate-300 font-semibold text-3xl",
+          "text-slate-700 font-semibold text-3xl",
           smallerText && "text-2xl",
         )}
       >
@@ -70,7 +70,7 @@
       </p>
       <p
         class={twMerge(
-          "text-slate-100 font-semibold text-3xl",
+          "text-slate-700 font-semibold text-3xl",
           smallerText && "text-2xl",
         )}
       >

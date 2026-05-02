@@ -84,7 +84,7 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 									Article(
 										Class("card video p-0"),
 										Header(
-											Class("flex aspect-video items-center justify-center bg-slate-200 p-8"),
+											Class("flex aspect-video items-center justify-center bg-slate-200 overflow-hidden rounded-t"),
 											VideoThumbnail(video, ctx.Language),
 										),
 										Footer(

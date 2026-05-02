@@ -248,8 +248,13 @@ func main() {
 			log.Fatal(err)
 		}
 
-		db.Exec(context.Background(), insertAssetQuery, assetID, fmt.Sprintf("images/%s.png", assetID))
-		db.Exec(context.Background(), setThumbnailQuery, video.Locale, assetID, video.ID)
+		if _, err := db.Exec(context.Background(), insertAssetQuery, assetID); err != nil {
+			log.Fatal(err)
+		}
+
+		if _, err := db.Exec(context.Background(), setThumbnailQuery, video.Locale, assetID, video.ID); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	for _, assetID := range assetIDs {

@@ -2,14 +2,14 @@
 /* @import "@videojs/themes/dist/fantasy/index.css"; */
 @import "tailwindcss";
 
-@config "../tailwind.config.js";
+@config "../../tailwind.config.js";
 @plugin "@tailwindcss/typography";
 
 @theme {
   --color-secondary: var(--color-purple-800);
   --color-secondary-hover: var(--color-purple-700);
 
-  --font-sans: system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --color-primary: var(--color-blue-800);
   --color-primary-hover: var(--color-blue-700);
 

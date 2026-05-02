@@ -1,4 +1,4 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	content: ["../tmpl/**/*.go"],
+	content: ["./tmpl/**/*.go"],
 };
