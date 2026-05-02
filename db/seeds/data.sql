@@ -233,10 +233,10 @@ insert into events_hosts (event_id, host_id, position) values
   ('019c5c9a-c5a4-7518-8317-65ae90516726', '019beef9-4287-714f-982b-2524fdef7063', 0);
 
 insert into product_prices (product_id, price_type, rule_type, price_amount, price_currency, priority, is_active, valid_until) values
-  ('019de49f-d612-7339-962b-800168a04bbb', 'fixed', 'early_bird',    560.00, 'PLN', 10, true, '2025-09-20 21:59:59+00');
+  ('019de49f-d612-7339-962b-800168a04bbb', 'Fixed', 'EarlyBird',    560.00, 'PLN', 10, true, '2025-09-20 21:59:59+00');
 
 insert into product_prices (product_id, price_type, rule_type, price_amount, price_currency, priority, is_active, discount_code) values
-  ('019de49f-d612-7339-962b-800168a04bbb', 'fixed', 'discount_code', 500.00, 'PLN', 20, true, 'wshlif');
+  ('019de49f-d612-7339-962b-800168a04bbb', 'Fixed', 'DiscountCode', 500.00, 'PLN', 20, true, 'wshlif');
 
 insert into video_groups (id, title_en, title_pl, slug) values
   ('019da123-449c-7038-aae3-303255746cc4', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy',   'Udoskonalić kunszt homeopatyczny: Seminarium z drem Sanjayem Modim',   'dr-sanjay-modi-to-perfect-the-art-of-homeopathy'),

@@ -21,7 +21,7 @@ PGDATABASE = "homeosapiens_dev"
 PGUSER = "postgres"
 PGPASSWORD = "postgres"
 PGHOST = "localhost"
-DATABASE_URL = "postgres://postgres:postgres@localhost:5432/{{ env.PGDATABASE }}?options=-c+TimeZone%3DUTC"
+DATABASE_URL = "postgres://postgres:postgres@localhost:5432/{{ env.PGDATABASE }}?options=-c%20TimeZone%3DUTC"
 GOOSE_DBSTRING = "{{ env.DATABASE_URL }}"
 GOOSE_DRIVER = "postgres"
 GOOSE_MIGRATION_DIR = "db/migrations"
@@ -47,7 +47,12 @@ mise db:setup
 """
 
 [tasks."db:seed"]
-run = "cd db/seeds && go run ."
+run = """
+#!/usr/bin/env -S bash -euo pipefail
+
+psql $DATABASE_URL -f db/seeds/data.sql
+cd db/seeds && go run .
+"""
 
 [tasks."db:setup"]
 run = """
@@ -56,7 +61,7 @@ run = """
 createdb $PGDATABASE || true
 psql -c "alter database $PGDATABASE set timezone to 'UTC'"
 goose up
-mise r db:seed
+mise db:seed
 """
 
 [tasks."db:reset"]
@@ -82,8 +87,7 @@ export GOOSE_DBSTRING=$TEST_DATABASE_URL
 dropdb --force $TEST_DATABASE
 createdb $TEST_DATABASE
 goose up
-cd db/seeds
-env DATABASE_URL=$TEST_DATABASE_URL go run .
+psql $TEST_DATABASE_URL -f db/seeds/data.sql
 """
 
 [tasks.test]
