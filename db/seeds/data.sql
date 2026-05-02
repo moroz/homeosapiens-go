@@ -13,9 +13,9 @@ insert into hosts (id, salutation, given_name, family_name, profile_picture_id, 
   ('019b0c71-fde2-76b7-8c71-21c2e9ea23a5', 'common.hosts.salutation.dr', 'Herman', 'Jeggels','019b0c7c-c3c4-71c3-a630-7b33a847ca2a', 'ZA');
 
 insert into products (id, product_type, title_en, title_pl, base_price_amount, base_price_currency) values
-  ('019c0000-0001-7000-8000-000000000001', 'event', 'Dr Asher Shaikh seminar',              'Seminarium z drem Asherem Shaikh',           560.00, 'PLN'),
-  ('019c0000-0001-7000-8000-000000000002', 'event', 'To Perfect the Art of Homeopathy',     'Udoskonalić kunszt homeopatyczny',           580.00, 'PLN'),
-  ('019c0000-0001-7000-8000-000000000003', 'event', 'To Perfect the Art of Homeopathy 2',   'Udoskonalić kunszt homeopatyczny 2',         640.00, 'PLN');
+  ('019de49f-d17f-7435-b166-b8e9b3e4430c', 'event', 'Dr Asher Shaikh seminar',              'Seminarium z drem Asherem Shaikh',           560.00, 'PLN'),
+  ('019de49f-d3d5-727b-915d-2cd3671cb72f', 'event', 'To Perfect the Art of Homeopathy',     'Udoskonalić kunszt homeopatyczny',           580.00, 'PLN'),
+  ('019de49f-d612-7339-962b-800168a04bbb', 'event', 'To Perfect the Art of Homeopathy 2',   'Udoskonalić kunszt homeopatyczny 2',         640.00, 'PLN');
 
 -- Dr Asher Shaikh seminar (paid, in-person)
 insert into events (id, product_id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual,
@@ -23,7 +23,7 @@ insert into events (id, product_id, event_type, title_en, title_pl, slug, starts
   description_en, description_pl)
 values (
   '019c5c9a-c5a4-7518-8317-65ae90516726',
-  '019c0000-0001-7000-8000-000000000001',
+  '019de49f-d17f-7435-b166-b8e9b3e4430c',
   'seminar',
   'Dr Asher Shaikh seminar',
   'Seminarium z drem Asherem Shaikh',
@@ -126,7 +126,7 @@ insert into events (id, product_id, event_type, title_en, title_pl, slug, starts
   description_en, description_pl)
 values (
   '0199c2f2-528b-7e88-96e3-5e5088333a8c',
-  '019c0000-0001-7000-8000-000000000002',
+  '019de49f-d3d5-727b-915d-2cd3671cb72f',
   'seminar',
   'To Perfect the Art of Homeopathy',
   'Udoskonalić kunszt homeopatyczny',
@@ -156,7 +156,7 @@ insert into events (id, product_id, event_type, title_en, title_pl, slug, starts
   description_en, description_pl)
 values (
   '0199c2fa-7e9d-72f6-ada1-88b5d04d9a58',
-  '019c0000-0001-7000-8000-000000000003',
+  '019de49f-d612-7339-962b-800168a04bbb',
   'seminar',
   'To Perfect the Art of Homeopathy 2',
   'Udoskonalić kunszt homeopatyczny 2',
@@ -210,10 +210,10 @@ insert into events_hosts (event_id, host_id, position) values
   ('019c5c9a-c5a4-7518-8317-65ae90516726', '019beef9-4287-714f-982b-2524fdef7063', 0);
 
 insert into product_prices (product_id, price_type, rule_type, price_amount, price_currency, priority, is_active, valid_until) values
-  ('019c0000-0001-7000-8000-000000000003', 'fixed', 'early_bird',    560.00, 'PLN', 10, true, '2025-09-20 21:59:59+00');
+  ('019de49f-d612-7339-962b-800168a04bbb', 'fixed', 'early_bird',    560.00, 'PLN', 10, true, '2025-09-20 21:59:59+00');
 
 insert into product_prices (product_id, price_type, rule_type, price_amount, price_currency, priority, is_active, discount_code) values
-  ('019c0000-0001-7000-8000-000000000003', 'fixed', 'discount_code', 500.00, 'PLN', 20, true, 'wshlif');
+  ('019de49f-d612-7339-962b-800168a04bbb', 'fixed', 'discount_code', 500.00, 'PLN', 20, true, 'wshlif');
 
 insert into video_groups (id, title_en, title_pl, slug) values
   ('019da123-449c-7038-aae3-303255746cc4', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy',   'Udoskonalić kunszt homeopatyczny: Seminarium z drem Sanjayem Modim',   'dr-sanjay-modi-to-perfect-the-art-of-homeopathy'),
