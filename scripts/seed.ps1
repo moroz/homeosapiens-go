@@ -58,6 +58,8 @@ $uri = [System.UriBuilder]$databaseUrl
 $uri.Host = "127.0.0.1"
 $uri.Port = $port
 
+$tables = @("assets", "products", "events", "hosts", "video_groups", "video_groups_videos", "videos", "product_prices", "events_hosts")
+psql "$uri" -c "truncate $($tables -join ',') cascade;"
 psql "$uri" -f "db/seeds/data.sql"
 
 cd db/seeds && env SECRET_KEY_BASE="$secretKeyBase" DATABASE_URL="$uri" go run .

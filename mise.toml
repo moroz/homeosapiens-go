@@ -137,7 +137,7 @@ GOOS=linux GOARCH=amd64 go build .
 """
 
 [tasks.deploy]
-run = "cd scripts && ansible-playbook -v deploy.yml"
+run = "cd scripts/deploy && ansible-playbook -v deploy.yml"
 
 [tasks.watch]
 run = "npx concurrently 'env PORT=5000 air' 'cd assets && pnpm run dev' caddy"

@@ -20,7 +20,7 @@
       delegate_to: localhost
       become: false
       shell:
-        cmd: "scripts/build-release.sh"
+        cmd: "scripts/deploy/build-release.sh"
         chdir: "{{ code_dir }}"
       environment:
         GOOS: "{{ ansible_facts['system'] | lower }}"
