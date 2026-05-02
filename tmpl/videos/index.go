@@ -30,6 +30,45 @@ func VideoThumbnail(video *queries.Video, locale string) Node {
 	)
 }
 
+func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, video *queries.Video) Node {
+	title := video.TitleEn
+	if ctx.Language == "pl" {
+		title = video.TitlePl
+	}
+
+	return A(
+		Class("no-underline"),
+		Href(fmt.Sprintf("/videos/%s/%s", group.Slug, video.Slug)),
+		Article(
+			Class("card video p-0"),
+			Header(
+				Class("flex aspect-video items-center justify-center bg-slate-200 overflow-hidden rounded-t relative"),
+				VideoThumbnail(video, ctx.Language),
+				Iff(video.DurationSeconds != nil, func() Node {
+					hours := *video.DurationSeconds / 3600
+					secs := *video.DurationSeconds % 60
+					minutes := *video.DurationSeconds % 3600 / 60
+					text := fmt.Sprintf("%02d:%02d", minutes, secs)
+					if hours > 0 {
+						text = fmt.Sprintf("%d:%s", hours, text)
+					}
+
+					return Span(
+						Class("absolute bottom-2 right-2 inline-block px-1 bg-black/50 text-white text-sm rounded"),
+						Text(text),
+					)
+				}),
+			),
+			Footer(
+				Class("p-4"),
+				H4(
+					Class("font-semibold"),
+					Text(title)),
+			),
+		),
+	)
+}
+
 func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *types.VideoGroupDetailsDTO) Node {
 	return layout.BareLayout(ctx, "Videos",
 		Div(
@@ -73,28 +112,7 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 						Div(
 							Class("video-grid"),
 							Map(group.Videos, func(video *queries.Video) Node {
-								title := video.TitleEn
-								if ctx.Language == "pl" {
-									title = video.TitlePl
-								}
-
-								return A(
-									Class("no-underline"),
-									Href(fmt.Sprintf("/videos/%s/%s", group.Slug, video.Slug)),
-									Article(
-										Class("card video p-0"),
-										Header(
-											Class("flex aspect-video items-center justify-center bg-slate-200 overflow-hidden rounded-t"),
-											VideoThumbnail(video, ctx.Language),
-										),
-										Footer(
-											Class("p-4"),
-											H4(
-												Class("font-semibold"),
-												Text(title)),
-										),
-									),
-								)
+								return VideoCard(ctx, group, video)
 							}),
 						),
 					}

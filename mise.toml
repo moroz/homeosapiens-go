@@ -13,6 +13,7 @@ node = "latest"
 overmind = "latest"
 pnpm = "latest"
 prettier = "latest"
+python = "latest"
 stripe = "latest"
 uv = "latest"
 xh = "latest"
@@ -47,12 +48,36 @@ fi
 mise db:setup
 """
 
+[tasks.restart]
+run = """
+#!/usr/bin/env -S bash -euo pipefail
+
+if [[ -S .overmind.sock ]]; then
+  overmind restart air
+fi
+"""
+
 [tasks."db:seed"]
 run = """
 #!/usr/bin/env -S bash -euo pipefail
 
-psql $DATABASE_URL -f db/seeds/data.sql
-cd db/seeds && go run .
+TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts)
+
+psql $DATABASE_URL -c "truncate $(IFS=,; echo "${TABLES[*]}") cascade;"
+psql $DATABASE_URL -f db/seeds/data.sql >/dev/null
+(cd db/seeds && go run .)
+mise restart
+"""
+
+[tasks."db:seed:dump"]
+run = """
+#!/usr/bin/env -S bash -euo pipefail
+
+TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts)
+
+tables_option="$(printf ' -t %s' "${TABLES[@]}")"
+
+pg_dump -Fp $DATABASE_URL --data-only --inserts --no-comments $tables_option -f db/seeds/data.sql
 """
 
 [tasks."db:setup"]
@@ -71,7 +96,7 @@ run = """
 
 dropdb $PGDATABASE --force
 mise r db:setup
-overmind restart
+mise restart
 """
 
 [tasks."db:test:prepare"]
