@@ -68,6 +68,7 @@
       "header": "Sign in",
       "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
       "invalid_email_password_combination": "Invalid email/password combination.",
+      "unverified_email": "The email address has not been verified.",
       "sign_in_with_google": "Sign in with Google"
     }
   },
@@ -94,6 +95,21 @@
       "title": "Registration successful",
       "body_html": "<p>Your account has been created. An email containing an activation link has been sent to your email address{{ if .Email }}: <strong>{{ .Email }}</strong>{{ end }}.</p>",
       "gmail_notice_html": "<p>You may also confirm your email address using the <a href=\"{{ .URL }}\">Sign in with Google</a> feature.</p>"
+    }
+  },
+  "email_verifications": {
+    "create": {
+      "success_flash": "If your email address {{ .Email }} is registered and unverified, you will receive a new verification email shortly.",
+      "rate_limited": "You have recently requested a verification email. Please wait before trying again.",
+      "error": "Something went wrong. Please try again later."
+    },
+    "new": {
+      "title": "Resend verification email",
+      "email": "Email:",
+      "submit": "Resend verification email"
+    },
+    "verify": {
+      "success": "Your email has been successfully activated."
     }
   },
   "components": {
@@ -207,6 +223,11 @@
     "show": {
       "back_to_group": "Series: {{ .GroupName }}",
       "video_group_name_html": "<p>Video #{{ .CurrentIndex }} out of {{ .TotalCount }} from series: <a href=\"{{ .GroupURL }}\">{{ .GroupName }}</a></p>"
+    }
+  },
+  "email_verifications": {
+    "create": {
+      "email_not_found_or_already_verified": "No unverified user has been found with this email address."
     }
   }
 }

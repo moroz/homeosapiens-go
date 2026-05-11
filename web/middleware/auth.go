@@ -58,3 +58,15 @@ func RequireAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 		return echo.NewHTTPError(http.StatusForbidden, "Forbidden")
 	}
 }
+
+func RedirectToHomeIfAuthenticated(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := helpers.GetRequestContext(c)
+
+		if ctx.User == nil {
+			return next(c)
+		}
+
+		return c.Redirect(http.StatusSeeOther, "/")
+	}
+}

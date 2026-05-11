@@ -9,6 +9,7 @@ go = "1.26"
 "go:github.com/riverqueue/river/cmd/river" = "latest"
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "latest"
 "go:github.com/vektra/mockery/v3" = "v3.7.0"
+jq = "latest"
 node = "latest"
 overmind = "latest"
 pnpm = "latest"
@@ -113,16 +114,12 @@ export GOOSE_DBSTRING=$TEST_DATABASE_URL
 dropdb --force $TEST_DATABASE
 createdb $TEST_DATABASE
 goose up
-psql $TEST_DATABASE_URL -f db/seeds/data.sql
+psql $TEST_DATABASE_URL -f db/seeds/data.sql >/dev/null
 """
 
 [tasks.test]
-run = """
-#!/usr/bin/env -S bash -euo pipefail
-
-mise r db:test:prepare
-env GO_ENV=test go test -v ./...
-"""
+depends = ["db:test:prepare"]
+run = "env GO_ENV=test go test -v ./..."
 
 [tasks.format]
 run = "scripts/format-classes.mjs tmpl/**/*.go"

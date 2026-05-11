@@ -63,22 +63,6 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 	events := handlers.EventController(db)
 	r.GET("/events/:slug", events.Show)
 
-	sessions := handlers.SessionController(db)
-	r.GET("/sign-in", sessions.New)
-	r.POST("/sessions", sessions.Create)
-	r.GET("/sign-out", sessions.Delete)
-
-	userRegistrations := handlers.UserRegistrationController(db)
-	r.GET("/sign-up", userRegistrations.New)
-	r.POST("/sign-up", userRegistrations.Create)
-	r.GET("/verify-email", userRegistrations.VerifyEmail)
-	r.GET("/user-registrations/success", userRegistrations.Success)
-
-	videos := handlers.VideoController(db)
-	r.GET("/videos/:group_slug/:video_slug", videos.Show)
-	r.GET("/videos/:group_slug", videos.Index)
-	r.GET("/videos", videos.Index)
-
 	prefs := handlers.PreferencesController()
 	r.POST("/api/v1/prefs/timezone", prefs.SaveTimezone)
 
@@ -99,6 +83,25 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 	r.DELETE("/cart_items", cartItems.Delete)
 
 	Group(r, "", func(r *echo.Group) {
+		r.Use(middleware.RedirectToHomeIfAuthenticated)
+
+		sessions := handlers.SessionController(db)
+		r.GET("/sign-in", sessions.New)
+		r.POST("/sessions", sessions.Create)
+		r.GET("/sign-out", sessions.Delete)
+
+		userRegistrations := handlers.UserRegistrationController(db)
+		r.GET("/sign-up", userRegistrations.New)
+		r.POST("/sign-up", userRegistrations.Create)
+		r.GET("/user-registrations/success", userRegistrations.Success)
+
+		emailVerifications := handlers.EmailVerificationController(db)
+		r.GET("/email-verifications/new", emailVerifications.New)
+		r.POST("/email-verifications", emailVerifications.Create)
+		r.GET("/verify-email", emailVerifications.Verify)
+	})
+
+	Group(r, "", func(r *echo.Group) {
 		r.Use(middleware.RequireAuthenticatedUser)
 
 		profile := handlers.ProfileController(db)
@@ -108,6 +111,11 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 		eventRegistrations := handlers.EventRegistrationController(db)
 		r.GET("/events/:event_id/register", eventRegistrations.Create)
 		r.DELETE("/event_registrations/:event_id", eventRegistrations.Delete)
+
+		videos := handlers.VideoController(db)
+		r.GET("/videos/:group_slug/:video_slug", videos.Show)
+		r.GET("/videos/:group_slug", videos.Index)
+		r.GET("/videos", videos.Index)
 	})
 
 	Group(r, "/admin", func(r *echo.Group) {

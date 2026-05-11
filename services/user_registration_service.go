@@ -2,8 +2,6 @@ package services
 
 import (
 	"context"
-	"database/sql"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"strings"
@@ -91,39 +89,4 @@ func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *type
 		User:         user,
 		UserTokenDTO: token,
 	}, nil
-}
-
-var ErrTokenInvalid = errors.New("VerifyEmailAddress: token invalid or expired")
-
-func (s *UserRegistrationService) VerifyEmailAddress(ctx context.Context, token string) (*queries.User, error) {
-	binary, err := base64.RawURLEncoding.DecodeString(token)
-	if err != nil {
-		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
-	}
-
-	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	hashed := crypto.HashUserToken(binary)
-
-	user, err := queries.New(tx).VerifyEmailAddressByUserToken(ctx, hashed)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, ErrTokenInvalid
-	}
-	if err != nil {
-		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
-	}
-
-	if _, err := queries.New(tx).DeleteUserToken(ctx, hashed); err != nil {
-		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
-	}
-
-	return user, nil
 }

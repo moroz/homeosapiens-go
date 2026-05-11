@@ -15,7 +15,6 @@ import (
 	userregistrations "github.com/moroz/homeosapiens-go/tmpl/user_registrations"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type userRegistrationController struct {
@@ -60,26 +59,6 @@ func (cc *userRegistrationController) Create(c *echo.Context) error {
 	redirectTo := config.PublicUrl + "/user-registrations/success?token=" + user.UserTokenDTO.EncodeToken()
 
 	return c.Redirect(http.StatusFound, redirectTo)
-}
-
-func (cc *userRegistrationController) VerifyEmail(c *echo.Context) error {
-	ctx := helpers.GetRequestContext(c)
-
-	token := c.QueryParam("token")
-	if token == "" {
-		return echo.ErrBadRequest
-	}
-
-	user, err := cc.srv.VerifyEmailAddress(c.Request().Context(), token)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
-	}
-
-	ctx.PutFlash("success", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
-		ID: "user_registrations.verify_email.success",
-	}))
-
-	return signUserIn(c, cc.db, user)
 }
 
 func (cc *userRegistrationController) Success(c *echo.Context) error {

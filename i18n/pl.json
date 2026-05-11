@@ -79,6 +79,7 @@
       "header": "Logowanie",
       "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
       "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
+      "unverified_email": "Adres email nie został zweryfikowany.",
       "sign_in_with_google": "Zaloguj się przez Google"
     }
   },
@@ -104,6 +105,21 @@
       "gmail_notice_html": "<p>Możesz również potwierdzić adres e-mail, <a href=\"{{ .URL }}\">logując się przy użyciu konta Google.</a></p>"
     },
     "verify_email": {
+      "success": "Twoje konto zostało pomyślnie aktywowane."
+    }
+  },
+  "email_verifications": {
+    "create": {
+      "success_flash": "Jeśli adres {{ .Email }} jest zarejestrowany i niezweryfikowany, wkrótce otrzymasz nowy email weryfikacyjny.",
+      "rate_limited": "Niedawno wysłaliśmy email weryfikacyjny. Poczekaj chwilę przed ponowną próbą.",
+      "error": "Coś poszło nie tak. Spróbuj ponownie później."
+    },
+    "new": {
+      "title": "Wyślij ponownie email weryfikacyjny",
+      "email": "Email:",
+      "submit": "Wyślij ponownie email weryfikacyjny"
+    },
+    "verify": {
       "success": "Twoje konto zostało pomyślnie aktywowane."
     }
   },

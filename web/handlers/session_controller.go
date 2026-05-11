@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -48,8 +49,14 @@ func (cc *sessionController) Create(c *echo.Context) error {
 	user, err := cc.userService.AuthenticateUserByEmailPassword(c.Request().Context(), email, password)
 	if err != nil {
 		l := ctx.Localizer
+		key := "sessions.new.invalid_email_password_combination"
+
+		if errors.Is(err, services.ErrUnverifiedEmail) {
+			key = "sessions.new.unverified_email"
+		}
+
 		msg := l.MustLocalizeMessage(&i18n.Message{
-			ID: "sessions.new.invalid_email_password_combination",
+			ID: key,
 		})
 
 		return sessions.New(ctx, email, msg).Render(c.Response())

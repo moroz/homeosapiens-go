@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/internal/mailers"
@@ -32,14 +31,9 @@ func (w *SendUserEmailWorker) Work(ctx context.Context, job *river.Job[jobs.Send
 	}
 	defer tx.Rollback(ctx)
 
-	userTokenService := services.NewUserTokenService(tx)
+	service := services.NewEmailVerificationService(tx)
 
-	err = queries.New(tx).DeletePreexistingEmailVerificationTokens(ctx, user.ID)
-	if err != nil {
-		return err
-	}
-
-	token, err := userTokenService.IssueEmailVerificationTokenForUser(ctx, user, config.EmailVerificationTokenValidity)
+	token, err := service.IssueEmailVerificationTokenForUser(ctx, user)
 	if err != nil {
 		return err
 	}

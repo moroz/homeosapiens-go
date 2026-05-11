@@ -115,6 +115,8 @@ const LanguageSessionKey = "lang"
 const MinPasswordLength = 8
 const MaxPasswordLength = 128
 
+const EmailVerificationRateLimitPeriod = 60 * time.Second
+
 var DatabaseEncryptionKey = MustDeriveKey(SecretKeyBase, "ColumnLevelEncryption", 32)
 var DatabaseHMACKey = MustDeriveKey(SecretKeyBase, "DatabaseHMAC", 32)
 
