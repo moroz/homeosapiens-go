@@ -80,6 +80,7 @@
       "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
       "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
       "unverified_email": "Adres email nie został zweryfikowany.",
+      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>.",
       "sign_in_with_google": "Zaloguj się przez Google"
     }
   },

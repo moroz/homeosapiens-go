@@ -27,7 +27,8 @@ func EmailVerificationController(db queries.DBTX) *emailVerificationController {
 
 func (cc *emailVerificationController) New(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	return email_verifications.New(ctx, "", "").Render(c.Response())
+	email := c.QueryParam("email")
+	return email_verifications.New(ctx, email, "").Render(c.Response())
 }
 
 func (cc *emailVerificationController) Create(c *echo.Context) error {

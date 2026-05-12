@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
@@ -37,7 +38,7 @@ func (cc *sessionController) New(c *echo.Context) error {
 		_ = ctx.SaveSession(c.Response())
 	}
 
-	return sessions.New(ctx, "", "").Render(c.Response())
+	return sessions.New(ctx, "", "", false).Render(c.Response())
 }
 
 func (cc *sessionController) Create(c *echo.Context) error {
@@ -49,17 +50,21 @@ func (cc *sessionController) Create(c *echo.Context) error {
 	user, err := cc.userService.AuthenticateUserByEmailPassword(c.Request().Context(), email, password)
 	if err != nil {
 		l := ctx.Localizer
-		key := "sessions.new.invalid_email_password_combination"
+		var msg string
+		var msgIsHTML bool
 
 		if errors.Is(err, services.ErrUnverifiedEmail) {
-			key = "sessions.new.unverified_email"
+			resendURL := "/email-verifications/new?email=" + url.QueryEscape(email)
+			msg = l.MustLocalize(&i18n.LocalizeConfig{
+				MessageID:    "sessions.new.unverified_email_html",
+				TemplateData: map[string]string{"URL": resendURL},
+			})
+			msgIsHTML = true
+		} else {
+			msg = l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.invalid_email_password_combination"})
 		}
 
-		msg := l.MustLocalizeMessage(&i18n.Message{
-			ID: key,
-		})
-
-		return sessions.New(ctx, email, msg).Render(c.Response())
+		return sessions.New(ctx, email, msg, msgIsHTML).Render(c.Response())
 	}
 
 	return signUserIn(c, cc.db, user)

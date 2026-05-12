@@ -121,8 +121,17 @@ psql $TEST_DATABASE_URL -f db/seeds/data.sql >/dev/null
 depends = ["db:test:prepare"]
 run = "env GO_ENV=test go test -v ./..."
 
-[tasks.format]
+[tasks."format.css"]
 run = "scripts/format-classes.mjs tmpl/**/*.go"
+
+[tasks."format.json"]
+run = """
+#!/usr/bin/env -S bash -euo pipefail
+
+for file in i18n/*.json; do
+  jq -r . -S $file | sponge $file
+done
+"""
 
 [tasks."seeds:build"]
 description = "Builds the seed program for use in production"

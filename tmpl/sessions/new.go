@@ -9,7 +9,7 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func New(ctx *types.CustomContext, email string, msg string) Node {
+func New(ctx *types.CustomContext, email string, msg string, msgIsHTML bool) Node {
 	l := ctx.Localizer
 	title := l.MustLocalizeMessage(&i18n.Message{
 		ID: "sessions.new.header",
@@ -25,7 +25,7 @@ func New(ctx *types.CustomContext, email string, msg string) Node {
 			Method("POST"),
 			Action("/sessions"),
 
-			If(msg != "", Div(Class("alert danger"), Text(msg))),
+			If(msg != "", Div(Class("alert danger"), If(msgIsHTML, Raw(msg)), If(!msgIsHTML, Text(msg)))),
 
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
