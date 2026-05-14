@@ -70,7 +70,8 @@
   },
   "email_verifications": {
     "create": {
-      "error": "Coś poszło nie tak. Spróbuj ponownie później.",
+      "error_is_gmail": "Coś poszło nie tak. Możesz też zweryfikować konto przy użyciu funkcji \"Zaloguj się przez Google\".",
+      "error_not_gmail": "Coś poszło nie tak. Jeżeli Twój adres e-mail jest powiązany z kontem Google, możesz też zweryfikować konto przy użyciu funkcji \"Zaloguj się przez Google\".",
       "rate_limited": "Niedawno wysłaliśmy email weryfikacyjny. Poczekaj chwilę przed ponowną próbą.",
       "success_flash": "Jeśli adres {{ .Email }} jest zarejestrowany i niezweryfikowany, wkrótce otrzymasz nowy email weryfikacyjny."
     },
