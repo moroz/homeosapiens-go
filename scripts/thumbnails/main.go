@@ -60,7 +60,7 @@ func initPlaywright() (playwright.Browser, func(), error) {
 	}
 
 	browser, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
-		ExecutablePath: new("/usr/bin/chromium"),
+		ExecutablePath: new("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
 	})
 	if err != nil {
 		return nil, nil, err

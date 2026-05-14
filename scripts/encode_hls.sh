@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="/Users/karol/working/hs"
 SEGMENT_DURATION=6
 
-for input in "$SCRIPT_DIR"/*.mp4; do
+for input in "$SCRIPT_DIR"/tptaoh_*.mp4; do
     name="$(basename "$input" .mp4)"
     outdir="$SCRIPT_DIR/$name"
 

@@ -74,7 +74,7 @@ mise restart
 run = """
 #!/usr/bin/env -S bash -euo pipefail
 
-TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts)
+TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts video_sources)
 
 tables_option="$(printf ' -t %s' "${TABLES[@]}")"
 

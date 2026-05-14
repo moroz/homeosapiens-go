@@ -17,7 +17,7 @@ func New(ctx *types.CustomContext, email string, errorMsg string) Node {
 
 	return layout.AuthLayout(ctx, title,
 		Form(
-			Class("grid gap-4"),
+			Class("grid gap-4 mt-4"),
 			Method("POST"),
 			Action("/email-verifications"),
 

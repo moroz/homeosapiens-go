@@ -1,6 +1,7 @@
 ﻿package types
 
 import (
+	"html"
 	"net/http"
 	"net/url"
 	"time"
@@ -51,6 +52,11 @@ func (c *CustomContext) SaveSession(w http.ResponseWriter) error {
 }
 
 func (c *CustomContext) PutFlash(key, msg string) {
+	c.Flash[key] = html.EscapeString(msg)
+	c.Session[config.FlashSessionKey] = c.Flash
+}
+
+func (c *CustomContext) PutHTMLFlash(key, msg string) {
 	c.Flash[key] = msg
 	c.Session[config.FlashSessionKey] = c.Flash
 }

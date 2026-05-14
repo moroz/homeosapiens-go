@@ -66,8 +66,17 @@
     "ZA": "South Africa"
   },
   "email_verifications": {
+    "new": {
+      "title": "Resend verification email",
+      "email": "Email:",
+      "submit": "Submit"
+    },
     "create": {
-      "email_not_found_or_already_verified": "No unverified user has been found with this email address."
+      "email_not_found_or_already_verified": "No unverified user has been found with this email address.",
+      "rate_limited": "",
+      "error_not_gmail": "An error has occurred when sending the verification email. If your email address is associated with a Google account, you may also verify your email address using \"Sign in with Google\".",
+      "error_is_gmail": "An error has occurred when sending the verification email. You may also verify your email address using \"Sign in with Google\".",
+      "success_flash": "If a matching user exists in our database and is unverified, an email will be sent to <strong>{{ .Email }}</strong> containing a verification link."
     }
   },
   "emails": {

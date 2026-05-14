@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"errors"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -51,11 +53,18 @@ func (cc *emailVerificationController) Create(c *echo.Context) error {
 			ID: "email_verifications.create.rate_limited",
 		}))
 	} else if err != nil {
+		log.Print(err)
+		isGmail := strings.HasSuffix(strings.TrimSpace(strings.ToLower(params.Email)), "@gmail.com")
+		msgKey := "email_verifications.create.error_not_gmail"
+		if isGmail {
+			msgKey = "email_verifications.create.error_is_gmail"
+		}
+
 		ctx.PutFlash("error", l.MustLocalizeMessage(&i18n.Message{
-			ID: "email_verifications.create.error",
+			ID: msgKey,
 		}))
 	} else {
-		ctx.PutFlash("success", l.MustLocalize(&i18n.LocalizeConfig{
+		ctx.PutHTMLFlash("success", l.MustLocalize(&i18n.LocalizeConfig{
 			MessageID: "email_verifications.create.success_flash",
 			TemplateData: map[string]string{
 				"Email": params.Email,

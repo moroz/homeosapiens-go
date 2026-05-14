@@ -10,7 +10,7 @@ func Flash(messages types.Flash) Node {
 	var elements []Node
 
 	for level, msg := range messages {
-		alert := Article(Class("alert "+level), Text(msg))
+		alert := Article(Class("alert "+level), Raw(msg))
 		elements = append(elements, alert)
 	}
 

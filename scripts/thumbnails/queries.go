@@ -11,9 +11,11 @@ select locale, id, title,
 recorded_on::text from (
 	select 'en' locale, v.id, v.title_en title, h.given_name || ' ' || h.family_name host, recorded_on from videos v
 	join hosts h on v.host_id = h.id
+	where v.thumbnail_en_id is null
 	union all
 	select 'pl' locale, v.id, v.title_pl, h.given_name || ' ' || h.family_name, recorded_on from videos v
 	join hosts h on v.host_id = h.id
+	where v.thumbnail_pl_id is null
 ) s order by s.id;
 `
 
