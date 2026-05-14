@@ -1,116 +1,57 @@
 {
-  "countries": {
-    "PL": "Poland",
-    "ZA": "South Africa",
-    "IN": "India"
-  },
-  "languages": {
-    "pl": "polski",
-    "en": "English"
-  },
-  "header": {
-    "nav": {
-      "sign_in": "Sign in",
-      "home": "Home",
-      "events": "Events",
-      "videos": "Watch",
-      "my_products": "My products"
+  "cart": {
+    "cart_empty": "Your cart is currently empty.",
+    "continue_shopping": "Continue shopping",
+    "go_to_checkout": "Go to checkout",
+    "table": {
+      "delete": "Delete",
+      "grand_total": "Grand total",
+      "product_title": "Title",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "unit_price": "Unit price"
     },
-    "user_dropdown": {
-      "sign_out": "Sign out",
-      "profile": "Profile"
-    },
-    "cart": "View cart"
+    "title": "Cart"
   },
-  "locale_switcher": {
-    "switch_to": "Przełącz na język polski"
+  "cart_items": {
+    "delete": {
+      "confirmation": "Do you really want to remove this event from your cart?",
+      "success": "The event has been successfully removed from your cart."
+    }
   },
   "common": {
+    "events": {
+      "add_to_cart": "Add to cart",
+      "added_to_cart": "Added to cart",
+      "attendance_badge": "Going",
+      "attendance_count": {
+        "one": "One person is going.",
+        "other": "{{ .Count }} people are going."
+      },
+      "event_type": {
+        "seminar": "Seminar",
+        "webinar": "Webinar"
+      },
+      "free": "Free",
+      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
+      "learn_more": "Learn more…",
+      "nobody_attending": "Be the first to register!",
+      "participation_cost": "Participation cost",
+      "sign_up": "Register",
+      "view_cart": "View cart"
+    },
     "hosts": {
       "salutation": {
         "dr": "Dr."
       }
     },
-    "events": {
-      "event_type": {
-        "seminar": "Seminar",
-        "webinar": "Webinar"
-      },
-      "attendance_badge": "Going",
-      "nobody_attending": "Be the first to register!",
-      "attendance_count": {
-        "one": "One person is going.",
-        "other": "{{ .Count }} people are going."
-      },
-      "participation_cost": "Participation cost",
-      "free": "Free",
-      "hosts": "<strong>Hosts:</strong> {{ .Hosts }}",
-      "learn_more": "Learn more…",
-      "sign_up": "Register",
-      "add_to_cart": "Add to cart",
-      "added_to_cart": "Added to cart",
-      "view_cart": "View cart"
-    },
     "users": {
-      "email": "Email:",
-      "given_name": "Given name:",
-      "family_name": "Family name:",
       "country": "Country or region:",
-      "profession": "Profession:",
-      "licence_number": "Professional licence number:"
-    }
-  },
-  "sessions": {
-    "new": {
       "email": "Email:",
-      "password": "Password:",
-      "submit": "Submit",
-      "header": "Sign in",
-      "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
-      "invalid_email_password_combination": "Invalid email/password combination.",
-      "unverified_email": "The email address has not been verified.",
-      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>.",
-      "sign_in_with_google": "Sign in with Google"
-    }
-  },
-  "user_registrations": {
-    "new": {
-      "title": "Sign up",
-      "already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
-      "submit": "Sign up",
-      "sign_up_with_google": "Sign up with Google",
-      "form": {
-        "labels": {
-          "password": "Create password:",
-          "password_confirmation": "Confirm password:"
-        },
-        "helper_text": {
-          "password": "{{ .Min }}–{{ .Max }} characters"
-        }
-      }
-    },
-    "verify_email": {
-      "success": "Your email has been successfully activated."
-    },
-    "success": {
-      "title": "Registration successful",
-      "body_html": "<p>Your account has been created. An email containing an activation link has been sent to your email address{{ if .Email }}: <strong>{{ .Email }}</strong>{{ end }}.</p>",
-      "gmail_notice_html": "<p>You may also confirm your email address using the <a href=\"{{ .URL }}\">Sign in with Google</a> feature.</p>"
-    }
-  },
-  "email_verifications": {
-    "create": {
-      "success_flash": "If your email address {{ .Email }} is registered and unverified, you will receive a new verification email shortly.",
-      "rate_limited": "You have recently requested a verification email. Please wait before trying again.",
-      "error": "Something went wrong. Please try again later."
-    },
-    "new": {
-      "title": "Resend verification email",
-      "email": "Email:",
-      "submit": "Resend verification email"
-    },
-    "verify": {
-      "success": "Your email has been successfully activated."
+      "family_name": "Family name:",
+      "given_name": "Given name:",
+      "licence_number": "Professional licence number:",
+      "profession": "Profession:"
     }
   },
   "components": {
@@ -119,116 +60,160 @@
       "required": "required field"
     }
   },
-  "events": {
-    "starts_at": "Starts at:",
-    "ends_at": "Ends at:"
+  "countries": {
+    "IN": "India",
+    "PL": "Poland",
+    "ZA": "South Africa"
   },
-  "profile": {
-    "title": "Profile",
-    "messages": {
-      "success": "Profile updated successfully."
-    },
-    "form": {
-      "submit": "Save changes"
+  "email_verifications": {
+    "create": {
+      "email_not_found_or_already_verified": "No unverified user has been found with this email address."
     }
+  },
+  "emails": {
+    "order_confirmation": {
+      "body": "Thank you for ordering with Homeo sapiens! We have received your order&nbsp;<strong>#{{.OrderNumber}}</strong> and are awaiting payment.",
+      "heading": "Order Confirmation",
+      "order_summary": "Order summary",
+      "subject": "Order confirmation #{{.OrderNumber}} — Homeo sapiens",
+      "table": {
+        "event_title": "Event title",
+        "price": "Price"
+      },
+      "total": "Total"
+    },
+    "order_opening_html": "<p>Dear {{.BillingGivenName}} {{.BillingFamilyName}},</p>",
+    "payment_confirmation": {
+      "body": "Your payment has been successfully processed. Thank you for your purchase!",
+      "heading": "Payment Confirmed",
+      "subject": "Payment confirmation #{{.OrderNumber}} — Homeo sapiens",
+      "table": {
+        "event_title": "Event title",
+        "price": "Price"
+      },
+      "total": "Total"
+    },
+    "user_email_verification": {
+      "body_html": "<p>You have created a new Homeo sapiens account, or you have changed your email address. To log in, please activate your account by clicking the link below:</p>",
+      "cta_text": "Verify email address",
+      "subject": "Activate your account — Homeo sapiens"
+    },
+    "user_opening_html": "<p>Dear {{.GivenName}} {{.FamilyName}},</p>"
   },
   "event_registrations": {
     "create": {
       "success": "You have successfully registered for this event."
     }
   },
-  "cart": {
-    "title": "Cart",
-    "table": {
-      "product_title": "Title",
-      "unit_price": "Unit price",
-      "quantity": "Quantity",
-      "subtotal": "Subtotal",
-      "grand_total": "Grand total",
-      "delete": "Delete"
-    },
-    "go_to_checkout": "Go to checkout",
-    "continue_shopping": "Continue shopping",
-    "cart_empty": "Your cart is currently empty."
+  "events": {
+    "ends_at": "Ends at:",
+    "starts_at": "Starts at:"
   },
-  "cart_items": {
-    "delete": {
-      "confirmation": "Do you really want to remove this event from your cart?",
-      "success": "The event has been successfully removed from your cart."
+  "header": {
+    "cart": "View cart",
+    "nav": {
+      "events": "Events",
+      "home": "Home",
+      "my_products": "My products",
+      "sign_in": "Sign in",
+      "videos": "Watch"
+    },
+    "user_dropdown": {
+      "profile": "Profile",
+      "sign_out": "Sign out"
     }
   },
-  "emails": {
-    "order_opening_html": "<p>Dear {{.BillingGivenName}} {{.BillingFamilyName}},</p>",
-    "user_opening_html": "<p>Dear {{.GivenName}} {{.FamilyName}},</p>",
-    "order_confirmation": {
-      "heading": "Order Confirmation",
-      "subject": "Order confirmation #{{.OrderNumber}} — Homeo sapiens",
-      "body": "Thank you for ordering with Homeo sapiens! We have received your order&nbsp;<strong>#{{.OrderNumber}}</strong> and are awaiting payment.",
-      "order_summary": "Order summary",
-      "total": "Total",
-      "table": {
-        "event_title": "Event title",
-        "price": "Price"
-      }
-    },
-    "payment_confirmation": {
-      "heading": "Payment Confirmed",
-      "subject": "Payment confirmation #{{.OrderNumber}} — Homeo sapiens",
-      "body": "Your payment has been successfully processed. Thank you for your purchase!",
-      "total": "Total",
-      "table": {
-        "event_title": "Event title",
-        "price": "Price"
-      }
-    },
-    "user_email_verification": {
-      "subject": "Activate your account — Homeo sapiens",
-      "body_html": "<p>You have created a new Homeo sapiens account, or you have changed your email address. To log in, please activate your account by clicking the link below:</p>",
-      "cta_text": "Verify email address"
-    }
+  "languages": {
+    "en": "English",
+    "pl": "polski"
   },
-  "validation": {
-    "validation_required": "cannot be blank",
-    "validation_is_email": "must be a valid email address",
-    "validation_length_out_of_range": "must be between {{.min}} and {{.max}} characters",
-    "validation_in_invalid": "must be a valid value",
-    "validation_password_confirmation": "does not match confirmation"
+  "locale_switcher": {
+    "switch_to": "Przełącz na język polski"
   },
   "orders": {
-    "billing_address": "Billing address",
-    "contact_information": "Contact information",
     "already_have_an_account_html": "Already have an account? <a href={{.Url}}>Sign in</a>",
+    "billing_address": "Billing address",
     "checkout_with_google": "Continue with Google",
-    "or_continue_with_email": "or continue with email",
+    "contact_information": "Contact information",
     "form": {
-      "billing_country": "Country:",
       "billing_address_line1": "Address:",
       "billing_address_line2": "Address continuation:",
       "billing_city": "City:",
-      "billing_postal_code": "Postal code:",
+      "billing_country": "Country:",
+      "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union.",
       "billing_email": "Email address:",
       "billing_email_helper_text": "Please make sure your email address is correct.",
       "billing_phone": "Phone number or WhatsApp:",
       "billing_phone_helper_text": "Please include the country code (e.g., {{.Example}}).",
-      "billing_country_helper_text": "At the moment, we can only accept payments from customers based in the European Union.",
+      "billing_postal_code": "Postal code:",
       "billing_tax_id": "Tax Identification Number (VAT EU):",
       "billing_tax_id_helper_text": "Fill this field in if you need a VAT invoice.",
       "submit": "Place order"
     },
+    "or_continue_with_email": "or continue with email",
     "success": {
-      "title": "Order paid",
-      "body_html": "<p>We have received your payment of <strong>{{.Amount}}</strong> for the order <strong>#{{.OrderNumber}}</strong>. We have sent a payment confirmation to  your email address: <strong>{{.Email}}</strong>.</p>"
+      "body_html": "<p>We have received your payment of <strong>{{.Amount}}</strong> for the order <strong>#{{.OrderNumber}}</strong>. We have sent a payment confirmation to  your email address: <strong>{{.Email}}</strong>.</p>",
+      "title": "Order paid"
     }
+  },
+  "profile": {
+    "form": {
+      "submit": "Save changes"
+    },
+    "messages": {
+      "success": "Profile updated successfully."
+    },
+    "title": "Profile"
+  },
+  "sessions": {
+    "new": {
+      "email": "Email:",
+      "header": "Sign in",
+      "invalid_email_password_combination": "Invalid email/password combination.",
+      "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
+      "password": "Password:",
+      "sign_in_with_google": "Sign in with Google",
+      "submit": "Submit",
+      "unverified_email": "The email address has not been verified.",
+      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>."
+    }
+  },
+  "user_registrations": {
+    "new": {
+      "already_signed_up_html": "Already have an account? <a href=\"{{ .Path }}\">Sign in</a>.",
+      "form": {
+        "helper_text": {
+          "password": "{{ .Min }}–{{ .Max }} characters"
+        },
+        "labels": {
+          "password": "Create password:",
+          "password_confirmation": "Confirm password:"
+        }
+      },
+      "sign_up_with_google": "Sign up with Google",
+      "submit": "Sign up",
+      "title": "Sign up"
+    },
+    "success": {
+      "body_html": "<p>Your account has been created. An email containing an activation link has been sent to your email address{{ if .Email }}: <strong>{{ .Email }}</strong>{{ end }}.</p>",
+      "gmail_notice_html": "<p>You may also confirm your email address using the <a href=\"{{ .URL }}\">Sign in with Google</a> feature.</p>",
+      "title": "Registration successful"
+    },
+    "verify_email": {
+      "success": "Your email has been successfully activated."
+    }
+  },
+  "validation": {
+    "validation_in_invalid": "must be a valid value",
+    "validation_is_email": "must be a valid email address",
+    "validation_length_out_of_range": "must be between {{.min}} and {{.max}} characters",
+    "validation_password_confirmation": "does not match confirmation",
+    "validation_required": "cannot be blank"
   },
   "videos": {
     "show": {
       "back_to_group": "Series: {{ .GroupName }}",
       "video_group_name_html": "<p>Video #{{ .CurrentIndex }} out of {{ .TotalCount }} from series: <a href=\"{{ .GroupURL }}\">{{ .GroupName }}</a></p>"
-    }
-  },
-  "email_verifications": {
-    "create": {
-      "email_not_found_or_already_verified": "No unverified user has been found with this email address."
     }
   }
 }

@@ -42,7 +42,7 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 		Article(
 			Class("card video p-0"),
 			Header(
-				Class("flex aspect-video items-center justify-center bg-slate-200 overflow-hidden rounded-t relative"),
+				Class("relative flex aspect-video items-center justify-center overflow-hidden rounded-t bg-slate-200"),
 				VideoThumbnail(video, ctx.Language),
 				Iff(video.DurationSeconds != nil, func() Node {
 					hours := *video.DurationSeconds / 3600
@@ -54,7 +54,7 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 					}
 
 					return Span(
-						Class("absolute bottom-2 right-2 inline-block px-1 bg-black/50 text-white text-sm rounded"),
+						Class("absolute right-2 bottom-2 inline-block rounded bg-black/50 px-1 text-sm text-white"),
 						Text(text),
 					)
 				}),

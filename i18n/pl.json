@@ -1,39 +1,46 @@
 {
-  "countries": {
-    "PL": "Polska",
-    "ZA": "RPA",
-    "IN": "Indie"
-  },
-  "languages": {
-    "pl": "polski",
-    "en": "English"
-  },
-  "header": {
-    "nav": {
-      "home": "Strona główna",
-      "sign_in": "Logowanie",
-      "events": {
-        "other": "Wydarzenia"
-      },
-      "videos": {
-        "other": "Wideo"
-      },
-      "my_products": {
-        "other": "Moje produkty"
-      }
+  "cart": {
+    "cart_empty": "Twój koszyk jest pusty.",
+    "continue_shopping": "Kontynuuj zakupy",
+    "go_to_checkout": "Przejdź do podsumowania",
+    "table": {
+      "delete": "Usuń",
+      "grand_total": "Łącznie",
+      "product_title": "Artykuł",
+      "quantity": "Ilość",
+      "subtotal": "Podsuma",
+      "unit_price": "Cena"
     },
-    "user_dropdown": {
-      "profile": "Profil",
-      "sign_out": "Wyloguj się"
-    },
-    "cart": "Przejdź do koszyka"
+    "title": "Koszyk"
   },
-  "locale_switcher": {
-    "switch_to": {
-      "other": "Switch to English"
+  "cart_items": {
+    "delete": {
+      "confirmation": "Czy na pewno chcesz usunąć to wydarzenie z koszyka?",
+      "success": "Wydarzenie zostało usunięte z koszyka."
     }
   },
   "common": {
+    "events": {
+      "add_to_cart": "Do koszyka",
+      "added_to_cart": "W koszyku",
+      "attendance_badge": "Wezmę udział",
+      "attendance_count": {
+        "few": "{{ .Count }} osoby wezmą udział.",
+        "many": "{{ .Count }} osób weźmie udział.",
+        "one": "Jedna osoba weźmie udział."
+      },
+      "event_type": {
+        "seminar": "Seminarium",
+        "webinar": "Webinar"
+      },
+      "free": "Bezpłatne",
+      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
+      "learn_more": "Więcej informacji…",
+      "nobody_attending": "Bądź pierwszą osobą, która weźmie udział!",
+      "participation_cost": "Koszt udziału",
+      "sign_up": "Rejestracja",
+      "view_cart": "Przejdź do koszyka"
+    },
     "hosts": {
       "salutation": {
         "dr": {
@@ -41,87 +48,13 @@
         }
       }
     },
-    "events": {
-      "event_type": {
-        "seminar": "Seminarium",
-        "webinar": "Webinar"
-      },
-      "attendance_badge": "Wezmę udział",
-      "nobody_attending": "Bądź pierwszą osobą, która weźmie udział!",
-      "attendance_count": {
-        "one": "Jedna osoba weźmie udział.",
-        "few": "{{ .Count }} osoby wezmą udział.",
-        "many": "{{ .Count }} osób weźmie udział."
-      },
-      "participation_cost": "Koszt udziału",
-      "free": "Bezpłatne",
-      "hosts": "<strong>Prowadzący:</strong> {{ .Hosts }}",
-      "learn_more": "Więcej informacji…",
-      "sign_up": "Rejestracja",
-      "add_to_cart": "Do koszyka",
-      "added_to_cart": "W koszyku",
-      "view_cart": "Przejdź do koszyka"
-    },
     "users": {
-      "email": "Email:",
-      "given_name": "Imię:",
-      "family_name": "Nazwisko:",
-      "profession": "Zawód:",
       "country": "Kraj lub region:",
-      "licence_number": "Numer prawa do wykonywania zawodu:"
-    }
-  },
-  "sessions": {
-    "new": {
       "email": "Email:",
-      "password": "Hasło:",
-      "submit": "Zaloguj się",
-      "header": "Logowanie",
-      "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
-      "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
-      "unverified_email": "Adres email nie został zweryfikowany.",
-      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>.",
-      "sign_in_with_google": "Zaloguj się przez Google"
-    }
-  },
-  "user_registrations": {
-    "new": {
-      "title": "Rejestracja",
-      "already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
-      "submit": "Zarejestruj się",
-      "sign_up_with_google": "Zarejestruj się przez Google",
-      "form": {
-        "labels": {
-          "password": "Utwórz hasło:",
-          "password_confirmation": "Powtórz hasło:"
-        },
-        "helper_text": {
-          "password": "{{ .Min }}–{{ .Max }} znaków"
-        }
-      }
-    },
-    "success": {
-      "title": "Rejestracja przebiegła pomyślnie",
-      "body_html": "<p>Twoje konto zostało utworzone. Na Twój adres e-mail{{ if .Email }}: <strong>{{.Email}}</strong>{{ end }} wysłaliśmy wiadomość z linkiem do aktywacji konta.</p>",
-      "gmail_notice_html": "<p>Możesz również potwierdzić adres e-mail, <a href=\"{{ .URL }}\">logując się przy użyciu konta Google.</a></p>"
-    },
-    "verify_email": {
-      "success": "Twoje konto zostało pomyślnie aktywowane."
-    }
-  },
-  "email_verifications": {
-    "create": {
-      "success_flash": "Jeśli adres {{ .Email }} jest zarejestrowany i niezweryfikowany, wkrótce otrzymasz nowy email weryfikacyjny.",
-      "rate_limited": "Niedawno wysłaliśmy email weryfikacyjny. Poczekaj chwilę przed ponowną próbą.",
-      "error": "Coś poszło nie tak. Spróbuj ponownie później."
-    },
-    "new": {
-      "title": "Wyślij ponownie email weryfikacyjny",
-      "email": "Email:",
-      "submit": "Wyślij ponownie email weryfikacyjny"
-    },
-    "verify": {
-      "success": "Twoje konto zostało pomyślnie aktywowane."
+      "family_name": "Nazwisko:",
+      "given_name": "Imię:",
+      "licence_number": "Numer prawa do wykonywania zawodu:",
+      "profession": "Zawód:"
     }
   },
   "components": {
@@ -130,100 +63,167 @@
       "required": "wymagane pole"
     }
   },
-  "events": {
-    "starts_at": "Data i godzina rozpoczęcia:",
-    "ends_at": "Data i godzina zakończenia:"
+  "countries": {
+    "IN": "Indie",
+    "PL": "Polska",
+    "ZA": "RPA"
   },
-  "profile": {
-    "title": "Profil",
-    "messages": {
-      "success": "Twój profil został zaktualizowany."
+  "email_verifications": {
+    "create": {
+      "error": "Coś poszło nie tak. Spróbuj ponownie później.",
+      "rate_limited": "Niedawno wysłaliśmy email weryfikacyjny. Poczekaj chwilę przed ponowną próbą.",
+      "success_flash": "Jeśli adres {{ .Email }} jest zarejestrowany i niezweryfikowany, wkrótce otrzymasz nowy email weryfikacyjny."
     },
-    "form": {
-      "submit": "Zapisz zmiany"
+    "new": {
+      "email": "Email:",
+      "submit": "Wyślij ponownie email weryfikacyjny",
+      "title": "Wyślij ponownie email weryfikacyjny"
+    },
+    "verify": {
+      "success": "Twoje konto zostało pomyślnie aktywowane."
     }
+  },
+  "emails": {
+    "order_confirmation": {
+      "body": "Dziękujemy za zamówienie w Homeo sapiens! Otrzymaliśmy Państwa zamówienie&nbsp;<strong>nr&nbsp;{{.OrderNumber}}</strong> i oczekujemy na płatność.",
+      "heading": "Potwierdzenie zamówienia",
+      "order_summary": "Podsumowanie zamówienia",
+      "subject": "Potwierdzenie zamówienia nr {{.OrderNumber}} — Homeo sapiens",
+      "table": {
+        "event_title": "Wydarzenie",
+        "price": "Cena"
+      },
+      "total": "Łącznie"
+    },
+    "order_opening_html": "<p>Drogi użytkowniku,</p>",
+    "payment_confirmation": {
+      "body": "Otrzymaliśmy płatność za Twoje zamówienie",
+      "heading": "Potwierdzenie płatności"
+    },
+    "user_email_verification": {
+      "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
+      "cta_text": "Potwierdzam rejestrację",
+      "subject": "Potwierdź adres e-mail — Homeo sapiens"
+    },
+    "user_opening_html": "<p>Drogi użytkowniku,</p>"
   },
   "event_registrations": {
     "create": {
       "success": "Rejestracja na wydarzenie przebiegła pomyślnie."
     }
   },
-  "cart": {
-    "title": "Koszyk",
-    "table": {
-      "product_title": "Artykuł",
-      "unit_price": "Cena",
-      "quantity": "Ilość",
-      "subtotal": "Podsuma",
-      "grand_total": "Łącznie",
-      "delete": "Usuń"
-    },
-    "go_to_checkout": "Przejdź do podsumowania",
-    "continue_shopping": "Kontynuuj zakupy",
-    "cart_empty": "Twój koszyk jest pusty."
+  "events": {
+    "ends_at": "Data i godzina zakończenia:",
+    "starts_at": "Data i godzina rozpoczęcia:"
   },
-  "cart_items": {
-    "delete": {
-      "confirmation": "Czy na pewno chcesz usunąć to wydarzenie z koszyka?",
-      "success": "Wydarzenie zostało usunięte z koszyka."
-    }
-  },
-  "emails": {
-    "order_opening_html": "<p>Drogi użytkowniku,</p>",
-    "user_opening_html": "<p>Drogi użytkowniku,</p>",
-    "order_confirmation": {
-      "heading": "Potwierdzenie zamówienia",
-      "subject": "Potwierdzenie zamówienia nr {{.OrderNumber}} — Homeo sapiens",
-      "body": "Dziękujemy za zamówienie w Homeo sapiens! Otrzymaliśmy Państwa zamówienie&nbsp;<strong>nr&nbsp;{{.OrderNumber}}</strong> i oczekujemy na płatność.",
-      "order_summary": "Podsumowanie zamówienia",
-      "total": "Łącznie",
-      "table": {
-        "event_title": "Wydarzenie",
-        "price": "Cena"
+  "header": {
+    "cart": "Przejdź do koszyka",
+    "nav": {
+      "events": {
+        "other": "Wydarzenia"
+      },
+      "home": "Strona główna",
+      "my_products": {
+        "other": "Moje produkty"
+      },
+      "sign_in": "Logowanie",
+      "videos": {
+        "other": "Wideo"
       }
     },
-    "payment_confirmation": {
-      "heading": "Potwierdzenie płatności",
-      "body": "Otrzymaliśmy płatność za Twoje zamówienie"
-    },
-    "user_email_verification": {
-      "subject": "Potwierdź adres e-mail — Homeo sapiens",
-      "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
-      "cta_text": "Potwierdzam rejestrację"
+    "user_dropdown": {
+      "profile": "Profil",
+      "sign_out": "Wyloguj się"
     }
   },
-  "validation": {
-    "validation_required": "pole nie może być puste",
-    "validation_is_email": "musi być prawidłowym adresem e-mail",
-    "validation_length_out_of_range": "musi zawierać od {{.min}} do {{.max}} znaków",
-    "validation_in_invalid": "nieprawidłowa wartość",
-    "validation_password_confirmation": "hasło nie zgadza się z potwierdzeniem"
+  "languages": {
+    "en": "English",
+    "pl": "polski"
+  },
+  "locale_switcher": {
+    "switch_to": {
+      "other": "Switch to English"
+    }
   },
   "orders": {
-    "billing_address": "Dane do faktury",
-    "contact_information": "Dane kontaktowe",
     "already_have_an_account_html": "Masz już konto? <a href={{.Url}}>Zaloguj się</a>",
+    "billing_address": "Dane do faktury",
     "checkout_with_google": "Zaloguj się przez Google",
-    "or_continue_with_email": "lub kontynuuj przy użyciu adresu e-mail",
+    "contact_information": "Dane kontaktowe",
     "form": {
-      "billing_country": "Kraj:",
       "billing_address_line1": "Ulica i numer domu:",
       "billing_address_line2": "Numer mieszkania, piętro itp.:",
       "billing_city": "Miasto:",
-      "billing_postal_code": "Kod pocztowy:",
+      "billing_country": "Kraj:",
+      "billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej.",
       "billing_email": "Adres e-mail:",
       "billing_email_helper_text": "Upewnij się, że Twój adres e-mail jest poprawny.",
       "billing_phone": "Numer telefonu lub WhatsApp:",
       "billing_phone_helper_text": "Zagraniczne numery telefonu proszę podawać z kodem kierunkowym kraju, np. {{.Example}}.",
-      "billing_country_helper_text": "W tej chwili możemy przyjmować płatności wyłącznie od klientów w Unii Europejskiej.",
-      "submit": "Złóż zamówienie",
+      "billing_postal_code": "Kod pocztowy:",
       "billing_tax_id": "NIP/VAT EU:",
-      "billing_tax_id_helper_text": "Wypełnij to pole, jeżeli potrzebujesz faktury VAT na firmę."
+      "billing_tax_id_helper_text": "Wypełnij to pole, jeżeli potrzebujesz faktury VAT na firmę.",
+      "submit": "Złóż zamówienie"
+    },
+    "or_continue_with_email": "lub kontynuuj przy użyciu adresu e-mail",
+    "success": {
+      "body_html": "<p>Otrzymaliśmy płatność w wysokości <strong>{{.Amount}}</strong> za zamówienie <strong>nr {{.OrderNumber}}</strong>. Potwierdzenie zamówienia otrzymasz na adres <strong>{{.Email}}</strong>.</p>",
+      "title": "Zamówienie opłacone"
+    }
+  },
+  "profile": {
+    "form": {
+      "submit": "Zapisz zmiany"
+    },
+    "messages": {
+      "success": "Twój profil został zaktualizowany."
+    },
+    "title": "Profil"
+  },
+  "sessions": {
+    "new": {
+      "email": "Email:",
+      "header": "Logowanie",
+      "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
+      "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
+      "password": "Hasło:",
+      "sign_in_with_google": "Zaloguj się przez Google",
+      "submit": "Zaloguj się",
+      "unverified_email": "Adres email nie został zweryfikowany.",
+      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>."
+    }
+  },
+  "user_registrations": {
+    "new": {
+      "already_signed_up_html": "Masz już konto? <a href=\"{{ .Path }}\">Zaloguj się</a>.",
+      "form": {
+        "helper_text": {
+          "password": "{{ .Min }}–{{ .Max }} znaków"
+        },
+        "labels": {
+          "password": "Utwórz hasło:",
+          "password_confirmation": "Powtórz hasło:"
+        }
+      },
+      "sign_up_with_google": "Zarejestruj się przez Google",
+      "submit": "Zarejestruj się",
+      "title": "Rejestracja"
     },
     "success": {
-      "title": "Zamówienie opłacone",
-      "body_html": "<p>Otrzymaliśmy płatność w wysokości <strong>{{.Amount}}</strong> za zamówienie <strong>nr {{.OrderNumber}}</strong>. Potwierdzenie zamówienia otrzymasz na adres <strong>{{.Email}}</strong>.</p>"
+      "body_html": "<p>Twoje konto zostało utworzone. Na Twój adres e-mail{{ if .Email }}: <strong>{{.Email}}</strong>{{ end }} wysłaliśmy wiadomość z linkiem do aktywacji konta.</p>",
+      "gmail_notice_html": "<p>Możesz również potwierdzić adres e-mail, <a href=\"{{ .URL }}\">logując się przy użyciu konta Google.</a></p>",
+      "title": "Rejestracja przebiegła pomyślnie"
+    },
+    "verify_email": {
+      "success": "Twoje konto zostało pomyślnie aktywowane."
     }
+  },
+  "validation": {
+    "validation_in_invalid": "nieprawidłowa wartość",
+    "validation_is_email": "musi być prawidłowym adresem e-mail",
+    "validation_length_out_of_range": "musi zawierać od {{.min}} do {{.max}} znaków",
+    "validation_password_confirmation": "hasło nie zgadza się z potwierdzeniem",
+    "validation_required": "pole nie może być puste"
   },
   "videos": {
     "show": {
