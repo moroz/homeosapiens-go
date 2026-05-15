@@ -120,17 +120,11 @@
   "header": {
     "cart": "Przejdź do koszyka",
     "nav": {
-      "events": {
-        "other": "Wydarzenia"
-      },
+      "events": "Wydarzenia",
       "home": "Strona główna",
-      "my_products": {
-        "other": "Moje produkty"
-      },
+      "my_products": "Moje produkty",
       "sign_in": "Logowanie",
-      "videos": {
-        "other": "Wideo"
-      }
+      "videos": "Wideo"
     },
     "user_dropdown": {
       "profile": "Profil",
@@ -142,9 +136,7 @@
     "pl": "polski"
   },
   "locale_switcher": {
-    "switch_to": {
-      "other": "Switch to English"
-    }
+    "switch_to": "Switch to English"
   },
   "orders": {
     "already_have_an_account_html": "Masz już konto? <a href={{.Url}}>Zaloguj się</a>",
