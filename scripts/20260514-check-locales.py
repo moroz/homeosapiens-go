@@ -1,12 +1,20 @@
 #!/usr/bin/env -S uv run
+
 import os
-from os import path
+from os import path, stat
 from pathlib import Path
 import json
 
-locales_dir = path.abspath('../i18n')
+def find_git_root() -> Path:
+    dir = start = Path(os.getcwd())
+    while dir != "/":
+        if Path(dir).joinpath(".git").is_dir():
+            return dir
+        if dir == dir.parent:
+            break
+        dir = dir.parent
 
-resolved_data = {}
+    raise FileNotFoundError(f"Git root not found above {start}")
 
 
 def flatten_dict(dick: dict, prefix: str = ''):
@@ -21,6 +29,32 @@ def flatten_dict(dick: dict, prefix: str = ''):
             result[merged_key] = value
 
     return result
+
+def key_present(key: str, other: dict) -> bool:
+    if key in other:
+        return True
+
+    segments = key.split('.')
+    is_variant = segments[-1] in ALL_VARIANTS
+    if is_variant:
+        base_key = '.'.join(segments[:-1]) if is_variant else key
+        if base_key in other:
+            return True
+        for variant in ALL_VARIANTS:
+            variant_key = f"{base_key}.{variant}"
+            if variant_key in other:
+                return True
+    else:
+        for variant in ALL_VARIANTS:
+            variant_key = f"{key}.{variant}"
+            if variant_key in other:
+                return True
+    return False
+
+locales_dir = Path(find_git_root()).joinpath("i18n")
+resolved_data = {}
+
+ALL_VARIANTS = ['many', 'other', 'few', 'one']
 
 
 def main():
@@ -40,17 +74,16 @@ def main():
         mine = resolved_data[locale].keys()
 
         for other in other_locales:
-            missing_keys: list[str] = mine - resolved_data[other].keys()
-            if len(missing_keys) > 0:
+            other_dict = resolved_data[other]
+            for key in mine:
+                if key_present(key, other_dict):
+                    continue
+
                 valid = False
-                for key in missing_keys:
-                    is_variant = key.split('.')[-1] in ['many', 'other', 'few']
-                    if not is_variant:
-                        print(f"Key {key} is present in locale {locale} but not in {other}")
+                print(f"Key {key} is present in locale {locale} but not in {other}")
 
     if not valid:
         exit(1)
-
 
 if __name__ == '__main__':
     main()

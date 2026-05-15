@@ -99,7 +99,13 @@
     "order_opening_html": "<p>Drogi użytkowniku,</p>",
     "payment_confirmation": {
       "body": "Otrzymaliśmy płatność za Twoje zamówienie",
-      "heading": "Potwierdzenie płatności"
+      "heading": "Potwierdzenie płatności",
+      "subject": "Potwierdzenie płatności za zamówienie nr {{.OrderNumber}} — Homeo sapiens",
+      "table": {
+        "event_title": "Wydarzenie",
+        "price": "Cena"
+      },
+      "total": "Łącznie"
     },
     "user_email_verification": {
       "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
