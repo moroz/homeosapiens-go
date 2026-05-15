@@ -1,7 +1,6 @@
 #!/usr/bin/env -S uv run
 
 import os
-from os import path, stat
 from pathlib import Path
 import json
 
