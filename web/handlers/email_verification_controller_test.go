@@ -8,14 +8,26 @@ import (
 	"testing"
 
 	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/riverqueue/river/riverdriver/riverpgxv5"
+	"github.com/riverqueue/river/rivertest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func buildRequest(t *testing.T, email string) *http.Request {
+	params := url.Values{"email": {email}}
+	body := bytes.NewBufferString(params.Encode())
+	req, err := http.NewRequest("POST", "/email-verifications", body)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	require.NoError(t, err)
+	return req
+}
 
 func TestUserVerificationController_Create(t *testing.T) {
 	ctx := t.Context()
@@ -28,28 +40,70 @@ func TestUserVerificationController_Create(t *testing.T) {
 
 	stripeSrv := mocks.NewMockStripeService(t)
 
-	user, err := services.NewUserService(db).CreateUser(ctx, &types.SeedUserParams{
-		GivenName:  "Test",
-		FamilyName: "User",
-		Email:      mocks.UniqueEmail(),
-		Country:    "US",
-		Password:   "foobar",
-	})
-
-	require.NoError(t, err)
-	require.Nil(t, user.EmailConfirmedAt)
-
 	r := router.Router(db, store, stripeSrv)
 
-	params := url.Values{"email": {user.Email.String()}}
-	body := bytes.NewBufferString(params.Encode())
-	req, err := http.NewRequest("POST", "/email-verifications", body)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	require.NoError(t, err)
+	t.Run("schedules an email job with valid params", func(t *testing.T) {
+		user, err := services.NewUserService(db).CreateUser(ctx, &types.SeedUserParams{
+			GivenName:  "Test",
+			FamilyName: "User",
+			Email:      mocks.UniqueEmail(),
+			Country:    "US",
+			Password:   "foobar",
+		})
 
-	rr := httptest.NewRecorder()
-	r.ServeHTTP(rr, req)
+		require.NoError(t, err)
+		require.Nil(t, user.EmailConfirmedAt)
 
-	assert.GreaterOrEqual(t, rr.Code, 300)
-	assert.Less(t, rr.Code, 400)
+		req := buildRequest(t, user.Email.String())
+
+		_, err = db.Exec(ctx, "truncate river_job")
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		r.ServeHTTP(rr, req)
+
+		assert.GreaterOrEqual(t, rr.Code, 300)
+		assert.Less(t, rr.Code, 400)
+
+		rivertest.RequireInserted(ctx, t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
+	})
+
+	t.Run("does not send an email when user is verified", func(t *testing.T) {
+		user, err := services.NewUserService(db).CreateUser(ctx, &types.SeedUserParams{
+			GivenName:      "Test",
+			FamilyName:     "User",
+			Email:          mocks.UniqueEmail(),
+			Country:        "US",
+			Password:       "foobar",
+			EmailConfirmed: true,
+		})
+
+		require.NoError(t, err)
+		require.NotNil(t, user.EmailConfirmedAt)
+
+		req := buildRequest(t, user.Email.String())
+
+		_, err = db.Exec(ctx, "truncate river_job")
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		r.ServeHTTP(rr, req)
+
+		assert.GreaterOrEqual(t, rr.Code, 300)
+		assert.Less(t, rr.Code, 400)
+
+		rivertest.RequireNotInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
+	})
+
+	t.Run("does not send an email when the user does not exist", func(t *testing.T) {
+		req := buildRequest(t, "non-existent@example.com")
+
+		_, err = db.Exec(ctx, "truncate river_job")
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+		r.ServeHTTP(rr, req)
+		assert.GreaterOrEqual(t, rr.Code, 300)
+		assert.Less(t, rr.Code, 400)
+		rivertest.RequireNotInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
+	})
 }
