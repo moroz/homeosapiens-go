@@ -14,10 +14,12 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
+	"github.com/moroz/homeosapiens-go/types"
 )
 
 type EmailVerificationService interface {
 	VerifyEmailAddress(ctx context.Context, token string) (*queries.User, error)
+	IssueEmailVerificationTokenForUser(ctx context.Context, user *queries.User) (*types.UserTokenDTO, error)
 	MaybeResendVerificationEmail(ctx context.Context, email string) (sent bool, err error)
 }
 
@@ -60,6 +62,20 @@ func (s *emailVerificationService) VerifyEmailAddress(ctx context.Context, token
 	}
 
 	return user, nil
+}
+
+// IssueEmailVerificationTokenForUser is called from the background worker.
+// The caller manages the transaction; this function does not begin one.
+func (s *emailVerificationService) IssueEmailVerificationTokenForUser(ctx context.Context, user *queries.User) (*types.UserTokenDTO, error) {
+	if user.EmailConfirmedAt != nil {
+		return nil, ErrEmailAlreadyVerified
+	}
+
+	if err := queries.New(s.db).DeletePreexistingEmailVerificationTokens(ctx, user.ID); err != nil {
+		return nil, err
+	}
+
+	return NewUserTokenService(s.db).IssueHashedTokenForUser(ctx, user, "email_verification", config.EmailVerificationTokenValidity)
 }
 
 // MaybeResendVerificationEmail checks the rate limit then enqueues a resend job.
