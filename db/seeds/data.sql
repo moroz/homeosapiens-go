@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict 8l95DMcMbekMnZZp0igI3ghUvN1nRfLtM6frBfwejyCEH669WeQKQresG8GoxPU
+\restrict bEHQapSbJ3TZnPaQNmwRDgkdpKQGbsNPE4C5hEbK8SjtfZkgKeXP5jgARPGuvlt
 
--- Dumped from database version 18.2 (Homebrew)
--- Dumped by pg_dump version 18.2 (Homebrew)
+-- Dumped from database version 18.3 (Debian 18.3-1.pgdg12+1)
+-- Dumped by pg_dump version 18.3 (Debian 18.3-1.pgdg12+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -213,9 +213,9 @@ INSERT INTO public.videos VALUES ('019a8ba5-fe29-7af8-bf54-b8d96af38461', 'cloud
 INSERT INTO public.videos VALUES ('019dbfeb-e512-740f-80ea-d8c30a99fa5b', 'cloudfront', false, 'Dutiful Remedies: Differential Diagnosis', 'Sumienne leki: Diagnostyka różnicowa', 'sanjay-modi-dutiful-remedies', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 4943, '2025-03-22', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019de856-e903-7939-ad2b-8a3f0abc43b1', '019de856-e9bb-7ad6-81ea-04c12e24768b');
 INSERT INTO public.videos VALUES ('019dbfeb-e43a-7324-bb52-65457afc331b', 'cloudfront', false, 'What prevents me from moving on?', 'What prevents me from moving on?', 'asher-shaikh-what-prevents-me-from-moving-on', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 8389, '2026-02-08', '019beef9-4287-714f-982b-2524fdef7063', '019de856-e865-79a5-829a-45cad21e4e34', '019de856-e799-70b2-85a6-0c36770b45e3');
 INSERT INTO public.videos VALUES ('019dbfec-770a-702f-aa5c-e2431a930395', 'cloudfront', false, 'A Series of Critical Cardiac Cases', 'Seria krytycznych przypadków kardiologicznych', 'jeggels-critical-cardiac-cases', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 5523, '2025-12-13', '019b0c71-fde2-76b7-8c71-21c2e9ea23a5', '019de856-ed0c-7bb5-931c-4061cf50e25d', '019de856-edd2-7494-9d7e-0f69f3629301');
-INSERT INTO public.videos VALUES ('019e26f5-94ff-738f-b892-f25c3ceaa231', 'cloudfront', false, 'To Perfect the Art of Homeopathy 2: Day 2, Part 1', 'Udoskonalić kunszt homeopatyczny 2: Dzień 2, Część 1', 'to-perfect-the-art-of-homeopathy-2-day-2-part-1', '2026-05-14 14:58:46', '2026-05-14 14:58:46', NULL, '2025-06-01', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019e26ff-6629-7d07-99c8-c15382ea8f4b', '019e26ff-66bf-707d-937e-6c58b9f414c7');
-INSERT INTO public.videos VALUES ('019e26f8-414c-7032-b627-77d1107b558d', 'cloudfront', false, 'To Perfect the Art of Homeopathy 2: Day 2, Part 2', 'Udoskonalić kunszt homeopatyczny 2: Dzień 2, Część 2', 'to-perfect-the-art-of-homeopathy-2-day-2-part-2', '2026-05-14 14:58:46', '2026-05-14 14:58:46', NULL, '2025-06-01', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019e26ff-6734-7079-a83a-2d1e9233a70e', '019e26ff-67a0-7338-a6d5-af6cd7b44b24');
-INSERT INTO public.videos VALUES ('019e26f8-a4d3-729b-872e-9d66242969ef', 'cloudfront', false, 'To Perfect the Art of Homeopathy 2: Day 2, Part 3', 'Udoskonalić kunszt homeopatyczny 2: Dzień 2, Część 3', 'to-perfect-the-art-of-homeopathy-2-day-2-part-3', '2026-05-14 14:58:46', '2026-05-14 14:58:46', NULL, '2025-06-01', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019e26ff-6810-7ef8-95ed-4e2d8368ad32', '019e26ff-688a-7a7b-9b65-067dfc7ef81b');
+INSERT INTO public.videos VALUES ('019e26f5-94ff-738f-b892-f25c3ceaa231', 'cloudfront', false, 'To Perfect the Art of Homeopathy 2: Day 2, Part 1', 'Udoskonalić kunszt homeopatyczny 2: Dzień 2, Część 1', 'to-perfect-the-art-of-homeopathy-2-day-2-part-1', '2026-05-14 14:58:46', '2026-05-14 14:58:46', 5898, '2025-06-01', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019e26ff-6629-7d07-99c8-c15382ea8f4b', '019e26ff-66bf-707d-937e-6c58b9f414c7');
+INSERT INTO public.videos VALUES ('019e26f8-414c-7032-b627-77d1107b558d', 'cloudfront', false, 'To Perfect the Art of Homeopathy 2: Day 2, Part 2', 'Udoskonalić kunszt homeopatyczny 2: Dzień 2, Część 2', 'to-perfect-the-art-of-homeopathy-2-day-2-part-2', '2026-05-14 14:58:46', '2026-05-14 14:58:46', 4078, '2025-06-01', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019e26ff-6734-7079-a83a-2d1e9233a70e', '019e26ff-67a0-7338-a6d5-af6cd7b44b24');
+INSERT INTO public.videos VALUES ('019e26f8-a4d3-729b-872e-9d66242969ef', 'cloudfront', false, 'To Perfect the Art of Homeopathy 2: Day 2, Part 3', 'Udoskonalić kunszt homeopatyczny 2: Dzień 2, Część 3', 'to-perfect-the-art-of-homeopathy-2-day-2-part-3', '2026-05-14 14:58:46', '2026-05-14 14:58:46', 5637, '2025-06-01', '0199c2f2-528b-7e88-96e3-5e5088333a8a', '019e26ff-6810-7ef8-95ed-4e2d8368ad32', '019e26ff-688a-7a7b-9b65-067dfc7ef81b');
 
 
 --
@@ -265,5 +265,5 @@ INSERT INTO public.video_sources VALUES ('019e275e-fda7-7df7-bf68-ddbc64d916c0',
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 8l95DMcMbekMnZZp0igI3ghUvN1nRfLtM6frBfwejyCEH669WeQKQresG8GoxPU
+\unrestrict bEHQapSbJ3TZnPaQNmwRDgkdpKQGbsNPE4C5hEbK8SjtfZkgKeXP5jgARPGuvlt
 

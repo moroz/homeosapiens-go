@@ -17,7 +17,7 @@ import (
 
 type emailVerificationController struct {
 	db  queries.DBTX
-	srv *services.EmailVerificationService
+	srv services.EmailVerificationService
 }
 
 func EmailVerificationController(db queries.DBTX) *emailVerificationController {
@@ -38,11 +38,6 @@ func (cc *emailVerificationController) Create(c *echo.Context) error {
 	var params types.ResendEmailVerificationTokenParams
 	if err := c.Bind(&params); err != nil {
 		return echo.ErrBadRequest
-	}
-
-	redirectTo := c.Request().Referer()
-	if redirectTo == "" {
-		redirectTo = "/sign-in"
 	}
 
 	l := ctx.Localizer
@@ -75,7 +70,7 @@ func (cc *emailVerificationController) Create(c *echo.Context) error {
 	if err := ctx.SaveSession(c.Response()); err != nil {
 		return err
 	}
-	return c.Redirect(http.StatusSeeOther, redirectTo)
+	return c.Redirect(http.StatusSeeOther, "/sign-in")
 }
 
 func (cc *emailVerificationController) Verify(c *echo.Context) error {

@@ -7,6 +7,10 @@ packages:
         config:
           dir: services/mocks
           filename: "mock_stripe_service.go"
+      EmailVerificationService:
+        config:
+          dir: services/mocks
+          filename: "mock_email_verification_service.go"
   github.com/moroz/homeosapiens-go/internal/mailers:
     interfaces:
       Mailer:

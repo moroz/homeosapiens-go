@@ -14,18 +14,22 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
-	"github.com/moroz/homeosapiens-go/types"
 )
 
-type EmailVerificationService struct {
+type EmailVerificationService interface {
+	VerifyEmailAddress(ctx context.Context, token string) (*queries.User, error)
+	MaybeResendVerificationEmail(ctx context.Context, email string) (sent bool, err error)
+}
+
+type emailVerificationService struct {
 	db queries.DBTX
 }
 
-func NewEmailVerificationService(db queries.DBTX) *EmailVerificationService {
-	return &EmailVerificationService{db}
+func NewEmailVerificationService(db queries.DBTX) EmailVerificationService {
+	return &emailVerificationService{db}
 }
 
-func (s *EmailVerificationService) VerifyEmailAddress(ctx context.Context, token string) (*queries.User, error) {
+func (s *emailVerificationService) VerifyEmailAddress(ctx context.Context, token string) (*queries.User, error) {
 	binary, err := base64.RawURLEncoding.DecodeString(token)
 	if err != nil {
 		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
@@ -58,23 +62,9 @@ func (s *EmailVerificationService) VerifyEmailAddress(ctx context.Context, token
 	return user, nil
 }
 
-// IssueEmailVerificationTokenForUser is called from the background worker.
-// The caller manages the transaction; this function does not begin one.
-func (s *EmailVerificationService) IssueEmailVerificationTokenForUser(ctx context.Context, user *queries.User) (*types.UserTokenDTO, error) {
-	if user.EmailConfirmedAt != nil {
-		return nil, ErrEmailAlreadyVerified
-	}
-
-	if err := queries.New(s.db).DeletePreexistingEmailVerificationTokens(ctx, user.ID); err != nil {
-		return nil, err
-	}
-
-	return NewUserTokenService(s.db).IssueHashedTokenForUser(ctx, user, "email_verification", config.EmailVerificationTokenValidity)
-}
-
 // MaybeResendVerificationEmail checks the rate limit then enqueues a resend job.
 // Returns false without an error when the email is already verified or not found, to avoid enumeration.
-func (s *EmailVerificationService) MaybeResendVerificationEmail(ctx context.Context, email string) (bool, error) {
+func (s *emailVerificationService) MaybeResendVerificationEmail(ctx context.Context, email string) (bool, error) {
 	db := s.db.(*pgxpool.Pool)
 	emailHash := crypto.HashEmail(email)
 

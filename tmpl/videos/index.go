@@ -54,7 +54,7 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 					}
 
 					return Span(
-						Class("absolute right-2 bottom-2 inline-block rounded bg-black/50 px-1 text-sm text-white"),
+						Class("absolute right-2 bottom-2 inline-block rounded bg-black/60 px-1 text-sm text-white tabular-nums"),
 						Text(text),
 					)
 				}),
