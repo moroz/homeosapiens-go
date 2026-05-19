@@ -75,7 +75,8 @@ func (s *UserRegistrationService) RegisterUser(ctx context.Context, params *type
 	}
 
 	_, err = river.InsertTx(ctx, tx, &jobs.SendUserEmailArgs{
-		UserID: user.ID,
+		UserID:    user.ID,
+		EmailType: jobs.UserEmailTypeEmailVerification,
 	}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("RegisterUser: %w", err)

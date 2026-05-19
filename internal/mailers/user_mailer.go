@@ -12,6 +12,7 @@ import (
 
 type UserMailer interface {
 	SendUserEmailVerification(context.Context, *types.UserTokenDTO) error
+	SendUserPasswordResetEmail(context.Context, *types.UserTokenDTO) error
 }
 
 type userMailer struct {
@@ -26,12 +27,12 @@ func NewUserMailer(m Mailer, bundle *i18n.Bundle) UserMailer {
 	}
 }
 
-func (m userMailer) SendUserEmailVerification(ctx context.Context, user *types.UserTokenDTO) error {
-	l := i18n.NewLocalizer(m.bundle, string(user.PreferredLocale))
+func (m userMailer) SendUserEmailVerification(ctx context.Context, data *types.UserTokenDTO) error {
+	l := i18n.NewLocalizer(m.bundle, string(data.PreferredLocale))
 
 	subject, err := l.Localize(&i18n.LocalizeConfig{
 		MessageID:    "emails.user_email_verification.subject",
-		TemplateData: user,
+		TemplateData: data,
 	})
 	if err != nil {
 		return fmt.Errorf("SendEmailVerification: %w", err)
@@ -40,20 +41,51 @@ func (m userMailer) SendUserEmailVerification(ctx context.Context, user *types.U
 	props := email.UserEmailVerificationEmailProps{
 		LayoutProps: &email.LayoutProps{
 			Title:     subject,
-			Language:  string(user.PreferredLocale),
+			Language:  string(data.PreferredLocale),
 			Localizer: l,
 		},
-		UserToken: user,
+		UserToken: data,
 	}
 
 	msg := NewMessage()
 	msg.Subject(subject)
 	msg.SetBodyHTMLTemplate(email.UserEmailVerificationTemplate, props)
-	msg.To(user.EmailRecipient())
+	msg.To(data.EmailRecipient())
 
 	err = m.Mailer.Send(ctx, msg)
 	if err != nil {
-		log.Printf("SendUserEmailVerification for user %v: %s", user.User.ID, err)
+		log.Printf("SendUserEmailVerification for user %v: %s", data.User.ID, err)
+	}
+	return err
+}
+
+func (m userMailer) SendUserPasswordResetEmail(ctx context.Context, data *types.UserTokenDTO) error {
+	l := i18n.NewLocalizer(m.bundle, string(data.PreferredLocale))
+	subject, err := l.Localize(&i18n.LocalizeConfig{
+		MessageID:    "emails.password_reset.subject",
+		TemplateData: data,
+	})
+	if err != nil {
+		return fmt.Errorf("SendPasswordResetEmail: %w", err)
+	}
+
+	props := email.UserPasswordResetEmailProps{
+		LayoutProps: &email.LayoutProps{
+			Title:     subject,
+			Language:  string(data.PreferredLocale),
+			Localizer: l,
+		},
+		UserToken: data,
+	}
+
+	msg := NewMessage()
+	msg.Subject(subject)
+	msg.SetBodyHTMLTemplate(email.UserPasswordResetTemplate, props)
+	msg.To(data.EmailRecipient())
+
+	err = m.Mailer.Send(ctx, msg)
+	if err != nil {
+		log.Printf("SendPasswordResetEmail for user %v: %s", data.User.ID, err)
 	}
 	return err
 }

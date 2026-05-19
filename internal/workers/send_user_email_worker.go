@@ -2,6 +2,7 @@ package workers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -24,25 +25,26 @@ func (w *SendUserEmailWorker) Work(ctx context.Context, job *river.Job[jobs.Send
 	if err != nil {
 		return err
 	}
-
-	tx, err := w.db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	service := services.NewEmailVerificationService(tx)
-
-	token, err := service.IssueEmailVerificationTokenForUser(ctx, user)
-	if err != nil {
-		return err
-	}
-
 	userMailer := mailers.NewUserMailer(w.mailer, w.bundle)
 
-	if err := userMailer.SendUserEmailVerification(ctx, token); err != nil {
-		return err
-	}
+	switch job.Args.EmailType {
+	case jobs.UserEmailTypeEmailVerification:
+		service := services.NewEmailVerificationService(w.db)
 
-	return tx.Commit(ctx)
+		token, err := service.IssueEmailVerificationTokenForUser(ctx, user)
+		if err != nil {
+			return err
+		}
+		return userMailer.SendUserEmailVerification(ctx, token)
+
+	case jobs.UserEmailTypePasswordReset:
+		service := services.NewUserPasswordResetService(w.db)
+		token, err := service.IssuePasswordResetTokenForUser(ctx, user)
+		if err != nil {
+			return err
+		}
+		return userMailer.SendUserPasswordResetEmail(ctx, token)
+	default:
+		return fmt.Errorf("Unknown email type %v", job.Args.EmailType)
+	}
 }

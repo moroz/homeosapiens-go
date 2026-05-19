@@ -24,10 +24,10 @@ type EmailVerificationService interface {
 }
 
 type emailVerificationService struct {
-	db queries.DBTX
+	db *pgxpool.Pool
 }
 
-func NewEmailVerificationService(db queries.DBTX) EmailVerificationService {
+func NewEmailVerificationService(db *pgxpool.Pool) EmailVerificationService {
 	return &emailVerificationService{db}
 }
 
@@ -37,7 +37,7 @@ func (s *emailVerificationService) VerifyEmailAddress(ctx context.Context, token
 		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
 	}
 
-	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("VerifyEmailAddress: %w", err)
 	}
@@ -65,8 +65,13 @@ func (s *emailVerificationService) VerifyEmailAddress(ctx context.Context, token
 }
 
 // IssueEmailVerificationTokenForUser is called from the background worker.
-// The caller manages the transaction; this function does not begin one.
 func (s *emailVerificationService) IssueEmailVerificationTokenForUser(ctx context.Context, user *queries.User) (*types.UserTokenDTO, error) {
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	if user.EmailConfirmedAt != nil {
 		return nil, ErrEmailAlreadyVerified
 	}
@@ -75,16 +80,24 @@ func (s *emailVerificationService) IssueEmailVerificationTokenForUser(ctx contex
 		return nil, err
 	}
 
-	return NewUserTokenService(s.db).IssueHashedTokenForUser(ctx, user, "email_verification", config.EmailVerificationTokenValidity)
+	token, err := NewUserTokenService(s.db).IssueHashedTokenForUser(ctx, user, "email_verification", config.EmailVerificationTokenValidity)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return token, nil
 }
 
 // MaybeResendVerificationEmail checks the rate limit then enqueues a resend job.
 // Returns false without an error when the email is already verified or not found, to avoid enumeration.
 func (s *emailVerificationService) MaybeResendVerificationEmail(ctx context.Context, email string) (bool, error) {
-	db := s.db.(*pgxpool.Pool)
 	emailHash := crypto.HashEmail(email)
 
-	result, err := queries.New(db).CheckUserEmailVerificationRateLimit(ctx, &queries.CheckUserEmailVerificationRateLimitParams{
+	result, err := queries.New(s.db).CheckUserEmailVerificationRateLimit(ctx, &queries.CheckUserEmailVerificationRateLimitParams{
 		EmailHash: emailHash,
 		RateLimitPeriod: pgtype.Interval{
 			Microseconds: int64(config.EmailVerificationRateLimitPeriod / time.Microsecond),
@@ -98,7 +111,7 @@ func (s *emailVerificationService) MaybeResendVerificationEmail(ctx context.Cont
 		return false, errRateLimited{limitedUntil: result.LimitedUntil}
 	}
 
-	user, err := queries.New(db).GetUnverifiedUserByEmail(ctx, emailHash)
+	user, err := queries.New(s.db).GetUnverifiedUserByEmail(ctx, emailHash)
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
 	}
@@ -106,18 +119,21 @@ func (s *emailVerificationService) MaybeResendVerificationEmail(ctx context.Cont
 		return false, err
 	}
 
-	tx, err := db.Begin(ctx)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return false, err
 	}
 	defer tx.Rollback(ctx)
 
-	river, err := jobs.NewClient(db)
+	river, err := jobs.NewClient(s.db)
 	if err != nil {
 		return false, err
 	}
 
-	if _, err = river.InsertTx(ctx, tx, &jobs.SendUserEmailArgs{UserID: user.ID}, nil); err != nil {
+	if _, err = river.InsertTx(ctx, tx, &jobs.SendUserEmailArgs{
+		UserID:    user.ID,
+		EmailType: jobs.UserEmailTypeEmailVerification,
+	}, nil); err != nil {
 		return false, err
 	}
 

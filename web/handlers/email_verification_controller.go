@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -20,7 +21,7 @@ type emailVerificationController struct {
 	srv services.EmailVerificationService
 }
 
-func EmailVerificationController(db queries.DBTX) *emailVerificationController {
+func EmailVerificationController(db *pgxpool.Pool) *emailVerificationController {
 	return &emailVerificationController{
 		db:  db,
 		srv: services.NewEmailVerificationService(db),
