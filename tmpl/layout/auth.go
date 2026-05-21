@@ -18,7 +18,7 @@ func AuthLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 				),
 				Div(Class("card w-full desktop:w-100"),
 					H2(
-						Class("text-center text-3xl font-semibold text-primary"),
+						Class("text-center text-2xl font-semibold text-primary"),
 						Text(title),
 					),
 					components.Flash(ctx.Flash),

@@ -186,7 +186,8 @@
       "sign_in_with_google": "Sign in with Google",
       "submit": "Submit",
       "unverified_email": "The email address has not been verified.",
-      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>."
+      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>.",
+      "forgot_password": "Forgot password?"
     }
   },
   "user_registrations": {
@@ -225,6 +226,14 @@
     "show": {
       "back_to_group": "Series: {{ .GroupName }}",
       "video_group_name_html": "<p>Video #{{ .CurrentIndex }} out of {{ .TotalCount }} from series: <a href=\"{{ .GroupURL }}\">{{ .GroupName }}</a></p>"
+    }
+  },
+  "user_password_resets": {
+    "new": {
+      "title": "Forgot password?",
+      "submit": "Send instructions to reset password",
+      "sign_in": "Sign in",
+      "sign_up": "Sign up"
     }
   }
 }

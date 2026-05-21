@@ -64,6 +64,9 @@ func New(ctx *types.CustomContext, email string, msg string, msgIsHTML bool) Nod
 					},
 				}),
 			),
+			Br(),
+
+			A(Href("/reset-password"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.forgot_password"}))),
 		),
 	)
 }

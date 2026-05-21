@@ -189,7 +189,8 @@
       "sign_in_with_google": "Zaloguj się przez Google",
       "submit": "Zaloguj się",
       "unverified_email": "Adres email nie został zweryfikowany.",
-      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>."
+      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>.",
+      "forgot_password": "Zapomniałem/am hasła"
     }
   },
   "user_registrations": {
@@ -228,6 +229,15 @@
     "show": {
       "back_to_group": "Seria: {{ .GroupName }}",
       "video_group_name_html": "<p>Wideo nr {{ .CurrentIndex }} z {{ .TotalCount }} z serii: <a href=\"{{.GroupURL}}\">{{ .GroupName }}</a></p>"
+    }
+  },
+  "user_password_resets": {
+    "new": {
+      "title": "Zapomniałem/am hasła",
+      "email": "Email:",
+      "submit": "Prześlij instrukcje odzyskiwania hasła",
+      "sign_in": "Logowanie",
+      "sign_up": "Rejestracja"
     }
   }
 }

@@ -76,4 +76,4 @@ var PaymentConfirmationTemplate = template.Must(template.ParseFS(templateFS, "la
 
 var UserEmailVerificationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "user_email_verification.html.tmpl"))
 
-var UserPasswordResetTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tpml", "_footer.html.tmpl", "password_reset.html.tmpl"))
+var UserPasswordResetTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "password_reset.html.tmpl"))

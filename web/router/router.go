@@ -95,6 +95,12 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 		r.POST("/sign-up", userRegistrations.Create)
 		r.GET("/user-registrations/success", userRegistrations.Success)
 
+		userPasswords := handlers.UserPasswordResetController(db)
+		r.GET("/reset-password", userPasswords.New)
+		r.POST("/reset-password", userPasswords.Create)
+		r.GET("/reset-password/:token", userPasswords.Edit)
+		r.PUT("/reset-password/:token", userPasswords.Update)
+
 		emailVerifications := handlers.EmailVerificationController(db)
 		r.GET("/email-verifications/new", emailVerifications.New)
 		r.POST("/email-verifications", emailVerifications.Create)

@@ -1,4 +1,4 @@
-package email_verifications
+package user_password_resets
 
 import (
 	"github.com/moroz/homeosapiens-go/tmpl/components"
@@ -12,14 +12,14 @@ import (
 func New(ctx *types.CustomContext, email string, errorMsg string) Node {
 	l := ctx.Localizer
 	title := l.MustLocalizeMessage(&i18n.Message{
-		ID: "email_verifications.new.title",
+		ID: "user_password_resets.new.title",
 	})
 
 	return layout.AuthLayout(ctx, title,
 		Form(
 			Class("mt-4 grid gap-4"),
 			Method("POST"),
-			Action("/email-verifications"),
+			Action("/reset-password"),
 
 			If(errorMsg != "", Div(Class("alert danger"), Text(errorMsg))),
 
@@ -35,9 +35,24 @@ func New(ctx *types.CustomContext, email string, errorMsg string) Node {
 				Localizer:    l,
 			}),
 
-			Button(Type("submit"), Class("button font-fallback h-10 w-full text-lg"),
-				Text(l.MustLocalizeMessage(&i18n.Message{ID: "email_verifications.new.submit"})),
+			Button(Type("submit"), Class("button font-fallback min-h-10 w-full"),
+				Text(l.MustLocalizeMessage(&i18n.Message{ID: "user_password_resets.new.submit"})),
 			),
+		),
+
+		Footer(
+			Class("mt-4 text-center"),
+			A(Href("/sign-in"), Text(
+				l.MustLocalizeMessage(&i18n.Message{
+					ID: "user_password_resets.new.sign_in",
+				}),
+			)),
+			Raw(" &bull; "),
+			A(Href("/sign-up"), Text(
+				l.MustLocalizeMessage(&i18n.Message{
+					ID: "user_password_resets.new.sign_up",
+				}),
+			)),
 		),
 	)
 }
