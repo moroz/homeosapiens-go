@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func buildRequest(t *testing.T, email string) *http.Request {
+func buildVerifyEmailRequest(t *testing.T, email string) *http.Request {
 	params := url.Values{"email": {email}}
 	body := bytes.NewBufferString(params.Encode())
 	req, err := http.NewRequest("POST", "/email-verifications", body)
@@ -54,7 +54,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 
-		req := buildRequest(t, user.Email.String())
+		req := buildVerifyEmailRequest(t, user.Email.String())
 
 		_, err = db.Exec(ctx, "truncate river_job")
 		require.NoError(t, err)
@@ -81,7 +81,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, user.EmailConfirmedAt)
 
-		req := buildRequest(t, user.Email.String())
+		req := buildVerifyEmailRequest(t, user.Email.String())
 
 		_, err = db.Exec(ctx, "truncate river_job")
 		require.NoError(t, err)
@@ -96,7 +96,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 	})
 
 	t.Run("does not send an email when the user does not exist", func(t *testing.T) {
-		req := buildRequest(t, "non-existent@example.com")
+		req := buildVerifyEmailRequest(t, "non-existent@example.com")
 
 		_, err = db.Exec(ctx, "truncate river_job")
 		require.NoError(t, err)

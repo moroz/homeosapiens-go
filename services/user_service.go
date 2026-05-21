@@ -74,6 +74,18 @@ func (s *UserService) CreateUser(ctx context.Context, params *types.SeedUserPara
 		params.Role = "Regular"
 	}
 
+	if params.FamilyName == "" {
+		params.FamilyName = "Doe"
+	}
+
+	if params.GivenName == "" {
+		params.GivenName = "John"
+	}
+
+	if params.Country == "" {
+		params.Country = "US"
+	}
+
 	return queries.New(s.db).UpsertUserFromSeedData(ctx, &queries.UpsertUserFromSeedDataParams{
 		Email:            sqlcrypter.NewEncryptedBytes(params.Email),
 		EmailHash:        crypto.HashEmail(params.Email),
