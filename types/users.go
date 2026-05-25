@@ -27,6 +27,14 @@ type RegisterUserParams struct {
 	PasswordConfirmation string `form:"password_confirmation" json:"password_confirmation"`
 }
 
+type ResendEmailVerificationTokenParams struct {
+	Email string `form:"email"`
+}
+
+type SendPasswordResetParams struct {
+	Email string `form:"email"`
+}
+
 func (p *RegisterUserParams) Validate() error {
 	return validation.ValidateStruct(p,
 		validation.Field(&p.PreferredLocale, validation.Required, validation.In("pl", "en")),

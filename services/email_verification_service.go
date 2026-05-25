@@ -97,8 +97,9 @@ func (s *emailVerificationService) IssueEmailVerificationTokenForUser(ctx contex
 func (s *emailVerificationService) MaybeResendVerificationEmail(ctx context.Context, email string) (bool, error) {
 	emailHash := crypto.HashEmail(email)
 
-	result, err := queries.New(s.db).CheckUserEmailVerificationRateLimit(ctx, &queries.CheckUserEmailVerificationRateLimitParams{
+	result, err := queries.New(s.db).CheckUserTokenFlowRateLimit(ctx, &queries.CheckUserTokenFlowRateLimitParams{
 		EmailHash: emailHash,
+		Context:   "email_verification",
 		RateLimitPeriod: pgtype.Interval{
 			Microseconds: int64(config.EmailVerificationRateLimitPeriod / time.Microsecond),
 			Valid:        true,
@@ -119,27 +120,15 @@ func (s *emailVerificationService) MaybeResendVerificationEmail(ctx context.Cont
 		return false, err
 	}
 
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return false, err
-	}
-	defer tx.Rollback(ctx)
-
 	river, err := jobs.NewClient(s.db)
 	if err != nil {
 		return false, err
 	}
 
-	if _, err = river.InsertTx(ctx, tx, &jobs.SendUserEmailArgs{
+	_, err = river.Insert(ctx, &jobs.SendUserEmailArgs{
 		UserID:    user.ID,
 		EmailType: jobs.UserEmailTypeEmailVerification,
-	}, nil); err != nil {
-		return false, err
-	}
+	}, nil)
 
-	if err := tx.Commit(ctx); err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return err == nil, err
 }

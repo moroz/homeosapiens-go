@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"time"
 
@@ -26,6 +27,18 @@ func generateToken() ([]byte, error) {
 	var token = make([]byte, TokenLength)
 	_, err := rand.Read(token)
 	return token, err
+}
+
+func (s *UserTokenService) FindUserByUserTokenParam(ctx context.Context, token, tokenContext string) (*queries.User, error) {
+	bytes, err := base64.RawURLEncoding.DecodeString(token)
+	if err != nil {
+		return nil, fmt.Errorf("FindUserByUserTokenParam: %w", err)
+	}
+
+	return queries.New(s.db).FindUserByUserToken(ctx, &queries.FindUserByUserTokenParams{
+		Token:   bytes,
+		Context: tokenContext,
+	})
 }
 
 func (s *UserTokenService) IssueAccessTokenForUser(ctx context.Context, user *queries.User, validity time.Duration) (*queries.UserToken, error) {

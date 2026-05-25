@@ -70,7 +70,10 @@ func (cc *userRegistrationController) Success(c *echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	user, err := queries.New(cc.db).FindUserByRegistrationToken(c.Request().Context(), crypto.HashUserToken(token))
+	user, err := queries.New(cc.db).FindUserByUserToken(c.Request().Context(), &queries.FindUserByUserTokenParams{
+		Token:   crypto.HashUserToken(token),
+		Context: "user_registration",
+	})
 	if err != nil {
 		log.Print(err)
 	}

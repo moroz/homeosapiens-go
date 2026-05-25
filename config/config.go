@@ -116,6 +116,7 @@ const MinPasswordLength = 8
 const MaxPasswordLength = 128
 
 const EmailVerificationRateLimitPeriod = 60 * time.Second
+const PasswordResetRateLimitPeriod = 60 * time.Second
 
 var DatabaseEncryptionKey = MustDeriveKey(SecretKeyBase, "ColumnLevelEncryption", 32)
 var DatabaseHMACKey = MustDeriveKey(SecretKeyBase, "DatabaseHMAC", 32)
@@ -124,3 +125,5 @@ const EmailVerificationTokenValidity = 24 * 60 * 60 * time.Second
 const UserRegistrationTokenValidity = 24 * 60 * 60 * time.Second
 const AccessTokenValidity = 24 * 60 * 60 * time.Second
 const PasswordResetTokenValidity = 60 * 60 * time.Second
+
+const UserTokenContextPasswordReset = "password_reset"

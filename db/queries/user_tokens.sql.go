@@ -32,15 +32,20 @@ func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, erro
 	return column_1, err
 }
 
-const findUserByRegistrationToken = `-- name: FindUserByRegistrationToken :one
+const findUserByUserToken = `-- name: FindUserByUserToken :one
 select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at from users u
 join user_tokens ut on u.id = ut.user_id
 where ut.valid_until > now()
-and ut.token = $1 and ut.context = 'user_registration'
+and ut.token = $1 and ut.context = $2
 `
 
-func (q *Queries) FindUserByRegistrationToken(ctx context.Context, token []byte) (*User, error) {
-	row := q.db.QueryRow(ctx, findUserByRegistrationToken, token)
+type FindUserByUserTokenParams struct {
+	Token   []byte
+	Context string
+}
+
+func (q *Queries) FindUserByUserToken(ctx context.Context, arg *FindUserByUserTokenParams) (*User, error) {
+	row := q.db.QueryRow(ctx, findUserByUserToken, arg.Token, arg.Context)
 	var i User
 	err := row.Scan(
 		&i.ID,

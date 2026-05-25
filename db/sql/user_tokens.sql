@@ -7,11 +7,11 @@ delete from user_tokens where token = $1 returning true;
 -- name: DeletePreexistingEmailVerificationTokens :exec
 delete from user_tokens where user_id = $1 and context = 'email_verification';
 
--- name: FindUserByRegistrationToken :one
+-- name: FindUserByUserToken :one
 select u.* from users u
 join user_tokens ut on u.id = ut.user_id
 where ut.valid_until > now()
-and ut.token = @token and ut.context = 'user_registration';
+and ut.token = @token and ut.context = @context;
 
 -- name: VacuumUserTokens :exec
 delete from user_tokens where valid_until < now();

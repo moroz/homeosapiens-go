@@ -97,6 +97,9 @@
       "total": "Łącznie"
     },
     "order_opening_html": "<p>Drogi użytkowniku,</p>",
+    "password_reset": {
+      "subject": "Odzyskiwanie hasła — Homeo sapiens"
+    },
     "payment_confirmation": {
       "body": "Otrzymaliśmy płatność za Twoje zamówienie",
       "heading": "Potwierdzenie płatności",
@@ -110,7 +113,7 @@
     "user_email_verification": {
       "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
       "cta_text": "Potwierdzam rejestrację",
-      "subject": "Potwierdź adres e-mail — Homeo sapiens"
+      "subject": "Potwierdź swój adres e-mail — Homeo sapiens"
     },
     "user_opening_html": "<p>Drogi użytkowniku,</p>"
   },
@@ -182,6 +185,7 @@
   "sessions": {
     "new": {
       "email": "Email:",
+      "forgot_password": "Zapomniałem/am hasła",
       "header": "Logowanie",
       "invalid_email_password_combination": "Nieprawidłowy email lub hasło.",
       "no_account_yet_html": "Nie masz jeszcze konta? <a href=\"{{ .Path }}\">Zarejestruj się</a>",
@@ -189,8 +193,23 @@
       "sign_in_with_google": "Zaloguj się przez Google",
       "submit": "Zaloguj się",
       "unverified_email": "Adres email nie został zweryfikowany.",
-      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>.",
-      "forgot_password": "Zapomniałem/am hasła"
+      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>."
+    }
+  },
+  "user_password_resets": {
+    "create": {
+      "rate_limited": "Niedawno wysłaliśmy już na ten adres instrukcje odzyskiwania hasła. Poczekaj chwilę przed ponowną próbą.",
+      "success_flash": "Jeżeli adres {{ .Email }} istnieje w naszej bazie danych, wkrótce otrzymasz e-mail z instrukcjami do odzyskania hasła."
+    },
+    "edit": {
+      "submit": "Zmiana hasła",
+      "title": "Zapisz nowe hasło"
+    },
+    "new": {
+      "sign_in": "Logowanie",
+      "sign_up": "Rejestracja",
+      "submit": "Prześlij instrukcje odzyskiwania hasła",
+      "title": "Zapomniałem/am hasła"
     }
   },
   "user_registrations": {
@@ -229,15 +248,6 @@
     "show": {
       "back_to_group": "Seria: {{ .GroupName }}",
       "video_group_name_html": "<p>Wideo nr {{ .CurrentIndex }} z {{ .TotalCount }} z serii: <a href=\"{{.GroupURL}}\">{{ .GroupName }}</a></p>"
-    }
-  },
-  "user_password_resets": {
-    "new": {
-      "title": "Zapomniałem/am hasła",
-      "email": "Email:",
-      "submit": "Prześlij instrukcje odzyskiwania hasła",
-      "sign_in": "Logowanie",
-      "sign_up": "Rejestracja"
     }
   }
 }

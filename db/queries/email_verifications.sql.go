@@ -13,35 +13,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const checkUserEmailVerificationRateLimit = `-- name: CheckUserEmailVerificationRateLimit :one
+const checkUserTokenFlowRateLimit = `-- name: CheckUserTokenFlowRateLimit :one
 select
-    coalesce(max(ut.inserted_at) + $2::interval <= now(), true)::bool as can_request,
+    coalesce(max(ut.inserted_at) + $3::interval <= now(), true)::bool as can_request,
     coalesce(
         case
-            when max(ut.inserted_at) + $2::interval > now()
-            then max(ut.inserted_at) + $2::interval
+            when max(ut.inserted_at) + $3::interval > now()
+            then max(ut.inserted_at) + $3::interval
         end,
         '0001-01-01 00:00:00'::timestamp
     )::timestamp as limited_until
 from user_tokens ut
 join users u on ut.user_id = u.id
 where u.email_hash = $1 and u.email_confirmed_at is null
-and ut.context = 'email_verification'
+and ut.context = $2
 `
 
-type CheckUserEmailVerificationRateLimitParams struct {
+type CheckUserTokenFlowRateLimitParams struct {
 	EmailHash       []byte
+	Context         string
 	RateLimitPeriod pgtype.Interval
 }
 
-type CheckUserEmailVerificationRateLimitRow struct {
+type CheckUserTokenFlowRateLimitRow struct {
 	CanRequest   bool
 	LimitedUntil time.Time
 }
 
-func (q *Queries) CheckUserEmailVerificationRateLimit(ctx context.Context, arg *CheckUserEmailVerificationRateLimitParams) (*CheckUserEmailVerificationRateLimitRow, error) {
-	row := q.db.QueryRow(ctx, checkUserEmailVerificationRateLimit, arg.EmailHash, arg.RateLimitPeriod)
-	var i CheckUserEmailVerificationRateLimitRow
+func (q *Queries) CheckUserTokenFlowRateLimit(ctx context.Context, arg *CheckUserTokenFlowRateLimitParams) (*CheckUserTokenFlowRateLimitRow, error) {
+	row := q.db.QueryRow(ctx, checkUserTokenFlowRateLimit, arg.EmailHash, arg.Context, arg.RateLimitPeriod)
+	var i CheckUserTokenFlowRateLimitRow
 	err := row.Scan(&i.CanRequest, &i.LimitedUntil)
 	return &i, err
 }

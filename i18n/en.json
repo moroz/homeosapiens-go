@@ -94,6 +94,9 @@
       "total": "Total"
     },
     "order_opening_html": "<p>Dear {{.BillingGivenName}} {{.BillingFamilyName}},</p>",
+    "password_reset": {
+      "subject": "Password recovery — Homeo sapiens"
+    },
     "payment_confirmation": {
       "body": "Your payment has been successfully processed. Thank you for your purchase!",
       "heading": "Payment Confirmed",
@@ -107,7 +110,7 @@
     "user_email_verification": {
       "body_html": "<p>You have created a new Homeo sapiens account, or you have changed your email address. To log in, please activate your account by clicking the link below:</p>",
       "cta_text": "Verify email address",
-      "subject": "Activate your account — Homeo sapiens"
+      "subject": "Please confirm your email address"
     },
     "user_opening_html": "<p>Dear {{.GivenName}} {{.FamilyName}},</p>"
   },
@@ -179,6 +182,7 @@
   "sessions": {
     "new": {
       "email": "Email:",
+      "forgot_password": "Forgot password?",
       "header": "Sign in",
       "invalid_email_password_combination": "Invalid email/password combination.",
       "no_account_yet_html": "No account yet? <a href=\"{{ .Path }}\">Sign up</a>",
@@ -186,8 +190,23 @@
       "sign_in_with_google": "Sign in with Google",
       "submit": "Submit",
       "unverified_email": "The email address has not been verified.",
-      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>.",
-      "forgot_password": "Forgot password?"
+      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>."
+    }
+  },
+  "user_password_resets": {
+    "create": {
+      "rate_limited": "A password reset email has already been sent recently. Please wait some time before retrying.",
+      "success_flash": "If a matching user exists in our database, an email will be sent to <strong>{{ .Email }}</strong> containing instructions to reset your password."
+    },
+    "edit": {
+      "submit": "Reset password",
+      "title": "Reset password"
+    },
+    "new": {
+      "sign_in": "Sign in",
+      "sign_up": "Sign up",
+      "submit": "Send instructions to reset password",
+      "title": "Forgot password?"
     }
   },
   "user_registrations": {
@@ -226,14 +245,6 @@
     "show": {
       "back_to_group": "Series: {{ .GroupName }}",
       "video_group_name_html": "<p>Video #{{ .CurrentIndex }} out of {{ .TotalCount }} from series: <a href=\"{{ .GroupURL }}\">{{ .GroupName }}</a></p>"
-    }
-  },
-  "user_password_resets": {
-    "new": {
-      "title": "Forgot password?",
-      "submit": "Send instructions to reset password",
-      "sign_in": "Sign in",
-      "sign_up": "Sign up"
     }
   }
 }

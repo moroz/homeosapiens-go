@@ -6,7 +6,7 @@ select * from user_tokens ut
 where ut.user_id = $1 and ut.context = 'email_verification'
 and ut.inserted_at > (now() - @rate_limit_period::interval);
 
--- name: CheckUserEmailVerificationRateLimit :one
+-- name: CheckUserTokenFlowRateLimit :one
 select
     coalesce(max(ut.inserted_at) + @rate_limit_period::interval <= now(), true)::bool as can_request,
     coalesce(
@@ -19,4 +19,4 @@ select
 from user_tokens ut
 join users u on ut.user_id = u.id
 where u.email_hash = $1 and u.email_confirmed_at is null
-and ut.context = 'email_verification';
+and ut.context = $2;

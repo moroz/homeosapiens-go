@@ -8,11 +8,14 @@ import (
 	"testing"
 
 	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/riverqueue/river/riverdriver/riverpgxv5"
+	"github.com/riverqueue/river/rivertest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -41,12 +44,8 @@ func TestPasswordResetFlow(t *testing.T) {
 	t.Run("GET /forgot-password renders a form", func(t *testing.T) {
 		req, err := http.NewRequest("GET", "/reset-password", nil)
 		require.NoError(t, err)
-
 		tt := httptest.NewRecorder()
-
 		r.ServeHTTP(tt, req)
-		assert.NoError(t, err)
-
 		assert.Equal(t, http.StatusOK, tt.Code)
 	})
 
@@ -56,12 +55,25 @@ func TestPasswordResetFlow(t *testing.T) {
 			Password: "foobar",
 		})
 		require.NoError(t, err)
+		db.Exec(t.Context(), "truncate river_job")
 
 		req := buildResetPasswordRequest(t, user.Email.String())
-
 		tt := httptest.NewRecorder()
-
 		r.ServeHTTP(tt, req)
-		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusFound, tt.Code)
+		assert.Equal(t, "/sign-in", tt.Header().Get("Location"))
+
+		rivertest.RequireInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
+	})
+
+	t.Run("POST /forgot-password with non-existent email", func(t *testing.T) {
+		db.Exec(t.Context(), "truncate river_job")
+		req := buildResetPasswordRequest(t, mocks.UniqueEmail())
+		tt := httptest.NewRecorder()
+		r.ServeHTTP(tt, req)
+		assert.Equal(t, http.StatusFound, tt.Code)
+		assert.Equal(t, "/sign-in", tt.Header().Get("Location"))
+		rivertest.RequireNotInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
 	})
 }
