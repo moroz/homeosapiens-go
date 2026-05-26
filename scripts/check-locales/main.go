@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -20,10 +20,7 @@ func resolveGitDir() (string, error) {
 
 	for {
 		gitDir := filepath.Join(dir, ".git")
-		stat, err := os.Stat(gitDir)
-		if !errors.Is(err, os.ErrNotExist) {
-			return "", err
-		}
+		stat, _ := os.Stat(gitDir)
 		if stat != nil && stat.IsDir() {
 			return dir, nil
 		}
@@ -84,12 +81,7 @@ var Variants = []string{"many", "other", "few", "one"}
 func isVariant(key string) bool {
 	segs := strings.Split(key, ".")
 	last := segs[len(segs)-1]
-	for _, variant := range Variants {
-		if last == variant {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(Variants, last)
 }
 
 func keyPresent(key string, otherMap map[string]string) bool {
@@ -167,4 +159,6 @@ func main() {
 	if !valid {
 		os.Exit(1)
 	}
+
+	fmt.Fprintln(os.Stderr, "Locales OK")
 }
