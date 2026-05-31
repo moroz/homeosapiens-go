@@ -11,8 +11,8 @@
     <tbody>
     {{ range .Order.LineItems }}
         <tr>
-            <td>{{.EventTitle}}</td>
-            <td style="padding: 8px;">{{ $.FormatPrice .EventPriceAmount .EventPriceCurrency }}</td>
+            <td>{{.ProductTitle}}</td>
+            <td style="padding: 8px;">{{ $.FormatPrice .ProductPriceAmount .ProductPriceCurrency }}</td>
         </tr>
     {{end}}
     </tbody>

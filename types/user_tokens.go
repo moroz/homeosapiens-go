@@ -31,3 +31,11 @@ func (u *UserTokenDTO) VerifyEmailPath() string {
 func (u *UserTokenDTO) VerifyEmailURL() string {
 	return config.PublicUrl + u.VerifyEmailPath()
 }
+
+func (u *UserTokenDTO) ResetPasswordPath() string {
+	return "/reset-password/" + u.EncodeToken()
+}
+
+func (u *UserTokenDTO) ResetPasswordURL() string {
+	return config.PublicUrl + u.ResetPasswordPath()
+}

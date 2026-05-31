@@ -116,3 +116,30 @@ func (cc *emailController) UserEmailVerification(c *echo.Context) error {
 
 	return email.UserEmailVerificationTemplate.Execute(c.Response(), props)
 }
+
+func (cc *emailController) PasswordReset(c *echo.Context) error {
+	user, err := queries.New(cc.db).GetUserByEmail(c.Request().Context(), crypto.HashEmail("karol@moroz.dev"))
+	if err != nil {
+		return err
+	}
+
+	token, err := services.NewUserPasswordResetService(cc.db).IssuePasswordResetTokenForUser(c.Request().Context(), user)
+
+	ctx := helpers.GetRequestContext(c)
+
+	subject := ctx.Localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    "emails.password_reset.subject",
+		TemplateData: user,
+	})
+
+	props := email.UserEmailVerificationEmailProps{
+		LayoutProps: &email.LayoutProps{
+			Title:     subject,
+			Language:  ctx.Language,
+			Localizer: ctx.Localizer,
+		},
+		UserToken: token,
+	}
+
+	return email.UserPasswordResetTemplate.Execute(c.Response(), props)
+}

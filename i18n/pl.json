@@ -115,6 +115,11 @@
       "cta_text": "Potwierdzam rejestrację",
       "subject": "Potwierdź swój adres e-mail — Homeo sapiens"
     },
+    "password_reset": {
+      "subject": "Odzyskiwanie hasła — Homeo sapiens",
+      "body_html": "<p>Otrzymujesz tę wiadomość, ponieważ </p>",
+      "cta_text": "Zmień hasło"
+    },
     "user_opening_html": "<p>Drogi użytkowniku,</p>"
   },
   "event_registrations": {

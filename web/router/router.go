@@ -140,6 +140,7 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 		r.GET("/dev/email/order", email.OrderConfirmation)
 		r.GET("/dev/email/payment", email.PaymentConfirmation)
 		r.GET("/dev/email/email_verification", email.UserEmailVerification)
+		r.GET("/dev/email/password_reset", email.PasswordReset)
 	}
 
 	return r
