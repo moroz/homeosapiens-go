@@ -70,7 +70,6 @@ func (cc *userPasswordResetController) Create(c *echo.Context) error {
 // Edit displays the form for the user to update their password. The URL contains a password reset token. If the token provided in the URL is invalid or expired, access is denied.
 func (cc *userPasswordResetController) Edit(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	_ = ctx
 
 	token := c.Param("token")
 	_, err := cc.userTokenService.FindUserByUserTokenParam(c.Request().Context(), token, "password_reset")
@@ -87,15 +86,14 @@ func (cc *userPasswordResetController) Edit(c *echo.Context) error {
 		return c.Redirect(http.StatusFound, "/")
 	}
 
-	panic("unimplemented")
+	return user_password_resets.Edit(ctx, token, nil).Render(c.Response())
 }
 
 func (cc *userPasswordResetController) Update(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 	_ = ctx
 
-	token := c.Param("token")
-	_ = token
+	_ = ctx
 
 	panic("unimplemented")
 }

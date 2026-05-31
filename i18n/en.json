@@ -202,7 +202,8 @@
     },
     "edit": {
       "submit": "Reset password",
-      "title": "Reset password"
+      "title": "Reset password",
+      "token_invalid_or_expired": "This link is invalid or expired. Please request a new one."
     },
     "new": {
       "sign_in": "Sign in",

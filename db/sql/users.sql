@@ -46,3 +46,9 @@ update users u set email_confirmed_at = now(), updated_at = now()
 from user_tokens ut
 where ut.token = $1 and ut.valid_until > now() and ut.user_id = u.id and u.email_confirmed_at is null
 returning u.*;
+
+-- name: UpdateUserPassword :one
+update users
+set password_hash = $1, email_confirmed_at = coalesce(email_confirmed_at, now()), updated_at = now()
+where id = $2
+returning *;

@@ -289,6 +289,47 @@ func (q *Queries) SetUserLastLogin(ctx context.Context, arg *SetUserLastLoginPar
 	return err
 }
 
+const updateUserPassword = `-- name: UpdateUserPassword :one
+update users
+set password_hash = $1, email_confirmed_at = coalesce(email_confirmed_at, now()), updated_at = now()
+where id = $2
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at
+`
+
+type UpdateUserPasswordParams struct {
+	PasswordHash *string
+	ID           uuid.UUID
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg *UpdateUserPasswordParams) (*User, error) {
+	row := q.db.QueryRow(ctx, updateUserPassword, arg.PasswordHash, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.Country,
+		&i.Profession,
+		&i.Organization,
+		&i.Company,
+		&i.PasswordHash,
+		&i.LastLoginAt,
+		&i.LastLoginIp,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.ProfilePicture,
+		&i.UserRole,
+		&i.Email,
+		&i.EmailHash,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.EmailConfirmedAt,
+		&i.LicenceNumber,
+		&i.PreferredLocale,
+		&i.GoogleOauthLastUsedAt,
+	)
+	return &i, err
+}
+
 const updateUserPreferredLocale = `-- name: UpdateUserPreferredLocale :exec
 update users set preferred_locale = $1 where id = $2
 `

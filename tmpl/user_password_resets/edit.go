@@ -35,6 +35,7 @@ func Edit(ctx *types.CustomContext, token string, errors validation.Errors) Node
 				ID:           "password",
 				Type:         "password",
 				Autocomplete: "new-password",
+				Autofocus:    true,
 				Required:     true,
 				HelperText: l.MustLocalize(&i18n.LocalizeConfig{
 					MessageID: "user_registrations.new.form.helper_text.password",

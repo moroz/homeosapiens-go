@@ -36,7 +36,7 @@ func (s *UserTokenService) FindUserByUserTokenParam(ctx context.Context, token, 
 	}
 
 	return queries.New(s.db).FindUserByUserToken(ctx, &queries.FindUserByUserTokenParams{
-		Token:   bytes,
+		Token:   crypto.HashUserToken(bytes),
 		Context: tokenContext,
 	})
 }

@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
@@ -66,4 +68,47 @@ func (s *UserPasswordResetService) MaybeIssuePasswordResetTokenForUser(ctx conte
 
 func (s *UserPasswordResetService) IssuePasswordResetTokenForUser(ctx context.Context, user *queries.User) (*types.UserTokenDTO, error) {
 	return NewUserTokenService(s.db).IssueHashedTokenForUser(ctx, user, config.UserTokenContextPasswordReset, config.PasswordResetTokenValidity)
+}
+
+func (s *UserPasswordResetService) UpdateUserPassword(ctx context.Context, token []byte, params *types.UpdateUserPasswordParams) (*queries.User, error) {
+	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	tokenDto, err := queries.New(tx).FindUserAndTokenByUserToken(ctx, &queries.FindUserAndTokenByUserTokenParams{
+		Token:   token,
+		Context: config.UserTokenContextPasswordReset,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
+	}
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
+	}
+
+	passwordHash, err := argon2id.CreateHash(params.Password, config.ResolveArgon2Params())
+	if err != nil {
+		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
+	}
+
+	user, err := queries.New(tx).UpdateUserPassword(ctx, &queries.UpdateUserPasswordParams{
+		PasswordHash: &passwordHash,
+		ID:           tokenDto.User.ID,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
+	}
+
+	if _, err := queries.New(tx).DeleteUserToken(ctx, tokenDto.UserToken.Token); err != nil {
+		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
+	}
+
+	return user, nil
 }

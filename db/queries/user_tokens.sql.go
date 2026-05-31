@@ -32,6 +32,58 @@ func (q *Queries) DeleteUserToken(ctx context.Context, token []byte) (bool, erro
 	return column_1, err
 }
 
+const findUserAndTokenByUserToken = `-- name: FindUserAndTokenByUserToken :one
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, ut.id, ut.user_id, ut.context, ut.token, ut.inserted_at, ut.valid_until from users u
+join user_tokens ut on u.id = ut.user_id
+where ut.valid_until > now()
+and ut.token = $1 and ut.context = $2
+`
+
+type FindUserAndTokenByUserTokenParams struct {
+	Token   []byte
+	Context string
+}
+
+type FindUserAndTokenByUserTokenRow struct {
+	User      User
+	UserToken UserToken
+}
+
+func (q *Queries) FindUserAndTokenByUserToken(ctx context.Context, arg *FindUserAndTokenByUserTokenParams) (*FindUserAndTokenByUserTokenRow, error) {
+	row := q.db.QueryRow(ctx, findUserAndTokenByUserToken, arg.Token, arg.Context)
+	var i FindUserAndTokenByUserTokenRow
+	err := row.Scan(
+		&i.User.ID,
+		&i.User.Salutation,
+		&i.User.Country,
+		&i.User.Profession,
+		&i.User.Organization,
+		&i.User.Company,
+		&i.User.PasswordHash,
+		&i.User.LastLoginAt,
+		&i.User.LastLoginIp,
+		&i.User.InsertedAt,
+		&i.User.UpdatedAt,
+		&i.User.ProfilePicture,
+		&i.User.UserRole,
+		&i.User.Email,
+		&i.User.EmailHash,
+		&i.User.GivenName,
+		&i.User.FamilyName,
+		&i.User.EmailConfirmedAt,
+		&i.User.LicenceNumber,
+		&i.User.PreferredLocale,
+		&i.User.GoogleOauthLastUsedAt,
+		&i.UserToken.ID,
+		&i.UserToken.UserID,
+		&i.UserToken.Context,
+		&i.UserToken.Token,
+		&i.UserToken.InsertedAt,
+		&i.UserToken.ValidUntil,
+	)
+	return &i, err
+}
+
 const findUserByUserToken = `-- name: FindUserByUserToken :one
 select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at from users u
 join user_tokens ut on u.id = ut.user_id
