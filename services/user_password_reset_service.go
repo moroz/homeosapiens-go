@@ -70,7 +70,7 @@ func (s *UserPasswordResetService) IssuePasswordResetTokenForUser(ctx context.Co
 	return NewUserTokenService(s.db).IssueHashedTokenForUser(ctx, user, config.UserTokenContextPasswordReset, config.PasswordResetTokenValidity)
 }
 
-func (s *UserPasswordResetService) UpdateUserPassword(ctx context.Context, token []byte, params *types.UpdateUserPasswordParams) (*queries.User, error) {
+func (s *UserPasswordResetService) UpdateUserPassword(ctx context.Context, token []byte, params *types.UpdateUserPasswordRequest) (*queries.User, error) {
 	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateUserPassword: %w", err)
@@ -78,7 +78,7 @@ func (s *UserPasswordResetService) UpdateUserPassword(ctx context.Context, token
 	defer tx.Rollback(ctx)
 
 	tokenDto, err := queries.New(tx).FindUserAndTokenByUserToken(ctx, &queries.FindUserAndTokenByUserTokenParams{
-		Token:   token,
+		Token:   crypto.HashUserToken(token),
 		Context: config.UserTokenContextPasswordReset,
 	})
 	if err != nil {
