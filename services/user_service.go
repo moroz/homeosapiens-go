@@ -58,7 +58,7 @@ func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*queri
 	return queries.New(s.db).GetUserByEmail(ctx, normalizedEmail)
 }
 
-// / CreateUser creates a User with the given data. This function is meant for use in seed data and testing, not in the regular user registration flow.
+// CreateUser creates a User with the given data. This function is meant for use in seed data and testing, not in the regular user registration flow.
 func (s *UserService) CreateUser(ctx context.Context, params *types.SeedUserParams) (*queries.User, error) {
 	passwordHash, err := argon2id.CreateHash(params.Password, config.ResolveArgon2Params())
 	if err != nil {
