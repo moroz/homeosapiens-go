@@ -39,7 +39,7 @@ func TestCreateOrder(t *testing.T) {
 	countBefore, err := count(db, t.Context(), "orders")
 	assert.NoError(t, err)
 
-	cs := mocks.GenerateCheckoutSession()
+	cs := mocks.CheckoutSession()
 
 	stripe := mocks.NewMockStripeService(t)
 	stripe.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)

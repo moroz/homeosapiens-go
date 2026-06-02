@@ -11,7 +11,7 @@ import (
 	"github.com/stripe/stripe-go/v84"
 )
 
-func GenerateCheckoutSession() *stripe.CheckoutSession {
+func CheckoutSession() *stripe.CheckoutSession {
 	serial := make([]byte, 12)
 	_, _ = rand.Read(serial)
 	id := "cs_test_" + hex.EncodeToString(serial)

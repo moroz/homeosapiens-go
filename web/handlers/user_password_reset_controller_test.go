@@ -93,7 +93,8 @@ func TestPasswordResetFlow(t *testing.T) {
 		body, err := goquery.NewDocumentFromReader(tt.Body)
 		assert.NoError(t, err)
 
-		form := body.Find("form[action]")
-		assert.NotEmpty(t, form.Nodes)
+		assert.NotEmpty(t, body.Find("form[action]").Nodes)
+		assert.NotEmpty(t, body.Find("form input[name=password]").Nodes)
+		assert.NotEmpty(t, body.Find("form input[name=password_confirmation]").Nodes)
 	})
 }

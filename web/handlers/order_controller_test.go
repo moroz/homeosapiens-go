@@ -98,7 +98,7 @@ func TestCartFlow(t *testing.T) {
 	store, err := session.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
-	cs := mocks.GenerateCheckoutSession()
+	cs := mocks.CheckoutSession()
 
 	stripeSrv := mocks.NewMockStripeService(t)
 	stripeSrv.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)

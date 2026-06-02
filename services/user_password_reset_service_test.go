@@ -36,6 +36,8 @@ func TestUserPasswordResetService(t *testing.T) {
 	})
 
 	t.Run("UpdateUserPassword", func(t *testing.T) {
+		assert.Nil(t, user.EmailConfirmedAt)
+
 		token, err := srv.IssuePasswordResetTokenForUser(ctx, user)
 		require.NoError(t, err)
 		require.NotNil(t, token)
@@ -50,5 +52,9 @@ func TestUserPasswordResetService(t *testing.T) {
 		valid, err := argon2id.ComparePasswordAndHash("new_password", *updated.PasswordHash)
 		assert.True(t, valid)
 		assert.NoError(t, err)
+
+		// changing the password automatically verifies your account. If you can receive a password reset
+		// token, then the email address is obviously valid
+		assert.NotNil(t, updated.EmailConfirmedAt)
 	})
 }

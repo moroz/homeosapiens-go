@@ -9,7 +9,6 @@ import (
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
-	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/router"
@@ -43,13 +42,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 	r := router.Router(db, store, stripeSrv)
 
 	t.Run("schedules an email job with valid params", func(t *testing.T) {
-		user, err := services.NewUserService(db).CreateUser(ctx, &types.SeedUserParams{
-			GivenName:  "Test",
-			FamilyName: "User",
-			Email:      mocks.UniqueEmail(),
-			Country:    "US",
-			Password:   "foobar",
-		})
+		user, err := mocks.UniqueUser(db, ctx)
 
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
@@ -69,13 +62,8 @@ func TestUserVerificationController_Create(t *testing.T) {
 	})
 
 	t.Run("does not send an email when user is verified", func(t *testing.T) {
-		user, err := services.NewUserService(db).CreateUser(ctx, &types.SeedUserParams{
-			GivenName:      "Test",
-			FamilyName:     "User",
-			Email:          mocks.UniqueEmail(),
-			Country:        "US",
-			Password:       "foobar",
-			EmailConfirmed: true,
+		user, err := mocks.UniqueUser(db, ctx, func(params *types.SeedUserParams) {
+			params.EmailConfirmed = true
 		})
 
 		require.NoError(t, err)

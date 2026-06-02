@@ -62,7 +62,7 @@ func TestStripeWebhook(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, order)
 
-	cs := mocks.GenerateCheckoutSession()
+	cs := mocks.CheckoutSession()
 
 	order, err = queries.New(db).StoreCheckoutSessionIDOnOrder(t.Context(), &queries.StoreCheckoutSessionIDOnOrderParams{
 		StripeCheckoutSessionID: &cs.ID,
