@@ -16,7 +16,11 @@ import (
 	"github.com/moroz/homeosapiens-go/web/session"
 )
 
-func Group(r *echo.Echo, prefix string, cb func(r *echo.Group)) {
+type Groupie interface {
+	Group(string, ...echo.MiddlewareFunc) *echo.Group
+}
+
+func Group(r Groupie, prefix string, cb func(r *echo.Group)) {
 	group := r.Group(prefix)
 	cb(group)
 }
@@ -98,8 +102,13 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 		userPasswords := handlers.UserPasswordResetController(db)
 		r.GET("/reset-password", userPasswords.New)
 		r.POST("/reset-password", userPasswords.Create)
-		r.GET("/reset-password/:token", userPasswords.Edit)
-		r.PUT("/reset-password/:token", userPasswords.Update)
+
+		Group(r, "", func(r *echo.Group) {
+			r.Use(userPasswords.VerifyToken)
+
+			r.GET("/reset-password/:token", userPasswords.Edit)
+			r.PUT("/reset-password/:token", userPasswords.Update)
+		})
 
 		emailVerifications := handlers.EmailVerificationController(db)
 		r.GET("/email-verifications/new", emailVerifications.New)

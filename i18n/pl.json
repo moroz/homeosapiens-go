@@ -215,6 +215,10 @@
       "sign_up": "Rejestracja",
       "submit": "Prześlij instrukcje odzyskiwania hasła",
       "title": "Zapomniałem/am hasła"
+    },
+    "update": {
+      "error": "Przy zmianie hasła wystąpił nieoczekiwany błąd. Spróbuj ponownie lub zaloguj się przy użyciu konta Google.",
+      "success": "Hasło zostało pomyślnie zmienione."
     }
   },
   "user_registrations": {

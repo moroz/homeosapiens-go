@@ -26,6 +26,8 @@ func Edit(ctx *types.CustomContext, token string, errors validation.Errors) Node
 			Method("POST"),
 			Action(fmt.Sprintf("/reset-password/%s", token)),
 
+			Input(Type("hidden"), Name("_method"), Value("PUT")),
+
 			components.InputField(&components.InputFieldOptions{
 				Label: l.MustLocalizeMessage(&i18n.Message{
 					ID: "user_registrations.new.form.labels.password",

@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"errors"
 	"log"
 	"net/http"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -67,13 +69,15 @@ func (cc *userPasswordResetController) Create(c *echo.Context) error {
 	return c.Redirect(http.StatusFound, "/sign-in")
 }
 
-// Edit displays the form for the user to update their password. The URL contains a password reset token. If the token provided in the URL is invalid or expired, access is denied.
-func (cc *userPasswordResetController) Edit(c *echo.Context) error {
-	ctx := helpers.GetRequestContext(c)
+func (cc *userPasswordResetController) VerifyToken(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := helpers.GetRequestContext(c)
+		token := c.Param("token")
 
-	token := c.Param("token")
-	_, err := cc.userTokenService.FindUserByUserTokenParam(c.Request().Context(), token, "password_reset")
-	if err != nil {
+		if _, err := cc.userTokenService.FindUserByUserTokenParam(c.Request().Context(), token, "password_reset"); err == nil {
+			return next(c)
+		}
+
 		ctx.PutFlash("error", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
 			ID: "user_password_resets.edit.token_invalid_or_expired",
 		}))
@@ -85,15 +89,44 @@ func (cc *userPasswordResetController) Edit(c *echo.Context) error {
 
 		return c.Redirect(http.StatusFound, "/")
 	}
+}
 
+// Edit displays the form for the user to update their password. The URL contains a password reset token. If the token provided in the URL is invalid or expired, access is denied.
+func (cc *userPasswordResetController) Edit(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+	token := c.Param("token")
 	return user_password_resets.Edit(ctx, token, nil).Render(c.Response())
 }
 
 func (cc *userPasswordResetController) Update(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	_ = ctx
+	tokenParam := c.Param("token")
 
-	_ = ctx
+	// The param must be correct because it has been verified against the database
+	token, _ := base64.RawURLEncoding.DecodeString(tokenParam)
 
-	panic("unimplemented")
+	var params types.UpdateUserPasswordParams
+	if err := c.Bind(&params); err != nil {
+		return echo.ErrBadRequest
+	}
+
+	_, err := cc.passwordResetService.UpdateUserPassword(c.Request().Context(), token, &params)
+	if err, ok := errors.AsType[validation.Errors](err); ok {
+		return user_password_resets.Edit(ctx, tokenParam, err).Render(c.Response())
+	}
+
+	if err != nil {
+		ctx.PutFlash("error", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
+			ID: "user_password_resets.update.error",
+		}))
+		_ = ctx.SaveSession(c.Response())
+		return c.Redirect(http.StatusFound, "/")
+	}
+
+	ctx.PutFlash("success", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
+		ID: "user_password_resets.update.success",
+	}))
+	_ = ctx.SaveSession(c.Response())
+
+	return c.Redirect(http.StatusFound, "/sign-in")
 }

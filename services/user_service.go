@@ -110,7 +110,7 @@ func (s *UserService) FindOrCreateUserFromClaims(ctx context.Context, locale str
 	})
 }
 
-func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User, params *types.UpdateProfileRequest) (*queries.User, error) {
+func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User, params *types.UpdateProfileParams) (*queries.User, error) {
 	var profession *string
 	if strings.TrimSpace(params.Profession) != "" {
 		profession = &params.Profession

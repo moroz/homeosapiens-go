@@ -9,6 +9,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
@@ -96,5 +97,34 @@ func TestPasswordResetFlow(t *testing.T) {
 		assert.NotEmpty(t, body.Find("form[action]").Nodes)
 		assert.NotEmpty(t, body.Find("form input[name=password]").Nodes)
 		assert.NotEmpty(t, body.Find("form input[name=password_confirmation]").Nodes)
+	})
+
+	t.Run("POST /forgot-password/:token with valid params", func(t *testing.T) {
+		user, err := mocks.UniqueUser(db, t.Context())
+		require.NoError(t, err)
+
+		token, err := services.NewUserPasswordResetService(db).IssuePasswordResetTokenForUser(t.Context(), user)
+		require.NoError(t, err)
+		require.NotNil(t, token)
+
+		password := "changed_password"
+		body := url.Values{
+			"password":              {password},
+			"password_confirmation": {password},
+		}.Encode()
+
+		req, err := http.NewRequest("PUT", token.ResetPasswordPath(), bytes.NewReader([]byte(body)))
+		require.NoError(t, err)
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		tt := httptest.NewRecorder()
+		r.ServeHTTP(tt, req)
+
+		assert.GreaterOrEqual(t, tt.Code, 300)
+		assert.Less(t, tt.Code, 400)
+
+		updated, err := queries.New(db).GetUserByID(t.Context(), user.ID)
+		require.NoError(t, err)
+		assert.NotEqual(t, user.PasswordHash, updated.PasswordHash)
 	})
 }

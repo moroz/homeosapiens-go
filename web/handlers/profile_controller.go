@@ -30,7 +30,7 @@ func (cc *profileController) Show(c *echo.Context) error {
 func (cc *profileController) Update(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	var params types.UpdateProfileRequest
+	var params types.UpdateProfileParams
 	if err := c.Bind(&params); err != nil {
 		log.Print(err)
 		return echo.ErrBadRequest

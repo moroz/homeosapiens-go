@@ -42,7 +42,7 @@ func TestUserPasswordResetService(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, token)
 
-		updated, err := srv.UpdateUserPassword(ctx, token.PlaintextToken, &types.UpdateUserPasswordRequest{
+		updated, err := srv.UpdateUserPassword(ctx, token.PlaintextToken, &types.UpdateUserPasswordParams{
 			Password:             "new_password",
 			PasswordConfirmation: "new_password",
 		})

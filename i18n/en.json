@@ -210,6 +210,9 @@
       "sign_up": "Sign up",
       "submit": "Send instructions to reset password",
       "title": "Forgot password?"
+    },
+    "update": {
+      "success": "Password reset successfully."
     }
   },
   "user_registrations": {
