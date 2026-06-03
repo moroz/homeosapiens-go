@@ -196,6 +196,9 @@
       "submit": "Zaloguj się",
       "unverified_email": "Adres email nie został zweryfikowany.",
       "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>."
+    },
+    "delete": {
+      "success": "Wylogowano pomyślnie."
     }
   },
   "user_password_resets": {

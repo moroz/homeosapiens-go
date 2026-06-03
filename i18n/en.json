@@ -193,6 +193,9 @@
       "submit": "Submit",
       "unverified_email": "The email address has not been verified.",
       "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>."
+    },
+    "delete": {
+      "success": "You have successfully signed out."
     }
   },
   "user_password_resets": {

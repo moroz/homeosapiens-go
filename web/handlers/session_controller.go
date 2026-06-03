@@ -78,6 +78,9 @@ func (cc *sessionController) Delete(c *echo.Context) error {
 			log.Printf("Error deleting user token: %s", err)
 		}
 	}
+	ctx.PutFlash("success", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
+		ID: "sessions.delete.success",
+	}))
 	delete(ctx.Session, config.AccessTokenSessionKey)
 	if err := ctx.SaveSession(c.Response()); err != nil {
 		return err

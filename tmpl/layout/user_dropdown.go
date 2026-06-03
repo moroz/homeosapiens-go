@@ -40,21 +40,11 @@ func UserHeader(ctx *types.CustomContext) Node {
 				}),
 			),
 			Section(
-				Form(
-					Action("/sign-out"),
-					Method("POST"),
-					Input(
-						Type("hidden"),
-						Name("_method"),
-						Value("DELETE"),
-					),
-					Button(
-						Class("dropdown-item"),
-						Type("submit"),
-						Text(l.MustLocalizeMessage(&i18n.Message{
-							ID: "header.user_dropdown.sign_out",
-						})),
-					),
+				components.SignOutButton(
+					Class("dropdown-item"),
+					Text(l.MustLocalizeMessage(&i18n.Message{
+						ID: "header.user_dropdown.sign_out",
+					})),
 				),
 			),
 		),

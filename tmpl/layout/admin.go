@@ -1,6 +1,7 @@
 package layout
 
 import (
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -37,7 +38,10 @@ func AdminLayout(ctx *types.CustomContext, title string, children ...Node) Node 
 				),
 				Footer(
 					Class("mt-auto"),
-					A(Class("button w-full"), Href("/sign-out"), Text("Sign out")),
+					components.SignOutButton(
+						Class("button w-full"),
+						Text("Sign out"),
+					),
 				),
 			),
 			Main(
