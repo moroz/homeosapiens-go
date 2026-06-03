@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alexedwards/argon2id"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
@@ -99,7 +100,7 @@ func TestPasswordResetFlow(t *testing.T) {
 		assert.NotEmpty(t, body.Find("form input[name=password_confirmation]").Nodes)
 	})
 
-	t.Run("POST /forgot-password/:token with valid params", func(t *testing.T) {
+	t.Run("PUT /forgot-password/:token with valid params", func(t *testing.T) {
 		user, err := mocks.UniqueUser(db, t.Context())
 		require.NoError(t, err)
 
@@ -126,5 +127,9 @@ func TestPasswordResetFlow(t *testing.T) {
 		updated, err := queries.New(db).GetUserByID(t.Context(), user.ID)
 		require.NoError(t, err)
 		assert.NotEqual(t, user.PasswordHash, updated.PasswordHash)
+
+		match, _, err := argon2id.CheckHash(password, *updated.PasswordHash)
+		assert.NoError(t, err)
+		assert.True(t, match)
 	})
 }

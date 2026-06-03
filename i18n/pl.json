@@ -98,7 +98,9 @@
     },
     "order_opening_html": "<p>Drogi użytkowniku,</p>",
     "password_reset": {
-      "subject": "Odzyskiwanie hasła — Homeo sapiens"
+      "subject": "Odzyskiwanie hasła — Homeo sapiens",
+      "body_html": "<p>Otrzymujesz tę wiadomość, ponieważ ktoś (najprawdopodobniej Ty) poprosił o zresetowanie hasła do konta <strong>Homeo sapiens</strong>. Aby zresetować hasło, kliknij w poniższy link.</p><p>Jeśli ta prośba nie pochodzi od Ciebie, zignoruj tę wiadomość.</p>",
+      "cta_text": "Zmień hasło"
     },
     "payment_confirmation": {
       "body": "Otrzymaliśmy płatność za Twoje zamówienie",
@@ -114,11 +116,6 @@
       "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
       "cta_text": "Potwierdzam rejestrację",
       "subject": "Potwierdź swój adres e-mail — Homeo sapiens"
-    },
-    "password_reset": {
-      "subject": "Odzyskiwanie hasła — Homeo sapiens",
-      "body_html": "<p>Otrzymujesz tę wiadomość, ponieważ </p>",
-      "cta_text": "Zmień hasło"
     },
     "user_opening_html": "<p>Drogi użytkowniku,</p>"
   },
@@ -204,7 +201,7 @@
   "user_password_resets": {
     "create": {
       "rate_limited": "Niedawno wysłaliśmy już na ten adres instrukcje odzyskiwania hasła. Poczekaj chwilę przed ponowną próbą.",
-      "success_flash": "Jeżeli adres {{ .Email }} istnieje w naszej bazie danych, wkrótce otrzymasz e-mail z instrukcjami do odzyskania hasła."
+      "success_flash": "Jeżeli adres <strong>{{ .Email }}</strong> istnieje w naszej bazie danych, wkrótce otrzymasz e-mail z instrukcjami do odzyskania hasła."
     },
     "edit": {
       "submit": "Zmiana hasła",

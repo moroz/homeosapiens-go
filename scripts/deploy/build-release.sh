@@ -16,4 +16,10 @@ mkdir -p rel/assets
 cp -R $gitroot/assets/dist rel/assets
 cp -R $gitroot/db/migrations rel/
 
-cd rel && tar czf release.tar.gz --no-xattrs --no-mac-metadata server assets/ migrations/
+TAR_OPTS="--no-xattrs"
+
+if [[ "$(uname)" = "Darwin" ]]; then
+  TAR_OPTS="--no-xattrs --no-mac-metadata"
+fi
+
+cd rel && tar czf release.tar.gz $TAR_OPTS server assets/ migrations/

@@ -86,13 +86,14 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 	r.POST("/cart_items", cartItems.Create)
 	r.DELETE("/cart_items", cartItems.Delete)
 
+	sessions := handlers.SessionController(db)
+	r.DELETE("/sign-out", sessions.Delete)
+
 	Group(r, "", func(r *echo.Group) {
 		r.Use(middleware.RedirectToHomeIfAuthenticated)
 
-		sessions := handlers.SessionController(db)
 		r.GET("/sign-in", sessions.New)
 		r.POST("/sessions", sessions.Create)
-		r.GET("/sign-out", sessions.Delete)
 
 		userRegistrations := handlers.UserRegistrationController(db)
 		r.GET("/sign-up", userRegistrations.New)
