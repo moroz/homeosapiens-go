@@ -21,7 +21,7 @@ func TestUserPasswordResetService(t *testing.T) {
 	defer db.Close()
 
 	srv := services.NewUserPasswordResetService(db)
-	user, err := mocks.UniqueUser(db, ctx)
+	user, err := mocks.User(db, ctx)
 	require.NoError(t, err)
 
 	t.Run("MaybeIssuePasswordResetTokenForUser", func(t *testing.T) {

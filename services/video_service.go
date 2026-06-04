@@ -30,12 +30,7 @@ func (s *VideoService) CreateVideoGroup(ctx context.Context, params *types.Creat
 	})
 }
 
-func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, user *queries.User) ([]*types.VideoGroupListDTO, error) {
-	var userID *uuid.UUID
-	if user != nil {
-		userID = &user.ID
-	}
-
+func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID) ([]*types.VideoGroupListDTO, error) {
 	videos, err := queries.New(s.db).ListVideoGroupsForUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -44,19 +39,15 @@ func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, user *queries
 	var result []*types.VideoGroupListDTO
 	for _, vg := range videos {
 		result = append(result, &types.VideoGroupListDTO{
-			VideoGroup: vg,
+			VideoGroup: &vg.VideoGroup,
+			HasAccess:  *vg.HasAccess,
 		})
 	}
 
 	return result, nil
 }
 
-func (s *VideoService) GetVideoGroupDetails(ctx context.Context, user *queries.User, slug *string) (*types.VideoGroupDetailsDTO, error) {
-	var userID *uuid.UUID
-	if user != nil {
-		userID = &user.ID
-	}
-
+func (s *VideoService) GetVideoGroupDetails(ctx context.Context, userID uuid.UUID, slug *string) (*types.VideoGroupDetailsDTO, error) {
 	group, err := queries.New(s.db).GetVideoGroupForUserBySlug(ctx, &queries.GetVideoGroupForUserBySlugParams{
 		Slug:   slug,
 		UserID: userID,
@@ -65,23 +56,19 @@ func (s *VideoService) GetVideoGroupDetails(ctx context.Context, user *queries.U
 		return nil, err
 	}
 
-	videos, err := queries.New(s.db).ListVideosForVideoGroup(ctx, group.ID)
+	videos, err := queries.New(s.db).ListVideosForVideoGroup(ctx, group.VideoGroup.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.VideoGroupDetailsDTO{
-		VideoGroup: group,
+		HasAccess:  *group.HasAccess,
+		VideoGroup: &group.VideoGroup,
 		Videos:     videos,
 	}, nil
 }
 
-func (s *VideoService) GetVideoForUser(ctx context.Context, user *queries.User, groupSlug, videoSlug string) (*types.VideoDetailsDTO, error) {
-	var userID *uuid.UUID
-	if user != nil {
-		userID = &user.ID
-	}
-
+func (s *VideoService) GetVideoForUser(ctx context.Context, userID uuid.UUID, groupSlug, videoSlug string) (*types.VideoDetailsDTO, error) {
 	video, err := queries.New(s.db).GetVideoForUser(ctx, &queries.GetVideoForUserParams{
 		VideoSlug: videoSlug,
 		GroupSlug: groupSlug,
@@ -91,13 +78,14 @@ func (s *VideoService) GetVideoForUser(ctx context.Context, user *queries.User, 
 		return nil, err
 	}
 
-	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, []uuid.UUID{video.ID})
+	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, []uuid.UUID{video.Video.ID})
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.VideoDetailsDTO{
-		Video:   video,
-		Sources: sources,
+		Video:     &video.Video,
+		HasAccess: *video.HasAccess,
+		Sources:   sources,
 	}, nil
 }

@@ -25,7 +25,7 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 
 	db.Exec(t.Context(), "truncate users cascade")
 
-	user, err := mocks.UniqueUser(db, t.Context(), func(params *types.SeedUserParams) {
+	user, err := mocks.User(db, t.Context(), func(params *types.SeedUserParams) {
 		params.Email = "user@example.com"
 		params.Password = "foobar"
 		params.EmailConfirmed = true

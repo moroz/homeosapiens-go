@@ -3,41 +3,23 @@ select v.* from videos v
 order by v.id desc;
 
 -- name: ListVideoGroupsForUser :many
-select vg.* from video_groups vg
-where vg.product_id is null
-or vg.id in (
-  select vg.id from video_groups vg
-  join user_product_access upa on upa.product_id = vg.product_id
-  where upa.user_id = sqlc.narg(user_id)::uuid
-) or exists (
-  select from users u where u.id = sqlc.narg(user_id)::uuid and u.user_role = 'Administrator'
-);
+select sqlc.embed(vg), a.has_access from video_groups vg
+join user_video_group_access a on vg.id = a.video_group_id and a.user_id = @user_id::uuid
+order by id desc;
 
 -- name: GetVideoGroupForUserBySlug :one
-select vg.* from video_groups vg
-where (sqlc.narg(slug)::text is null or vg.slug = sqlc.narg(slug)) and (
-    vg.product_id is null or vg.id in (
-        select vg.id from video_groups vg
-        join user_product_access upa on upa.product_id = vg.product_id
-        where upa.user_id = sqlc.narg(user_id)::uuid
-    ) or exists (
-        select from users u where u.id = sqlc.narg(user_id)::uuid and u.user_role = 'Administrator'
-    )
-) limit 1;
+select sqlc.embed(vg), a.has_access from video_groups vg
+join user_video_group_access a on vg.id = a.video_group_id and a.user_id = @user_id::uuid
+where (sqlc.narg(slug)::text is null or vg.slug = sqlc.narg(slug))
+limit 1;
 
 -- name: GetVideoForUser :one
-select v.* from videos v
+select sqlc.embed(v), a.has_access from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 join video_groups vg on vgv.video_group_id = vg.id
-where v.slug = @video_slug and vg.slug = @group_slug and (
-    vg.product_id is null or vg.id in (
-        select vg.id from video_groups vg
-        join user_product_access upa on upa.product_id = vg.product_id
-        where upa.user_id = sqlc.narg(user_id)::uuid
-    ) or exists (
-        select from users u where u.id = sqlc.narg(user_id)::uuid and u.user_role = 'Administrator'
-    )
-) limit 1;
+join user_video_group_access a on vg.id = a.video_group_id and a.user_id = @user_id::uuid
+where v.slug = @video_slug and vg.slug = @group_slug
+limit 1;
 
 -- name: ListVideosForVideoGroup :many
 select v.* from videos v
@@ -63,4 +45,9 @@ insert into video_groups_videos (video_id, video_group_id, position)
 select $1, $2, coalesce(max(position), -1) + 1
 from video_groups_videos where video_group_id = $2
 on conflict (video_id, video_group_id) do nothing
+returning *;
+
+-- name: InsertVideo :one
+insert into videos (provider, title_en, title_pl, slug, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 returning *;

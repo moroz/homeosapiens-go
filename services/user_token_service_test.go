@@ -15,7 +15,7 @@ func TestUserService(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	user, err := mocks.UniqueUser(db, t.Context())
+	user, err := mocks.User(db, t.Context())
 	require.NoError(t, err)
 
 	srv := services.NewUserTokenService(db)

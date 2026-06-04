@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addVideoToVideoGroup = `-- name: AddVideoToVideoGroup :one
@@ -39,28 +40,110 @@ func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideo
 }
 
 const getVideoForUser = `-- name: GetVideoForUser :one
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, a.has_access from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 join video_groups vg on vgv.video_group_id = vg.id
-where v.slug = $1 and vg.slug = $2 and (
-    vg.product_id is null or vg.id in (
-        select vg.id from video_groups vg
-        join user_product_access upa on upa.product_id = vg.product_id
-        where upa.user_id = $3::uuid
-    ) or exists (
-        select from users u where u.id = $3::uuid and u.user_role = 'Administrator'
-    )
-) limit 1
+join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
+where v.slug = $2 and vg.slug = $3
+limit 1
 `
 
 type GetVideoForUserParams struct {
+	UserID    uuid.UUID
 	VideoSlug string
 	GroupSlug string
-	UserID    *uuid.UUID
 }
 
-func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParams) (*Video, error) {
-	row := q.db.QueryRow(ctx, getVideoForUser, arg.VideoSlug, arg.GroupSlug, arg.UserID)
+type GetVideoForUserRow struct {
+	Video     Video
+	HasAccess *bool
+}
+
+func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParams) (*GetVideoForUserRow, error) {
+	row := q.db.QueryRow(ctx, getVideoForUser, arg.UserID, arg.VideoSlug, arg.GroupSlug)
+	var i GetVideoForUserRow
+	err := row.Scan(
+		&i.Video.ID,
+		&i.Video.Provider,
+		&i.Video.IsPublic,
+		&i.Video.TitleEn,
+		&i.Video.TitlePl,
+		&i.Video.Slug,
+		&i.Video.InsertedAt,
+		&i.Video.UpdatedAt,
+		&i.Video.DurationSeconds,
+		&i.Video.RecordedOn,
+		&i.Video.HostID,
+		&i.Video.ThumbnailEnID,
+		&i.Video.ThumbnailPlID,
+		&i.HasAccess,
+	)
+	return &i, err
+}
+
+const getVideoGroupForUserBySlug = `-- name: GetVideoGroupForUserBySlug :one
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access from video_groups vg
+join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
+where ($2::text is null or vg.slug = $2)
+limit 1
+`
+
+type GetVideoGroupForUserBySlugParams struct {
+	UserID uuid.UUID
+	Slug   *string
+}
+
+type GetVideoGroupForUserBySlugRow struct {
+	VideoGroup VideoGroup
+	HasAccess  *bool
+}
+
+func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoGroupForUserBySlugParams) (*GetVideoGroupForUserBySlugRow, error) {
+	row := q.db.QueryRow(ctx, getVideoGroupForUserBySlug, arg.UserID, arg.Slug)
+	var i GetVideoGroupForUserBySlugRow
+	err := row.Scan(
+		&i.VideoGroup.ID,
+		&i.VideoGroup.TitleEn,
+		&i.VideoGroup.TitlePl,
+		&i.VideoGroup.Slug,
+		&i.VideoGroup.ProductID,
+		&i.VideoGroup.InsertedAt,
+		&i.VideoGroup.UpdatedAt,
+		&i.HasAccess,
+	)
+	return &i, err
+}
+
+const insertVideo = `-- name: InsertVideo :one
+insert into videos (provider, title_en, title_pl, slug, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id
+`
+
+type InsertVideoParams struct {
+	Provider        VideoProvider
+	TitleEn         string
+	TitlePl         string
+	Slug            string
+	DurationSeconds *int32
+	RecordedOn      pgtype.Date
+	HostID          *uuid.UUID
+	ThumbnailEnID   *uuid.UUID
+	ThumbnailPlID   *uuid.UUID
+}
+
+func (q *Queries) InsertVideo(ctx context.Context, arg *InsertVideoParams) (*Video, error) {
+	row := q.db.QueryRow(ctx, insertVideo,
+		arg.Provider,
+		arg.TitleEn,
+		arg.TitlePl,
+		arg.Slug,
+		arg.DurationSeconds,
+		arg.RecordedOn,
+		arg.HostID,
+		arg.ThumbnailEnID,
+		arg.ThumbnailPlID,
+	)
 	var i Video
 	err := row.Scan(
 		&i.ID,
@@ -76,39 +159,6 @@ func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParam
 		&i.HostID,
 		&i.ThumbnailEnID,
 		&i.ThumbnailPlID,
-	)
-	return &i, err
-}
-
-const getVideoGroupForUserBySlug = `-- name: GetVideoGroupForUserBySlug :one
-select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at from video_groups vg
-where ($1::text is null or vg.slug = $1) and (
-    vg.product_id is null or vg.id in (
-        select vg.id from video_groups vg
-        join user_product_access upa on upa.product_id = vg.product_id
-        where upa.user_id = $2::uuid
-    ) or exists (
-        select from users u where u.id = $2::uuid and u.user_role = 'Administrator'
-    )
-) limit 1
-`
-
-type GetVideoGroupForUserBySlugParams struct {
-	Slug   *string
-	UserID *uuid.UUID
-}
-
-func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoGroupForUserBySlugParams) (*VideoGroup, error) {
-	row := q.db.QueryRow(ctx, getVideoGroupForUserBySlug, arg.Slug, arg.UserID)
-	var i VideoGroup
-	err := row.Scan(
-		&i.ID,
-		&i.TitleEn,
-		&i.TitlePl,
-		&i.Slug,
-		&i.ProductID,
-		&i.InsertedAt,
-		&i.UpdatedAt,
 	)
 	return &i, err
 }
@@ -145,34 +195,33 @@ func (q *Queries) InsertVideoGroup(ctx context.Context, arg *InsertVideoGroupPar
 }
 
 const listVideoGroupsForUser = `-- name: ListVideoGroupsForUser :many
-select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at from video_groups vg
-where vg.product_id is null
-or vg.id in (
-  select vg.id from video_groups vg
-  join user_product_access upa on upa.product_id = vg.product_id
-  where upa.user_id = $1::uuid
-) or exists (
-  select from users u where u.id = $1::uuid and u.user_role = 'Administrator'
-)
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access from video_groups vg
+join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
 `
 
-func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID *uuid.UUID) ([]*VideoGroup, error) {
+type ListVideoGroupsForUserRow struct {
+	VideoGroup VideoGroup
+	HasAccess  *bool
+}
+
+func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID) ([]*ListVideoGroupsForUserRow, error) {
 	rows, err := q.db.Query(ctx, listVideoGroupsForUser, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*VideoGroup
+	var items []*ListVideoGroupsForUserRow
 	for rows.Next() {
-		var i VideoGroup
+		var i ListVideoGroupsForUserRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.TitleEn,
-			&i.TitlePl,
-			&i.Slug,
-			&i.ProductID,
-			&i.InsertedAt,
-			&i.UpdatedAt,
+			&i.VideoGroup.ID,
+			&i.VideoGroup.TitleEn,
+			&i.VideoGroup.TitlePl,
+			&i.VideoGroup.Slug,
+			&i.VideoGroup.ProductID,
+			&i.VideoGroup.InsertedAt,
+			&i.VideoGroup.UpdatedAt,
+			&i.HasAccess,
 		); err != nil {
 			return nil, err
 		}

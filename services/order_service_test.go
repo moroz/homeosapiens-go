@@ -29,11 +29,19 @@ func TestCreateOrder(t *testing.T) {
 	defer db.Close()
 
 	_, err = db.Exec(t.Context(), "truncate orders, cart_line_items cascade")
+	require.NoError(t, err)
 
-	eventId := uuid.MustParse("019c5c9a-c5a4-7518-8317-65ae90516726")
+	product, err := mocks.Product(db, t.Context())
+	require.NoError(t, err)
+
+	productID := product.ID
+	_, err = mocks.Event(db, t.Context(), func(params *queries.UpsertEventParams) {
+		params.ProductID = &productID
+	})
+	require.NoError(t, err)
+
 	cartId := uuid.Must(uuid.NewV7())
-
-	_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, eventId)
+	_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartId, product.ID)
 	require.NoError(t, err)
 
 	countBefore, err := count(db, t.Context(), "orders")

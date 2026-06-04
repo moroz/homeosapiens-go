@@ -21,7 +21,7 @@ func TestVerifyEmailAddress(t *testing.T) {
 	srv := services.NewEmailVerificationService(db)
 
 	t.Run("marks email verified with valid token", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context())
+		user, err := mocks.User(db, t.Context())
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 
@@ -43,7 +43,7 @@ func TestVerifyEmailAddress(t *testing.T) {
 	})
 
 	t.Run("does nothing when a user is already confirmed", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context(), func(params *types.SeedUserParams) {
+		user, err := mocks.User(db, t.Context(), func(params *types.SeedUserParams) {
 			params.EmailConfirmed = true
 		})
 		require.NoError(t, err)
@@ -68,7 +68,7 @@ func TestVerifyEmailAddress(t *testing.T) {
 	})
 
 	t.Run("returns error and does nothing when a token is expired", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context())
+		user, err := mocks.User(db, t.Context())
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 

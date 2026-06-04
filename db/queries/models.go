@@ -597,6 +597,12 @@ type UserToken struct {
 	ValidUntil time.Time
 }
 
+type UserVideoGroupAccess struct {
+	UserID       uuid.UUID
+	VideoGroupID uuid.UUID
+	HasAccess    *bool
+}
+
 type Video struct {
 	ID              uuid.UUID
 	Provider        VideoProvider

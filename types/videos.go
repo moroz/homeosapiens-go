@@ -4,14 +4,17 @@ import "github.com/moroz/homeosapiens-go/db/queries"
 
 type VideoGroupListDTO struct {
 	*queries.VideoGroup
+	HasAccess bool
 }
 
 type VideoGroupDetailsDTO struct {
 	*queries.VideoGroup
-	Videos []*queries.Video
+	HasAccess bool
+	Videos    []*queries.Video
 }
 
 type VideoDetailsDTO struct {
 	*queries.Video
-	Sources []*queries.VideoSource
+	HasAccess bool
+	Sources   []*queries.VideoSource
 }

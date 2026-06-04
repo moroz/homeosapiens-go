@@ -32,7 +32,7 @@ func TestSessionsNew(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = db.Exec(t.Context(), "truncate users cascade")
-	user, err := mocks.UniqueUser(db, t.Context(), func(params *types.SeedUserParams) {
+	user, err := mocks.User(db, t.Context(), func(params *types.SeedUserParams) {
 		params.Email = "session-test@example.com"
 		params.Password = "foobar2000"
 		params.EmailConfirmed = true

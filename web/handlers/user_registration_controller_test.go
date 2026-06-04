@@ -34,7 +34,7 @@ func TestVerifyEmail(t *testing.T) {
 	service := services.NewUserTokenService(db)
 
 	t.Run("verifies user and signs them in with valid token", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context())
+		user, err := mocks.User(db, t.Context())
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 
@@ -68,7 +68,7 @@ func TestVerifyEmail(t *testing.T) {
 	})
 
 	t.Run("returns an unprocessable entity with expired token", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context())
+		user, err := mocks.User(db, t.Context())
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 

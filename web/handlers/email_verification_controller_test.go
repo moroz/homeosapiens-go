@@ -42,7 +42,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 	r := router.Router(db, store, stripeSrv)
 
 	t.Run("schedules an email job with valid params", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, ctx)
+		user, err := mocks.User(db, ctx)
 
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
@@ -62,7 +62,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 	})
 
 	t.Run("does not send an email when user is verified", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, ctx, func(params *types.SeedUserParams) {
+		user, err := mocks.User(db, ctx, func(params *types.SeedUserParams) {
 			params.EmailConfirmed = true
 		})
 

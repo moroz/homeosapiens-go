@@ -52,7 +52,7 @@ func TestPasswordResetFlow(t *testing.T) {
 	})
 
 	t.Run("POST /forgot-password with valid params", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context())
+		user, err := mocks.User(db, t.Context())
 		require.NoError(t, err)
 		db.Exec(t.Context(), "truncate river_job")
 
@@ -77,7 +77,7 @@ func TestPasswordResetFlow(t *testing.T) {
 	})
 
 	t.Run("GET /forgot-password/:token with valid params", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context())
+		user, err := mocks.User(db, t.Context())
 		require.NoError(t, err)
 
 		token, err := services.NewUserPasswordResetService(db).IssuePasswordResetTokenForUser(t.Context(), user)
@@ -101,7 +101,7 @@ func TestPasswordResetFlow(t *testing.T) {
 	})
 
 	t.Run("PUT /forgot-password/:token with valid params", func(t *testing.T) {
-		user, err := mocks.UniqueUser(db, t.Context())
+		user, err := mocks.User(db, t.Context())
 		require.NoError(t, err)
 
 		token, err := services.NewUserPasswordResetService(db).IssuePasswordResetTokenForUser(t.Context(), user)

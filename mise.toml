@@ -107,12 +107,16 @@ if [[ ! -n "$TEST_DATABASE" ]]; then
   exit 1
 fi
 
+EXISTS="$(psql -tA postgres -c "select s.exists from (select exists (select from pg_database where datname = '$TEST_DATABASE')) s;")"
+
 export TEST_DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:5432/$TEST_DATABASE
 export GOOSE_DBSTRING=$TEST_DATABASE_URL
-dropdb --force $TEST_DATABASE
-createdb $TEST_DATABASE
+
+if [[ "$EXISTS" = "f" ]]; then
+  createdb $TEST_DATABASE
+fi
+
 goose up
-psql $TEST_DATABASE_URL -f db/seeds/data.sql >/dev/null
 """
 
 [tasks.test]
