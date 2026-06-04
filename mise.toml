@@ -1,4 +1,5 @@
 [tools]
+age = "latest"
 ansible = { version = "latest", pipx_args = "--include-deps", uvx = "false" }
 "aqua:axllent/mailpit" = "latest"
 caddy = "latest"

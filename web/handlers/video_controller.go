@@ -23,7 +23,7 @@ func VideoController(db queries.DBTX) *videoController {
 func (cc *videoController) Index(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	data, err := cc.videoService.ListVideoGroupsForUser(c.Request().Context(), ctx.User)
+	data, err := cc.videoService.ListVideoGroupsForUser(c.Request().Context(), ctx.User.ID)
 	if err != nil {
 		return err
 	}
@@ -32,19 +32,19 @@ func (cc *videoController) Index(c *echo.Context) error {
 	if param := c.Param("group_slug"); param != "" {
 		groupSlug = &param
 	}
-	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User, groupSlug)
+	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User.ID, groupSlug)
 	return videos.Index(ctx, data, group).Render(c.Response())
 }
 
 func (cc *videoController) Show(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	video, err := cc.videoService.GetVideoForUser(c.Request().Context(), ctx.User, c.Param("group_slug"), c.Param("video_slug"))
+	video, err := cc.videoService.GetVideoForUser(c.Request().Context(), ctx.User.ID, c.Param("group_slug"), c.Param("video_slug"))
 	if err != nil {
 		return err
 	}
 
-	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User, new(c.Param("group_slug")))
+	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User.ID, new(c.Param("group_slug")))
 	if err != nil {
 		return err
 	}

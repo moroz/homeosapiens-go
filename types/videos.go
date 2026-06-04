@@ -18,3 +18,11 @@ type VideoDetailsDTO struct {
 	HasAccess bool
 	Sources   []*queries.VideoSource
 }
+
+func (v *VideoGroupListDTO) IsPremium() bool {
+	return v.VideoGroup.ProductID != nil
+}
+
+func (v *VideoGroupDetailsDTO) IsPremium() bool {
+	return v.VideoGroup.ProductID != nil
+}
