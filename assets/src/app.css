@@ -24,6 +24,7 @@
   --breakpoint-desktop: calc(30rem + 1px);
 
   --shadow-solid: 4px 4px 0px 0px black;
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
 }
 
 @variant mobile (@media screen and (max-width: 30rem));
@@ -65,7 +66,8 @@
   }
 
   .card {
-    @apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 border-primary/30 rounded border bg-white p-6 shadow;
+    @apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 border-slate-300 rounded-lg border bg-white p-6;
+    box-shadow: var(--shadow-card);
   }
 
   .card-header {
@@ -166,22 +168,22 @@
   }
 
   .video-group-menu {
-    @apply grid gap-2;
+    @apply grid gap-1;
 
     a {
-      @apply inline-flex w-full px-3 py-2 transition;
-      @apply font-semibold text-inherit no-underline;
+      @apply relative inline-flex w-full items-center rounded-md px-3 py-2 transition;
+      @apply font-medium text-slate-700 no-underline;
 
       &.is-active {
-        @apply bg-primary font-semibold text-white;
+        @apply bg-primary font-semibold text-white shadow-sm;
 
         &:hover {
           @apply bg-primary-hover;
         }
       }
 
-      &:hover {
-        @apply bg-slate-200;
+      &:not(.is-active):hover {
+        @apply bg-slate-100 text-primary;
       }
     }
   }
@@ -190,5 +192,30 @@
     @apply grid gap-6;
 
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .video-card {
+    @apply overflow-hidden rounded-lg bg-white border border-slate-300;
+    box-shadow: var(--shadow-card);
+  }
+
+  .video-card-thumb {
+    @apply relative flex aspect-video items-center justify-center overflow-hidden bg-slate-100;
+
+    img {
+      @apply h-full w-full object-cover;
+    }
+  }
+
+  .video-card-body {
+    @apply p-4;
+  }
+
+  .video-card-title {
+    @apply font-semibold leading-snug text-slate-800;
+  }
+
+  .duration-badge {
+    @apply absolute right-2 bottom-2 inline-block rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums;
   }
 }

@@ -37,12 +37,12 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 	}
 
 	return A(
-		Class("no-underline"),
+		Class("video-card-link no-underline"),
 		Href(fmt.Sprintf("/videos/%s/%s", group.Slug, video.Slug)),
 		Article(
-			Class("card video p-0"),
+			Class("video-card"),
 			Header(
-				Class("relative flex aspect-video items-center justify-center overflow-hidden rounded-t bg-slate-200"),
+				Class("video-card-thumb"),
 				VideoThumbnail(video, ctx.Language),
 				Iff(video.DurationSeconds != nil, func() Node {
 					hours := *video.DurationSeconds / 3600
@@ -54,15 +54,15 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 					}
 
 					return Span(
-						Class("absolute right-2 bottom-2 inline-block rounded bg-black/60 px-1 text-sm text-white tabular-nums"),
+						Class("duration-badge"),
 						Text(text),
 					)
 				}),
 			),
 			Footer(
-				Class("p-4"),
+				Class("video-card-body"),
 				H4(
-					Class("font-semibold"),
+					Class("video-card-title"),
 					Text(title)),
 			),
 		),
@@ -74,6 +74,7 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 		Div(
 			Class("card mx-auto grid grid-cols-[1fr_3fr] gap-8 lg:w-7xl"),
 			Aside(
+				Class("mobile:border-r-0 border-r border-slate-300 pr-6 mobile:pr-0"),
 				H2(Class("page-title"), Text("Videos")),
 				Nav(
 					Ul(
@@ -108,7 +109,7 @@ func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *t
 					}
 
 					return Group{
-						H3(Class("mb-4 text-xl font-bold text-primary"), Text(title)),
+						H3(Class("mb-6 inline-block border-b-2 border-primary/30 pb-2 text-2xl font-bold text-primary"), Text(title)),
 						Div(
 							Class("video-grid"),
 							Map(group.Videos, func(video *queries.Video) Node {
