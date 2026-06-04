@@ -56,7 +56,7 @@ type GetVideoForUserParams struct {
 
 type GetVideoForUserRow struct {
 	Video     Video
-	HasAccess *bool
+	HasAccess bool
 }
 
 func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParams) (*GetVideoForUserRow, error) {
@@ -95,7 +95,7 @@ type GetVideoGroupForUserBySlugParams struct {
 
 type GetVideoGroupForUserBySlugRow struct {
 	VideoGroup VideoGroup
-	HasAccess  *bool
+	HasAccess  bool
 }
 
 func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoGroupForUserBySlugParams) (*GetVideoGroupForUserBySlugRow, error) {
@@ -197,11 +197,12 @@ func (q *Queries) InsertVideoGroup(ctx context.Context, arg *InsertVideoGroupPar
 const listVideoGroupsForUser = `-- name: ListVideoGroupsForUser :many
 select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
+order by id desc
 `
 
 type ListVideoGroupsForUserRow struct {
 	VideoGroup VideoGroup
-	HasAccess  *bool
+	HasAccess  bool
 }
 
 func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID) ([]*ListVideoGroupsForUserRow, error) {

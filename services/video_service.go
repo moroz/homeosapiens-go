@@ -40,7 +40,7 @@ func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, userID uuid.U
 	for _, vg := range videos {
 		result = append(result, &types.VideoGroupListDTO{
 			VideoGroup: &vg.VideoGroup,
-			HasAccess:  *vg.HasAccess,
+			HasAccess:  vg.HasAccess,
 		})
 	}
 
@@ -62,7 +62,7 @@ func (s *VideoService) GetVideoGroupDetails(ctx context.Context, userID uuid.UUI
 	}
 
 	return &types.VideoGroupDetailsDTO{
-		HasAccess:  *group.HasAccess,
+		HasAccess:  group.HasAccess,
 		VideoGroup: &group.VideoGroup,
 		Videos:     videos,
 	}, nil
@@ -78,14 +78,19 @@ func (s *VideoService) GetVideoForUser(ctx context.Context, userID uuid.UUID, gr
 		return nil, err
 	}
 
-	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, []uuid.UUID{video.Video.ID})
-	if err != nil {
-		return nil, err
+	result := &types.VideoDetailsDTO{
+		Video:     &video.Video,
+		HasAccess: video.HasAccess,
 	}
 
-	return &types.VideoDetailsDTO{
-		Video:     &video.Video,
-		HasAccess: *video.HasAccess,
-		Sources:   sources,
-	}, nil
+	if video.HasAccess {
+		sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, []uuid.UUID{video.Video.ID})
+		if err != nil {
+			return nil, err
+		}
+
+		result.Sources = sources
+	}
+
+	return result, nil
 }

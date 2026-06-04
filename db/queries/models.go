@@ -600,7 +600,7 @@ type UserToken struct {
 type UserVideoGroupAccess struct {
 	UserID       uuid.UUID
 	VideoGroupID uuid.UUID
-	HasAccess    *bool
+	HasAccess    bool
 }
 
 type Video struct {
