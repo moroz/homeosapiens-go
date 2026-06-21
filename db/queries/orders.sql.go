@@ -355,6 +355,21 @@ func (q *Queries) MarkOrderAsPaid(ctx context.Context, id uuid.UUID) (*Order, er
 	return &i, err
 }
 
+const registerBuyerForPaidEvents = `-- name: RegisterBuyerForPaidEvents :exec
+insert into event_registrations (event_id, user_id)
+select e.id, o.user_id
+from orders o
+join order_line_items oli on oli.order_id = o.id
+join events e on e.product_id = oli.product_id
+where o.id = $1 and e.ends_at > now()
+on conflict (event_id, user_id) do nothing
+`
+
+func (q *Queries) RegisterBuyerForPaidEvents(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, registerBuyerForPaidEvents, id)
+	return err
+}
+
 const storeCheckoutSessionIDOnOrder = `-- name: StoreCheckoutSessionIDOnOrder :one
 update orders set stripe_checkout_session_id = $1, updated_at = now() where id = $2 returning id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale
 `

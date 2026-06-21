@@ -36,3 +36,12 @@ from orders o
 join order_line_items oli on oli.order_id = o.id
 where o.id = $1
 on conflict (user_id, product_id) do nothing;
+
+-- name: RegisterBuyerForPaidEvents :exec
+insert into event_registrations (event_id, user_id)
+select e.id, o.user_id
+from orders o
+join order_line_items oli on oli.order_id = o.id
+join events e on e.product_id = oli.product_id
+where o.id = $1 and e.ends_at > now()
+on conflict (event_id, user_id) do nothing;

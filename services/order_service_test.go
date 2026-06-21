@@ -23,40 +23,40 @@ func count(db queries.DBTX, ctx context.Context, table string) (int, error) {
 	return val, err
 }
 
-func TestCreateOrder(t *testing.T) {
-	db, err := initDB(t.Context())
+func TestOrderService_CreateOrder(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
 	require.NoError(t, err)
 	defer db.Close()
 
-	_, err = db.Exec(t.Context(), "truncate orders, cart_line_items cascade")
+	_, err = db.Exec(ctx, "truncate orders, cart_line_items cascade")
 	require.NoError(t, err)
 
-	product, err := mocks.Product(db, t.Context())
+	product, err := mocks.Product(db, ctx)
 	require.NoError(t, err)
 
-	productID := product.ID
-	_, err = mocks.Event(db, t.Context(), func(params *queries.UpsertEventParams) {
-		params.ProductID = &productID
+	event, err := mocks.Event(db, ctx, func(params *queries.UpsertEventParams) {
+		params.ProductID = &product.ID
 	})
 	require.NoError(t, err)
 
 	cartId := uuid.Must(uuid.NewV7())
-	_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartId, product.ID)
+	_, err = db.Exec(ctx, "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartId, product.ID)
 	require.NoError(t, err)
 
-	countBefore, err := count(db, t.Context(), "orders")
+	countBefore, err := count(db, ctx, "orders")
 	assert.NoError(t, err)
 
-	cs := mocks.CheckoutSession()
+	checkoutSession := mocks.CheckoutSession()
 
 	stripe := mocks.NewMockStripeService(t)
-	stripe.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(cs, nil)
+	stripe.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(checkoutSession, nil)
 
 	email := mocks.UniqueEmail()
 
-	db.Exec(t.Context(), "truncate river_job")
+	db.Exec(ctx, "truncate river_job")
 	srv := services.NewOrderService(db, stripe)
-	order, err := srv.CreateOrder(t.Context(), cartId, nil, &types.OrderParams{
+	order, err := srv.CreateOrder(ctx, cartId, nil, &types.OrderParams{
 		PreferredLocale:     "pl",
 		Email:               email,
 		BillingGivenName:    "John",
@@ -71,22 +71,88 @@ func TestCreateOrder(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, order)
 
-	countAfter, err := count(db, t.Context(), "orders")
+	countAfter, err := count(db, ctx, "orders")
 	assert.NoError(t, err)
 	assert.Equal(t, countBefore+1, countAfter)
 
-	countAfter, err = count(db, t.Context(), "cart_line_items")
+	countAfter, err = count(db, ctx, "cart_line_items")
 	assert.NoError(t, err)
 	assert.Zero(t, countAfter)
 
-	rivertest.RequireInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendOrderEmailArgs{}, nil)
+	job := rivertest.RequireInserted(ctx, t, riverpgxv5.New(db), &jobs.SendOrderEmailArgs{}, nil)
+	assert.Equal(t, jobs.OrderEmailTypeOrderConfirmation, job.Args.EmailType)
 
-	user, err := services.NewUserService(db).FindUserByEmail(t.Context(), email)
+	// Creating an anonymous order creates a user with no password
+	user, err := services.NewUserService(db).FindUserByEmail(ctx, email)
 	require.NoError(t, err)
 	require.NotNil(t, user)
+	require.Empty(t, user.PasswordHash)
 
-	var hasAccess bool
-	err = db.QueryRow(t.Context(), "select exists (select from user_product_access where user_id = $1)", user.ID).Scan(&hasAccess)
+	// Placing an order does not grant access to products yet
+	var hasAccess, eventRegistered bool
+	err = db.QueryRow(
+		ctx,
+		`select exists (select from user_product_access where user_id = $1 and product_id = $2), exists (select from event_registrations where user_id = $1 and event_id = $3)`,
+		user.ID, product.ID, event.ID,
+	).Scan(&hasAccess, &eventRegistered)
 	require.NoError(t, err)
 	assert.False(t, hasAccess)
+	assert.False(t, eventRegistered)
+}
+
+func TestOrderService_MarkOrderPaidByCheckoutSessionID(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
+	defer db.Close()
+
+	user, err := mocks.User(db, ctx)
+	require.NoError(t, err)
+
+	product, err := mocks.Product(db, ctx)
+	require.NoError(t, err)
+
+	event, err := mocks.Event(db, t.Context(), func(params *queries.UpsertEventParams) {
+		params.ProductID = &product.ID
+	})
+	require.NoError(t, err)
+
+	cartId := uuid.Must(uuid.NewV7())
+	_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartId, product.ID)
+	require.NoError(t, err)
+
+	checkoutSession := mocks.CheckoutSession()
+	stripe := mocks.NewMockStripeService(t)
+	stripe.EXPECT().CreateCheckoutSession(mock.Anything, mock.Anything).Return(checkoutSession, nil)
+
+	srv := services.NewOrderService(db, stripe)
+
+	order, err := mocks.Order(&mocks.OrderInput{
+		DB:      db,
+		Context: ctx,
+		Stripe:  stripe,
+		CartID:  cartId,
+		User:    user,
+	})
+	require.NoError(t, err)
+	require.Equal(t, user.ID, order.UserID)
+	require.Nil(t, order.PaidAt)
+
+	_, err = db.Exec(ctx, "truncate river_job")
+
+	updated, err := srv.MarkOrderPaidByCheckoutSessionID(ctx, checkoutSession.ID)
+	assert.NoError(t, err)
+	assert.NotNil(t, updated.PaidAt)
+
+	job := rivertest.RequireInserted(ctx, t, riverpgxv5.New(db), &jobs.SendOrderEmailArgs{}, nil)
+	assert.Equal(t, jobs.OrderEmailTypePaymentConfirmation, job.Args.EmailType)
+
+	var hasAccess, eventRegistered bool
+	err = db.QueryRow(
+		ctx,
+		`select exists (select from user_product_access where user_id = $1 and product_id = $2), exists (select from event_registrations where user_id = $1 and event_id = $3)`,
+		user.ID, product.ID, event.ID,
+	).Scan(&hasAccess, &eventRegistered)
+	require.NoError(t, err)
+	assert.True(t, hasAccess)
+	assert.True(t, eventRegistered)
 }

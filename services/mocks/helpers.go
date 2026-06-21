@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -147,6 +148,52 @@ func EventRegistration(db queries.DBTX, ctx context.Context, event *queries.Even
 		EventID: event.ID,
 		UserID:  user.ID,
 	})
+}
+
+// Cart creates cart line items for a fresh cart and returns its id. Pass the
+// product ids the cart should contain (one line item each, quantity 1).
+func Cart(db queries.DBTX, ctx context.Context, productIDs ...uuid.UUID) (uuid.UUID, error) {
+	cartID := uuid.Must(uuid.NewV7())
+	for _, pid := range productIDs {
+		_, err := db.Exec(ctx, "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartID, pid)
+		if err != nil {
+			return cartID, err
+		}
+	}
+	return cartID, nil
+}
+
+type OrderInput struct {
+	DB      *pgxpool.Pool
+	Context context.Context
+	Stripe  services.StripeService
+	CartID  uuid.UUID
+	User    *queries.User
+	// Overrides mutate the default Polish billing params before the order is
+	// created, e.g. to pin the buyer's email.
+	Overrides []func(params *types.OrderParams)
+}
+
+// Order creates a paid-order draft from props.CartID by running it through
+// OrderService.CreateOrder, with sane Polish billing defaults.
+func Order(props *OrderInput) (*types.OrderDTO, error) {
+	params := &types.OrderParams{
+		PreferredLocale:     "pl",
+		Email:               UniqueEmail(),
+		BillingGivenName:    "John",
+		BillingFamilyName:   "Smith",
+		BillingPhone:        "+48555123456",
+		BillingAddressLine1: "ul. Półwiejska 20",
+		BillingCity:         "Poznań",
+		BillingPostalCode:   "12-345",
+		BillingCountry:      "PL",
+	}
+
+	for _, f := range props.Overrides {
+		f(params)
+	}
+
+	return services.NewOrderService(props.DB, props.Stripe).CreateOrder(props.Context, props.CartID, props.User, params)
 }
 
 func UserSession(db queries.DBTX, ctx context.Context, user *queries.User) (sessions.Payload, error) {

@@ -184,7 +184,12 @@ func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, ses
 		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
 	}
 
-	err = queries.New(s.db).GrantAccessToProductsForOrder(ctx, order.ID)
+	err = queries.New(tx).GrantAccessToProductsForOrder(ctx, order.ID)
+	if err != nil {
+		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
+	}
+
+	err = queries.New(tx).RegisterBuyerForPaidEvents(ctx, order.ID)
 	if err != nil {
 		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
 	}
