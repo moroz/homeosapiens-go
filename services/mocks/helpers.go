@@ -142,6 +142,13 @@ func Video(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 	return queries.New(db).InsertVideo(ctx, params)
 }
 
+func EventRegistration(db queries.DBTX, ctx context.Context, event *queries.Event, user *queries.User) (*queries.EventRegistration, error) {
+	return queries.New(db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
+		EventID: event.ID,
+		UserID:  user.ID,
+	})
+}
+
 func UserSession(db queries.DBTX, ctx context.Context, user *queries.User) (sessions.Payload, error) {
 	token, err := services.NewUserTokenService(db).IssueAccessTokenForUser(ctx, user, config.AccessTokenValidity)
 	if err != nil {

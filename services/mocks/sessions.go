@@ -7,10 +7,12 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
+	"testing"
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/web/sessions"
+	"github.com/stretchr/testify/assert"
 )
 
 func ClientWithSession(store *sessions.Store, origin *url.URL, payload sessions.Payload) (*http.Client, error) {
@@ -83,4 +85,9 @@ func ClientWithUser(props *ClientWithUserInput) (*http.Client, error) {
 	}
 
 	return ClientWithSession(props.Store, origin, payload)
+}
+
+func AssertRedirectResponse(t *testing.T, statusCode int) {
+	assert.GreaterOrEqual(t, statusCode, 300)
+	assert.Less(t, statusCode, 400)
 }

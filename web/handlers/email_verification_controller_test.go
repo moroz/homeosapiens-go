@@ -15,7 +15,6 @@ import (
 	"github.com/moroz/homeosapiens-go/web/sessions"
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/riverqueue/river/rivertest"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -55,8 +54,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r.ServeHTTP(rr, req)
 
-		assert.GreaterOrEqual(t, rr.Code, 300)
-		assert.Less(t, rr.Code, 400)
+		mocks.AssertRedirectResponse(t, rr.Code)
 
 		rivertest.RequireInserted(ctx, t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
 	})
@@ -77,8 +75,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r.ServeHTTP(rr, req)
 
-		assert.GreaterOrEqual(t, rr.Code, 300)
-		assert.Less(t, rr.Code, 400)
+		mocks.AssertRedirectResponse(t, rr.Code)
 
 		rivertest.RequireNotInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
 	})
@@ -90,8 +87,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 		require.NoError(t, err)
 		rr := httptest.NewRecorder()
 		r.ServeHTTP(rr, req)
-		assert.GreaterOrEqual(t, rr.Code, 300)
-		assert.Less(t, rr.Code, 400)
+		mocks.AssertRedirectResponse(t, rr.Code)
 		rivertest.RequireNotInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendUserEmailArgs{}, nil)
 	})
 }
