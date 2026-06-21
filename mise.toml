@@ -1,6 +1,5 @@
 [tools]
 age = "latest"
-ansible = { version = "latest", pipx_args = "--include-deps", uvx = "false" }
 "aqua:axllent/mailpit" = "latest"
 caddy = "latest"
 go = "1.26"
@@ -13,6 +12,7 @@ go = "1.26"
 jq = "latest"
 node = "latest"
 overmind = "latest"
+"pipx:ansible" = "latest"
 pnpm = "latest"
 prettier = "latest"
 python = "latest"

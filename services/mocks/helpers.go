@@ -8,9 +8,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 	"github.com/shopspring/decimal"
 	"github.com/stripe/stripe-go/v84"
 )
@@ -85,6 +87,21 @@ func Event(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 	return queries.New(db).UpsertEvent(ctx, params)
 }
 
+func PaidEvent(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.UpsertEventParams)) (*queries.Event, error) {
+	product, err := Product(db, ctx, func(p *queries.InsertProductParams) {
+		p.BasePriceAmount = decimal.NewFromInt(560)
+	})
+	if err != nil {
+		return nil, err
+	}
+	combined := append([]func(*queries.UpsertEventParams){
+		func(p *queries.UpsertEventParams) {
+			p.ProductID = &product.ID
+		},
+	}, overrides...)
+	return Event(db, ctx, combined...)
+}
+
 func VideoGroup(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.InsertVideoGroupParams)) (*queries.VideoGroup, error) {
 	unique := make([]byte, 4)
 	_, _ = rand.Read(unique)
@@ -123,4 +140,15 @@ func Video(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 	}
 
 	return queries.New(db).InsertVideo(ctx, params)
+}
+
+func UserSession(db queries.DBTX, ctx context.Context, user *queries.User) (sessions.Payload, error) {
+	token, err := services.NewUserTokenService(db).IssueAccessTokenForUser(ctx, user, config.AccessTokenValidity)
+	if err != nil {
+		return nil, err
+	}
+	return sessions.Payload{
+		config.AccessTokenSessionKey: token.Token,
+		config.LanguageSessionKey:    "en",
+	}, nil
 }

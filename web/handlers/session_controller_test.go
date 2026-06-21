@@ -11,17 +11,17 @@ import (
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/router"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestSessionsNew(t *testing.T) {
+func TestSignInFlow(t *testing.T) {
 	db, err := initDB(t.Context())
 	require.NoError(t, err)
 	defer db.Close()
 
-	store, err := session.NewStore(config.SessionKey)
+	store, err := sessions.NewStore(config.SessionKey)
 	require.NoError(t, err)
 	r := router.Router(db, store, mocks.NewMockStripeService(t))
 
@@ -54,7 +54,7 @@ func TestSessionsNew(t *testing.T) {
 	}
 
 	for _, input := range inputs {
-		client, err := clientWithSession(store, origin, nil)
+		client, err := mocks.ClientWithSession(store, origin, nil)
 
 		body := bytes.NewBufferString(url.Values{
 			"email":    {input.email},
@@ -68,12 +68,15 @@ func TestSessionsNew(t *testing.T) {
 		resp, err := client.Do(req)
 		require.NoError(t, err)
 
-		clientSession, err := getClientSession(client.Jar, store, origin)
+		clientSession, err := mocks.GetClientSession(client.Jar, store, origin)
 		if input.valid {
 			require.NoError(t, err)
-			assert.NotEmpty(t, clientSession)
 			assert.NotEmpty(t, resp.Header.Get("Location"))
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
+
+			assert.NotEmpty(t, clientSession)
+			assert.NotEmpty(t, clientSession[config.AccessTokenSessionKey])
+			assert.NotEmpty(t, clientSession[config.LanguageSessionKey])
 		} else {
 			require.Error(t, err)
 			assert.Empty(t, clientSession)

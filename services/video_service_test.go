@@ -39,7 +39,7 @@ func TestVideoService_ListVideoGroupsForUser(t *testing.T) {
 			assert.True(t, v.HasAccess)
 		}
 
-		assert.Equal(t, []uuid.UUID{free1.ID, free2.ID}, ids)
+		assert.Equal(t, []uuid.UUID{free2.ID, free1.ID}, ids)
 	})
 
 	t.Run("lists paid videos with HasAccess = false", func(t *testing.T) {
@@ -66,7 +66,7 @@ func TestVideoService_ListVideoGroupsForUser(t *testing.T) {
 			assert.Equal(t, v.VideoGroup.ID != paid.ID, v.HasAccess)
 		}
 
-		assert.Equal(t, []uuid.UUID{free.ID, paid.ID}, ids)
+		assert.Equal(t, []uuid.UUID{paid.ID, free.ID}, ids)
 
 		admin, err := mocks.User(db, ctx, func(params *types.SeedUserParams) {
 			params.Role = queries.UserRoleAdministrator
@@ -81,6 +81,6 @@ func TestVideoService_ListVideoGroupsForUser(t *testing.T) {
 			ids = append(ids, v.VideoGroup.ID)
 			assert.True(t, v.HasAccess)
 		}
-		assert.Equal(t, []uuid.UUID{free.ID, paid.ID}, ids)
+		assert.Equal(t, []uuid.UUID{paid.ID, free.ID}, ids)
 	})
 }

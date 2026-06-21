@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	twmerge "github.com/Oudwins/tailwind-merge-go"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
@@ -19,7 +20,8 @@ const EventRegistrationButtonBaseClasses = "inline-flex button bg-slate-100 text
 const EventRegistrationButtonNotGoingClasses = "bg-slate-100 text-slate-900 hover:bg-slate-200"
 const EventRegistrationButtonGoingClasses = "bg-primary/10 text-primary hover:bg-primary/20"
 
-func eventRegistrationSignInLink(l *i18n.Localizer, event *services.EventDetailsDto) Node {
+// ananymousEventRegistrationButtonLink displays a faux button that redirects the user to the login page if they want to register for an event. If they are already signed in, the GET handler registers the user for the event.
+func ananymousEventRegistrationButtonLink(l *i18n.Localizer, event *services.EventDetailsDto) Node {
 	return A(
 		Href(fmt.Sprintf("/events/%s/register", event.ID)),
 		Class(twmerge.Merge(EventRegistrationButtonBaseClasses, EventRegistrationButtonNotGoingClasses)),
@@ -30,7 +32,20 @@ func eventRegistrationSignInLink(l *i18n.Localizer, event *services.EventDetails
 	)
 }
 
-func eventRegistrationButton(l *i18n.Localizer, event *services.EventDetailsDto) Node {
+type freeEventCTAProps struct {
+	Event     *services.EventDetailsDto
+	User      *queries.User
+	Localizer *i18n.Localizer
+}
+
+func freeEventCTA(props *freeEventCTAProps) Node {
+	if props.User == nil {
+		return ananymousEventRegistrationButtonLink(props.Localizer, props.Event)
+	}
+
+	event := props.Event
+	l := props.Localizer
+
 	classes := EventRegistrationButtonNotGoingClasses
 	if event.EventRegistration != nil {
 		classes = EventRegistrationButtonGoingClasses
@@ -98,8 +113,13 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			),
 		),
 		Div(Class("my-4 flex items-center gap-4"),
-			If(isFree && event.EventRegistration == nil, eventRegistrationSignInLink(l, event)),
-			If(isFree && event.EventRegistration != nil, eventRegistrationButton(l, event)),
+			Iff(isFree, func() Node {
+				return freeEventCTA(&freeEventCTAProps{
+					Event:     event,
+					User:      ctx.User,
+					Localizer: ctx.Localizer,
+				})
+			}),
 			If(!isFree, components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
 			If(!isFree && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
 			If(

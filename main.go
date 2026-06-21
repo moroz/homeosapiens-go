@@ -14,7 +14,7 @@ import (
 	"github.com/moroz/homeosapiens-go/internal/workers"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/router"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sessionStore, err := session.NewStore(config.SessionKey)
+	sessionStore, err := sessions.NewStore(config.SessionKey)
 	if err != nil {
 		log.Fatal(err)
 	}

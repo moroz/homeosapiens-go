@@ -9,25 +9,25 @@ import (
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type CustomContext struct {
-	store       *session.Store
+	store       *sessions.Store
 	Cart        *queries.GetCartRow
 	CartId      *uuid.UUID
 	Flash       Flash
 	Language    string
 	Localizer   *i18n.Localizer
 	RequestUrl  *url.URL
-	Session     session.Payload
+	Session     sessions.Payload
 	Timezone    *time.Location
 	TimezoneSet bool
 	User        *queries.User
 }
 
-func NewContext(store *session.Store) *CustomContext {
+func NewContext(store *sessions.Store) *CustomContext {
 	return &CustomContext{store: store}
 }
 

@@ -13,7 +13,7 @@ import (
 	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/handlers"
 	"github.com/moroz/homeosapiens-go/web/middleware"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 )
 
 type Groupie interface {
@@ -25,7 +25,7 @@ func Group(r Groupie, prefix string, cb func(r *echo.Group)) {
 	cb(group)
 }
 
-func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.StripeService) *echo.Echo {
+func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.StripeService) *echo.Echo {
 	r := echo.New()
 
 	bundle, err := i18n.InitBundle()
@@ -126,6 +126,7 @@ func Router(db *pgxpool.Pool, store *session.Store, stripeClient services.Stripe
 
 		eventRegistrations := handlers.EventRegistrationController(db)
 		r.GET("/events/:event_id/register", eventRegistrations.Create)
+		r.POST("/event_registrations/:event_id", eventRegistrations.Create)
 		r.DELETE("/event_registrations/:event_id", eventRegistrations.Delete)
 
 		videos := handlers.VideoController(db)

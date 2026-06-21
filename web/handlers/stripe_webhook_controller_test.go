@@ -13,7 +13,7 @@ import (
 	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/riverqueue/river/rivertest"
 	"github.com/shopspring/decimal"
@@ -27,7 +27,7 @@ func TestStripeWebhook(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	store, err := session.NewStore(config.SessionKey)
+	store, err := sessions.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
 	stripe := mocks.NewMockStripeService(t)

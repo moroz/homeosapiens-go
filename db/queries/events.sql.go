@@ -82,7 +82,7 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 }
 
 const getFreeEventById = `-- name: GetFreeEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where (base_price_amount is null or base_price_amount = 0) and id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where product_id is null and id = $1
 `
 
 func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, error) {

@@ -3,9 +3,7 @@ package handlers_test
 import (
 	"bytes"
 	"context"
-	"errors"
 	"net/http"
-	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
 	"strings"
@@ -20,7 +18,7 @@ import (
 	"github.com/moroz/homeosapiens-go/internal/phone"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/riverqueue/river/rivertest"
 	"github.com/shopspring/decimal"
@@ -33,61 +31,14 @@ func initDB(ctx context.Context) (*pgxpool.Pool, error) {
 	return pgxpool.New(ctx, config.MustGetenv("TEST_DATABASE_URL"))
 }
 
-func noFollow(r *http.Request, v []*http.Request) error {
-	return http.ErrUseLastResponse
-}
-
-func getClientSession(jar http.CookieJar, store *session.Store, origin *url.URL) (session.Payload, error) {
-	var cookie *http.Cookie
-	for _, c := range jar.Cookies(origin) {
-		if c.Name == config.SessionCookieName {
-			cookie = c
-		}
-	}
-	if cookie == nil {
-		return nil, errors.New("session cookie not found")
-	}
-
-	return store.DecodeSession(cookie)
-}
-
-func clientWithSession(store *session.Store, origin *url.URL, payload session.Payload) (*http.Client, error) {
-	var cookie string
-
-	if payload != nil {
-		sessionCookie, err := store.EncodeSession(payload)
-		if err != nil {
-			return nil, err
-		}
-
-		cookie = sessionCookie
-	}
-
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if cookie != "" {
-		jar.SetCookies(origin, []*http.Cookie{
-			{
-				Name:     config.SessionCookieName,
-				Value:    cookie,
-				Secure:   true,
-				HttpOnly: true,
-			},
-		})
-	}
-
-	return &http.Client{Jar: jar, CheckRedirect: noFollow}, nil
-}
-
-var PaidEventId = uuid.MustParse("019c5c9a-c5a4-7518-8317-65ae90516726")
-
 func TestCartFlow(t *testing.T) {
 	db, err := initDB(t.Context())
 	require.NoError(t, err)
 	defer db.Close()
+
+	paidEvent, err := mocks.PaidEvent(db, t.Context())
+	require.NoError(t, err)
+	paidEventId := paidEvent.ID
 
 	count := func(ctx context.Context, table string) (int, error) {
 		var val int
@@ -95,7 +46,7 @@ func TestCartFlow(t *testing.T) {
 		return val, err
 	}
 
-	store, err := session.NewStore(config.SessionKey)
+	store, err := sessions.NewStore(config.SessionKey)
 	require.NoError(t, err)
 
 	cs := mocks.CheckoutSession()
@@ -113,11 +64,11 @@ func TestCartFlow(t *testing.T) {
 
 	t.Run("add to cart", func(t *testing.T) {
 		params := url.Values{
-			"event_id": {PaidEventId.String()},
+			"event_id": {paidEventId.String()},
 		}
 		body := bytes.NewBufferString(params.Encode())
 
-		client, err := clientWithSession(store, origin, nil)
+		client, err := mocks.ClientWithSession(store, origin, nil)
 		require.NoError(t, err)
 
 		req, _ := http.NewRequest("POST", srv.URL+"/cart_items", body)
@@ -126,7 +77,7 @@ func TestCartFlow(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusFound, resp.StatusCode)
 
-		sessionPayload, err := getClientSession(client.Jar, store, origin)
+		sessionPayload, err := mocks.GetClientSession(client.Jar, store, origin)
 		assert.NotNil(t, sessionPayload)
 		assert.NoError(t, err)
 
@@ -143,10 +94,10 @@ func TestCartFlow(t *testing.T) {
 
 	t.Run("cart view", func(t *testing.T) {
 		cartId := uuid.Must(uuid.NewV7())
-		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, PaidEventId)
+		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, paidEventId)
 		require.NoError(t, err)
 
-		client, err := clientWithSession(store, origin, session.Payload{
+		client, err := mocks.ClientWithSession(store, origin, sessions.Payload{
 			config.CartIdSessionKey: cartId,
 		})
 		require.NoError(t, err)
@@ -175,7 +126,7 @@ func TestCartFlow(t *testing.T) {
 	})
 
 	t.Run("cart view shows empty message when cart is empty", func(t *testing.T) {
-		client, err := clientWithSession(store, origin, nil)
+		client, err := mocks.ClientWithSession(store, origin, nil)
 		require.NoError(t, err)
 
 		resp, err := client.Get(srv.URL + "/cart")
@@ -193,10 +144,10 @@ func TestCartFlow(t *testing.T) {
 
 	t.Run("placing order creates an order and a user", func(t *testing.T) {
 		cartId := uuid.Must(uuid.NewV7())
-		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, PaidEventId)
+		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, paidEventId)
 		require.NoError(t, err)
 
-		client, err := clientWithSession(store, origin, session.Payload{
+		client, err := mocks.ClientWithSession(store, origin, sessions.Payload{
 			config.CartIdSessionKey: cartId,
 		})
 		require.NoError(t, err)

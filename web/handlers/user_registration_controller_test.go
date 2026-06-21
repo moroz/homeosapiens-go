@@ -11,7 +11,7 @@ import (
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,7 +21,7 @@ func TestVerifyEmail(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	store, err := session.NewStore(config.SessionKey)
+	store, err := sessions.NewStore(config.SessionKey)
 	require.NoError(t, err)
 	r := router.Router(db, store, mocks.NewMockStripeService(t))
 
@@ -44,7 +44,7 @@ func TestVerifyEmail(t *testing.T) {
 
 		assert.Nil(t, user.EmailConfirmedAt)
 
-		client, err := clientWithSession(store, origin, nil)
+		client, err := mocks.ClientWithSession(store, origin, nil)
 		req, err := http.NewRequest("GET", server.URL+token.VerifyEmailPath(), nil)
 		require.NoError(t, err)
 
@@ -58,13 +58,10 @@ func TestVerifyEmail(t *testing.T) {
 		assert.NotNil(t, user)
 		assert.NotNil(t, user.EmailConfirmedAt)
 
-		sessionPayload, err := getClientSession(client.Jar, store, origin)
-		assert.NotNil(t, sessionPayload)
+		sessionPayload, err := mocks.GetClientSession(client.Jar, store, origin)
 		assert.NoError(t, err)
-
-		// user signed in
-		accessToken := sessionPayload[config.AccessTokenSessionKey]
-		assert.NotEmpty(t, accessToken)
+		assert.NotNil(t, sessionPayload)
+		assert.NotEmpty(t, sessionPayload[config.AccessTokenSessionKey])
 	})
 
 	t.Run("returns an unprocessable entity with expired token", func(t *testing.T) {
@@ -80,7 +77,7 @@ func TestVerifyEmail(t *testing.T) {
 		_, err = db.Exec(t.Context(), "update user_tokens set inserted_at = now() - interval '5 days', valid_until = now() - interval '1 day' where id = $1", token.UserToken.ID)
 		require.NoError(t, err)
 
-		client, err := clientWithSession(store, origin, nil)
+		client, err := mocks.ClientWithSession(store, origin, nil)
 		req, err := http.NewRequest("GET", server.URL+token.VerifyEmailPath(), nil)
 		require.NoError(t, err)
 

@@ -5,10 +5,10 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
-	"github.com/moroz/homeosapiens-go/web/session"
+	"github.com/moroz/homeosapiens-go/web/sessions"
 )
 
-func FetchSessionFromCookies(store *session.Store, cookieName string) echo.MiddlewareFunc {
+func FetchSessionFromCookies(store *sessions.Store, cookieName string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			ctx := helpers.GetRequestContext(c)
@@ -20,7 +20,7 @@ func FetchSessionFromCookies(store *session.Store, cookieName string) echo.Middl
 	}
 }
 
-func FetchFlashMessages(sessionStore *session.Store) echo.MiddlewareFunc {
+func FetchFlashMessages(sessionStore *sessions.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			ctx := helpers.GetRequestContext(c)

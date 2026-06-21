@@ -39,7 +39,7 @@ where er.event_id = any(@EventIDs::uuid[])
 and er.user_id = @UserID::uuid;
 
 -- name: GetFreeEventById :one
-select * from events where (base_price_amount is null or base_price_amount = 0) and id = $1;
+select * from events where product_id is null and id = $1;
 
 -- name: GetPaidEventById :one
 select sqlc.embed(e), sqlc.embed(p)
