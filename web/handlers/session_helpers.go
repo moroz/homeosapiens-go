@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -24,9 +25,32 @@ func signUserIn(c *echo.Context, db queries.DBTX, user *queries.User) error {
 	delete(ctx.Session, config.OAuth2SessionKey)
 	redirectTo := helpers.GetRedirectUrl(ctx)
 
+	if err := maybeUpdatePreferredTimezone(c, db, user); err != nil {
+		return err
+	}
+
 	if err := ctx.SaveSession(c.Response()); err != nil {
 		return err
 	}
 
 	return c.Redirect(http.StatusFound, redirectTo)
+}
+
+func maybeUpdatePreferredTimezone(c *echo.Context, db queries.DBTX, user *queries.User) error {
+	ctx := helpers.GetRequestContext(c)
+	sessionTz, _ := ctx.Session["tz"].(string)
+	if sessionTz == "" {
+		return nil
+	}
+
+	existing := user.PreferredTimezone
+	if existing != nil && existing.String() == sessionTz {
+		return nil
+	}
+
+	enc := sqlcrypter.NewEncryptedBytes(sessionTz)
+	return queries.New(db).UpdateUserPreferredTimezone(c.Request().Context(), &queries.UpdateUserPreferredTimezoneParams{
+		PreferredTimezone: &enc,
+		ID:                user.ID,
+	})
 }

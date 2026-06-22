@@ -67,7 +67,7 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	events := handlers.EventController(db)
 	r.GET("/events/:slug", events.Show)
 
-	prefs := handlers.PreferencesController()
+	prefs := handlers.PreferencesController(db)
 	r.POST("/api/v1/prefs/timezone", prefs.SaveTimezone)
 
 	oauth2 := handlers.OAuth2Controller(db)

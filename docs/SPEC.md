@@ -87,7 +87,7 @@ Locked principles:
 1. Add `GET /events` list page (filters, search, tabs).
 2. Branch free vs paid in the registration handler (the GET/POST → `Create` dual-route stays — it's the intentional post-login auto-register pattern).
 3. Webhook: create `event_registration` for paid event-type products (registration only — recordings are granted separately, §4.3).
-4. Registration confirmation email + `.ics` + venue details (see §4.6). Zoom link deferred (§4.9).
+4. ✅ Registration confirmation email + `.ics` + venue details (see §4.6). Zoom link deferred (§4.9).
 5. Show registrant count + "you're registered" state.
 
 ### 4.3 Premium video / "My products"
@@ -140,13 +140,13 @@ Carry over the confirmed asset model (see memory `asset-variants-decision`):
 - For video: source upload → River/script transcodes to HLS renditions → populate `video_sources` (object_key, codec, priority) → generate bilingual thumbnails → mark group publishable.
 
 ### 4.6 Email & notifications
-- **Registration confirmation** (free + paid): event details, venue (in-person), `.ics` attachment. New River job (or extend `SendUserEmailWorker`). Zoom join link added once §4.9 lands.
+- **Registration confirmation** (free + paid): event details, venue (in-person), `.ics` attachment. New River job (or extend `SendUserEmailWorker`). Zoom join link added once §4.9 lands. ✅ Free-event confirmation done: `SendEventRegistrationEmailWorker` + `EventMailer`, bilingual PL/EN, `.ics` attached, event time shown in recipient's preferred timezone (UTC offset).
 - **Payment receipt** — `SendOrderEmailWorker` exists; ensure it fires and includes the granted recording/access note.
 - **Event reminder** — new River **cron** job (like `VacuumUserTokensWorker`): T-24h and/or T-1h before `starts_at`, email registrants. Carries the Zoom join link once §4.9 lands.
 - **Email language follows the recipient's `preferred_locale`** (client decision), with PL as fallback. For buyers use `orders.preferred_locale`. Plain language, mobile-friendly (cohort is non-technical, on phones).
 
 ### 4.7 i18n & timezones
-Already solid. Ensure every new admin/event/email string is in the bundle and that event times render in the visitor's resolved timezone (middleware exists).
+Already solid. Ensure every new admin/event/email string is in the bundle and that event times render in the visitor's resolved timezone (middleware exists). ✅ Browser timezone is now persisted: `users.preferred_timezone_encrypted` (bytea, application-level encryption) stores the IANA timezone name. The JS `Intl.DateTimeFormat` timezone is sent to `POST /api/v1/prefs/timezone` on first load; the session cookie is the runtime store and the DB is the persistent store. On sign-in, `maybeUpdatePreferredTimezone` syncs the session value to the DB if it differs. On subsequent sessions the DB value bootstraps the timezone before any JS runs.
 
 ### 4.8 Payments, tax & geography (client decisions)
 - **Stripe stays as direct PSP, not a merchant-of-record.** Client explicitly does *not* want a MoR (Paddle/LemonSqueezy). MoR cost would exceed event revenue for the low-value Indian segment. Stripe-direct means **she remains the seller of record** and handles her own Polish/EU tax.
@@ -183,6 +183,7 @@ Before cancelling the SaaS, export and import:
 ## 7. Suggested milestones (cut line)
 
 **M1 — Events usable (no money):** events list page, POST register, free-RSVP confirmation email + `.ics`, registrant count, "you're registered" state. *Ships the most-used legacy feature.*
+- ✅ Free-RSVP confirmation email + `.ics` + timezone-aware event time (2026-06-22)
 
 **M2 — Recordings + manual grant (primary monetization):** give each `video_group` a product, gate it, build the **admin manual grant/revoke** flow (§4.4) + "My products" locked/owned states + self-serve "Buy" → existing Stripe checkout for a recording.
 

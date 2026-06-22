@@ -29,12 +29,40 @@ func (d *EventRegistrationEmailDTO) Title() string {
 	return d.Event.TitleEn
 }
 
-func (d *EventRegistrationEmailDTO) FormattedStartsAt() string {
-	t := d.Event.StartsAt.UTC()
-	if d.lang() == "pl" {
-		return t.Format("2.01.2006, 15:04") + " UTC"
+func (d *EventRegistrationEmailDTO) timezone() *time.Location {
+	if d.User.PreferredTimezone != nil {
+		if loc, err := time.LoadLocation(d.User.PreferredTimezone.String()); err == nil {
+			return loc
+		}
 	}
-	return t.Format("January 2, 2006 at 15:04") + " UTC"
+	return time.UTC
+}
+
+func formatUTCOffset(offsetSeconds int) string {
+	if offsetSeconds == 0 {
+		return "UTC"
+	}
+	sign := "+"
+	if offsetSeconds < 0 {
+		sign = "-"
+		offsetSeconds = -offsetSeconds
+	}
+	hours := offsetSeconds / 3600
+	minutes := (offsetSeconds % 3600) / 60
+	if minutes == 0 {
+		return fmt.Sprintf("UTC%s%d", sign, hours)
+	}
+	return fmt.Sprintf("UTC%s%d:%02d", sign, hours, minutes)
+}
+
+func (d *EventRegistrationEmailDTO) FormattedStartsAt() string {
+	t := d.Event.StartsAt.In(d.timezone())
+	_, offset := t.Zone()
+	tzStr := formatUTCOffset(offset)
+	if d.lang() == "pl" {
+		return t.Format("2.01.2006, 15:04") + " " + tzStr
+	}
+	return t.Format("January 2, 2006 at 15:04") + " " + tzStr
 }
 
 func (d *EventRegistrationEmailDTO) IsVirtual() bool {

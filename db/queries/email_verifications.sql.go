@@ -73,7 +73,7 @@ func (q *Queries) GetExistingEmailVerificationToken(ctx context.Context, arg *Ge
 }
 
 const getUnverifiedUserByEmail = `-- name: GetUnverifiedUserByEmail :one
-select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at from users where email_hash = $1 and email_confirmed_at is null
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted from users where email_hash = $1 and email_confirmed_at is null
 `
 
 func (q *Queries) GetUnverifiedUserByEmail(ctx context.Context, emailHash []byte) (*User, error) {
@@ -101,6 +101,7 @@ func (q *Queries) GetUnverifiedUserByEmail(ctx context.Context, emailHash []byte
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }

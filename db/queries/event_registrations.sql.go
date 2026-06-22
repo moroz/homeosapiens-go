@@ -76,7 +76,7 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 }
 
 const getLastEventRegistrationWithDetails = `-- name: GetLastEventRegistrationWithDetails :one
-select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id
 from event_registrations er
 join users u on u.id = er.user_id
 join events e on e.id = er.event_id
@@ -115,6 +115,7 @@ func (q *Queries) GetLastEventRegistrationWithDetails(ctx context.Context) (*Get
 		&i.User.LicenceNumber,
 		&i.User.PreferredLocale,
 		&i.User.GoogleOauthLastUsedAt,
+		&i.User.PreferredTimezone,
 		&i.Event.ID,
 		&i.Event.TitleEn,
 		&i.Event.TitlePl,

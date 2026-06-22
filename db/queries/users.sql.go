@@ -19,7 +19,7 @@ insert into users (email_encrypted, email_hash, given_name_encrypted, family_nam
 values ($1, $2, $3, $4, $5, $6, now(), now())
 on conflict (email_hash) do update
 set given_name_encrypted = excluded.given_name_encrypted, family_name_encrypted = excluded.family_name_encrypted, profile_picture = excluded.profile_picture, updated_at = now(), email_confirmed_at = coalesce(users.email_confirmed_at, excluded.email_confirmed_at), preferred_locale = coalesce(users.preferred_locale, excluded.preferred_locale), google_oauth_last_used_at = now()
-returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted
 `
 
 type FindOrCreateUserFromClaimsParams struct {
@@ -63,12 +63,13 @@ func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCre
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
 
 const getUserByAccessToken = `-- name: GetUserByAccessToken :one
-select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at from user_tokens ut
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > now()
 and ut.token = $1 and ut.context = 'access'
@@ -99,12 +100,13 @@ func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at from users where email_hash = $1
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted from users where email_hash = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, error) {
@@ -132,12 +134,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, emailHash []byte) (*User, 
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at from users where id = $1
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted from users where id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
@@ -165,12 +168,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) 
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
 
 const insertUser = `-- name: InsertUser :one
-insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at
+insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted
 `
 
 type InsertUserParams struct {
@@ -224,12 +228,13 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at from users order by id
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted from users order by id
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]*User, error) {
@@ -263,6 +268,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]*User, error) {
 			&i.LicenceNumber,
 			&i.PreferredLocale,
 			&i.GoogleOauthLastUsedAt,
+			&i.PreferredTimezone,
 		); err != nil {
 			return nil, err
 		}
@@ -293,7 +299,7 @@ const updateUserPassword = `-- name: UpdateUserPassword :one
 update users
 set password_hash = $1, email_confirmed_at = coalesce(email_confirmed_at, now()), updated_at = now()
 where id = $2
-returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted
 `
 
 type UpdateUserPasswordParams struct {
@@ -326,12 +332,13 @@ func (q *Queries) UpdateUserPassword(ctx context.Context, arg *UpdateUserPasswor
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
 
 const updateUserPreferredLocale = `-- name: UpdateUserPreferredLocale :exec
-update users set preferred_locale = $1 where id = $2
+update users set preferred_locale = $1, updated_at = now() where id = $2
 `
 
 type UpdateUserPreferredLocaleParams struct {
@@ -344,10 +351,24 @@ func (q *Queries) UpdateUserPreferredLocale(ctx context.Context, arg *UpdateUser
 	return err
 }
 
+const updateUserPreferredTimezone = `-- name: UpdateUserPreferredTimezone :exec
+update users set preferred_timezone_encrypted = $1, updated_at = now() where id = $2
+`
+
+type UpdateUserPreferredTimezoneParams struct {
+	PreferredTimezone *sqlcrypter.EncryptedBytes
+	ID                uuid.UUID
+}
+
+func (q *Queries) UpdateUserPreferredTimezone(ctx context.Context, arg *UpdateUserPreferredTimezoneParams) error {
+	_, err := q.db.Exec(ctx, updateUserPreferredTimezone, arg.PreferredTimezone, arg.ID)
+	return err
+}
+
 const updateUserProfile = `-- name: UpdateUserProfile :one
 update users
 set given_name_encrypted = $1, family_name_encrypted = $2, profession = $3, licence_number_encrypted = $4, country = $5, updated_at = now()
-where id = $6 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at
+where id = $6 returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted
 `
 
 type UpdateUserProfileParams struct {
@@ -391,6 +412,7 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileP
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
@@ -399,7 +421,7 @@ const upsertUserFromSeedData = `-- name: UpsertUserFromSeedData :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, country, password_hash, user_role, email_confirmed_at, preferred_locale)
 values ($1, $2, $3, $4, $5, $6, coalesce($8::text::user_role, 'Regular'), $7, coalesce($9::text::locale, 'pl'))
 on conflict (email_hash) do update set updated_at = now()
-returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at
+returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted
 `
 
 type UpsertUserFromSeedDataParams struct {
@@ -449,6 +471,7 @@ func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFro
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }
@@ -457,7 +480,7 @@ const verifyEmailAddressByUserToken = `-- name: VerifyEmailAddressByUserToken :o
 update users u set email_confirmed_at = now(), updated_at = now()
 from user_tokens ut
 where ut.token = $1 and ut.valid_until > now() and ut.user_id = u.id and u.email_confirmed_at is null
-returning u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at
+returning u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted
 `
 
 func (q *Queries) VerifyEmailAddressByUserToken(ctx context.Context, token []byte) (*User, error) {
@@ -485,6 +508,7 @@ func (q *Queries) VerifyEmailAddressByUserToken(ctx context.Context, token []byt
 		&i.LicenceNumber,
 		&i.PreferredLocale,
 		&i.GoogleOauthLastUsedAt,
+		&i.PreferredTimezone,
 	)
 	return &i, err
 }

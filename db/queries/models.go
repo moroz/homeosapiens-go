@@ -578,6 +578,7 @@ type User struct {
 	LicenceNumber         *sqlcrypter.EncryptedBytes
 	PreferredLocale       Locale
 	GoogleOauthLastUsedAt *time.Time
+	PreferredTimezone     *sqlcrypter.EncryptedBytes
 }
 
 type UserProductAccess struct {

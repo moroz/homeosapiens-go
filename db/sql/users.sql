@@ -36,7 +36,10 @@ update users set last_login_ip = $1, last_login_at = now(), updated_at = now()
 where id = $2;
 
 -- name: UpdateUserPreferredLocale :exec
-update users set preferred_locale = $1 where id = $2;
+update users set preferred_locale = $1, updated_at = now() where id = $2;
+
+-- name: UpdateUserPreferredTimezone :exec
+update users set preferred_timezone_encrypted = $1, updated_at = now() where id = $2;
 
 -- name: GetUserByID :one
 select * from users where id = $1;

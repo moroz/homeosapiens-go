@@ -30,6 +30,7 @@ sql:
           billing_city_encrypted: "BillingCity"
           billing_postal_code_encrypted: "BillingPostalCode"
           billing_country: "BillingCountry"
+          preferred_timezone_encrypted: "PreferredTimezone"
 
         overrides:
           - db_type: "uuid"
