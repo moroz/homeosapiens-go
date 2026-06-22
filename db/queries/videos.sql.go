@@ -40,7 +40,7 @@ func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideo
 }
 
 const getVideoForUser = `-- name: GetVideoForUser :one
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, a.has_access from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, v.youtube_id, v.description_pl, v.description_en, a.has_access from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 join video_groups vg on vgv.video_group_id = vg.id
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
@@ -76,6 +76,9 @@ func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParam
 		&i.Video.HostID,
 		&i.Video.ThumbnailEnID,
 		&i.Video.ThumbnailPlID,
+		&i.Video.YoutubeID,
+		&i.Video.DescriptionPl,
+		&i.Video.DescriptionEn,
 		&i.HasAccess,
 	)
 	return &i, err
@@ -117,7 +120,7 @@ func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoG
 const insertVideo = `-- name: InsertVideo :one
 insert into videos (provider, title_en, title_pl, slug, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en
 `
 
 type InsertVideoParams struct {
@@ -159,6 +162,9 @@ func (q *Queries) InsertVideo(ctx context.Context, arg *InsertVideoParams) (*Vid
 		&i.HostID,
 		&i.ThumbnailEnID,
 		&i.ThumbnailPlID,
+		&i.YoutubeID,
+		&i.DescriptionPl,
+		&i.DescriptionEn,
 	)
 	return &i, err
 }
@@ -270,7 +276,7 @@ func (q *Queries) ListVideoSourcesForVideos(ctx context.Context, videoIds []uuid
 }
 
 const listVideos = `-- name: ListVideos :many
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, v.youtube_id, v.description_pl, v.description_en from videos v
 order by v.id desc
 `
 
@@ -297,6 +303,9 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 			&i.HostID,
 			&i.ThumbnailEnID,
 			&i.ThumbnailPlID,
+			&i.YoutubeID,
+			&i.DescriptionPl,
+			&i.DescriptionEn,
 		); err != nil {
 			return nil, err
 		}
@@ -309,7 +318,7 @@ func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 }
 
 const listVideosForVideoGroup = `-- name: ListVideosForVideoGroup :many
-select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id from videos v
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, v.youtube_id, v.description_pl, v.description_en from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
 where vgv.video_group_id = $1
 order by position
@@ -338,6 +347,9 @@ func (q *Queries) ListVideosForVideoGroup(ctx context.Context, videoGroupID uuid
 			&i.HostID,
 			&i.ThumbnailEnID,
 			&i.ThumbnailPlID,
+			&i.YoutubeID,
+			&i.DescriptionPl,
+			&i.DescriptionEn,
 		); err != nil {
 			return nil, err
 		}

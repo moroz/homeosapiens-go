@@ -617,6 +617,9 @@ type Video struct {
 	HostID          *uuid.UUID
 	ThumbnailEnID   *uuid.UUID
 	ThumbnailPlID   *uuid.UUID
+	YoutubeID       *string
+	DescriptionPl   *string
+	DescriptionEn   *string
 }
 
 type VideoGroup struct {

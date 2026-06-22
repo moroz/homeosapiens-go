@@ -256,7 +256,7 @@ ON CONFLICT (id) DO UPDATE SET
     recorded_on = excluded.recorded_on,
     thumbnail_en_id = excluded.thumbnail_en_id,
     thumbnail_pl_id = excluded.thumbnail_pl_id
-returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en
 `
 
 type UpsertVideoParams struct {
@@ -300,6 +300,9 @@ func (q *Queries) UpsertVideo(ctx context.Context, arg *UpsertVideoParams) (*Vid
 		&i.HostID,
 		&i.ThumbnailEnID,
 		&i.ThumbnailPlID,
+		&i.YoutubeID,
+		&i.DescriptionPl,
+		&i.DescriptionEn,
 	)
 	return &i, err
 }
