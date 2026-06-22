@@ -70,6 +70,11 @@ type UserPasswordResetEmailProps struct {
 	UserToken *types.UserTokenDTO
 }
 
+type EventRegistrationEmailProps struct {
+	*LayoutProps
+	Data *types.EventRegistrationEmailDTO
+}
+
 var OrderConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "order_confirmation.html.tmpl"))
 
 var PaymentConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "payment_confirmation.html.tmpl"))
@@ -77,3 +82,5 @@ var PaymentConfirmationTemplate = template.Must(template.ParseFS(templateFS, "la
 var UserEmailVerificationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "user_email_verification.html.tmpl"))
 
 var UserPasswordResetTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "password_reset.html.tmpl"))
+
+var EventRegistrationConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "event_registration_confirmation.html.tmpl"))

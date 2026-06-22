@@ -75,6 +75,72 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 	return &i, err
 }
 
+const getLastEventRegistrationWithDetails = `-- name: GetLastEventRegistrationWithDetails :one
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id
+from event_registrations er
+join users u on u.id = er.user_id
+join events e on e.id = er.event_id
+order by er.inserted_at desc
+limit 1
+`
+
+type GetLastEventRegistrationWithDetailsRow struct {
+	User  User
+	Event Event
+}
+
+// For dev email preview only
+func (q *Queries) GetLastEventRegistrationWithDetails(ctx context.Context) (*GetLastEventRegistrationWithDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getLastEventRegistrationWithDetails)
+	var i GetLastEventRegistrationWithDetailsRow
+	err := row.Scan(
+		&i.User.ID,
+		&i.User.Salutation,
+		&i.User.Country,
+		&i.User.Profession,
+		&i.User.Organization,
+		&i.User.Company,
+		&i.User.PasswordHash,
+		&i.User.LastLoginAt,
+		&i.User.LastLoginIp,
+		&i.User.InsertedAt,
+		&i.User.UpdatedAt,
+		&i.User.ProfilePicture,
+		&i.User.UserRole,
+		&i.User.Email,
+		&i.User.EmailHash,
+		&i.User.GivenName,
+		&i.User.FamilyName,
+		&i.User.EmailConfirmedAt,
+		&i.User.LicenceNumber,
+		&i.User.PreferredLocale,
+		&i.User.GoogleOauthLastUsedAt,
+		&i.Event.ID,
+		&i.Event.TitleEn,
+		&i.Event.TitlePl,
+		&i.Event.StartsAt,
+		&i.Event.EndsAt,
+		&i.Event.IsVirtual,
+		&i.Event.DescriptionEn,
+		&i.Event.DescriptionPl,
+		&i.Event.EventType,
+		&i.Event.InsertedAt,
+		&i.Event.UpdatedAt,
+		&i.Event.Slug,
+		&i.Event.SubtitleEn,
+		&i.Event.SubtitlePl,
+		&i.Event.VenueNameEn,
+		&i.Event.VenueNamePl,
+		&i.Event.VenueStreet,
+		&i.Event.VenueCityEn,
+		&i.Event.VenueCityPl,
+		&i.Event.VenuePostalCode,
+		&i.Event.VenueCountryCode,
+		&i.Event.ProductID,
+	)
+	return &i, err
+}
+
 const insertEventRegistration = `-- name: InsertEventRegistration :one
 insert into event_registrations (event_id, user_id) values ($1, $2)
 on conflict (event_id, user_id) do nothing

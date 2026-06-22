@@ -109,6 +109,15 @@
       },
       "total": "Total"
     },
+    "event_registration_confirmation": {
+      "subject": "You are registered: {{.Title}} — Homeo sapiens",
+      "heading": "Registration Confirmed",
+      "body": "You have successfully registered for this event. We look forward to seeing you!",
+      "date": "Date:",
+      "location": "Location:",
+      "online": "Online event",
+      "view_event": "View event details"
+    },
     "user_email_verification": {
       "body_html": "<p>You have created a new Homeo sapiens account, or you have changed your email address. To log in, please activate your account by clicking the link below:</p>",
       "cta_text": "Verify email address",

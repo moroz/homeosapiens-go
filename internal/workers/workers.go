@@ -27,6 +27,11 @@ func workerConfig(db *pgxpool.Pool, mailer mailers.Mailer, bundle *i18n.Bundle) 
 		mailer: mailer,
 		bundle: bundle,
 	})
+	river.AddWorker(workers, &SendEventRegistrationEmailWorker{
+		db:     db,
+		mailer: mailer,
+		bundle: bundle,
+	})
 	river.AddWorker(workers, &VacuumUserTokensWorker{
 		db: db,
 	})

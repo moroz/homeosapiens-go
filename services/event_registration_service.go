@@ -4,26 +4,29 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/jobs"
 )
 
 type EventRegistrationService struct {
-	db           queries.DBTX
-	eventService *EventService
-	userService  *UserService
+	db *pgxpool.Pool
 }
 
-func NewEventRegistrationService(db queries.DBTX) *EventRegistrationService {
-	return &EventRegistrationService{
-		db:           db,
-		eventService: NewEventService(db),
-		userService:  NewUserService(db),
-	}
+func NewEventRegistrationService(db *pgxpool.Pool) *EventRegistrationService {
+	return &EventRegistrationService{db: db}
 }
 
 func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (bool, error) {
-	result, err := queries.New(s.db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return false, fmt.Errorf("CreateEventRegistration: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	result, err := queries.New(tx).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
 		EventID: event.ID,
 		UserID:  user.ID,
 	})
@@ -32,7 +35,27 @@ func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, 
 		return false, err
 	}
 
-	return result != nil, nil
+	newRegistration := result != nil
+
+	if newRegistration {
+		river, err := jobs.NewClient(s.db)
+		if err != nil {
+			return false, fmt.Errorf("CreateEventRegistration: %w", err)
+		}
+		_, err = river.InsertTx(ctx, tx, &jobs.SendEventRegistrationEmailArgs{
+			UserID:  user.ID,
+			EventID: event.ID,
+		}, nil)
+		if err != nil {
+			return false, fmt.Errorf("CreateEventRegistration: failed to enqueue confirmation email: %w", err)
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return false, fmt.Errorf("CreateEventRegistration: %w", err)
+	}
+
+	return newRegistration, nil
 }
 
 func (s *EventRegistrationService) DeleteEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (bool, error) {

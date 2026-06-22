@@ -112,6 +112,15 @@
       },
       "total": "Łącznie"
     },
+    "event_registration_confirmation": {
+      "subject": "Rejestracja potwierdzona: {{.Title}} — Homeo sapiens",
+      "heading": "Rejestracja potwierdzona",
+      "body": "Dziękujemy za rejestrację na to wydarzenie. Będzie nam miło Cię gościć!",
+      "date": "Data:",
+      "location": "Miejsce:",
+      "online": "Wydarzenie online",
+      "view_event": "Zobacz szczegóły wydarzenia"
+    },
     "user_email_verification": {
       "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
       "cta_text": "Potwierdzam rejestrację",

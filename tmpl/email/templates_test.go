@@ -190,6 +190,102 @@ func TestOrderConfirmationTemplate(t *testing.T) {
 	}
 }
 
+func testEventRegistrationEmailDTO(lang string) *types.EventRegistrationEmailDTO {
+	startsAt := time.Date(2026, 9, 15, 14, 0, 0, 0, time.UTC)
+	endsAt := time.Date(2026, 9, 15, 17, 0, 0, 0, time.UTC)
+	venueName := "Centrum Konferencyjne"
+	venueStreet := "ul. Marszałkowska 1"
+	venueCity := "Warszawa"
+	postalCode := "00-001"
+	return &types.EventRegistrationEmailDTO{
+		Event: &queries.Event{
+			ID:           uuid.New(),
+			TitleEn:      "Advanced Homeopathy Seminar",
+			TitlePl:      "Zaawansowane seminarium homeopatyczne",
+			Slug:         "advanced-homeopathy-seminar",
+			StartsAt:     startsAt,
+			EndsAt:       endsAt,
+			IsVirtual:    false,
+			EventType:    queries.EventTypeSeminar,
+			VenueNameEn:  &venueName,
+			VenueNamePl:  &venueName,
+			VenueStreet:  &venueStreet,
+			VenueCityEn:  &venueCity,
+			VenueCityPl:  &venueCity,
+			VenuePostalCode: &postalCode,
+			DescriptionEn: "A hands-on seminar.",
+		},
+		User: &queries.User{
+			ID:              uuid.New(),
+			GivenName:       sqlcrypter.NewEncryptedBytes("Anna"),
+			FamilyName:      sqlcrypter.NewEncryptedBytes("Kowalska"),
+			Email:           sqlcrypter.NewEncryptedBytes("anna@example.com"),
+			PreferredLocale: queries.Locale(lang),
+		},
+	}
+}
+
+func TestEventRegistrationConfirmationTemplate(t *testing.T) {
+	bundle := mustInitBundle(t)
+
+	locales := []struct {
+		lang         string
+		heading      string
+		title        string
+		formattedDate string
+	}{
+		{"en", "Registration Confirmed", "Advanced Homeopathy Seminar", "September 15, 2026 at 14:00 UTC"},
+		{"pl", "Rejestracja potwierdzona", "Zaawansowane seminarium homeopatyczne", "15.09.2026, 14:00 UTC"},
+	}
+
+	for _, lc := range locales {
+		t.Run(lc.lang, func(t *testing.T) {
+			data := testEventRegistrationEmailDTO(lc.lang)
+			props := &emailtmpl.EventRegistrationEmailProps{
+				LayoutProps: &emailtmpl.LayoutProps{
+					Title:     lc.heading,
+					Language:  lc.lang,
+					Localizer: goi18n.NewLocalizer(bundle, lc.lang),
+				},
+				Data: data,
+			}
+
+			var buf bytes.Buffer
+			err := emailtmpl.EventRegistrationConfirmationTemplate.Execute(&buf, props)
+			require.NoError(t, err)
+
+			html := buf.String()
+			assert.True(t, strings.HasPrefix(html, "<!DOCTYPE html>"))
+			assert.Contains(t, html, lc.heading)
+			assert.Contains(t, html, lc.title)
+			assert.Contains(t, html, lc.formattedDate)
+			assert.Contains(t, html, data.EventURL())
+		})
+	}
+}
+
+func TestEventRegistrationConfirmationTemplate_VirtualEvent(t *testing.T) {
+	bundle := mustInitBundle(t)
+	data := testEventRegistrationEmailDTO("en")
+	data.Event.IsVirtual = true
+
+	props := &emailtmpl.EventRegistrationEmailProps{
+		LayoutProps: &emailtmpl.LayoutProps{
+			Title:     "Registration Confirmed",
+			Language:  "en",
+			Localizer: goi18n.NewLocalizer(bundle, "en"),
+		},
+		Data: data,
+	}
+
+	var buf bytes.Buffer
+	err := emailtmpl.EventRegistrationConfirmationTemplate.Execute(&buf, props)
+	require.NoError(t, err)
+
+	html := buf.String()
+	assert.Contains(t, html, "Online event")
+}
+
 func TestPaymentConfirmationTemplate(t *testing.T) {
 	bundle := mustInitBundle(t)
 

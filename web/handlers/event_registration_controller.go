@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -19,7 +20,7 @@ type eventRegistrationController struct {
 	eventRegistrationService *services.EventRegistrationService
 }
 
-func EventRegistrationController(db queries.DBTX) *eventRegistrationController {
+func EventRegistrationController(db *pgxpool.Pool) *eventRegistrationController {
 	return &eventRegistrationController{
 		eventService:             services.NewEventService(db),
 		eventRegistrationService: services.NewEventRegistrationService(db),

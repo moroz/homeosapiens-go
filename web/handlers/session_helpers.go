@@ -22,7 +22,6 @@ func signUserIn(c *echo.Context, db queries.DBTX, user *queries.User) error {
 	ctx.Session[config.AccessTokenSessionKey] = token.Token
 	ctx.Session[config.LanguageSessionKey] = string(user.PreferredLocale)
 	delete(ctx.Session, config.OAuth2SessionKey)
-	delete(ctx.Session, config.RedirectBackUrlSessionKey)
 	redirectTo := helpers.GetRedirectUrl(ctx)
 
 	if err := ctx.SaveSession(c.Response()); err != nil {

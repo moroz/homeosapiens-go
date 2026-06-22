@@ -34,6 +34,15 @@ func (SendUserEmailArgs) Kind() string {
 	return "SendUserEmail"
 }
 
+type SendEventRegistrationEmailArgs struct {
+	UserID  uuid.UUID `json:"user_id"`
+	EventID uuid.UUID `json:"event_id"`
+}
+
+func (SendEventRegistrationEmailArgs) Kind() string {
+	return "SendEventRegistrationEmail"
+}
+
 type VacuumUserTokensArgs struct{}
 
 func (VacuumUserTokensArgs) Kind() string {

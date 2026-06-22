@@ -143,3 +143,33 @@ func (cc *emailController) PasswordReset(c *echo.Context) error {
 
 	return email.UserPasswordResetTemplate.Execute(c.Response(), props)
 }
+
+func (cc *emailController) EventRegistrationConfirmation(c *echo.Context) error {
+	row, err := queries.New(cc.db).GetLastEventRegistrationWithDetails(c.Request().Context())
+	if err != nil {
+		return err
+	}
+
+	ctx := helpers.GetRequestContext(c)
+
+	data := &types.EventRegistrationEmailDTO{
+		Event: &row.Event,
+		User:  &row.User,
+	}
+
+	subject := ctx.Localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    "emails.event_registration_confirmation.subject",
+		TemplateData: data,
+	})
+
+	props := &email.EventRegistrationEmailProps{
+		LayoutProps: &email.LayoutProps{
+			Title:     subject,
+			Language:  ctx.Language,
+			Localizer: ctx.Localizer,
+		},
+		Data: data,
+	}
+
+	return email.EventRegistrationConfirmationTemplate.Execute(c.Response(), props)
+}
