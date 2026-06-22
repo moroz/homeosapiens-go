@@ -121,6 +121,7 @@ if [[ "$EXISTS" = "f" ]]; then
 fi
 
 goose up
+psql $TEST_DATABASE_URL -c "truncate river_job"
 """
 
 [tasks.test]
