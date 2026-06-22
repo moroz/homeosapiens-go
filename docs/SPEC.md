@@ -15,31 +15,37 @@
 
 Success metric: one full event lifecycle runs end-to-end without the developer touching the database — client creates a paid webinar, a user buys it, attends, and later watches the recording.
 
-## 2. Core design decision (locked)
+## 2. Core design decision (locked 2026-06-22, after stakeholder discussion)
 
-**An event IS the product. Buying the ticket grants the recording.**
+**Recordings and events are separate products. A video group is its own product; it can be bought self-serve (fully automated), and is also granted manually to people who attended the corresponding seminar.**
 
 ```
-events.product_id ─┐
-                   ├──► products(id, product_type='event', title_*, base_price_*)
-video_groups.product_id ─┘        │
-                                  ├──► product_prices (Base / EarlyBird / DiscountCode)
+video_groups.product_id ──► products(title_*, base_price_*)
                                   │
-purchase → orders → webhook → user_product_access(user_id, product_id)
+                                  ├──► product_prices (optional)
                                   │
-                                  ▼
+   ┌──────────────────────────────┼───────────────────────────────┐
+   │ A. SELF-SERVE PURCHASE        │ B. MANUAL GRANT                │
+   │   (fully automated)           │   (admin, after a seminar /    │
+   │   buy → cart → Stripe →       │    off-platform payment)       │
+   │   webhook                     │   admin inserts directly       │
+   └──────────────────────────────┼───────────────────────────────┘
+                                   ▼
+                  user_product_access(user_id, product_id)
+                                   ▼
               user_video_group_access view → recording unlocked
 ```
 
-Implications, decided from client answers:
+Locked principles:
 
-1. **Video monetization = event ticket grants video.** The event's recording `video_group` reuses the **same `product_id`** as the event. The existing webhook already grants `user_product_access` per product; the view already unlocks the group. No new entitlement system — just set the FKs.
-2. **Events: some paid via Stripe, some free.** Paid event ⇒ has a product + price ⇒ goes through cart/Stripe. Free event ⇒ direct `event_registration` upsert, no money.
-3. **Admin self-serve UI is in scope** (the biggest new build). It's required to cancel EzyCourse.
-4. **Full EzyCourse replacement** is the bar.
-
-### The one missing wire
-On `checkout.session.completed`, the webhook currently grants `user_product_access`. For event-type products it must **also create the `event_registration` row** (and ideally enqueue the confirmation email with venue details). Free events skip payment and write the registration directly.
+1. **Video groups ≠ events.** A `video_group` carries **its own** `product_id`, decoupled from any event. Do **not** reuse an event's `product_id` for its recording, and do **not** auto-unlock recordings from event payment.
+2. **Two ways to gain recording access, both ending in a `user_product_access` row:**
+   - **A — Self-serve purchase (fully automated):** anyone can buy a recording's product through the existing cart → Stripe → webhook path. No human in the loop.
+   - **B — Manual grant:** the general rule "attending a seminar gives you the recording" is applied **manually by the client after the event** (and also covers off-platform/cash payers). There is **no automatic** event→recording wiring.
+3. **Access source of truth = the `user_product_access` entitlement**, never a live Stripe payment. Recordings are gatekept (locked unless the user has the entitlement, is admin, or the group has no product).
+4. **Events: some paid via Stripe, some free.** Free event ⇒ direct `event_registration` upsert. Paid event ⇒ cart/Stripe ticket. Event payment grants the **event** product and registration — it does **not** auto-grant any recording (that's path B, manual).
+5. **Admin self-serve UI is in scope** (the biggest new build); the manual-grant screen is a high-priority piece of it.
+6. **Full EzyCourse replacement** is the bar.
 
 ## 3. What already exists (do not rebuild)
 
@@ -65,7 +71,7 @@ On `checkout.session.completed`, the webhook currently grants `user_product_acce
 - Tasks: confirm these render from data, add the featured-event slot on Home.
 
 ### 4.2 Events (list, detail, registration)
-**Current:** `/events/:slug` shows an event; `GET /events/:event_id/register` does a bare upsert; `DELETE /event_registrations/:event_id` unregisters. No capacity, no count, no email, no Zoom delivery, no paid path. Both routes are behind `RequireAuthenticatedUser` middleware.
+**Current:** `/events/:slug` shows an event. Two routes hit the same `EventRegistrationController.Create` — `GET /events/:event_id/register` (router.go:128) and `POST /event_registrations/:event_id` (router.go:129); `DELETE /event_registrations/:event_id` unregisters. The GET exists so the post-login redirect (a GET) auto-registers an anonymous user: they click Register → `RequireAuthenticatedUser` redirects to `/sign-in?ref=<register url>` → after sign-in the GET bounce hits `Create` and signs them up. All behind auth. Registration is a bare upsert — no count, no email, no Zoom delivery, no paid path.
 
 **Target:**
 - **List page** (`/events`) — matches legacy: cards with date, title, type badge, "Online"/venue, registrant count, host, price ("Free" or amount), All/Upcoming/Past tabs, name search. *(New route — list page not in current routes.)*
@@ -79,25 +85,26 @@ On `checkout.session.completed`, the webhook currently grants `user_product_acce
 
 **Tasks:**
 1. Add `GET /events` list page (filters, search, tabs).
-2. Convert register action from bare `GET` to `POST` (GET mutation is a bug — crawlers/prefetch can register users).
-3. Branch free vs paid in the registration handler.
-4. Webhook: create registration for event-type products.
-5. Registration confirmation email + `.ics` + venue details (see §4.6). Zoom link deferred (§4.9).
-6. Show registrant count + "you're registered" state.
+2. Branch free vs paid in the registration handler (the GET/POST → `Create` dual-route stays — it's the intentional post-login auto-register pattern).
+3. Webhook: create `event_registration` for paid event-type products (registration only — recordings are granted separately, §4.3).
+4. Registration confirmation email + `.ics` + venue details (see §4.6). Zoom link deferred (§4.9).
+5. Show registrant count + "you're registered" state.
 
 ### 4.3 Premium video / "My products"
 **Current:** `/videos`, `/videos/:group`, `/videos/:group/:video` gated by the access view; "My products" gallery (legacy screenshot 5) lists groups with a crown on premium ones + "Watch Later".
 
 **Target:**
 - "My products" = the groups where `user_video_group_access.has_access = true` for this user (free groups + admin + purchased/granted).
-- Premium groups the user does **not** own still appear (with crown / locked) and link to the buy/event path. Legacy shows owned + locked side by side.
-- **Recordings sell standalone** (client decision): the `product` grants recording access *independent of registration*. Registration is only the live-attendance RSVP. So buying a passed event's product = recording-only access, no registration row needed. Live attendees already own the product → recording auto-appears. A recording with no live event (pure VOD) just gets its own product.
-- **Recording linkage:** admin uploads the recording and attaches it to a `video_group` carrying the event's `product_id` (§4.5). One product = ticket + recording bundle, purchasable before (ticket+future recording) or after (recording-only) the event.
+- Premium groups the user does **not** own still appear (with crown / locked) and link to the buy path. Legacy shows owned + locked side by side.
+- **Each `video_group` is its own product, decoupled from events** (locked §2). Two ways a user gets access, both ending in `user_product_access`:
+  - **Self-serve purchase (automated):** locked group → "Buy" → existing cart → Stripe → webhook grants `user_product_access` → group unlocks. No event involved.
+  - **Manual grant (admin):** the client grants the recording's product to seminar attendees after the event, or to off-platform payers (§4.4). No automatic event→recording wiring.
+- A recording with no live event (pure VOD) is just a group with its own product — same two paths.
 - "Watch Later" — a per-user saved list. *(New: `user_video_saves` table or reuse a lightweight join.)* Low priority; can defer.
 
 **Tasks:**
 1. Build "My products" page from the access view.
-2. Show locked/premium groups with a CTA to the event/purchase.
+2. Show locked/premium groups with a "Buy" CTA → existing checkout.
 3. (Defer) Watch Later.
 
 ### 4.4 Admin CMS — **the big build**
@@ -111,8 +118,12 @@ The client must operate without the developer. Scope it in layers so it ships in
 - **Manual enrollment / offline payment** (important — many customers pay cash or bank transfer, bypassing Stripe): admin picks a user (or enters email) + product → grants `user_product_access` and, for upcoming events, the `event_registration`, **without a Stripe session**. Optionally records an order with `payment_method='cash'|'bank_transfer'|'comp'` and a manual `paid_at` so registrant lists and revenue views stay uniform. Access is granted by the entitlement, independent of payment channel.
 - **Manual refund handling** (no auto-refunds): a button to mark an order refunded → revoke `user_product_access` and cancel the registration. Actual money refund done by hand in Stripe / bank.
 
+**Manual grant / revoke recording access (HIGH PRIORITY — primary recording flow, see §2 path B):**
+- Admin picks a user (or enters email) + a recording `product`/`video_group` → inserts `user_product_access(user, product)` with **no Stripe/order**. This is how the client opens locked recordings for seminar attendees and off-platform payers. Plus a revoke (delete the row).
+- Optionally log an order with `payment_method` for record-keeping, but the bare grant is the must-have.
+
 **Layer B — Recordings (high value):**
-- After an event, admin attaches a recording: create/select a `video_group` with the event's `product_id`, add videos to it (ordered).
+- After an event, admin attaches a recording: create/select a `video_group` with **its own** `product_id` (not the event's), add videos to it (ordered). Then grant access via the manual-grant flow above.
 - **Video ingestion is heavy** (CloudFront HLS, `video_sources`, transcoding, thumbnails). Recommendation: admin UI captures **metadata + ordering**, but the actual transcode/HLS variant generation stays an **eager batch script** (consistent with the assets approach — predictable cost, dumb CDN, always-fast for a low-bandwidth cohort). Admin uploads source → script produces variants → group is publishable. Don't build on-the-fly transcoding for v1.
 
 **Layer C — Hosts, public videos, About copy (nice-to-have):**
@@ -159,7 +170,8 @@ Join links should be **generated programmatically via the Zoom API**, not stored
 - Refund tracking: `orders.refunded_at` (revokes access on mark-refunded). Already have `cancelled_at` — decide which.
 - `orders.payment_method` enum (`stripe`, `cash`, `bank_transfer`, `comp`); make `stripe_checkout_session_id` truly optional (already nullable) and allow manual `paid_at` for offline orders. Manual-grant path may create `user_product_access` with no order at all.
 - (Defer) `user_video_saves` for Watch Later.
-- The recording `video_group.product_id` == event `product_id` convention — enforce when admin links a recording. Note a product may be sold with **no live registration** (recording-only / VOD), so don't couple `user_product_access` creation to `event_registration`.
+- **Every `video_group` is its own product** — give each a `product_id`, decoupled from events. Do not share an event's product. (Optionally enforce with `NOT NULL` once all groups are products — see §2 / the access-structure note.)
+- `videos`: add `description_en` / `description_pl` (Watch page shows descriptions) and a nullable `youtube_id` for `provider='youtube'`, so YouTube ids stop being stuffed into `video_sources.object_key` (which is for CloudFront HLS renditions). One unified `videos` table, location stored per provider.
 
 ## 6. EzyCourse data migration
 Before cancelling the SaaS, export and import:
@@ -172,11 +184,11 @@ Before cancelling the SaaS, export and import:
 
 **M1 — Events usable (no money):** events list page, POST register, free-RSVP confirmation email + `.ics`, registrant count, "you're registered" state. *Ships the most-used legacy feature.*
 
-**M2 — Paid events:** event→product→price wiring, buy button → existing Stripe flow, webhook creates registration + grants access, receipt email. *Premium video falls out for free via the shared `product_id`.*
+**M2 — Recordings + manual grant (primary monetization):** give each `video_group` a product, gate it, build the **admin manual grant/revoke** flow (§4.4) + "My products" locked/owned states + self-serve "Buy" → existing Stripe checkout for a recording.
 
-**M3 — Admin CMS Layer A:** event/product/price CRUD + registrants view. *Removes the developer as bottleneck for events.*
+**M3 — Paid events (if self-serve kept):** event→product→price wiring, buy ticket → existing Stripe flow, webhook creates registration (recording access stays manual), receipt email.
 
-**M4 — Recordings + ingestion:** recording-attach UI + transcode script + "My products" locked/owned states + reminder cron.
+**M4 — Admin CMS Layer A + ingestion:** event/product/price CRUD + registrants view + recording-attach UI + transcode script + reminder cron. *Removes the developer as bottleneck.*
 
 **M5 — Migration + cutover:** import entitlements, parity check on About/Watch, point homeosapiens.eu at the Go app, cancel EzyCourse.
 
@@ -190,6 +202,9 @@ Layer C admin (hosts, public-video, About editing) can trail after cutover.
 5. **Discount codes** — yes, support them in admin (EarlyBird optional).
 6. **Email language** — follow recipient's `preferred_locale` (PL fallback).
 
+7. **Recordings vs events decoupled (2026-06-22).** Video groups are standalone products. Recording access comes via (A) fully-automated self-serve purchase, or (B) manual admin grant for seminar attendees / off-platform payers. No automatic event→recording wiring. Manual grant is the primary recording flow.
+
 ### Still open
 - **Faktura:** does she need automated Polish invoice generation, or is manual / Stripe receipt acceptable for v1? (§4.8)
 - **Restrict paid checkout to PL/EU billing countries** to avoid foreign tax exposure — wanted, or leave open?
+- **Self-serve paid *events*** — keep Stripe ticket checkout for upcoming events in v1, or are events also pay-her-directly + manual? (Decides whether the event Stripe path ships now.)
