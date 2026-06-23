@@ -22,6 +22,9 @@
   --breakpoint-*: initial;
   --breakpoint-lg: calc(65ch + 8rem);
   --breakpoint-desktop: calc(30rem + 1px);
+  /* The largest breakpoint also caps .container; this lets container layouts
+     (e.g. the landing) grow on large screens instead of stalling at ~65ch. */
+  --breakpoint-xl: 80rem;
 
   --shadow-solid: 4px 4px 0px 0px black;
   --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);

@@ -30,6 +30,9 @@ func desktopNav(ctx *types.CustomContext) Node {
 				NavLink("/", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.home",
 				})),
+				NavLink("/events", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.events",
+				})),
 				NavLink("/videos", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.videos",
 				})),
@@ -89,6 +92,9 @@ func mobileNav(ctx *types.CustomContext) Node {
 				Class("hamburger-items my-4 space-y-1"),
 				HamburgerItem("/", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.home",
+				})),
+				HamburgerItem("/events", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.events",
 				})),
 				HamburgerItem("/videos", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.videos",

@@ -65,6 +65,7 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	r.GET("/", pages.Index)
 
 	events := handlers.EventController(db)
+	r.GET("/events", events.Index)
 	r.GET("/events/:slug", events.Show)
 
 	prefs := handlers.PreferencesController(db)

@@ -6,8 +6,17 @@ import (
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
-func Index(ctx *types.CustomContext, eventRows []*services.EventListDto) Node {
-	return layout.Layout(ctx, "Events", events.EventList(ctx, eventRows))
+func Events(ctx *types.CustomContext, eventRows []*services.EventListDto) Node {
+	title := "Events"
+	if ctx.IsPolish() {
+		title = "Wydarzenia"
+	}
+
+	return layout.Layout(ctx, title,
+		H2(Class("page-title"), Text(title)),
+		events.EventList(ctx, eventRows),
+	)
 }

@@ -65,7 +65,7 @@ Locked principles:
 ## 4. Feature areas — current → target → tasks
 
 ### 4.1 Public marketing pages
-- **Home** — hero + featured event banner + footer (matches legacy screenshot 1). Currently `PageController.Index`. Target: pull the featured/next upcoming event dynamically instead of hardcoding.
+- **Home** — `/` (`PageController.Index`) currently renders the **events list**, not a landing. Target: make `/` a real landing — hero + featured/next-upcoming event banner + footer (legacy screenshot 1) — and move the list to its own `/events` route (§4.2).
 - **About Us** — static bilingual copy + image (screenshot 2). Low effort; ensure content editable or at least in template, not DB-critical.
 - **Watch** — free/public video landing (screenshot 3). Lists `videos.is_public = true` with YouTube embeds + descriptions. Target: render from DB, ordered.
 - Tasks: confirm these render from data, add the featured-event slot on Home.
@@ -74,7 +74,7 @@ Locked principles:
 **Current:** `/events/:slug` shows an event. Two routes hit the same `EventRegistrationController.Create` — `GET /events/:event_id/register` (router.go:128) and `POST /event_registrations/:event_id` (router.go:129); `DELETE /event_registrations/:event_id` unregisters. The GET exists so the post-login redirect (a GET) auto-registers an anonymous user: they click Register → `RequireAuthenticatedUser` redirects to `/sign-in?ref=<register url>` → after sign-in the GET bounce hits `Create` and signs them up. All behind auth. Registration is a bare upsert — no count, no email, no Zoom delivery, no paid path.
 
 **Target:**
-- **List page** (`/events`) — matches legacy: cards with date, title, type badge, "Online"/venue, registrant count, host, price ("Free" or amount), All/Upcoming/Past tabs, name search. *(New route — list page not in current routes.)*
+- **List page** (`/events`) — the list exists today but at `/` (the homepage). Move it to its own `GET /events` route. Cards: date, title, type badge, "Online"/venue, registrant count, host, price ("Free" or amount), All/Upcoming/Past tabs, name search.
 - **Detail page** — full description, host(s), date/time in user TZ, venue or "Online", registrant count, and a single primary action button.
 - **Registration flows:**
   - *Free event:* button "Register" → immediate `event_registration` row → confirmation email with venue (in-person) + `.ics` calendar attachment → page flips to "You're registered". Zoom join link deferred (see §4.9).
