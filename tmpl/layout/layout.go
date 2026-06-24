@@ -28,7 +28,7 @@ func Layout(ctx *types.CustomContext, title string, children ...Node) Node {
 		Class("flex min-h-screen max-w-full flex-col overflow-x-hidden"),
 		AppHeader(ctx),
 		Main(
-			Class("flex-1 bg-slate-100 pt-26 pb-6"),
+			Class("flex-1 bg-slate-100 pt-20 pb-6"),
 			Div(
 				Class("container mx-auto"),
 				components.Flash(ctx.Flash),
@@ -44,7 +44,7 @@ func BareLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 		Class("flex min-h-screen max-w-full flex-col overflow-x-hidden"),
 		AppHeader(ctx),
 		Main(
-			Class("flex-1 bg-slate-100 pt-26 pb-6"),
+			Class("flex-1 bg-slate-100 pt-20 pb-6"),
 			Group(children),
 		),
 		AppFooter(),

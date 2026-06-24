@@ -14,7 +14,7 @@ func NavLink(href string, text string) Node {
 	return Li(
 		Class("h-full"),
 		A(
-			Class("button tertiary"),
+			Class("no-underline inline-block p-3 hover:bg-slate-100 transition-colors text-base rounded-sm"),
 			Href(href), Text(text),
 		),
 	)
@@ -24,12 +24,9 @@ func desktopNav(ctx *types.CustomContext) Node {
 	l := ctx.Localizer
 
 	return Group{
-		Nav(Class("absolute inset-0 grid place-items-center mobile:hidden"),
+		Nav(Class("grid mobile:hidden"),
 			Ul(
-				Class("flex items-center gap-1"),
-				NavLink("/", l.MustLocalizeMessage(&i18n.Message{
-					ID: "header.nav.home",
-				})),
+				Class("flex items-center gap-1 ml-2"),
 				NavLink("/events", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.events",
 				})),
@@ -42,7 +39,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 			),
 		),
 		Div(
-			Class("z-20 flex items-center gap-1 mobile:hidden"),
+			Class("z-20 flex items-center gap-1 mobile:hidden ml-auto"),
 			Iff(ctx.Cart != nil && !ctx.Cart.ProductTotal.Equal(decimal.Zero), func() Node {
 				return A(Href("/cart"), Class("button tertiary z-20 gap-1"),
 					Title(l.MustLocalizeMessage(&i18n.Message{
@@ -109,8 +106,8 @@ func mobileNav(ctx *types.CustomContext) Node {
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("fixed inset-0 z-10 h-20 border-b border-primary/15 bg-white/85 shadow-sm backdrop-blur-md"),
-		Div(Class("flex h-full items-center justify-between px-6 mobile:px-2"),
+		Class("fixed inset-0 z-20 h-20 border-b border-primary/15 bg-white shadow-sm backdrop-blur-md"),
+		Div(Class("container mx-auto flex h-full items-center px-6 mobile:px-2"),
 			H1(
 				Class("z-20"),
 				A(
