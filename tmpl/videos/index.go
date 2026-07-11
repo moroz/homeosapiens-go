@@ -6,6 +6,7 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
+	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
@@ -69,51 +70,61 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 	)
 }
 
-func Index(ctx *types.CustomContext, videos []*types.VideoGroupListDTO, group *types.VideoGroupDetailsDTO) Node {
+func VideoGroupList(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, active *types.VideoGroupDetailsDTO) Node {
+	return Aside(
+		Class("mobile:border-r-0 border-r border-slate-300 pr-6 mobile:pr-0"),
+		H2(Class("page-title"), Text("Videos")),
+		Nav(
+			Ul(
+				Class("video-group-menu"),
+				Map(videoGroups, func(vg *types.VideoGroupListDTO) Node {
+					title := vg.TitleEn
+					if ctx.Language == "pl" {
+						title = vg.TitlePl
+					}
+
+					class := ""
+					if active != nil && vg.ID == active.ID {
+						class = "is-active"
+					}
+
+					dateRange := ""
+					if vg.MaxRecordedOn != nil && vg.MinRecordedOn != nil {
+						dateRange = helpers.FormatDateRange(*vg.MinRecordedOn, *vg.MaxRecordedOn, ctx.Timezone, ctx.Language)
+					}
+
+					return Li(
+						A(
+							Class(class),
+							Href(fmt.Sprintf("/videos/%s", vg.Slug)),
+							Text(title),
+							If(dateRange != "", Span(Class("text-sm font-normal"), Text(dateRange))),
+						),
+					)
+				}),
+			),
+		),
+	)
+}
+
+func Index(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, activeGroup *types.VideoGroupDetailsDTO) Node {
 	return layout.BareLayout(ctx, "Videos",
 		Div(
-			Class("card mx-auto grid grid-cols-[1fr_3fr] gap-8 lg:w-7xl"),
-			Aside(
-				Class("mobile:border-r-0 border-r border-slate-300 pr-6 mobile:pr-0"),
-				H2(Class("page-title"), Text("Videos")),
-				Nav(
-					Ul(
-						Class("video-group-menu"),
-						Map(videos, func(vg *types.VideoGroupListDTO) Node {
-							title := vg.TitleEn
-							if ctx.Language == "pl" {
-								title = vg.TitlePl
-							}
-
-							class := ""
-							if group != nil && vg.ID == group.ID {
-								class = "is-active"
-							}
-
-							return Li(
-								A(
-									Class(class),
-									Href(fmt.Sprintf("/videos/%s", vg.Slug)),
-									Text(title),
-								),
-							)
-						}),
-					),
-				),
-			),
+			Class("card mx-auto grid grid-cols-[1fr_3fr] gap-8 lg:w-7xl mt-6"),
+			VideoGroupList(ctx, videoGroups, activeGroup),
 			Main(
-				Iff(group != nil, func() Node {
-					title := group.TitleEn
+				Iff(activeGroup != nil, func() Node {
+					title := activeGroup.TitleEn
 					if ctx.Language == "pl" {
-						title = group.TitlePl
+						title = activeGroup.TitlePl
 					}
 
 					return Group{
 						H3(Class("mb-6 inline-block border-b-2 border-primary/30 pb-2 text-2xl font-bold text-primary"), Text(title)),
 						Div(
 							Class("video-grid"),
-							Map(group.Videos, func(video *queries.Video) Node {
-								return VideoCard(ctx, group, video)
+							Map(activeGroup.Videos, func(video *queries.Video) Node {
+								return VideoCard(ctx, activeGroup, video)
 							}),
 						),
 					}

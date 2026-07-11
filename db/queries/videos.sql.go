@@ -7,9 +7,9 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addVideoToVideoGroup = `-- name: AddVideoToVideoGroup :one
@@ -37,6 +37,42 @@ func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideo
 		&i.UpdatedAt,
 	)
 	return &i, err
+}
+
+const getMinMaxRecordedDatesForVideoGroups = `-- name: GetMinMaxRecordedDatesForVideoGroups :many
+select vg.id, min(v.recorded_on)::date min_recorded_on, max(v.recorded_on):: date max_recorded_on
+from video_groups vg
+join video_groups_videos vgv on vg.id = vgv.video_group_id
+join videos v on v.id = vgv.video_id
+where vg.id = any($1::uuid[])
+group by 1
+order by 1
+`
+
+type GetMinMaxRecordedDatesForVideoGroupsRow struct {
+	ID            uuid.UUID
+	MinRecordedOn time.Time
+	MaxRecordedOn time.Time
+}
+
+func (q *Queries) GetMinMaxRecordedDatesForVideoGroups(ctx context.Context, videoGroupIds []uuid.UUID) ([]*GetMinMaxRecordedDatesForVideoGroupsRow, error) {
+	rows, err := q.db.Query(ctx, getMinMaxRecordedDatesForVideoGroups, videoGroupIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetMinMaxRecordedDatesForVideoGroupsRow
+	for rows.Next() {
+		var i GetMinMaxRecordedDatesForVideoGroupsRow
+		if err := rows.Scan(&i.ID, &i.MinRecordedOn, &i.MaxRecordedOn); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getVideoForUser = `-- name: GetVideoForUser :one
@@ -129,7 +165,7 @@ type InsertVideoParams struct {
 	TitlePl         string
 	Slug            string
 	DurationSeconds *int32
-	RecordedOn      pgtype.Date
+	RecordedOn      *time.Time
 	HostID          *uuid.UUID
 	ThumbnailEnID   *uuid.UUID
 	ThumbnailPlID   *uuid.UUID
@@ -203,7 +239,7 @@ func (q *Queries) InsertVideoGroup(ctx context.Context, arg *InsertVideoGroupPar
 const listVideoGroupsForUser = `-- name: ListVideoGroupsForUser :many
 select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
-order by id desc
+order by vg.id desc
 `
 
 type ListVideoGroupsForUserRow struct {

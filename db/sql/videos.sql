@@ -5,7 +5,16 @@ order by v.id desc;
 -- name: ListVideoGroupsForUser :many
 select sqlc.embed(vg), a.has_access from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = @user_id::uuid
-order by id desc;
+order by vg.id desc;
+
+-- name: GetMinMaxRecordedDatesForVideoGroups :many
+select vg.id, min(v.recorded_on)::date min_recorded_on, max(v.recorded_on):: date max_recorded_on
+from video_groups vg
+join video_groups_videos vgv on vg.id = vgv.video_group_id
+join videos v on v.id = vgv.video_id
+where vg.id = any(@video_group_ids::uuid[])
+group by 1
+order by 1;
 
 -- name: GetVideoGroupForUserBySlug :one
 select sqlc.embed(vg), a.has_access from video_groups vg

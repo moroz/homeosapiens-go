@@ -11,8 +11,6 @@ sql:
         emit_pointers_for_null_types: true
         emit_result_struct_pointers: true
         emit_params_struct_pointers: true
-#        emit_json_tags: true
-#        json_tags_case_style: camel
 
         initialisms:
           - id
@@ -51,9 +49,16 @@ sql:
               type: Time
               pointer: true
           - db_type: "pg_catalog.timestamp"
+            go_type: time.Time
+
+          - db_type: "date"
+            nullable: true
             go_type:
               import: time
               type: Time
+              pointer: true
+          - db_type: "date"
+            go_type: time.Time
 
           - db_type: "pg_catalog.numeric"
             nullable: true
@@ -80,7 +85,7 @@ sql:
               package: "sqlcrypter"
 
           - column: "users.email_hash"
-            go_type:
+            go_type: 
               type: "[]byte"
 
           - column: "user_tokens.token"

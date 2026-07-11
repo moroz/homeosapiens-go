@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
@@ -267,7 +266,7 @@ type UpsertVideoParams struct {
 	Slug          string
 	IsPublic      bool
 	HostID        *uuid.UUID
-	RecordedOn    pgtype.Date
+	RecordedOn    *time.Time
 	ThumbnailPlID *uuid.UUID
 	ThumbnailEnID *uuid.UUID
 }

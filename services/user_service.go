@@ -118,8 +118,7 @@ func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User,
 
 	var licenceNumber *sqlcrypter.EncryptedBytes
 	if strings.TrimSpace(params.LicenceNumber) != "" {
-		encrypted := sqlcrypter.NewEncryptedBytes(params.LicenceNumber)
-		licenceNumber = &encrypted
+		licenceNumber = new(sqlcrypter.NewEncryptedBytes(params.LicenceNumber))
 	}
 
 	return queries.New(s.db).UpdateUserProfile(ctx, &queries.UpdateUserProfileParams{

@@ -1,10 +1,16 @@
 package types
 
-import "github.com/moroz/homeosapiens-go/db/queries"
+import (
+	"time"
+
+	"github.com/moroz/homeosapiens-go/db/queries"
+)
 
 type VideoGroupListDTO struct {
 	*queries.VideoGroup
-	HasAccess bool
+	HasAccess     bool
+	MinRecordedOn *time.Time
+	MaxRecordedOn *time.Time
 }
 
 type VideoGroupDetailsDTO struct {

@@ -1,7 +1,9 @@
 package services
 
 import (
+	"cmp"
 	"context"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -36,13 +38,51 @@ func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, userID uuid.U
 		return nil, err
 	}
 
+	ids := make([]uuid.UUID, len(videos))
+	for i, v := range videos {
+		ids[i] = v.VideoGroup.ID
+	}
+
+	dateRanges, err := queries.New(s.db).GetMinMaxRecordedDatesForVideoGroups(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	dateRangeMap := make(map[uuid.UUID]*queries.GetMinMaxRecordedDatesForVideoGroupsRow)
+	for _, row := range dateRanges {
+		dateRangeMap[row.ID] = row
+	}
+
 	var result []*types.VideoGroupListDTO
 	for _, vg := range videos {
-		result = append(result, &types.VideoGroupListDTO{
+
+		dto := &types.VideoGroupListDTO{
 			VideoGroup: &vg.VideoGroup,
 			HasAccess:  vg.HasAccess,
-		})
+		}
+
+		if dateRange, ok := dateRangeMap[vg.VideoGroup.ID]; ok {
+			dto.MinRecordedOn = &dateRange.MinRecordedOn
+			dto.MaxRecordedOn = &dateRange.MaxRecordedOn
+		}
+
+		result = append(result, dto)
 	}
+
+	// Sort the video groups in go, descending by the lowest video recorded on date. Consider doing this in SQL if this
+	// syntax becomes too cumbersome (might require CTEs).
+	result = slices.SortedFunc(slices.Values(result), func(a *types.VideoGroupListDTO, b *types.VideoGroupListDTO) int {
+		var aUnix, bUnix int64
+		if a.MinRecordedOn != nil {
+			aUnix = a.MinRecordedOn.Unix()
+		}
+		if b.MinRecordedOn != nil {
+			bUnix = b.MinRecordedOn.Unix()
+		}
+
+		// Compare in reverse order to sort descending
+		return cmp.Compare(bUnix, aUnix)
+	})
 
 	return result, nil
 }
