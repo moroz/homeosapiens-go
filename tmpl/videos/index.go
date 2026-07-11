@@ -73,7 +73,7 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 func VideoGroupList(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, active *types.VideoGroupDetailsDTO) Node {
 	return Aside(
 		Class("mobile:border-r-0 border-r border-slate-300 pr-6 mobile:pr-0"),
-		H2(Class("page-title"), Text("Videos")),
+		H2(Class("page-title ml-3"), Text("Videos")),
 		Nav(
 			Ul(
 				Class("video-group-menu"),
