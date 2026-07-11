@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -18,6 +21,16 @@ func VideoController(db queries.DBTX) *videoController {
 		db:           db,
 		videoService: services.NewVideoService(db),
 	}
+}
+
+func (cc *videoController) Thumbnail(c *echo.Context) error {
+	id := c.Param("id")
+	locale := c.Param("locale")
+
+	// TODO: fetch video metadata and generate real SVG
+	svg := fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><text>%s %s</text></svg>`, id, locale)
+	c.Response().Header().Set("Cache-Control", "public, max-age=3600")
+	return c.Blob(http.StatusOK, "image/svg+xml", []byte(svg))
 }
 
 func (cc *videoController) Index(c *echo.Context) error {

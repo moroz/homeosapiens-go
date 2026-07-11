@@ -72,7 +72,7 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 
 func VideoGroupList(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, active *types.VideoGroupDetailsDTO) Node {
 	return Aside(
-		Class("mobile:border-r-0 border-r border-slate-300 pr-6 mobile:pr-0"),
+		Class("mobile:border-r-0 border-r border-slate-300 pr-4 mobile:pr-0"),
 		H2(Class("page-title ml-3"), Text("Videos")),
 		Nav(
 			Ul(
@@ -110,7 +110,7 @@ func VideoGroupList(ctx *types.CustomContext, videoGroups []*types.VideoGroupLis
 func Index(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, activeGroup *types.VideoGroupDetailsDTO) Node {
 	return layout.BareLayout(ctx, "Videos",
 		Div(
-			Class("card mx-auto grid grid-cols-[1fr_3fr] gap-8 lg:w-7xl mt-6"),
+			Class("card mx-auto grid grid-cols-[1fr_3fr] gap-8 lg:w-7xl mt-6 desktop:pl-4"),
 			VideoGroupList(ctx, videoGroups, activeGroup),
 			Main(
 				Iff(activeGroup != nil, func() Node {

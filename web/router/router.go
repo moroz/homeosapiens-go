@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	httpetag "github.com/go-http-utils/etag"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v5"
 	echomiddleware "github.com/labstack/echo/v5/middleware"
@@ -89,6 +90,11 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 
 	sessions := handlers.SessionController(db)
 	r.DELETE("/sign-out", sessions.Delete)
+
+	videos := handlers.VideoController(db)
+	r.GET("/videos/:id/thumbnail/:locale", videos.Thumbnail, echo.WrapMiddleware(func(h http.Handler) http.Handler {
+		return httpetag.Handler(h, false)
+	}))
 
 	Group(r, "", func(r *echo.Group) {
 		r.Use(middleware.RedirectToHomeIfAuthenticated)
