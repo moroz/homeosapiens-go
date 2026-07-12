@@ -67,3 +67,6 @@ where v.id = @id::uuid;
 insert into videos (provider, title_en, title_pl, slug, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 returning *;
+
+-- name: ListYoutubeVideos :many
+select * from videos where provider = 'youtube' order by recorded_on desc;

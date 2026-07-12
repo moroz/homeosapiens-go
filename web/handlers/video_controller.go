@@ -8,10 +8,11 @@ import (
 	"image"
 	"image/jpeg"
 	_ "image/png"
-	_ "golang.org/x/image/webp"
 	"io"
 	"net/http"
 	"sync"
+
+	_ "golang.org/x/image/webp"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
@@ -152,4 +153,15 @@ func (cc *videoController) Show(c *echo.Context) error {
 	}
 
 	return videos.Show(ctx, group, video).Render(c.Response())
+}
+
+func (cc *videoController) Youtube(c *echo.Context) error {
+	ctx := helpers.GetRequestContext(c)
+
+	data, err := queries.New(cc.db).ListYoutubeVideos(c.Request().Context())
+	if err != nil {
+		return err
+	}
+
+	return videos.Youtube(ctx, data).Render(c.Response())
 }

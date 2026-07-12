@@ -115,6 +115,7 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	r.GET("/videos/:id/thumbnail/:locale", videos.Thumbnail, echo.WrapMiddleware(func(h http.Handler) http.Handler {
 		return httpetag.Handler(h, false)
 	}))
+	r.GET("/watch", videos.Youtube)
 
 	Group(r, "", func(r *echo.Group) {
 		r.Use(middleware.RedirectToHomeIfAuthenticated)

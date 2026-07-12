@@ -439,6 +439,47 @@ func (q *Queries) ListVideosForVideoGroup(ctx context.Context, videoGroupID uuid
 	return items, nil
 }
 
+const listYoutubeVideos = `-- name: ListYoutubeVideos :many
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos where provider = 'youtube' order by recorded_on desc
+`
+
+func (q *Queries) ListYoutubeVideos(ctx context.Context) ([]*Video, error) {
+	rows, err := q.db.Query(ctx, listYoutubeVideos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.Provider,
+			&i.IsPublic,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.Slug,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.DurationSeconds,
+			&i.RecordedOn,
+			&i.HostID,
+			&i.ThumbnailEnID,
+			&i.ThumbnailPlID,
+			&i.YoutubeID,
+			&i.DescriptionPl,
+			&i.DescriptionEn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertVideoGroup = `-- name: UpsertVideoGroup :one
 insert into video_groups (id, title_en, title_pl, slug, product_id) values ($1, $2, $3, $4, $5)
 on conflict (slug) do update set title_en = excluded.title_en, title_pl = excluded.title_pl, product_id = excluded.product_id
