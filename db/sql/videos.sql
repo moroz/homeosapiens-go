@@ -56,6 +56,13 @@ from video_groups_videos where video_group_id = $2
 on conflict (video_id, video_group_id) do nothing
 returning *;
 
+-- name: GetVideoThumbnailData :one
+select sqlc.embed(v), h.given_name host_given_name, h.family_name host_family_name, a.object_key host_profile_picture_url
+from videos v
+left join hosts h on h.id = v.host_id
+left join assets a on a.id = h.profile_picture_id
+where v.id = @id::uuid;
+
 -- name: InsertVideo :one
 insert into videos (provider, title_en, title_pl, slug, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)

@@ -1,14 +1,26 @@
 package handlers
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
 	"fmt"
+	"image"
+	"image/jpeg"
+	_ "image/png"
+	_ "golang.org/x/image/webp"
+	"io"
 	"net/http"
+	"sync"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/videos"
 	"github.com/moroz/homeosapiens-go/web/helpers"
+	"golang.org/x/image/draw"
 )
 
 type videoController struct {
@@ -23,14 +35,91 @@ func VideoController(db queries.DBTX) *videoController {
 	}
 }
 
+// photoCache caches resized+encoded portrait data URIs keyed by CDN URL.
+var photoCache sync.Map
+
+// displayW/H are the SVG display dimensions at 2× (retina).
+const portraitDisplayW = 480
+const portraitDisplayH = 656
+
+func fetchPortraitDataURI(ctx context.Context, url string) (string, error) {
+	if cached, ok := photoCache.Load(url); ok {
+		return cached.(string), nil
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	src, _, err := image.Decode(bytes.NewReader(body))
+	if err != nil {
+		// Unsupported format — embed raw without resizing
+		ct := resp.Header.Get("Content-Type")
+		if ct == "" {
+			ct = "image/jpeg"
+		}
+		dataURI := "data:" + ct + ";base64," + base64.StdEncoding.EncodeToString(body)
+		photoCache.Store(url, dataURI)
+		return dataURI, nil
+	}
+
+	dst := image.NewRGBA(image.Rect(0, 0, portraitDisplayW, portraitDisplayH))
+	draw.BiLinear.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Src, nil)
+
+	var buf bytes.Buffer
+	if err := jpeg.Encode(&buf, dst, &jpeg.Options{Quality: 82}); err != nil {
+		return "", err
+	}
+
+	dataURI := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(buf.Bytes())
+	photoCache.Store(url, dataURI)
+	return dataURI, nil
+}
+
 func (cc *videoController) Thumbnail(c *echo.Context) error {
-	id := c.Param("id")
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.ErrNotFound
+	}
 	locale := c.Param("locale")
 
-	// TODO: fetch video metadata and generate real SVG
-	svg := fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><text>%s %s</text></svg>`, id, locale)
+	data, err := cc.videoService.GetVideoThumbnailData(c.Request().Context(), id)
+	if err != nil {
+		return err
+	}
+
+	title := data.Video.TitleEn
+	if locale == "pl" {
+		title = data.Video.TitlePl
+	}
+
+	var host string
+	if data.HostGivenName != nil && data.HostFamilyName != nil {
+		host = *data.HostGivenName + " " + *data.HostFamilyName
+	}
+
+	var ppURL *string
+	if data.HostProfilePictureUrl != nil {
+		cdnURL := fmt.Sprintf("%s/%s", config.AssetCdnBaseUrl, *data.HostProfilePictureUrl)
+		dataURI, err := fetchPortraitDataURI(c.Request().Context(), cdnURL)
+		if err == nil {
+			ppURL = &dataURI
+		}
+	}
+
+	c.Response().Header().Set("Content-Type", "image/svg+xml")
 	c.Response().Header().Set("Cache-Control", "public, max-age=3600")
-	return c.Blob(http.StatusOK, "image/svg+xml", []byte(svg))
+	return videos.Thumbnail(title, host, locale, data.Video.RecordedOn, ppURL).Render(c.Response())
 }
 
 func (cc *videoController) Index(c *echo.Context) error {

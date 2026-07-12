@@ -153,6 +153,48 @@ func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoG
 	return &i, err
 }
 
+const getVideoThumbnailData = `-- name: GetVideoThumbnailData :one
+select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, v.youtube_id, v.description_pl, v.description_en, h.given_name host_given_name, h.family_name host_family_name, a.object_key host_profile_picture_url
+from videos v
+left join hosts h on h.id = v.host_id
+left join assets a on a.id = h.profile_picture_id
+where v.id = $1::uuid
+`
+
+type GetVideoThumbnailDataRow struct {
+	Video                 Video
+	HostGivenName         *string
+	HostFamilyName        *string
+	HostProfilePictureUrl *string
+}
+
+func (q *Queries) GetVideoThumbnailData(ctx context.Context, id uuid.UUID) (*GetVideoThumbnailDataRow, error) {
+	row := q.db.QueryRow(ctx, getVideoThumbnailData, id)
+	var i GetVideoThumbnailDataRow
+	err := row.Scan(
+		&i.Video.ID,
+		&i.Video.Provider,
+		&i.Video.IsPublic,
+		&i.Video.TitleEn,
+		&i.Video.TitlePl,
+		&i.Video.Slug,
+		&i.Video.InsertedAt,
+		&i.Video.UpdatedAt,
+		&i.Video.DurationSeconds,
+		&i.Video.RecordedOn,
+		&i.Video.HostID,
+		&i.Video.ThumbnailEnID,
+		&i.Video.ThumbnailPlID,
+		&i.Video.YoutubeID,
+		&i.Video.DescriptionPl,
+		&i.Video.DescriptionEn,
+		&i.HostGivenName,
+		&i.HostFamilyName,
+		&i.HostProfilePictureUrl,
+	)
+	return &i, err
+}
+
 const insertVideo = `-- name: InsertVideo :one
 insert into videos (provider, title_en, title_pl, slug, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)

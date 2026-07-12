@@ -108,6 +108,10 @@ func (s *VideoService) GetVideoGroupDetails(ctx context.Context, userID uuid.UUI
 	}, nil
 }
 
+func (s *VideoService) GetVideoThumbnailData(ctx context.Context, id uuid.UUID) (*queries.GetVideoThumbnailDataRow, error) {
+	return queries.New(s.db).GetVideoThumbnailData(ctx, id)
+}
+
 func (s *VideoService) GetVideoForUser(ctx context.Context, userID uuid.UUID, groupSlug, videoSlug string) (*types.VideoDetailsDTO, error) {
 	video, err := queries.New(s.db).GetVideoForUser(ctx, &queries.GetVideoForUserParams{
 		VideoSlug: videoSlug,

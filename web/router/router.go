@@ -37,6 +37,16 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	r.Pre(echomiddleware.MethodOverrideWithConfig(echomiddleware.MethodOverrideConfig{
 		Getter: echomiddleware.MethodFromForm("_method"),
 	}))
+	// Reroute HEAD to GET for routing; the method is restored below before the handler runs.
+	r.Pre(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			if c.Request().Method == http.MethodHead {
+				c.Set("_head", true)
+				c.Request().Method = http.MethodGet
+			}
+			return next(c)
+		}
+	})
 	r.Use(echomiddleware.RequestID())
 	if !config.IsTest {
 		r.Use(echomiddleware.RequestLogger())
@@ -53,6 +63,16 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 
 	r.Use(middleware.ExtendContext(store))
 	r.Use(middleware.StoreRequestUrlInContext)
+	// Restore HEAD method so the handler and logger both see the correct method,
+	// and net/http suppresses the response body as required by the HTTP spec.
+	r.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			if c.Get("_head") != nil {
+				c.Request().Method = http.MethodHead
+			}
+			return next(c)
+		}
+	})
 
 	r.Use(middleware.FetchSessionFromCookies(store, config.SessionCookieName))
 	r.Use(middleware.FetchFlashMessages(store))

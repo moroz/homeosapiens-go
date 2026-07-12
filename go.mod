@@ -22,7 +22,7 @@ require (
 	github.com/wneessen/go-mail v0.7.2
 	golang.org/x/crypto v0.49.0
 	golang.org/x/oauth2 v0.33.0
-	golang.org/x/text v0.35.0
+	golang.org/x/text v0.40.0
 	google.golang.org/api v0.256.0
 	maragu.dev/gomponents v1.2.0
 )
@@ -43,6 +43,7 @@ require (
 	github.com/tidwall/sjson v1.2.5 // indirect
 	go.uber.org/goleak v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
+	golang.org/x/image v0.44.0 // indirect
 )
 
 require (
@@ -76,7 +77,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
 	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251103181224-f26f9409b101 // indirect
 	google.golang.org/grpc v1.76.0 // indirect
