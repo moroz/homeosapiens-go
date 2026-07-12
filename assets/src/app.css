@@ -194,7 +194,7 @@
 	.video-grid {
 		@apply grid gap-6;
 
-		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 	}
 
 	.video-card {
@@ -211,7 +211,7 @@
 	}
 
 	.video-card-body {
-		@apply p-4;
+		@apply flex flex-col gap-3 p-4;
 	}
 
 	.video-card-title {

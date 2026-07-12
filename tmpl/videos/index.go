@@ -11,8 +11,23 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func VideoThumbnail(video *queries.Video, locale string) Node {
-	return Img(Src(fmt.Sprintf("/videos/%s/thumbnail/%s", video.ID, locale)))
+func DurationBadge(duration *int32) Node {
+	if duration == nil {
+		return nil
+	}
+
+	hours := *duration / 3600
+	secs := *duration % 60
+	minutes := *duration % 3600 / 60
+	text := fmt.Sprintf("%02d:%02d", minutes, secs)
+	if hours > 0 {
+		text = fmt.Sprintf("%d:%s", hours, text)
+	}
+
+	return Span(
+		Class("duration-badge"),
+		Text(text),
+	)
 }
 
 func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, video *queries.Video) Node {
@@ -28,21 +43,8 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 			Class("video-card"),
 			Header(
 				Class("video-card-thumb"),
-				VideoThumbnail(video, ctx.Language),
-				Iff(video.DurationSeconds != nil, func() Node {
-					hours := *video.DurationSeconds / 3600
-					secs := *video.DurationSeconds % 60
-					minutes := *video.DurationSeconds % 3600 / 60
-					text := fmt.Sprintf("%02d:%02d", minutes, secs)
-					if hours > 0 {
-						text = fmt.Sprintf("%d:%s", hours, text)
-					}
-
-					return Span(
-						Class("duration-badge"),
-						Text(text),
-					)
-				}),
+				Img(Src(fmt.Sprintf("/videos/%s/thumbnail/%s", video.ID, ctx.Language))),
+				DurationBadge(video.DurationSeconds),
 			),
 			Footer(
 				Class("video-card-body"),
