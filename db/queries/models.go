@@ -36,8 +36,8 @@ func (e *EventType) Scan(src interface{}) error {
 }
 
 type NullEventType struct {
-	EventType EventType
-	Valid     bool // Valid is true if EventType is not NULL
+	EventType EventType `json:"eventType"`
+	Valid     bool      `json:"valid"` // Valid is true if EventType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -78,8 +78,8 @@ func (e *Locale) Scan(src interface{}) error {
 }
 
 type NullLocale struct {
-	Locale Locale
-	Valid  bool // Valid is true if Locale is not NULL
+	Locale Locale `json:"locale"`
+	Valid  bool   `json:"valid"` // Valid is true if Locale is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -121,8 +121,8 @@ func (e *PriceRuleType) Scan(src interface{}) error {
 }
 
 type NullPriceRuleType struct {
-	PriceRuleType PriceRuleType
-	Valid         bool // Valid is true if PriceRuleType is not NULL
+	PriceRuleType PriceRuleType `json:"priceRuleType"`
+	Valid         bool          `json:"valid"` // Valid is true if PriceRuleType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -165,8 +165,8 @@ func (e *PriceType) Scan(src interface{}) error {
 }
 
 type NullPriceType struct {
-	PriceType PriceType
-	Valid     bool // Valid is true if PriceType is not NULL
+	PriceType PriceType `json:"priceType"`
+	Valid     bool      `json:"valid"` // Valid is true if PriceType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -207,8 +207,8 @@ func (e *ProductType) Scan(src interface{}) error {
 }
 
 type NullProductType struct {
-	ProductType ProductType
-	Valid       bool // Valid is true if ProductType is not NULL
+	ProductType ProductType `json:"productType"`
+	Valid       bool        `json:"valid"` // Valid is true if ProductType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -255,8 +255,8 @@ func (e *RiverJobState) Scan(src interface{}) error {
 }
 
 type NullRiverJobState struct {
-	RiverJobState RiverJobState
-	Valid         bool // Valid is true if RiverJobState is not NULL
+	RiverJobState RiverJobState `json:"riverJobState"`
+	Valid         bool          `json:"valid"` // Valid is true if RiverJobState is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -297,8 +297,8 @@ func (e *UserRole) Scan(src interface{}) error {
 }
 
 type NullUserRole struct {
-	UserRole UserRole
-	Valid    bool // Valid is true if UserRole is not NULL
+	UserRole UserRole `json:"userRole"`
+	Valid    bool     `json:"valid"` // Valid is true if UserRole is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -339,8 +339,8 @@ func (e *VideoProvider) Scan(src interface{}) error {
 }
 
 type NullVideoProvider struct {
-	VideoProvider VideoProvider
-	Valid         bool // Valid is true if VideoProvider is not NULL
+	VideoProvider VideoProvider `json:"videoProvider"`
+	Valid         bool          `json:"valid"` // Valid is true if VideoProvider is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -362,303 +362,303 @@ func (ns NullVideoProvider) Value() (driver.Value, error) {
 }
 
 type Asset struct {
-	ID               uuid.UUID
-	ObjectKey        *string
-	OriginalFilename *string
-	InsertedAt       time.Time
-	UpdatedAt        time.Time
-	Scaled           bool
+	ID               uuid.UUID `json:"id"`
+	ObjectKey        *string   `json:"objectKey"`
+	OriginalFilename *string   `json:"originalFilename"`
+	InsertedAt       time.Time `json:"insertedAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
+	Scaled           bool      `json:"scaled"`
 }
 
 type CartLineItem struct {
-	ID         uuid.UUID
-	CartID     uuid.UUID
-	Quantity   int32
-	InsertedAt time.Time
-	UpdatedAt  time.Time
-	ProductID  uuid.UUID
+	ID         uuid.UUID `json:"id"`
+	CartID     uuid.UUID `json:"cartId"`
+	Quantity   int32     `json:"quantity"`
+	InsertedAt time.Time `json:"insertedAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+	ProductID  uuid.UUID `json:"productId"`
 }
 
 type Event struct {
-	ID               uuid.UUID
-	TitleEn          string
-	TitlePl          string
-	StartsAt         time.Time
-	EndsAt           time.Time
-	IsVirtual        bool
-	DescriptionEn    string
-	DescriptionPl    *string
-	EventType        EventType
-	InsertedAt       time.Time
-	UpdatedAt        time.Time
-	Slug             string
-	SubtitleEn       *string
-	SubtitlePl       *string
-	VenueNameEn      *string
-	VenueNamePl      *string
-	VenueStreet      *string
-	VenueCityEn      *string
-	VenueCityPl      *string
-	VenuePostalCode  *string
-	VenueCountryCode *string
-	ProductID        *uuid.UUID
+	ID               uuid.UUID  `json:"id"`
+	TitleEn          string     `json:"titleEn"`
+	TitlePl          string     `json:"titlePl"`
+	StartsAt         time.Time  `json:"startsAt"`
+	EndsAt           time.Time  `json:"endsAt"`
+	IsVirtual        bool       `json:"isVirtual"`
+	DescriptionEn    string     `json:"descriptionEn"`
+	DescriptionPl    *string    `json:"descriptionPl"`
+	EventType        EventType  `json:"eventType"`
+	InsertedAt       time.Time  `json:"insertedAt"`
+	UpdatedAt        time.Time  `json:"updatedAt"`
+	Slug             string     `json:"slug"`
+	SubtitleEn       *string    `json:"subtitleEn"`
+	SubtitlePl       *string    `json:"subtitlePl"`
+	VenueNameEn      *string    `json:"venueNameEn"`
+	VenueNamePl      *string    `json:"venueNamePl"`
+	VenueStreet      *string    `json:"venueStreet"`
+	VenueCityEn      *string    `json:"venueCityEn"`
+	VenueCityPl      *string    `json:"venueCityPl"`
+	VenuePostalCode  *string    `json:"venuePostalCode"`
+	VenueCountryCode *string    `json:"venueCountryCode"`
+	ProductID        *uuid.UUID `json:"productId"`
 }
 
 type EventRegistration struct {
-	ID         uuid.UUID
-	EventID    uuid.UUID
-	UserID     uuid.UUID
-	InsertedAt time.Time
+	ID         uuid.UUID `json:"id"`
+	EventID    uuid.UUID `json:"eventId"`
+	UserID     uuid.UUID `json:"userId"`
+	InsertedAt time.Time `json:"insertedAt"`
 }
 
 type EventsHost struct {
-	ID         uuid.UUID
-	EventID    uuid.UUID
-	HostID     uuid.UUID
-	Position   int32
-	InsertedAt time.Time
-	UpdatedAt  time.Time
+	ID         uuid.UUID `json:"id"`
+	EventID    uuid.UUID `json:"eventId"`
+	HostID     uuid.UUID `json:"hostId"`
+	Position   int32     `json:"position"`
+	InsertedAt time.Time `json:"insertedAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 type Host struct {
-	ID               uuid.UUID
-	Salutation       *string
-	GivenName        string
-	FamilyName       string
-	ProfilePictureID *uuid.UUID
-	InsertedAt       time.Time
-	UpdatedAt        time.Time
-	Country          *string
+	ID               uuid.UUID  `json:"id"`
+	Salutation       *string    `json:"salutation"`
+	GivenName        string     `json:"givenName"`
+	FamilyName       string     `json:"familyName"`
+	ProfilePictureID *uuid.UUID `json:"profilePictureId"`
+	InsertedAt       time.Time  `json:"insertedAt"`
+	UpdatedAt        time.Time  `json:"updatedAt"`
+	Country          *string    `json:"country"`
 }
 
 type Order struct {
-	ID                      uuid.UUID
-	UserID                  uuid.UUID
-	PaidAt                  *time.Time
-	CancelledAt             *time.Time
-	DiscountCode            *string
-	GrandTotal              decimal.Decimal
-	Currency                string
-	InsertedAt              time.Time
-	UpdatedAt               time.Time
-	BillingGivenName        sqlcrypter.EncryptedBytes
-	BillingFamilyName       sqlcrypter.EncryptedBytes
-	BillingPhone            *sqlcrypter.EncryptedBytes
-	BillingCity             sqlcrypter.EncryptedBytes
-	BillingPostalCode       *sqlcrypter.EncryptedBytes
-	BillingCountry          string
-	Email                   sqlcrypter.EncryptedBytes
-	BillingAddressLine1     sqlcrypter.EncryptedBytes
-	BillingAddressLine2     *sqlcrypter.EncryptedBytes
-	StripeCheckoutSessionID *string
-	OrderNumber             int64
-	BillingTaxID            *sqlcrypter.EncryptedBytes
-	PreferredLocale         Locale
+	ID                      uuid.UUID                  `json:"id"`
+	UserID                  uuid.UUID                  `json:"userId"`
+	PaidAt                  *time.Time                 `json:"paidAt"`
+	CancelledAt             *time.Time                 `json:"cancelledAt"`
+	DiscountCode            *string                    `json:"discountCode"`
+	GrandTotal              decimal.Decimal            `json:"grandTotal"`
+	Currency                string                     `json:"currency"`
+	InsertedAt              time.Time                  `json:"insertedAt"`
+	UpdatedAt               time.Time                  `json:"updatedAt"`
+	BillingGivenName        sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
+	BillingFamilyName       sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
+	BillingPhone            *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
+	BillingCity             sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
+	BillingPostalCode       *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
+	BillingCountry          string                     `json:"billingCountry"`
+	Email                   sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
+	BillingAddressLine1     sqlcrypter.EncryptedBytes  `json:"billingAddressLine1Encrypted"`
+	BillingAddressLine2     *sqlcrypter.EncryptedBytes `json:"billingAddressLine2Encrypted"`
+	StripeCheckoutSessionID *string                    `json:"stripeCheckoutSessionId"`
+	OrderNumber             int64                      `json:"orderNumber"`
+	BillingTaxID            *sqlcrypter.EncryptedBytes `json:"billingTaxId"`
+	PreferredLocale         Locale                     `json:"preferredLocale"`
 }
 
 type OrderLineItem struct {
-	ID                   uuid.UUID
-	OrderID              uuid.UUID
-	ProductTitle         string
-	ProductPriceAmount   decimal.Decimal
-	ProductPriceCurrency string
-	Quantity             int32
-	InsertedAt           time.Time
-	UpdatedAt            time.Time
-	ProductID            uuid.UUID
+	ID                   uuid.UUID       `json:"id"`
+	OrderID              uuid.UUID       `json:"orderId"`
+	ProductTitle         string          `json:"productTitle"`
+	ProductPriceAmount   decimal.Decimal `json:"productPriceAmount"`
+	ProductPriceCurrency string          `json:"productPriceCurrency"`
+	Quantity             int32           `json:"quantity"`
+	InsertedAt           time.Time       `json:"insertedAt"`
+	UpdatedAt            time.Time       `json:"updatedAt"`
+	ProductID            uuid.UUID       `json:"productId"`
 }
 
 type Product struct {
-	ID                uuid.UUID
-	ProductType       ProductType
-	TitlePl           string
-	TitleEn           string
-	BasePriceAmount   decimal.Decimal
-	BasePriceCurrency string
-	InsertedAt        time.Time
-	UpdatedAt         time.Time
+	ID                uuid.UUID       `json:"id"`
+	ProductType       ProductType     `json:"productType"`
+	TitlePl           string          `json:"titlePl"`
+	TitleEn           string          `json:"titleEn"`
+	BasePriceAmount   decimal.Decimal `json:"basePriceAmount"`
+	BasePriceCurrency string          `json:"basePriceCurrency"`
+	InsertedAt        time.Time       `json:"insertedAt"`
+	UpdatedAt         time.Time       `json:"updatedAt"`
 }
 
 type ProductPrice struct {
-	ID            uuid.UUID
-	PriceType     PriceType
-	RuleType      PriceRuleType
-	PriceAmount   decimal.Decimal
-	PriceCurrency string
-	DiscountCode  *string
-	Priority      int32
-	IsActive      bool
-	ValidFrom     *time.Time
-	ValidUntil    *time.Time
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	ProductID     uuid.UUID
+	ID            uuid.UUID       `json:"id"`
+	PriceType     PriceType       `json:"priceType"`
+	RuleType      PriceRuleType   `json:"ruleType"`
+	PriceAmount   decimal.Decimal `json:"priceAmount"`
+	PriceCurrency string          `json:"priceCurrency"`
+	DiscountCode  *string         `json:"discountCode"`
+	Priority      int32           `json:"priority"`
+	IsActive      bool            `json:"isActive"`
+	ValidFrom     *time.Time      `json:"validFrom"`
+	ValidUntil    *time.Time      `json:"validUntil"`
+	CreatedAt     time.Time       `json:"createdAt"`
+	UpdatedAt     time.Time       `json:"updatedAt"`
+	ProductID     uuid.UUID       `json:"productId"`
 }
 
 type RiverClient struct {
-	ID        string
-	CreatedAt pgtype.Timestamptz
-	Metadata  []byte
-	PausedAt  pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	ID        string             `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+	Metadata  []byte             `json:"metadata"`
+	PausedAt  pgtype.Timestamptz `json:"pausedAt"`
+	UpdatedAt pgtype.Timestamptz `json:"updatedAt"`
 }
 
 type RiverClientQueue struct {
-	RiverClientID    string
-	Name             string
-	CreatedAt        pgtype.Timestamptz
-	MaxWorkers       int64
-	Metadata         []byte
-	NumJobsCompleted int64
-	NumJobsRunning   int64
-	UpdatedAt        pgtype.Timestamptz
+	RiverClientID    string             `json:"riverClientId"`
+	Name             string             `json:"name"`
+	CreatedAt        pgtype.Timestamptz `json:"createdAt"`
+	MaxWorkers       int64              `json:"maxWorkers"`
+	Metadata         []byte             `json:"metadata"`
+	NumJobsCompleted int64              `json:"numJobsCompleted"`
+	NumJobsRunning   int64              `json:"numJobsRunning"`
+	UpdatedAt        pgtype.Timestamptz `json:"updatedAt"`
 }
 
 type RiverJob struct {
-	ID           int64
-	State        RiverJobState
-	Attempt      int16
-	MaxAttempts  int16
-	AttemptedAt  pgtype.Timestamptz
-	CreatedAt    pgtype.Timestamptz
-	FinalizedAt  pgtype.Timestamptz
-	ScheduledAt  pgtype.Timestamptz
-	Priority     int16
-	Args         []byte
-	AttemptedBy  []string
-	Errors       [][]byte
-	Kind         string
-	Metadata     []byte
-	Queue        string
-	Tags         []string
-	UniqueKey    *sqlcrypter.EncryptedBytes
-	UniqueStates pgtype.Bits
+	ID           int64                      `json:"id"`
+	State        RiverJobState              `json:"state"`
+	Attempt      int16                      `json:"attempt"`
+	MaxAttempts  int16                      `json:"maxAttempts"`
+	AttemptedAt  pgtype.Timestamptz         `json:"attemptedAt"`
+	CreatedAt    pgtype.Timestamptz         `json:"createdAt"`
+	FinalizedAt  pgtype.Timestamptz         `json:"finalizedAt"`
+	ScheduledAt  pgtype.Timestamptz         `json:"scheduledAt"`
+	Priority     int16                      `json:"priority"`
+	Args         []byte                     `json:"args"`
+	AttemptedBy  []string                   `json:"attemptedBy"`
+	Errors       [][]byte                   `json:"errors"`
+	Kind         string                     `json:"kind"`
+	Metadata     []byte                     `json:"metadata"`
+	Queue        string                     `json:"queue"`
+	Tags         []string                   `json:"tags"`
+	UniqueKey    *sqlcrypter.EncryptedBytes `json:"uniqueKey"`
+	UniqueStates pgtype.Bits                `json:"uniqueStates"`
 }
 
 type RiverLeader struct {
-	ElectedAt pgtype.Timestamptz
-	ExpiresAt pgtype.Timestamptz
-	LeaderID  string
-	Name      string
+	ElectedAt pgtype.Timestamptz `json:"electedAt"`
+	ExpiresAt pgtype.Timestamptz `json:"expiresAt"`
+	LeaderID  string             `json:"leaderId"`
+	Name      string             `json:"name"`
 }
 
 type RiverMigration struct {
-	ID        int64
-	CreatedAt pgtype.Timestamptz
-	Version   int64
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+	Version   int64              `json:"version"`
 }
 
 type RiverQueue struct {
-	Name      string
-	CreatedAt pgtype.Timestamptz
-	Metadata  []byte
-	PausedAt  pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	Name      string             `json:"name"`
+	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+	Metadata  []byte             `json:"metadata"`
+	PausedAt  pgtype.Timestamptz `json:"pausedAt"`
+	UpdatedAt pgtype.Timestamptz `json:"updatedAt"`
 }
 
 type User struct {
-	ID                      uuid.UUID
-	Salutation              *string
-	Country                 *string
-	Profession              *string
-	Organization            *string
-	Company                 *string
-	PasswordHash            *string
-	LastLoginAt             *time.Time
-	LastLoginIp             *netip.Addr
-	InsertedAt              time.Time
-	UpdatedAt               time.Time
-	ProfilePicture          *string
-	UserRole                UserRole
-	Email                   sqlcrypter.EncryptedBytes
-	EmailHash               []byte
-	GivenName               sqlcrypter.EncryptedBytes
-	FamilyName              sqlcrypter.EncryptedBytes
-	EmailConfirmedAt        *time.Time
-	LicenceNumber           *sqlcrypter.EncryptedBytes
-	PreferredLocale         Locale
-	GoogleOauthLastUsedAt   *time.Time
-	PreferredTimezone       *sqlcrypter.EncryptedBytes
-	PreferredTimezoneLocked bool
+	ID                      uuid.UUID                  `json:"id"`
+	Salutation              *string                    `json:"salutation"`
+	Country                 *string                    `json:"country"`
+	Profession              *string                    `json:"profession"`
+	Organization            *string                    `json:"organization"`
+	Company                 *string                    `json:"company"`
+	PasswordHash            *string                    `json:"passwordHash"`
+	LastLoginAt             *time.Time                 `json:"lastLoginAt"`
+	LastLoginIp             *netip.Addr                `json:"lastLoginIp"`
+	InsertedAt              time.Time                  `json:"insertedAt"`
+	UpdatedAt               time.Time                  `json:"updatedAt"`
+	ProfilePicture          *string                    `json:"profilePicture"`
+	UserRole                UserRole                   `json:"userRole"`
+	Email                   sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
+	EmailHash               []byte                     `json:"emailHash"`
+	GivenName               sqlcrypter.EncryptedBytes  `json:"givenNameEncrypted"`
+	FamilyName              sqlcrypter.EncryptedBytes  `json:"familyNameEncrypted"`
+	EmailConfirmedAt        *time.Time                 `json:"emailConfirmedAt"`
+	LicenceNumber           *sqlcrypter.EncryptedBytes `json:"licenceNumberEncrypted"`
+	PreferredLocale         Locale                     `json:"preferredLocale"`
+	GoogleOauthLastUsedAt   *time.Time                 `json:"googleOauthLastUsedAt"`
+	PreferredTimezone       *sqlcrypter.EncryptedBytes `json:"preferredTimezoneEncrypted"`
+	PreferredTimezoneLocked bool                       `json:"preferredTimezoneLocked"`
 }
 
 type UserProductAccess struct {
-	ID         uuid.UUID
-	UserID     uuid.UUID
-	ProductID  uuid.UUID
-	OrderID    *uuid.UUID
-	InsertedAt time.Time
+	ID         uuid.UUID  `json:"id"`
+	UserID     uuid.UUID  `json:"userId"`
+	ProductID  uuid.UUID  `json:"productId"`
+	OrderID    *uuid.UUID `json:"orderId"`
+	InsertedAt time.Time  `json:"insertedAt"`
 }
 
 type UserToken struct {
-	ID         uuid.UUID
-	UserID     uuid.UUID
-	Context    string
-	Token      []byte
-	InsertedAt time.Time
-	ValidUntil time.Time
+	ID         uuid.UUID `json:"id"`
+	UserID     uuid.UUID `json:"userId"`
+	Context    string    `json:"context"`
+	Token      []byte    `json:"token"`
+	InsertedAt time.Time `json:"insertedAt"`
+	ValidUntil time.Time `json:"validUntil"`
 }
 
 type UserVideoGroupAccess struct {
-	UserID       uuid.UUID
-	VideoGroupID uuid.UUID
-	HasAccess    bool
+	UserID       uuid.UUID `json:"userId"`
+	VideoGroupID uuid.UUID `json:"videoGroupId"`
+	HasAccess    bool      `json:"hasAccess"`
 }
 
 type Video struct {
-	ID              uuid.UUID
-	Provider        VideoProvider
-	IsPublic        bool
-	TitleEn         string
-	TitlePl         string
-	Slug            string
-	InsertedAt      time.Time
-	UpdatedAt       time.Time
-	DurationSeconds *int32
-	RecordedOn      *time.Time
-	HostID          *uuid.UUID
-	ThumbnailEnID   *uuid.UUID
-	ThumbnailPlID   *uuid.UUID
-	YoutubeID       *string
-	DescriptionPl   *string
-	DescriptionEn   *string
+	ID              uuid.UUID     `json:"id"`
+	Provider        VideoProvider `json:"provider"`
+	IsPublic        bool          `json:"isPublic"`
+	TitleEn         string        `json:"titleEn"`
+	TitlePl         string        `json:"titlePl"`
+	Slug            string        `json:"slug"`
+	InsertedAt      time.Time     `json:"insertedAt"`
+	UpdatedAt       time.Time     `json:"updatedAt"`
+	DurationSeconds *int32        `json:"durationSeconds"`
+	RecordedOn      *time.Time    `json:"recordedOn"`
+	HostID          *uuid.UUID    `json:"hostId"`
+	ThumbnailEnID   *uuid.UUID    `json:"thumbnailEnId"`
+	ThumbnailPlID   *uuid.UUID    `json:"thumbnailPlId"`
+	YoutubeID       *string       `json:"youtubeId"`
+	DescriptionPl   *string       `json:"descriptionPl"`
+	DescriptionEn   *string       `json:"descriptionEn"`
 }
 
 type VideoGroup struct {
-	ID         uuid.UUID
-	TitleEn    string
-	TitlePl    string
-	Slug       string
-	ProductID  *uuid.UUID
-	InsertedAt time.Time
-	UpdatedAt  time.Time
+	ID         uuid.UUID  `json:"id"`
+	TitleEn    string     `json:"titleEn"`
+	TitlePl    string     `json:"titlePl"`
+	Slug       string     `json:"slug"`
+	ProductID  *uuid.UUID `json:"productId"`
+	InsertedAt time.Time  `json:"insertedAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
 }
 
 type VideoGroupsVideo struct {
-	ID           uuid.UUID
-	Position     int32
-	VideoID      uuid.UUID
-	VideoGroupID uuid.UUID
-	InsertedAt   time.Time
-	UpdatedAt    time.Time
+	ID           uuid.UUID `json:"id"`
+	Position     int32     `json:"position"`
+	VideoID      uuid.UUID `json:"videoId"`
+	VideoGroupID uuid.UUID `json:"videoGroupId"`
+	InsertedAt   time.Time `json:"insertedAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 type VideoHost struct {
-	ID         uuid.UUID
-	VideoID    uuid.UUID
-	HostID     uuid.UUID
-	Position   int32
-	InsertedAt time.Time
-	UpdatedAt  time.Time
+	ID         uuid.UUID `json:"id"`
+	VideoID    uuid.UUID `json:"videoId"`
+	HostID     uuid.UUID `json:"hostId"`
+	Position   int32     `json:"position"`
+	InsertedAt time.Time `json:"insertedAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 type VideoSource struct {
-	ID          uuid.UUID
-	ContentType string
-	Codec       *string
-	VideoID     uuid.UUID
-	ObjectKey   string
-	InsertedAt  time.Time
-	UpdatedAt   time.Time
-	Priority    int32
+	ID          uuid.UUID `json:"id"`
+	ContentType string    `json:"contentType"`
+	Codec       *string   `json:"codec"`
+	VideoID     uuid.UUID `json:"videoId"`
+	ObjectKey   string    `json:"objectKey"`
+	InsertedAt  time.Time `json:"insertedAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	Priority    int32     `json:"priority"`
 }

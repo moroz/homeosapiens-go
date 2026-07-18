@@ -21,8 +21,8 @@ returning id, position, video_id, video_group_id, inserted_at, updated_at
 `
 
 type AddVideoToVideoGroupParams struct {
-	VideoID      uuid.UUID
-	VideoGroupID uuid.UUID
+	VideoID      uuid.UUID `json:"videoId"`
+	VideoGroupID uuid.UUID `json:"videoGroupId"`
 }
 
 func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideoGroupParams) (*VideoGroupsVideo, error) {
@@ -50,9 +50,9 @@ order by 1
 `
 
 type GetMinMaxRecordedDatesForVideoGroupsRow struct {
-	ID            uuid.UUID
-	MinRecordedOn time.Time
-	MaxRecordedOn time.Time
+	ID            uuid.UUID `json:"id"`
+	MinRecordedOn time.Time `json:"minRecordedOn"`
+	MaxRecordedOn time.Time `json:"maxRecordedOn"`
 }
 
 func (q *Queries) GetMinMaxRecordedDatesForVideoGroups(ctx context.Context, videoGroupIds []uuid.UUID) ([]*GetMinMaxRecordedDatesForVideoGroupsRow, error) {
@@ -85,14 +85,14 @@ limit 1
 `
 
 type GetVideoForUserParams struct {
-	UserID    uuid.UUID
-	VideoSlug string
-	GroupSlug string
+	UserID    uuid.UUID `json:"userId"`
+	VideoSlug string    `json:"videoSlug"`
+	GroupSlug string    `json:"groupSlug"`
 }
 
 type GetVideoForUserRow struct {
-	Video     Video
-	HasAccess bool
+	Video     Video `json:"video"`
+	HasAccess bool  `json:"hasAccess"`
 }
 
 func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParams) (*GetVideoForUserRow, error) {
@@ -128,13 +128,13 @@ limit 1
 `
 
 type GetVideoGroupForUserBySlugParams struct {
-	UserID uuid.UUID
-	Slug   *string
+	UserID uuid.UUID `json:"userId"`
+	Slug   *string   `json:"slug"`
 }
 
 type GetVideoGroupForUserBySlugRow struct {
-	VideoGroup VideoGroup
-	HasAccess  bool
+	VideoGroup VideoGroup `json:"videoGroup"`
+	HasAccess  bool       `json:"hasAccess"`
 }
 
 func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoGroupForUserBySlugParams) (*GetVideoGroupForUserBySlugRow, error) {
@@ -162,10 +162,10 @@ where v.id = $1::uuid
 `
 
 type GetVideoThumbnailDataRow struct {
-	Video                 Video
-	HostGivenName         *string
-	HostFamilyName        *string
-	HostProfilePictureUrl *string
+	Video                 Video   `json:"video"`
+	HostGivenName         *string `json:"hostGivenName"`
+	HostFamilyName        *string `json:"hostFamilyName"`
+	HostProfilePictureUrl *string `json:"hostProfilePictureUrl"`
 }
 
 func (q *Queries) GetVideoThumbnailData(ctx context.Context, id uuid.UUID) (*GetVideoThumbnailDataRow, error) {
@@ -202,15 +202,15 @@ returning id, provider, is_public, title_en, title_pl, slug, inserted_at, update
 `
 
 type InsertVideoParams struct {
-	Provider        VideoProvider
-	TitleEn         string
-	TitlePl         string
-	Slug            string
-	DurationSeconds *int32
-	RecordedOn      *time.Time
-	HostID          *uuid.UUID
-	ThumbnailEnID   *uuid.UUID
-	ThumbnailPlID   *uuid.UUID
+	Provider        VideoProvider `json:"provider"`
+	TitleEn         string        `json:"titleEn"`
+	TitlePl         string        `json:"titlePl"`
+	Slug            string        `json:"slug"`
+	DurationSeconds *int32        `json:"durationSeconds"`
+	RecordedOn      *time.Time    `json:"recordedOn"`
+	HostID          *uuid.UUID    `json:"hostId"`
+	ThumbnailEnID   *uuid.UUID    `json:"thumbnailEnId"`
+	ThumbnailPlID   *uuid.UUID    `json:"thumbnailPlId"`
 }
 
 func (q *Queries) InsertVideo(ctx context.Context, arg *InsertVideoParams) (*Video, error) {
@@ -252,10 +252,10 @@ insert into video_groups (title_en, title_pl, slug, product_id) values ($1, $2, 
 `
 
 type InsertVideoGroupParams struct {
-	TitleEn   string
-	TitlePl   string
-	Slug      string
-	ProductID *uuid.UUID
+	TitleEn   string     `json:"titleEn"`
+	TitlePl   string     `json:"titlePl"`
+	Slug      string     `json:"slug"`
+	ProductID *uuid.UUID `json:"productId"`
 }
 
 func (q *Queries) InsertVideoGroup(ctx context.Context, arg *InsertVideoGroupParams) (*VideoGroup, error) {
@@ -287,8 +287,8 @@ order by 1, vh.position
 `
 
 type ListHostsForVideosRow struct {
-	VideoID uuid.UUID
-	Host    Host
+	VideoID uuid.UUID `json:"videoId"`
+	Host    Host      `json:"host"`
 }
 
 func (q *Queries) ListHostsForVideos(ctx context.Context, videoIds []uuid.UUID) ([]*ListHostsForVideosRow, error) {
@@ -328,8 +328,8 @@ order by vg.id desc
 `
 
 type ListVideoGroupsForUserRow struct {
-	VideoGroup VideoGroup
-	HasAccess  bool
+	VideoGroup VideoGroup `json:"videoGroup"`
+	HasAccess  bool       `json:"hasAccess"`
 }
 
 func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID) ([]*ListVideoGroupsForUserRow, error) {
@@ -530,11 +530,11 @@ returning id, title_en, title_pl, slug, product_id, inserted_at, updated_at
 `
 
 type UpsertVideoGroupParams struct {
-	ID        uuid.UUID
-	TitleEn   string
-	TitlePl   string
-	Slug      string
-	ProductID *uuid.UUID
+	ID        uuid.UUID  `json:"id"`
+	TitleEn   string     `json:"titleEn"`
+	TitlePl   string     `json:"titlePl"`
+	Slug      string     `json:"slug"`
+	ProductID *uuid.UUID `json:"productId"`
 }
 
 func (q *Queries) UpsertVideoGroup(ctx context.Context, arg *UpsertVideoGroupParams) (*VideoGroup, error) {

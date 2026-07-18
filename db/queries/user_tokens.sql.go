@@ -40,13 +40,13 @@ and ut.token = $1 and ut.context = $2
 `
 
 type FindUserAndTokenByUserTokenParams struct {
-	Token   []byte
-	Context string
+	Token   []byte `json:"token"`
+	Context string `json:"context"`
 }
 
 type FindUserAndTokenByUserTokenRow struct {
-	User      User
-	UserToken UserToken
+	User      User      `json:"user"`
+	UserToken UserToken `json:"userToken"`
 }
 
 func (q *Queries) FindUserAndTokenByUserToken(ctx context.Context, arg *FindUserAndTokenByUserTokenParams) (*FindUserAndTokenByUserTokenRow, error) {
@@ -94,8 +94,8 @@ and ut.token = $1 and ut.context = $2
 `
 
 type FindUserByUserTokenParams struct {
-	Token   []byte
-	Context string
+	Token   []byte `json:"token"`
+	Context string `json:"context"`
 }
 
 func (q *Queries) FindUserByUserToken(ctx context.Context, arg *FindUserByUserTokenParams) (*User, error) {
@@ -134,10 +134,10 @@ insert into user_tokens (user_id, context, token, valid_until) values ($1, $2, $
 `
 
 type InsertUserTokenParams struct {
-	UserID     uuid.UUID
-	Context    string
-	Token      []byte
-	ValidUntil time.Time
+	UserID     uuid.UUID `json:"userId"`
+	Context    string    `json:"context"`
+	Token      []byte    `json:"token"`
+	ValidUntil time.Time `json:"validUntil"`
 }
 
 func (q *Queries) InsertUserToken(ctx context.Context, arg *InsertUserTokenParams) (*UserToken, error) {

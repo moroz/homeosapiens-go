@@ -18,8 +18,8 @@ group by 1
 `
 
 type CountRegistrationsForEventsRow struct {
-	EventID uuid.UUID
-	Count   int64
+	EventID uuid.UUID `json:"eventId"`
+	Count   int64     `json:"count"`
 }
 
 func (q *Queries) CountRegistrationsForEvents(ctx context.Context, eventids []uuid.UUID) ([]*CountRegistrationsForEventsRow, error) {
@@ -47,8 +47,8 @@ delete from event_registrations where event_id = $1 and user_id = $2 returning i
 `
 
 type DeleteEventRegistrationParams struct {
-	EventID uuid.UUID
-	UserID  uuid.UUID
+	EventID uuid.UUID `json:"eventId"`
+	UserID  uuid.UUID `json:"userId"`
 }
 
 func (q *Queries) DeleteEventRegistration(ctx context.Context, arg *DeleteEventRegistrationParams) (uuid.UUID, error) {
@@ -85,8 +85,8 @@ limit 1
 `
 
 type GetLastEventRegistrationWithDetailsRow struct {
-	User  User
-	Event Event
+	User  User  `json:"user"`
+	Event Event `json:"event"`
 }
 
 // For dev email preview only
@@ -150,8 +150,8 @@ returning id, event_id, user_id, inserted_at
 `
 
 type InsertEventRegistrationParams struct {
-	EventID uuid.UUID
-	UserID  uuid.UUID
+	EventID uuid.UUID `json:"eventId"`
+	UserID  uuid.UUID `json:"userId"`
 }
 
 func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventRegistrationParams) (*EventRegistration, error) {

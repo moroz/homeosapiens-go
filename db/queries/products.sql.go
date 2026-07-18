@@ -16,11 +16,11 @@ insert into products (product_type, title_pl, title_en, base_price_amount, base_
 `
 
 type InsertProductParams struct {
-	ProductType       ProductType
-	TitlePl           string
-	TitleEn           string
-	BasePriceAmount   decimal.Decimal
-	BasePriceCurrency string
+	ProductType       ProductType     `json:"productType"`
+	TitlePl           string          `json:"titlePl"`
+	TitleEn           string          `json:"titleEn"`
+	BasePriceAmount   decimal.Decimal `json:"basePriceAmount"`
+	BasePriceCurrency string          `json:"basePriceCurrency"`
 }
 
 func (q *Queries) InsertProduct(ctx context.Context, arg *InsertProductParams) (*Product, error) {

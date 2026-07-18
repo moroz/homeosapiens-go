@@ -23,12 +23,12 @@ returning id, salutation, country, profession, organization, company, password_h
 `
 
 type FindOrCreateUserFromClaimsParams struct {
-	Email           sqlcrypter.EncryptedBytes
-	EmailHash       []byte
-	GivenName       sqlcrypter.EncryptedBytes
-	FamilyName      sqlcrypter.EncryptedBytes
-	ProfilePicture  *string
-	PreferredLocale Locale
+	Email           sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash       []byte                    `json:"emailHash"`
+	GivenName       sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName      sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	ProfilePicture  *string                   `json:"profilePicture"`
+	PreferredLocale Locale                    `json:"preferredLocale"`
 }
 
 func (q *Queries) FindOrCreateUserFromClaims(ctx context.Context, arg *FindOrCreateUserFromClaimsParams) (*User, error) {
@@ -182,17 +182,17 @@ insert into users (email_encrypted, email_hash, salutation, given_name_encrypted
 `
 
 type InsertUserParams struct {
-	Email           sqlcrypter.EncryptedBytes
-	EmailHash       []byte
-	Salutation      *string
-	GivenName       sqlcrypter.EncryptedBytes
-	FamilyName      sqlcrypter.EncryptedBytes
-	Country         *string
-	Profession      *string
-	Organization    *string
-	Company         *string
-	PasswordHash    *string
-	PreferredLocale Locale
+	Email           sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash       []byte                    `json:"emailHash"`
+	Salutation      *string                   `json:"salutation"`
+	GivenName       sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName      sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	Country         *string                   `json:"country"`
+	Profession      *string                   `json:"profession"`
+	Organization    *string                   `json:"organization"`
+	Company         *string                   `json:"company"`
+	PasswordHash    *string                   `json:"passwordHash"`
+	PreferredLocale Locale                    `json:"preferredLocale"`
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User, error) {
@@ -292,8 +292,8 @@ where id = $2
 `
 
 type SetUserLastLoginParams struct {
-	LastLoginIp *netip.Addr
-	ID          uuid.UUID
+	LastLoginIp *netip.Addr `json:"lastLoginIp"`
+	ID          uuid.UUID   `json:"id"`
 }
 
 func (q *Queries) SetUserLastLogin(ctx context.Context, arg *SetUserLastLoginParams) error {
@@ -309,8 +309,8 @@ returning id, salutation, country, profession, organization, company, password_h
 `
 
 type UpdateUserPasswordParams struct {
-	PasswordHash *string
-	ID           uuid.UUID
+	PasswordHash *string   `json:"passwordHash"`
+	ID           uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateUserPassword(ctx context.Context, arg *UpdateUserPasswordParams) (*User, error) {
@@ -349,8 +349,8 @@ update users set preferred_locale = $1, updated_at = now() where id = $2
 `
 
 type UpdateUserPreferredLocaleParams struct {
-	PreferredLocale Locale
-	ID              uuid.UUID
+	PreferredLocale Locale    `json:"preferredLocale"`
+	ID              uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateUserPreferredLocale(ctx context.Context, arg *UpdateUserPreferredLocaleParams) error {
@@ -363,8 +363,8 @@ update users set preferred_timezone_encrypted = $1, updated_at = now() where id 
 `
 
 type UpdateUserPreferredTimezoneParams struct {
-	PreferredTimezone *sqlcrypter.EncryptedBytes
-	ID                uuid.UUID
+	PreferredTimezone *sqlcrypter.EncryptedBytes `json:"preferredTimezoneEncrypted"`
+	ID                uuid.UUID                  `json:"id"`
 }
 
 func (q *Queries) UpdateUserPreferredTimezone(ctx context.Context, arg *UpdateUserPreferredTimezoneParams) error {
@@ -379,12 +379,12 @@ where id = $6 returning id, salutation, country, profession, organization, compa
 `
 
 type UpdateUserProfileParams struct {
-	GivenName     sqlcrypter.EncryptedBytes
-	FamilyName    sqlcrypter.EncryptedBytes
-	Profession    *string
-	LicenceNumber *sqlcrypter.EncryptedBytes
-	Country       *string
-	ID            uuid.UUID
+	GivenName     sqlcrypter.EncryptedBytes  `json:"givenNameEncrypted"`
+	FamilyName    sqlcrypter.EncryptedBytes  `json:"familyNameEncrypted"`
+	Profession    *string                    `json:"profession"`
+	LicenceNumber *sqlcrypter.EncryptedBytes `json:"licenceNumberEncrypted"`
+	Country       *string                    `json:"country"`
+	ID            uuid.UUID                  `json:"id"`
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg *UpdateUserProfileParams) (*User, error) {
@@ -433,15 +433,15 @@ returning id, salutation, country, profession, organization, company, password_h
 `
 
 type UpsertUserFromSeedDataParams struct {
-	Email            sqlcrypter.EncryptedBytes
-	EmailHash        []byte
-	GivenName        sqlcrypter.EncryptedBytes
-	FamilyName       sqlcrypter.EncryptedBytes
-	Country          *string
-	PasswordHash     *string
-	EmailConfirmedAt *time.Time
-	UserRole         *string
-	PreferredLocale  *string
+	Email            sqlcrypter.EncryptedBytes `json:"emailEncrypted"`
+	EmailHash        []byte                    `json:"emailHash"`
+	GivenName        sqlcrypter.EncryptedBytes `json:"givenNameEncrypted"`
+	FamilyName       sqlcrypter.EncryptedBytes `json:"familyNameEncrypted"`
+	Country          *string                   `json:"country"`
+	PasswordHash     *string                   `json:"passwordHash"`
+	EmailConfirmedAt *time.Time                `json:"emailConfirmedAt"`
+	UserRole         *string                   `json:"userRole"`
+	PreferredLocale  *string                   `json:"preferredLocale"`
 }
 
 func (q *Queries) UpsertUserFromSeedData(ctx context.Context, arg *UpsertUserFromSeedDataParams) (*User, error) {

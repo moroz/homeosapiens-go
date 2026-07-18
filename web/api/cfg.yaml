@@ -1,0 +1,12 @@
+# oapi-codegen configuration. Regenerate with: go generate ./web/api/...
+# Uses the std-http-server generator (Go 1.22+ net/http ServeMux) rather than the
+# echo generator, because this project runs Echo v5 while oapi-codegen's echo
+# output targets Echo v4. The generated http.Handler is mounted into Echo in
+# web/router/router.go via echo.WrapHandler.
+package: api
+output: api.gen.go
+generate:
+  models: true
+  std-http-server: true
+  strict-server: true
+  embedded-spec: true

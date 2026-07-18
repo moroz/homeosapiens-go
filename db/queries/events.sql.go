@@ -123,8 +123,8 @@ where e.id = $1
 `
 
 type GetPaidEventByIdRow struct {
-	Event   Event
-	Product Product
+	Event   Event   `json:"event"`
+	Product Product `json:"product"`
 }
 
 func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidEventByIdRow, error) {
@@ -172,8 +172,8 @@ and er.user_id = $2::uuid
 `
 
 type ListEventRegistrationsForUserForEventsParams struct {
-	Eventids []uuid.UUID
-	Userid   uuid.UUID
+	Eventids []uuid.UUID `json:"eventids"`
+	Userid   uuid.UUID   `json:"userid"`
 }
 
 func (q *Queries) ListEventRegistrationsForUserForEvents(ctx context.Context, arg *ListEventRegistrationsForUserForEventsParams) ([]*EventRegistration, error) {
@@ -211,22 +211,22 @@ order by e.starts_at desc
 `
 
 type ListEventsRow struct {
-	ID                uuid.UUID
-	Slug              string
-	TitleEn           string
-	TitlePl           string
-	IsVirtual         bool
-	BasePriceAmount   *decimal.Decimal
-	BasePriceCurrency *string
-	EventType         EventType
-	StartsAt          time.Time
-	EndsAt            time.Time
-	SubtitlePl        *string
-	SubtitleEn        *string
-	VenueStreet       *string
-	VenueCityEn       *string
-	VenueCityPl       *string
-	VenueCountryCode  *string
+	ID                uuid.UUID        `json:"id"`
+	Slug              string           `json:"slug"`
+	TitleEn           string           `json:"titleEn"`
+	TitlePl           string           `json:"titlePl"`
+	IsVirtual         bool             `json:"isVirtual"`
+	BasePriceAmount   *decimal.Decimal `json:"basePriceAmount"`
+	BasePriceCurrency *string          `json:"basePriceCurrency"`
+	EventType         EventType        `json:"eventType"`
+	StartsAt          time.Time        `json:"startsAt"`
+	EndsAt            time.Time        `json:"endsAt"`
+	SubtitlePl        *string          `json:"subtitlePl"`
+	SubtitleEn        *string          `json:"subtitleEn"`
+	VenueStreet       *string          `json:"venueStreet"`
+	VenueCityEn       *string          `json:"venueCityEn"`
+	VenueCityPl       *string          `json:"venueCityPl"`
+	VenueCountryCode  *string          `json:"venueCountryCode"`
 }
 
 func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
@@ -276,16 +276,16 @@ order by eh.host_id, eh.position
 `
 
 type ListHostsForEventsRow struct {
-	EventID           uuid.UUID
-	ID                uuid.UUID
-	Salutation        *string
-	GivenName         string
-	FamilyName        string
-	ProfilePictureID  *uuid.UUID
-	InsertedAt        time.Time
-	UpdatedAt         time.Time
-	Country           *string
-	ProfilePictureUrl *string
+	EventID           uuid.UUID  `json:"eventId"`
+	ID                uuid.UUID  `json:"id"`
+	Salutation        *string    `json:"salutation"`
+	GivenName         string     `json:"givenName"`
+	FamilyName        string     `json:"familyName"`
+	ProfilePictureID  *uuid.UUID `json:"profilePictureId"`
+	InsertedAt        time.Time  `json:"insertedAt"`
+	UpdatedAt         time.Time  `json:"updatedAt"`
+	Country           *string    `json:"country"`
+	ProfilePictureUrl *string    `json:"profilePictureUrl"`
 }
 
 func (q *Queries) ListHostsForEvents(ctx context.Context, eventids []uuid.UUID) ([]*ListHostsForEventsRow, error) {
@@ -327,8 +327,8 @@ order by e.id, p.priority
 `
 
 type ListPricesForEventsRow struct {
-	EventID      uuid.UUID
-	ProductPrice ProductPrice
+	EventID      uuid.UUID    `json:"eventId"`
+	ProductPrice ProductPrice `json:"productPrice"`
 }
 
 func (q *Queries) ListPricesForEvents(ctx context.Context, eventids []uuid.UUID) ([]*ListPricesForEventsRow, error) {
@@ -375,8 +375,8 @@ order by 1
 `
 
 type ListProductsForEventsRow struct {
-	EventID uuid.UUID
-	Product Product
+	EventID uuid.UUID `json:"eventId"`
+	Product Product   `json:"product"`
 }
 
 func (q *Queries) ListProductsForEvents(ctx context.Context, eventids []uuid.UUID) ([]*ListProductsForEventsRow, error) {

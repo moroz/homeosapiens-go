@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: Homeo sapiens Admin API
+  version: 0.1.0
+  description: >
+    Internal admin dashboard API. Every endpoint is served behind an
+    authenticated admin session (see the /admin/api mount in web/router),
+    so there is no per-endpoint or per-field authorization in the schema.
+servers:
+  - url: /admin/api
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Liveness probe
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+
+  /hosts:
+    get:
+      operationId: listHosts
+      summary: List all hosts
+      responses:
+        "200":
+          description: A list of hosts, ordered by name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Host"
+
+components:
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          example: ok
+
+    Host:
+      type: object
+      required: [id, givenName, familyName]
+      properties:
+        id:
+          type: string
+          format: uuid
+        salutation:
+          type: string
+          nullable: true
+          description: i18n message key, e.g. common.hosts.salutation.dr
+        givenName:
+          type: string
+        familyName:
+          type: string
+        country:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code

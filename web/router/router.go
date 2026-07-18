@@ -12,6 +12,7 @@ import (
 	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/web/admin"
+	"github.com/moroz/homeosapiens-go/web/api"
 	"github.com/moroz/homeosapiens-go/web/handlers"
 	"github.com/moroz/homeosapiens-go/web/middleware"
 	"github.com/moroz/homeosapiens-go/web/sessions"
@@ -172,6 +173,11 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 
 		users := admin.UserController(db)
 		r.GET("/users", users.Index)
+
+		// JSON admin API (OpenAPI/oapi-codegen). Routes are generated from
+		// web/api/openapi.yaml and served under /admin/api.
+		apiServer := api.NewServer(db)
+		r.Any("/api/*", echo.WrapHandler(apiServer.Handler("/admin/api")))
 	})
 
 	if !config.IsProd {

@@ -8,6 +8,7 @@ require (
 	github.com/alexedwards/argon2id v1.0.0
 	github.com/bincyber/go-sqlcrypter v0.3.0
 	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a
+	github.com/getkin/kin-openapi v0.142.0
 	github.com/go-http-utils/etag v0.0.0-20161124023236-513ea8f21eb1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/uuid v1.6.0
@@ -15,6 +16,7 @@ require (
 	github.com/moroz/securecookie v0.0.0-20250207075547-a6abdbe4e5e4
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	github.com/nyaruka/phonenumbers v1.8.1
+	github.com/oapi-codegen/runtime v1.6.0
 	github.com/riverqueue/river v0.40.0
 	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.40.0
 	github.com/robfig/cron/v3 v3.0.1
@@ -35,16 +37,20 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-http-utils/fresh v0.0.0-20161124030543-7231e26a4b27 // indirect
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a // indirect
+	github.com/go-openapi/jsonpointer v0.22.5 // indirect
+	github.com/go-openapi/swag/jsonname v0.25.5 // indirect
+	github.com/oasdiff/yaml v0.1.1 // indirect
+	github.com/oasdiff/yaml3 v0.0.14 // indirect
 	github.com/riverqueue/river/riverdriver v0.40.0 // indirect
 	github.com/riverqueue/river/rivershared v0.40.0 // indirect
 	github.com/riverqueue/river/rivertype v0.40.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	go.uber.org/goleak v1.3.0 // indirect
-	golang.org/x/exp v0.0.0-20260709172345-9ea1abe57597 // indirect
 )
 
 require (
@@ -71,7 +77,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.69.0 // indirect
 	go.opentelemetry.io/otel v1.44.0 // indirect
