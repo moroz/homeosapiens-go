@@ -1,4 +1,3 @@
-//go:generate mockery --name=StripeService --output=mocks --outpkg=mocks
 package services
 
 import (
@@ -37,10 +36,10 @@ func (s *stripeService) CreateCheckoutSession(ctx context.Context, order *types.
 
 	for _, item := range order.LineItems {
 		lineItems = append(lineItems, &stripe.CheckoutSessionCreateLineItemParams{
-			Quantity: stripe.Int64(int64(item.Quantity)),
+			Quantity: new(int64(item.Quantity)),
 			PriceData: &stripe.CheckoutSessionCreateLineItemPriceDataParams{
 				Currency:   stripe.String(strings.ToLower(order.Currency)),
-				UnitAmount: stripe.Int64(item.ProductPriceAmount.Mul(decimal.NewFromInt(100)).BigInt().Int64()),
+				UnitAmount: new(item.ProductPriceAmount.Mul(decimal.NewFromInt(100)).BigInt().Int64()),
 				ProductData: &stripe.CheckoutSessionCreateLineItemPriceDataProductDataParams{
 					Name: stripe.String(item.ProductTitle),
 				},

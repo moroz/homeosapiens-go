@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/types"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,6 +37,74 @@ type MockEmailVerificationService_Expecter struct {
 
 func (_m *MockEmailVerificationService) EXPECT() *MockEmailVerificationService_Expecter {
 	return &MockEmailVerificationService_Expecter{mock: &_m.Mock}
+}
+
+// IssueEmailVerificationTokenForUser provides a mock function for the type MockEmailVerificationService
+func (_mock *MockEmailVerificationService) IssueEmailVerificationTokenForUser(ctx context.Context, user *queries.User) (*types.UserTokenDTO, error) {
+	ret := _mock.Called(ctx, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IssueEmailVerificationTokenForUser")
+	}
+
+	var r0 *types.UserTokenDTO
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *queries.User) (*types.UserTokenDTO, error)); ok {
+		return returnFunc(ctx, user)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *queries.User) *types.UserTokenDTO); ok {
+		r0 = returnFunc(ctx, user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.UserTokenDTO)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *queries.User) error); ok {
+		r1 = returnFunc(ctx, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IssueEmailVerificationTokenForUser'
+type MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call struct {
+	*mock.Call
+}
+
+// IssueEmailVerificationTokenForUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - user *queries.User
+func (_e *MockEmailVerificationService_Expecter) IssueEmailVerificationTokenForUser(ctx interface{}, user interface{}) *MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call {
+	return &MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call{Call: _e.mock.On("IssueEmailVerificationTokenForUser", ctx, user)}
+}
+
+func (_c *MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call) Run(run func(ctx context.Context, user *queries.User)) *MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *queries.User
+		if args[1] != nil {
+			arg1 = args[1].(*queries.User)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call) Return(userTokenDTO *types.UserTokenDTO, err error) *MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call {
+	_c.Call.Return(userTokenDTO, err)
+	return _c
+}
+
+func (_c *MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call) RunAndReturn(run func(ctx context.Context, user *queries.User) (*types.UserTokenDTO, error)) *MockEmailVerificationService_IssueEmailVerificationTokenForUser_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // MaybeResendVerificationEmail provides a mock function for the type MockEmailVerificationService

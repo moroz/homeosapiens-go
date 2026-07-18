@@ -180,20 +180,20 @@ values (generate_order_number(), $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
 `
 
 type InsertOrderParams struct {
-	UserID              uuid.UUID                  `json:"userId"`
-	GrandTotal          decimal.Decimal            `json:"grandTotal"`
-	Currency            string                     `json:"currency"`
-	BillingGivenName    sqlcrypter.EncryptedBytes  `json:"billingGivenNameEncrypted"`
-	BillingFamilyName   sqlcrypter.EncryptedBytes  `json:"billingFamilyNameEncrypted"`
-	BillingPhone        *sqlcrypter.EncryptedBytes `json:"billingPhoneEncrypted"`
-	BillingCity         sqlcrypter.EncryptedBytes  `json:"billingCityEncrypted"`
-	BillingPostalCode   *sqlcrypter.EncryptedBytes `json:"billingPostalCodeEncrypted"`
-	BillingCountry      string                     `json:"billingCountry"`
-	Email               sqlcrypter.EncryptedBytes  `json:"emailEncrypted"`
-	BillingAddressLine1 sqlcrypter.EncryptedBytes  `json:"billingAddressLine1Encrypted"`
-	BillingAddressLine2 *sqlcrypter.EncryptedBytes `json:"billingAddressLine2Encrypted"`
-	BillingTaxID        *sqlcrypter.EncryptedBytes `json:"billingTaxId"`
-	PreferredLocale     Locale                     `json:"preferredLocale"`
+	UserID              uuid.UUID
+	GrandTotal          decimal.Decimal
+	Currency            string
+	BillingGivenName    sqlcrypter.EncryptedBytes
+	BillingFamilyName   sqlcrypter.EncryptedBytes
+	BillingPhone        *sqlcrypter.EncryptedBytes
+	BillingCity         sqlcrypter.EncryptedBytes
+	BillingPostalCode   *sqlcrypter.EncryptedBytes
+	BillingCountry      string
+	Email               sqlcrypter.EncryptedBytes
+	BillingAddressLine1 sqlcrypter.EncryptedBytes
+	BillingAddressLine2 *sqlcrypter.EncryptedBytes
+	BillingTaxID        *sqlcrypter.EncryptedBytes
+	PreferredLocale     Locale
 }
 
 func (q *Queries) InsertOrder(ctx context.Context, arg *InsertOrderParams) (*Order, error) {
@@ -246,10 +246,10 @@ insert into order_line_items (order_id, product_id, product_title, product_price
 `
 
 type InsertOrderLineItemParams struct {
-	OrderID            uuid.UUID       `json:"orderId"`
-	ProductID          uuid.UUID       `json:"productId"`
-	ProductTitle       string          `json:"productTitle"`
-	ProductPriceAmount decimal.Decimal `json:"productPriceAmount"`
+	OrderID            uuid.UUID
+	ProductID          uuid.UUID
+	ProductTitle       string
+	ProductPriceAmount decimal.Decimal
 }
 
 func (q *Queries) InsertOrderLineItem(ctx context.Context, arg *InsertOrderLineItemParams) (*OrderLineItem, error) {
@@ -375,8 +375,8 @@ update orders set stripe_checkout_session_id = $1, updated_at = now() where id =
 `
 
 type StoreCheckoutSessionIDOnOrderParams struct {
-	StripeCheckoutSessionID *string   `json:"stripeCheckoutSessionId"`
-	ID                      uuid.UUID `json:"id"`
+	StripeCheckoutSessionID *string
+	ID                      uuid.UUID
 }
 
 func (q *Queries) StoreCheckoutSessionIDOnOrder(ctx context.Context, arg *StoreCheckoutSessionIDOnOrderParams) (*Order, error) {

@@ -39,6 +39,13 @@ type Host struct {
 	Salutation *string `json:"salutation,omitempty"`
 }
 
+// Video defines model for Video.
+type Video struct {
+	Id      openapi_types.UUID `json:"id"`
+	TitleEn string             `json:"titleEn"`
+	TitlePl string             `json:"titlePl"`
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// GetHealth Liveness probe
@@ -47,6 +54,9 @@ type ServerInterface interface {
 	// ListHosts List all hosts
 	// (GET /hosts)
 	ListHosts(w http.ResponseWriter, r *http.Request)
+	// ListVideos List all videos
+	// (GET /videos)
+	ListVideos(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -77,6 +87,20 @@ func (siw *ServerInterfaceWrapper) ListHosts(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListHosts(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListVideos operation middleware
+func (siw *ServerInterfaceWrapper) ListVideos(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListVideos(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -208,6 +232,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/health", wrapper.GetHealth)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/videos", wrapper.ListVideos)
 
 	return m
 }
@@ -254,6 +279,27 @@ func (response ListHosts200JSONResponse) VisitListHostsResponse(w http.ResponseW
 	return err
 }
 
+type ListVideosRequestObject struct {
+}
+
+type ListVideosResponseObject interface {
+	VisitListVideosResponse(w http.ResponseWriter) error
+}
+
+type ListVideos200JSONResponse []Video
+
+func (response ListVideos200JSONResponse) VisitListVideosResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// GetHealth Liveness probe
@@ -262,6 +308,9 @@ type StrictServerInterface interface {
 	// ListHosts List all hosts
 	// (GET /hosts)
 	ListHosts(ctx context.Context, request ListHostsRequestObject) (ListHostsResponseObject, error)
+	// ListVideos List all videos
+	// (GET /videos)
+	ListVideos(ctx context.Context, request ListVideosRequestObject) (ListVideosResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request, request any) (any, error)
@@ -351,22 +400,47 @@ func (sh *strictHandler) ListHosts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ListVideos operation middleware
+func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request) {
+	var request ListVideosRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListVideos(ctx, request.(ListVideosRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListVideos")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListVideosResponseObject); ok {
+		if err := validResponse.VisitListVideosResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, compressed with deflate, json marshaled OpenAPI spec.
 // Stored as a slice of fixed-width chunks rather than one concatenated
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"pJTNbttIDMdfheDuYRdQJDsBgoVuPixqA0EbIMc0h7GGtiaRZqYk5VYN/O7FjFwbiRPk0But4def/NHP",
-	"2IQ+Bk9eBetnlKal3mRzSabTNlmRQyRWR5OLGh2yRT9MHzvCGsMTFqhjTLYoO7/F/b5Apm+DY7JY3/8O",
-	"ezj6hfUjNYr7ApdB9LxOEwavPCbTkjTsorrgscbV3Re4ml9fX8zBdLE1F5dw8IUmWMIC/dB1Zp06Ux7o",
-	"rLMCN6Z33fjZ9JTSnz1v3Y78u6/Ops+bwL1RrHEYnMU3aojpBjVTz68luPl/HnoSMVuCJxoLoHJbQhP6",
-	"PviyDaJSnuJLyx+LejXu3NNJxwvJ5ztI0c5vwhvD9krsTQfG9s6DNdKug2ELi9tVCf/viEcgb2NwXsEJ",
-	"CPGOLKypdd6C8WAGbcmra4ySPWQREnHBwz9CBNoSVPl7ZaKDPq0SnIfvtK44DEr8bwESkh9TKuEDROKL",
-	"Y9XA+ffGUWdzucDuZx5cSpPST1SXX33ak9OM7DL0FEBMdOQFFrmvxe0KC9wRyyR+Vs7LWdpliORNdFjj",
-	"VTkrr7DAaLTNmFbt8U62lDFOEOfyK4s1fiI9XFJakMTgZeL7cjabMPdKPgeaGLs0Jxd89SgTN1Pryfqb",
-	"aYM1/lWdLrY6nGt1qJD3+HJ/d8Q71+S5TY2OGRUZ+t6k48KbxAiJQOSwpvxYZQDfVXTjRJfZ4w8VOaVe",
-	"PpSW/hz2R2INsxnfErqAzolC2EDuvoDAljihOIJP1L+WLQqm6ybvKWFmlwXr+2ccuMMaT1zi/mH/KwAA",
-	"//8=",
+	"vFRRayNHDP4rQu1DC5tdO4FQ9s3QUBtCGwjkJc3DeEf2TjI7Mx1p3dsL/u/HzDo2iZ3LHQf3pl1ppO+T",
+	"9OkZG98F78gJY/2M3LTUqWzOSVlpkxWiDxTF0BgiSvps0SfVBUtYo3/CAmUIyWaJxq1xuy0w0n+9iaSx",
+	"vn959rCP88tHagS3Bc49y3GdxvdO4pBMTdxEE8R4hzUubv+Bi+nl5dkUlA2tOjuHXSw0XhMW6Hpr1TIh",
+	"k9jTEbICV6ozdvhbdZTSH7nXZkPuXa/R6ffKx04J1tj3RuOJGqxsL2rE/JaCmf7hoCNmtSZ4oqEAKtcl",
+	"NL7rvCtbz8Ll4X2p48ek3rQ7YzrweEX51AzujCZ/PIRv5CpGLF25k+3Kvht7wncK8kv0Iecx2vTQuJU/",
+	"sRpOKDplQenOONCK26VXUcPsZlHC1YbiAOR08MYJGAamuCENS2qN06AcqF5acmIaJaR3WZiYjXfwGxOB",
+	"tARV/l+pYKBLiwfGwf+0rKLvheLvBbBPcZFSCechUDzbV/Uxf68MWZ3L+Wg+5zGnNCn9qMHyX/fSBKxx",
+	"7jvywCoYcgyzjGt2s8ACNxR5JD8pp+UkddwHcioYrPGinJQXWGBQ0uZ5Vu1e1WvKokvTzuUXGmv8i2Sn",
+	"+zQbDt7xuAjnk8koSifk8kMVgk19Mt5Vjzxu+Qg9Wb9GWmGNv1SH+1Ltjku1q5Dn+Hp+txQ3psl9G4EO",
+	"eUu47zqVTgFep40mZgjRLyk7qyyXdxldG5Z5jvhBRkao4w+ppVO23W+silENp4jOwBoW8CvI6AvwUVNM",
+	"qziASxp9S5sFlLVj9Eh7kxT7dd53Y8jPID7ej+9iPhJ4RX3x53vEd2xzwqzayFjfP2MfLdZ4UCRuH7Zf",
+	"AgAA//8=",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

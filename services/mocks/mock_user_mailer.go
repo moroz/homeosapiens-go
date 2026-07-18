@@ -94,3 +94,60 @@ func (_c *MockUserMailer_SendUserEmailVerification_Call) RunAndReturn(run func(c
 	_c.Call.Return(run)
 	return _c
 }
+
+// SendUserPasswordResetEmail provides a mock function for the type MockUserMailer
+func (_mock *MockUserMailer) SendUserPasswordResetEmail(context1 context.Context, userTokenDTO *types.UserTokenDTO) error {
+	ret := _mock.Called(context1, userTokenDTO)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendUserPasswordResetEmail")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *types.UserTokenDTO) error); ok {
+		r0 = returnFunc(context1, userTokenDTO)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUserMailer_SendUserPasswordResetEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendUserPasswordResetEmail'
+type MockUserMailer_SendUserPasswordResetEmail_Call struct {
+	*mock.Call
+}
+
+// SendUserPasswordResetEmail is a helper method to define mock.On call
+//   - context1 context.Context
+//   - userTokenDTO *types.UserTokenDTO
+func (_e *MockUserMailer_Expecter) SendUserPasswordResetEmail(context1 interface{}, userTokenDTO interface{}) *MockUserMailer_SendUserPasswordResetEmail_Call {
+	return &MockUserMailer_SendUserPasswordResetEmail_Call{Call: _e.mock.On("SendUserPasswordResetEmail", context1, userTokenDTO)}
+}
+
+func (_c *MockUserMailer_SendUserPasswordResetEmail_Call) Run(run func(context1 context.Context, userTokenDTO *types.UserTokenDTO)) *MockUserMailer_SendUserPasswordResetEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *types.UserTokenDTO
+		if args[1] != nil {
+			arg1 = args[1].(*types.UserTokenDTO)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserMailer_SendUserPasswordResetEmail_Call) Return(err error) *MockUserMailer_SendUserPasswordResetEmail_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUserMailer_SendUserPasswordResetEmail_Call) RunAndReturn(run func(context1 context.Context, userTokenDTO *types.UserTokenDTO) error) *MockUserMailer_SendUserPasswordResetEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}

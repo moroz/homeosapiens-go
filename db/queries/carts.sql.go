@@ -21,13 +21,13 @@ where e.id = any($1::uuid[]) and c.cart_id = $2::uuid
 `
 
 type CountCartLineItemQuantitiesForProductsParams struct {
-	EventIds []uuid.UUID `json:"eventIds"`
-	CartID   uuid.UUID   `json:"cartId"`
+	EventIds []uuid.UUID
+	CartID   uuid.UUID
 }
 
 type CountCartLineItemQuantitiesForProductsRow struct {
-	EventID  uuid.UUID `json:"eventId"`
-	Quantity int32     `json:"quantity"`
+	EventID  uuid.UUID
+	Quantity int32
 }
 
 func (q *Queries) CountCartLineItemQuantitiesForProducts(ctx context.Context, arg *CountCartLineItemQuantitiesForProductsParams) ([]*CountCartLineItemQuantitiesForProductsRow, error) {
@@ -64,8 +64,8 @@ delete from cart_line_items cli where cart_id = $1::uuid and product_id = $2::uu
 `
 
 type DeleteCartItemParams struct {
-	CartID    uuid.UUID `json:"cartId"`
-	ProductID uuid.UUID `json:"productId"`
+	CartID    uuid.UUID
+	ProductID uuid.UUID
 }
 
 func (q *Queries) DeleteCartItem(ctx context.Context, arg *DeleteCartItemParams) (uuid.UUID, error) {
@@ -84,9 +84,9 @@ group by 1
 `
 
 type GetCartRow struct {
-	CartID       uuid.UUID       `json:"cartId"`
-	ItemCount    int64           `json:"itemCount"`
-	ProductTotal decimal.Decimal `json:"productTotal"`
+	CartID       uuid.UUID
+	ItemCount    int64
+	ProductTotal decimal.Decimal
 }
 
 func (q *Queries) GetCart(ctx context.Context, cartID uuid.UUID) (*GetCartRow, error) {
@@ -105,17 +105,17 @@ where c.cart_id = $1::uuid and (e.id is not null)
 `
 
 type GetCartItemsByCartIdRow struct {
-	ID              uuid.UUID       `json:"id"`
-	CartID          uuid.UUID       `json:"cartId"`
-	Quantity        int32           `json:"quantity"`
-	InsertedAt      time.Time       `json:"insertedAt"`
-	UpdatedAt       time.Time       `json:"updatedAt"`
-	ProductID       uuid.UUID       `json:"productId"`
-	Subtotal        decimal.Decimal `json:"subtotal"`
-	BasePriceAmount decimal.Decimal `json:"basePriceAmount"`
-	TitleEn         string          `json:"titleEn"`
-	TitlePl         string          `json:"titlePl"`
-	Slug            string          `json:"slug"`
+	ID              uuid.UUID
+	CartID          uuid.UUID
+	Quantity        int32
+	InsertedAt      time.Time
+	UpdatedAt       time.Time
+	ProductID       uuid.UUID
+	Subtotal        decimal.Decimal
+	BasePriceAmount decimal.Decimal
+	TitleEn         string
+	TitlePl         string
+	Slug            string
 }
 
 func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([]*GetCartItemsByCartIdRow, error) {
@@ -156,8 +156,8 @@ do update set quantity = cli.quantity + excluded.quantity returning id, cart_id,
 `
 
 type InsertCartLineItemParams struct {
-	CartID    uuid.UUID `json:"cartId"`
-	ProductID uuid.UUID `json:"productId"`
+	CartID    uuid.UUID
+	ProductID uuid.UUID
 }
 
 func (q *Queries) InsertCartLineItem(ctx context.Context, arg *InsertCartLineItemParams) (*CartLineItem, error) {

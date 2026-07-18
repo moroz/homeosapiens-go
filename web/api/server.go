@@ -50,3 +50,21 @@ func (s *Server) ListHosts(ctx context.Context, _ ListHostsRequestObject) (ListH
 	}
 	return out, nil
 }
+
+func (s *Server) ListVideos(ctx context.Context, _ ListVideosRequestObject) (ListVideosResponseObject, error) {
+	videos, err := s.q.ListVideos(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make(ListVideos200JSONResponse, len(videos))
+	for i, v := range videos {
+		out[i] = Video{
+			Id:      v.ID,
+			TitleEn: v.TitleEn,
+			TitlePl: v.TitlePl,
+		}
+	}
+
+	return out, nil
+}

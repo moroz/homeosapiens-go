@@ -36,6 +36,20 @@ paths:
                 items:
                   $ref: "#/components/schemas/Host"
 
+  /videos:
+    get:
+      operationId: listVideos
+      summary: List all videos
+      responses:
+        "200":
+          description: A list of videos, ordered by ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+
 components:
   schemas:
     Health:
@@ -65,3 +79,15 @@ components:
           type: string
           nullable: true
           description: ISO 3166-1 alpha-2 country code
+
+    Video:
+      type: object
+      required: [id, titlePl, titleEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        titlePl:
+          type: string
+        titleEn:
+          type: string

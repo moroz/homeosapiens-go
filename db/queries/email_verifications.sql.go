@@ -30,14 +30,14 @@ and ut.context = $2
 `
 
 type CheckUserTokenFlowRateLimitParams struct {
-	EmailHash       []byte          `json:"emailHash"`
-	Context         string          `json:"context"`
-	RateLimitPeriod pgtype.Interval `json:"rateLimitPeriod"`
+	EmailHash       []byte
+	Context         string
+	RateLimitPeriod pgtype.Interval
 }
 
 type CheckUserTokenFlowRateLimitRow struct {
-	CanRequest   bool      `json:"canRequest"`
-	LimitedUntil time.Time `json:"limitedUntil"`
+	CanRequest   bool
+	LimitedUntil time.Time
 }
 
 func (q *Queries) CheckUserTokenFlowRateLimit(ctx context.Context, arg *CheckUserTokenFlowRateLimitParams) (*CheckUserTokenFlowRateLimitRow, error) {
@@ -54,8 +54,8 @@ and ut.inserted_at > (now() - $2::interval)
 `
 
 type GetExistingEmailVerificationTokenParams struct {
-	UserID          uuid.UUID       `json:"userId"`
-	RateLimitPeriod pgtype.Interval `json:"rateLimitPeriod"`
+	UserID          uuid.UUID
+	RateLimitPeriod pgtype.Interval
 }
 
 func (q *Queries) GetExistingEmailVerificationToken(ctx context.Context, arg *GetExistingEmailVerificationTokenParams) (*UserToken, error) {
