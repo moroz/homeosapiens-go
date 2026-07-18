@@ -263,6 +263,11 @@
     "show": {
       "back_to_group": "Series: {{ .GroupName }}",
       "video_group_name_html": "<p>Video #{{ .CurrentIndex }} out of {{ .TotalCount }} from series: <a href=\"{{ .GroupURL }}\">{{ .GroupName }}</a></p>"
+    },
+    "youtube": {
+      "title": "Interviews & Highlights",
+      "featuring": "Featuring:",
+      "watch_on_youtube": "Watch on YouTube"
     }
   }
 }

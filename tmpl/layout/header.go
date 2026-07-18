@@ -107,7 +107,7 @@ func mobileNav(ctx *types.CustomContext) Node {
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
 		Class("fixed inset-0 z-20 h-20 border-b border-primary/15 bg-white shadow-sm backdrop-blur-md"),
-		Div(Class("container mx-auto flex h-full items-center px-6 mobile:px-2"),
+		Div(Class("container mx-auto flex h-full items-center mobile:px-2"),
 			H1(
 				Class("z-20"),
 				A(

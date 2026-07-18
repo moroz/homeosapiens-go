@@ -6,219 +6,228 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-	--color-secondary: var(--color-purple-800);
-	--color-secondary-hover: var(--color-purple-700);
+  --color-secondary: var(--color-purple-800);
+  --color-secondary-hover: var(--color-purple-700);
 
-	--font-sans: "IBM Plex Sans", system-ui, sans-serif;
-	--color-primary: var(--color-blue-800);
-	--color-primary-hover: var(--color-blue-700);
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --color-primary: var(--color-blue-800);
+  --color-primary-hover: var(--color-blue-700);
 
-	--color-focus: var(--color-blue-600);
+  --color-focus: var(--color-blue-600);
 
-	--color-danger: var(--color-red-800);
+  --color-danger: var(--color-red-800);
 
-	--spacing-header: calc(70 / 4 * var(--spacing));
+  --spacing-header: calc(70 / 4 * var(--spacing));
 
-	--breakpoint-*: initial;
-	--breakpoint-lg: calc(65ch + 8rem);
-	--breakpoint-desktop: calc(30rem + 1px);
-	/* The largest breakpoint also caps .container; this lets container layouts
+  --breakpoint-*: initial;
+  --breakpoint-lg: calc(65ch + 8rem);
+  --breakpoint-desktop: calc(30rem + 1px);
+  /* The largest breakpoint also caps .container; this lets container layouts
      (e.g. the landing) grow on large screens instead of stalling at ~65ch. */
-	--breakpoint-xl: 80rem;
+  --breakpoint-xl: 80rem;
 
-	--shadow-solid: 4px 4px 0px 0px black;
-	--shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+  --shadow-solid: 4px 4px 0px 0px black;
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
 }
 
 @variant mobile (@media screen and (max-width: 30rem));
 @variant lang-pl (&:lang(pl));
 
 @layer base {
-	body {
-		font-variant-numeric: tabular-nums;
-	}
+  body {
+    font-variant-numeric: tabular-nums;
+  }
 
-	a:not([class]) {
-		@apply text-primary hover:text-primary-hover underline underline-offset-2 transform-content;
-	}
+  a:not([class]) {
+    @apply text-primary hover:text-primary-hover underline underline-offset-2 transform-content;
+  }
 }
 
 @layer components {
-	.button {
-		@apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-blue-700 px-4 py-2 text-center font-bold text-white transition-colors hover:bg-blue-600;
+  .button {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-blue-700 px-4 py-2 text-center font-bold text-white transition-colors hover:bg-blue-600;
 
-		&.secondary {
-			@apply text-primary border border-slate-300 bg-slate-100 hover:bg-slate-200;
-		}
+    &.secondary {
+      @apply text-primary border border-slate-300 bg-slate-100 hover:bg-slate-200;
+    }
 
-		&.tertiary {
-			@apply text-primary bg-white hover:bg-slate-100;
-		}
+    &.tertiary {
+      @apply text-primary bg-white hover:bg-slate-100;
+    }
 
-		&.outline {
-			@apply border-primary text-primary border bg-white shadow hover:bg-slate-100;
-		}
+    &.outline {
+      @apply border-primary text-primary border bg-white shadow hover:bg-slate-100;
+    }
 
-		:is(&).success {
-			@apply border border-green-900/20 bg-green-100 text-green-900 hover:bg-green-200/90;
-		}
-	}
+    :is(&).success {
+      @apply border border-green-900/20 bg-green-100 text-green-900 hover:bg-green-200/90;
+    }
+  }
 
-	.page-title {
-		@apply text-primary mb-4 text-2xl font-bold lg:text-3xl;
-	}
+  .page-title {
+    @apply text-primary mb-4 text-2xl font-bold lg:text-3xl;
+  }
 
-	.card {
-		@apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 rounded-lg border border-slate-300 bg-white p-6;
-		box-shadow: var(--shadow-card);
-	}
+  .card {
+    @apply mobile:rounded-none mobile:border-l-0 mobile:border-r-0 mobile:p-4 rounded-lg border border-slate-300 bg-white p-6;
+    box-shadow: var(--shadow-card);
+  }
 
-	.card-header {
-		@apply text-primary text-xl font-bold lg:text-2xl;
-	}
+  .card-header {
+    @apply text-primary text-xl font-bold lg:text-2xl;
+  }
 
-	.input-field {
-		@apply grid w-full gap-1;
-	}
+  .input-field {
+    @apply grid w-full gap-1;
+  }
 
-	.input {
-		@apply focus:outline-focus h-10 rounded-sm border px-2 shadow focus:outline-2;
+  .input {
+    @apply focus:outline-focus h-10 rounded-sm border px-2 shadow focus:outline-2;
 
-		&:read-only {
-			@apply cursor-default border-gray-500 bg-gray-100 text-gray-600 shadow-none focus:outline-2 focus:outline-gray-500;
-		}
-	}
+    &:read-only {
+      @apply cursor-default border-gray-500 bg-gray-100 text-gray-600 shadow-none focus:outline-2 focus:outline-gray-500;
+    }
+  }
 
-	.error-explanation {
-		@apply text-danger my-0 text-sm leading-tight;
-	}
+  .error-explanation {
+    @apply text-danger my-0 text-sm leading-tight;
+  }
 
-	.hamburger-menu {
-		@apply fixed inset-0 bg-white transition-all;
+  .hamburger-menu {
+    @apply fixed inset-0 bg-white transition-all;
 
-		&:not(.open) {
-			@apply pointer-events-none opacity-0;
-		}
-	}
+    &:not(.open) {
+      @apply pointer-events-none opacity-0;
+    }
+  }
 
-	.alert {
-		@apply my-3 rounded-sm border px-4 py-3;
+  .alert {
+    @apply my-3 rounded-sm border px-4 py-3;
 
-		:is(&).danger,
-		:is(&).error {
-			@apply border-red-900/50 bg-red-100 text-red-900;
-		}
+    :is(&).danger,
+    :is(&).error {
+      @apply border-red-900/50 bg-red-100 text-red-900;
+    }
 
-		:is(&).success {
-			@apply border-green-900/50 bg-green-100 text-green-900;
-		}
-	}
+    :is(&).success {
+      @apply border-green-900/50 bg-green-100 text-green-900;
+    }
+  }
 
-	.user-dropdown {
-		:is(&) .dropdown {
-			@apply mobile:hidden absolute right-0 bottom-0 flex translate-y-full flex-col items-stretch overflow-hidden rounded-sm border border-slate-500 bg-white shadow;
-		}
+  .user-dropdown {
+    :is(&) .dropdown {
+      @apply mobile:hidden absolute right-0 bottom-0 flex translate-y-full flex-col items-stretch overflow-hidden rounded-sm border border-slate-500 bg-white shadow;
+    }
 
-		.dropdown-item {
-			@apply inline-flex h-10 w-full cursor-pointer items-center justify-start px-4 text-left transition hover:bg-slate-100;
-		}
+    .dropdown-item {
+      @apply inline-flex h-10 w-full cursor-pointer items-center justify-start px-4 text-left transition hover:bg-slate-100;
+    }
 
-		section {
-			@apply border-slate-300 not-first:border-t;
-		}
-	}
+    section {
+      @apply border-slate-300 not-first:border-t;
+    }
+  }
 
-	.index-table {
-		@apply w-full table-fixed;
+  .index-table {
+    @apply w-full table-fixed;
 
-		thead,
-		tfoot {
-			th {
-				@apply h-9 bg-gray-100 text-gray-800;
-			}
-		}
+    thead,
+    tfoot {
+      th {
+        @apply h-9 bg-gray-100 text-gray-800;
+      }
+    }
 
-		th,
-		td {
-			@apply h-9 border border-slate-400 px-2 text-left;
-		}
+    th,
+    td {
+      @apply h-9 border border-slate-400 px-2 text-left;
+    }
 
-		tr[data-url] {
-			@apply cursor-pointer hover:bg-slate-100;
-		}
-	}
+    tr[data-url] {
+      @apply cursor-pointer hover:bg-slate-100;
+    }
+  }
 
-	.cart-table {
-		@apply my-4 w-full table-fixed;
+  .cart-table {
+    @apply my-4 w-full table-fixed;
 
-		th,
-		td {
-			@apply border border-slate-400 p-2 text-center;
-		}
-	}
+    th,
+    td {
+      @apply border border-slate-400 p-2 text-center;
+    }
+  }
 
-	.data-table {
-		@apply my-4 w-full table-fixed;
+  .data-table {
+    @apply my-4 w-full table-fixed;
 
-		th {
-			width: 150px;
-		}
+    th {
+      width: 150px;
+    }
 
-		th,
-		td {
-			@apply min-h-9 border border-slate-400 px-2 py-1 text-left;
-		}
-	}
+    th,
+    td {
+      @apply min-h-9 border border-slate-400 px-2 py-1 text-left;
+    }
+  }
 
-	.video-group-menu {
-		@apply grid gap-3;
+  .video-group-menu {
+    @apply grid gap-3;
 
-		a {
-			@apply relative flex w-full flex-col items-start gap-1 rounded-md px-3 py-2 leading-normal transition;
-			@apply font-medium text-slate-700 no-underline;
+    a {
+      @apply relative flex w-full flex-col items-start gap-1 rounded-md px-3 py-2 leading-normal transition;
+      @apply font-medium text-slate-700 no-underline;
 
-			&.is-active {
-				@apply bg-primary font-semibold text-white shadow-sm;
+      &.is-active {
+        @apply bg-primary font-semibold text-white shadow-sm;
 
-				&:hover {
-					@apply bg-primary-hover;
-				}
-			}
+        &:hover {
+          @apply bg-primary-hover;
+        }
+      }
 
-			&:not(.is-active):hover {
-				@apply text-primary bg-slate-100;
-			}
-		}
-	}
+      &:not(.is-active):hover {
+        @apply text-primary bg-slate-100;
+      }
+    }
+  }
 
-	.video-grid {
-		@apply grid gap-6;
+  .video-grid {
+    @apply grid gap-6;
 
-		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-	}
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  }
 
-	.video-card {
-		@apply overflow-hidden rounded-lg border border-slate-300 bg-white;
-		box-shadow: var(--shadow-card);
-	}
+  .video-card {
+    @apply overflow-hidden rounded-lg border border-slate-300 bg-white grid;
+    box-shadow: var(--shadow-card);
+    grid-template-rows: auto 1fr;
+  }
 
-	.video-card-thumb {
-		@apply relative flex aspect-video items-center justify-center overflow-hidden bg-slate-100;
+  .video-card-thumb {
+    @apply relative flex aspect-video items-center justify-center overflow-hidden bg-slate-100;
 
-		img {
-			@apply h-full w-full object-cover;
-		}
-	}
+    img {
+      @apply h-full w-full object-cover;
+    }
+  }
 
-	.video-card-body {
-		@apply flex flex-col gap-3 p-4;
-	}
+  .video-card-body {
+    @apply flex flex-col gap-3 p-4;
+  }
 
-	.video-card-title {
-		@apply leading-snug font-semibold text-slate-800;
-	}
+  .video-card-title {
+    @apply leading-snug font-semibold text-slate-800;
+  }
 
-	.duration-badge {
-		@apply absolute right-2 bottom-2 inline-block rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums;
-	}
+  .duration-badge {
+    @apply absolute right-2 bottom-2 inline-block rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums;
+  }
+
+  .youtube-button {
+    @apply inline-flex w-fit items-center gap-2 rounded-md bg-[#0f0f0f] px-4 py-2 font-bold text-white no-underline transition-colors hover:bg-[#272727] justify-center;
+
+    svg {
+      @apply h-5 w-auto;
+    }
+  }
 }

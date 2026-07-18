@@ -13,7 +13,6 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/shopspring/decimal"
 	. "maragu.dev/gomponents"
-	. "maragu.dev/gomponents/html"
 )
 
 func TranslateCountry(localizer *i18n.Localizer, countryCode string) string {
@@ -149,7 +148,7 @@ func DerefEncrypted(str *sqlcrypter.EncryptedBytes) string {
 	return ""
 }
 
-func MarkdownContent(content string, classes ...string) Node {
+func RenderMarkdown(content string) Node {
 	extensions := parser.CommonExtensions | parser.Autolink | parser.NoEmptyLineBeforeBlock
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse([]byte(content))
@@ -159,7 +158,5 @@ func MarkdownContent(content string, classes ...string) Node {
 	renderer := html.NewRenderer(opts)
 	innerHTML := markdown.Render(doc, renderer)
 
-	class := strings.Join(append([]string{"prose lg:prose-lg "}, classes...), " ")
-
-	return Div(Class(class), Raw(string(innerHTML)))
+	return Raw(string(innerHTML))
 }

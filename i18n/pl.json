@@ -266,6 +266,11 @@
     "show": {
       "back_to_group": "Seria: {{ .GroupName }}",
       "video_group_name_html": "<p>Wideo nr {{ .CurrentIndex }} z {{ .TotalCount }} z serii: <a href=\"{{.GroupURL}}\">{{ .GroupName }}</a></p>"
+    },
+    "youtube": {
+      "title": "Wywiady i kompilacje",
+      "featuring": "Występują:",
+      "watch_on_youtube": "Obejrzyj na YouTube"
     }
   }
 }

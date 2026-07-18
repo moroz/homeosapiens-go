@@ -136,6 +136,9 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			),
 			If(isFree && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 		),
-		helpers.MarkdownContent(description, "mt-4 w-full"),
+		Div(
+			Class("prose lg:prose-lg mt-4 w-full"),
+			helpers.RenderMarkdown(description),
+		),
 	))
 }

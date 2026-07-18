@@ -2,20 +2,28 @@ package videos
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
+	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
 
 func Youtube(ctx *types.CustomContext, videos []*types.VideoListDTO) Node {
-	return layout.BareLayout(ctx, "Watch",
+	l := ctx.Localizer
+	title := l.MustLocalizeMessage(&i18n.Message{
+		ID: "videos.youtube.title",
+	})
+
+	return layout.BareLayout(ctx, title,
 		Div(
 			Class("container mx-auto py-6"),
-			H2(Class("page-title"), Text("Watch")),
+			H2(Class("page-title"), Text(title)),
 			Div(
 				Class("video-grid"),
 				Map(videos, func(video *types.VideoListDTO) Node {
@@ -41,14 +49,32 @@ func Youtube(ctx *types.CustomContext, videos []*types.VideoListDTO) Node {
 						),
 						Footer(
 							Class("video-card-body"),
-							H4(Class("video-card-title text-lg"), Text(title)),
+							H4(Class("video-card-title text-lg"), helpers.RenderMarkdown(title)),
+							Iff(len(video.Hosts) != 0, func() Node {
+								names := make([]string, len(video.Hosts))
+								for i, h := range video.Hosts {
+									names[i] = fmt.Sprintf("%s&nbsp;%s", h.GivenName, h.FamilyName)
+								}
+
+								return P(
+									Strong(Text(l.MustLocalizeMessage(&i18n.Message{
+										ID: "videos.youtube.featuring",
+									}))),
+									Text(" "),
+									Raw(strings.Join(names, ", ")),
+								)
+							}),
 							Iff(desc != nil, func() Node {
-								return P(Text(*desc))
+								return Div(Class("text-sm"), helpers.RenderMarkdown(*desc))
 							}),
-							Map(video.Hosts, func(h *queries.Host) Node {
-								return P(Text(fmt.Sprintf("%s %s", h.GivenName, h.FamilyName)))
-							}),
-							A(Href(url), Target("_blank"), Rel("noopener noreferrer"), Text("Watch on YouTube")),
+							A(
+								Class("youtube-button mt-auto w-full"),
+								Href(url), Target("_blank"), Rel("noopener noreferrer"),
+								icons.Icon(&icons.IconProps{Name: "youtube", ViewBox: "0 0 28.57 20", Classes: "w-auto"}),
+								Span(Text(l.MustLocalizeMessage(&i18n.Message{
+									ID: "videos.youtube.watch_on_youtube",
+								}))),
+							),
 						),
 					)
 				}),
