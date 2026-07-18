@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict NeQgsokJ0mw5c4fFPGJ0cPeStM6i8MLTx7wkeB4xlgEBDNZoPGDegdauzFoCu0e
+\restrict 0tpXPhp3KHlyVGQTLc2ACA0JObTgtnhw6ZSVK65rG1vJBqkT7VyXLwd0yrHVXUo
 
 -- Dumped from database version 18.4 (Debian 18.4-1.pgdg12+1)
 -- Dumped by pg_dump version 18.4 (Debian 18.4-1.pgdg12+1)
@@ -170,6 +170,9 @@ Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem kli
 INSERT INTO public.hosts VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8a', 'common.hosts.salutation.dr', 'Sanjay', 'Modi', '0199c2f2-528b-7e88-96e3-5e5088333a8b', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'IN');
 INSERT INTO public.hosts VALUES ('019beef9-4287-714f-982b-2524fdef7063', 'common.hosts.salutation.dr', 'Asher', 'Shaikh', '019beef9-ad4c-736f-9bb0-965b59ca21ae', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'IN');
 INSERT INTO public.hosts VALUES ('019b0c71-fde2-76b7-8c71-21c2e9ea23a5', 'common.hosts.salutation.dr', 'Herman', 'Jeggels', '019b0c7c-c3c4-71c3-a630-7b33a847ca2a', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'ZA');
+INSERT INTO public.hosts VALUES ('019f75d0-f76f-7b99-abf8-e40499c35222', 'common.hosts.salutation.dr', 'Robert', 'Zawiślak', NULL, '2026-07-18 15:20:57', '2026-07-18 15:20:57', 'PL');
+INSERT INTO public.hosts VALUES ('019f75d0-f770-7071-ae85-7caea1938af3', NULL, 'Barbara', 'Liberowicz-Moroz', NULL, '2026-07-18 15:20:57', '2026-07-18 15:20:57', 'PL');
+INSERT INTO public.hosts VALUES ('019f75d0-f770-70b0-b82f-0a4fea4cfdb8', 'common.hosts.salutation.dr', 'Jawahar', 'Shah', NULL, '2026-07-18 15:20:57', '2026-07-18 15:20:57', 'IN');
 
 
 --
@@ -241,6 +244,24 @@ INSERT INTO public.video_groups_videos VALUES ('019de883-cd47-7002-9e69-c6ec4ee5
 
 
 --
+-- Data for Name: video_hosts; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.video_hosts VALUES ('019f75cd-0844-7c27-aa5a-f3d0186e44b3', '019dbfeb-e6f2-7521-b990-119d82b8665f', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-70f0-a547-878bb8087951', '019dbfeb-e5ec-73ae-881a-d76c8582644e', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-713f-9a5e-5a26c81bf7cc', '019a8668-bb4f-7c9c-b9b8-3f274de96566', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-7170-b3d1-70450d405cfc', '019a8ba5-fe29-7af8-bf54-b8d96af38461', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-7192-a205-8ef0741cbdd9', '019dbfeb-e512-740f-80ea-d8c30a99fa5b', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-71b0-beb0-655e2c8d0d5f', '019dbfeb-e43a-7324-bb52-65457afc331b', '019beef9-4287-714f-982b-2524fdef7063', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-71ce-bae1-0c75a38bdedb', '019dbfec-770a-702f-aa5c-e2431a930395', '019b0c71-fde2-76b7-8c71-21c2e9ea23a5', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-71ec-b2fd-6e393710f547', '019e26f5-94ff-738f-b892-f25c3ceaa231', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-720c-a7f3-1742f5fc9c1e', '019e26f8-414c-7032-b627-77d1107b558d', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-722a-a55f-09992a144805', '019e26f8-a4d3-729b-872e-9d66242969ef', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-724a-8a61-61693808f0c9', '019f5625-c58d-7c4c-afdb-dd1f4990dc04', '0199c2f2-528b-7e88-96e3-5e5088333a8a', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+INSERT INTO public.video_hosts VALUES ('019f75cd-0845-7268-a054-2b2fa7f96c4e', '019f5625-c58e-75f4-bd0f-eea36b0a5650', '019b0c71-fde2-76b7-8c71-21c2e9ea23a5', 1, '2026-07-18 15:16:39.098148', '2026-07-18 15:16:39.098148');
+
+
+--
 -- Data for Name: video_sources; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -271,5 +292,5 @@ INSERT INTO public.video_sources VALUES ('019e275e-fda7-7df7-bf68-ddbc64d916c0',
 -- PostgreSQL database dump complete
 --
 
-\unrestrict NeQgsokJ0mw5c4fFPGJ0cPeStM6i8MLTx7wkeB4xlgEBDNZoPGDegdauzFoCu0e
+\unrestrict 0tpXPhp3KHlyVGQTLc2ACA0JObTgtnhw6ZSVK65rG1vJBqkT7VyXLwd0yrHVXUo
 

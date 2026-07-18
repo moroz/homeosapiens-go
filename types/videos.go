@@ -25,6 +25,11 @@ type VideoDetailsDTO struct {
 	Sources   []*queries.VideoSource
 }
 
+type VideoListDTO struct {
+	*queries.Video
+	Hosts []*queries.Host
+}
+
 func (v *VideoGroupListDTO) IsPremium() bool {
 	return v.VideoGroup.ProductID != nil
 }

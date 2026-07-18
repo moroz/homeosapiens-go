@@ -138,3 +138,35 @@ func (s *VideoService) GetVideoForUser(ctx context.Context, userID uuid.UUID, gr
 
 	return result, nil
 }
+
+func (s *VideoService) ListYoutubeVideos(ctx context.Context) ([]*types.VideoListDTO, error) {
+	videos, err := queries.New(s.db).ListYoutubeVideos(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make([]uuid.UUID, len(videos))
+	for i, v := range videos {
+		ids[i] = v.ID
+	}
+
+	hosts, err := queries.New(s.db).ListHostsForVideos(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	mapping := make(map[uuid.UUID][]*queries.Host)
+	for _, h := range hosts {
+		mapping[h.VideoID] = append(mapping[h.VideoID], &h.Host)
+	}
+
+	result := make([]*types.VideoListDTO, len(videos))
+	for i, row := range videos {
+		result[i] = &types.VideoListDTO{
+			Video: row,
+			Hosts: mapping[row.ID],
+		}
+	}
+
+	return result, nil
+}

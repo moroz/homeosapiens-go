@@ -643,6 +643,15 @@ type VideoGroupsVideo struct {
 	UpdatedAt    time.Time
 }
 
+type VideoHost struct {
+	ID         uuid.UUID
+	VideoID    uuid.UUID
+	HostID     uuid.UUID
+	Position   int32
+	InsertedAt time.Time
+	UpdatedAt  time.Time
+}
+
 type VideoSource struct {
 	ID          uuid.UUID
 	ContentType string

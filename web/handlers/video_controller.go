@@ -158,7 +158,7 @@ func (cc *videoController) Show(c *echo.Context) error {
 func (cc *videoController) Youtube(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	data, err := queries.New(cc.db).ListYoutubeVideos(c.Request().Context())
+	data, err := cc.videoService.ListYoutubeVideos(c.Request().Context())
 	if err != nil {
 		return err
 	}

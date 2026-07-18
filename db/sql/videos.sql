@@ -70,3 +70,10 @@ returning *;
 
 -- name: ListYoutubeVideos :many
 select * from videos where provider = 'youtube' order by recorded_on desc;
+
+-- name: ListHostsForVideos :many
+select vh.video_id, sqlc.embed(h)
+from video_hosts vh
+join hosts h on vh.host_id = h.id
+where vh.video_id = any(@video_ids::uuid[])
+order by 1, vh.position;

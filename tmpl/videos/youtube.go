@@ -11,14 +11,14 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func Youtube(ctx *types.CustomContext, videos []*queries.Video) Node {
+func Youtube(ctx *types.CustomContext, videos []*types.VideoListDTO) Node {
 	return layout.BareLayout(ctx, "Watch",
 		Div(
 			Class("container mx-auto py-6"),
 			H2(Class("page-title"), Text("Watch")),
 			Div(
 				Class("video-grid"),
-				Map(videos, func(video *queries.Video) Node {
+				Map(videos, func(video *types.VideoListDTO) Node {
 					title := video.TitleEn
 					if ctx.Language == "pl" {
 						title = video.TitlePl
@@ -44,6 +44,9 @@ func Youtube(ctx *types.CustomContext, videos []*queries.Video) Node {
 							H4(Class("video-card-title text-lg"), Text(title)),
 							Iff(desc != nil, func() Node {
 								return P(Text(*desc))
+							}),
+							Map(video.Hosts, func(h *queries.Host) Node {
+								return P(Text(fmt.Sprintf("%s %s", h.GivenName, h.FamilyName)))
 							}),
 							A(Href(url), Target("_blank"), Rel("noopener noreferrer"), Text("Watch on YouTube")),
 						),

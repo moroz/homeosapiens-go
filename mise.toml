@@ -2,7 +2,7 @@
 age = "latest"
 "aqua:axllent/mailpit" = "latest"
 caddy = "latest"
-go = "1.26"
+go = "1.26.5"
 "go:github.com/air-verse/air" = "latest"
 "go:github.com/playwright-community/playwright-go/cmd/playwright" = "latest"
 "go:github.com/pressly/goose/v3/cmd/goose" = "latest"
@@ -64,7 +64,7 @@ fi
 run = """
 #!/usr/bin/env -S bash -euo pipefail
 
-TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts)
+TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts video_hosts)
 
 psql $DATABASE_URL -c "truncate $(IFS=,; echo "${TABLES[*]}") cascade;"
 psql $DATABASE_URL -f db/seeds/data.sql >/dev/null
@@ -76,7 +76,7 @@ mise restart
 run = """
 #!/usr/bin/env -S bash -euo pipefail
 
-TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts video_sources)
+TABLES=(assets products events hosts video_groups video_groups_videos videos product_prices events_hosts video_sources video_hosts)
 
 tables_option="$(printf ' -t %s' "${TABLES[@]}")"
 

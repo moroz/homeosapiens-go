@@ -278,6 +278,49 @@ func (q *Queries) InsertVideoGroup(ctx context.Context, arg *InsertVideoGroupPar
 	return &i, err
 }
 
+const listHostsForVideos = `-- name: ListHostsForVideos :many
+select vh.video_id, h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, h.country
+from video_hosts vh
+join hosts h on vh.host_id = h.id
+where vh.video_id = any($1::uuid[])
+order by 1, vh.position
+`
+
+type ListHostsForVideosRow struct {
+	VideoID uuid.UUID
+	Host    Host
+}
+
+func (q *Queries) ListHostsForVideos(ctx context.Context, videoIds []uuid.UUID) ([]*ListHostsForVideosRow, error) {
+	rows, err := q.db.Query(ctx, listHostsForVideos, videoIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListHostsForVideosRow
+	for rows.Next() {
+		var i ListHostsForVideosRow
+		if err := rows.Scan(
+			&i.VideoID,
+			&i.Host.ID,
+			&i.Host.Salutation,
+			&i.Host.GivenName,
+			&i.Host.FamilyName,
+			&i.Host.ProfilePictureID,
+			&i.Host.InsertedAt,
+			&i.Host.UpdatedAt,
+			&i.Host.Country,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listVideoGroupsForUser = `-- name: ListVideoGroupsForUser :many
 select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
@@ -440,7 +483,7 @@ func (q *Queries) ListVideosForVideoGroup(ctx context.Context, videoGroupID uuid
 }
 
 const listYoutubeVideos = `-- name: ListYoutubeVideos :many
-select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos where provider = 'youtube' and videos.youtube_id is not null order by recorded_on desc
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos where provider = 'youtube' order by recorded_on desc
 `
 
 func (q *Queries) ListYoutubeVideos(ctx context.Context) ([]*Video, error) {
