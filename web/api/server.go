@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/swaggest/swgui/v5emb"
 )
 
 // Server implements StrictServerInterface, backed by the sqlc query layer.
@@ -20,12 +22,37 @@ func NewServer(db queries.DBTX) *Server {
 }
 
 // Handler builds the net/http handler for the admin API, with every route
-// registered under baseURL (e.g. "/admin/api"). The returned handler is wrapped
-// into Echo via echo.WrapHandler.
+// registered under baseURL (e.g. "/admin/api"). Alongside the generated API
+// routes it serves the OpenAPI document at <baseURL>/openapi.json and an
+// interactive Swagger UI at <baseURL>/docs/ (assets embedded via swgui/v5emb,
+// so the page makes no external requests). The returned handler is wrapped into
+// Echo via echo.WrapHandler.
 func (s *Server) Handler(baseURL string) http.Handler {
-	return HandlerWithOptions(NewStrictHandler(s, nil), StdHTTPServerOptions{
-		BaseURL: baseURL,
+	mux := http.NewServeMux()
+
+	// Generated API operations (registered onto our mux via BaseRouter).
+	HandlerWithOptions(NewStrictHandler(s, nil), StdHTTPServerOptions{
+		BaseURL:    baseURL,
+		BaseRouter: mux,
 	})
+
+	// The OpenAPI document, served from the embedded spec so it always matches
+	// the generated code. Consumed by the Swagger UI and by frontend codegen.
+	mux.HandleFunc("GET "+baseURL+"/openapi.json", func(w http.ResponseWriter, _ *http.Request) {
+		spec, err := GetSwagger()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(spec)
+	})
+
+	// Swagger UI.
+	docsPath := baseURL + "/docs/"
+	mux.Handle(docsPath, v5emb.New("Homeo sapiens Admin API", baseURL+"/openapi.json", docsPath))
+
+	return mux
 }
 
 func (s *Server) GetHealth(_ context.Context, _ GetHealthRequestObject) (GetHealthResponseObject, error) {

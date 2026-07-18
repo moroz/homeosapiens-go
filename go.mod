@@ -23,6 +23,7 @@ require (
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.11.1
 	github.com/stripe/stripe-go/v84 v84.4.1
+	github.com/swaggest/swgui v1.8.9
 	github.com/wneessen/go-mail v0.8.1
 	golang.org/x/crypto v0.54.0
 	golang.org/x/image v0.44.0
@@ -50,6 +51,7 @@ require (
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
+	github.com/vearutop/statigz v1.4.0 // indirect
 	go.uber.org/goleak v1.3.0 // indirect
 )
 
