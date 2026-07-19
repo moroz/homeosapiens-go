@@ -2,6 +2,8 @@ package helpers
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/types"
@@ -26,8 +28,26 @@ func SaveSession(w http.ResponseWriter, store *sessions.Store, session sessions.
 func GetRedirectUrl(ctx *types.CustomContext) string {
 	redirectTo, _ := ctx.Session[config.RedirectBackUrlSessionKey].(string)
 	if redirectTo != "" {
+		// Always consume the stored value, even when we reject it, so a poisoned
+		// entry does not linger in the session.
 		delete(ctx.Session, config.RedirectBackUrlSessionKey)
-		return redirectTo
+		if isSafeRedirectTarget(redirectTo) {
+			return redirectTo
+		}
 	}
 	return "/"
+}
+
+// isSafeRedirectTarget reports whether target is a local absolute path safe to
+// redirect to after login. It rejects absolute URLs and protocol-relative URLs
+// (e.g. "//evil.com", "/\\evil.com") to prevent open redirects.
+func isSafeRedirectTarget(target string) bool {
+	if !strings.HasPrefix(target, "/") || strings.HasPrefix(target, "//") || strings.HasPrefix(target, "/\\") {
+		return false
+	}
+	u, err := url.Parse(target)
+	if err != nil || u.Scheme != "" || u.Host != "" {
+		return false
+	}
+	return true
 }
