@@ -28,7 +28,7 @@ func Group(r Groupie, prefix string, cb func(r *echo.Group)) {
 }
 
 func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.StripeService) *echo.Echo {
-	r := echo.New()
+	r := echo.NewWithConfig(echo.Config{NoGroupAutoRegister404Routes: true})
 
 	bundle, err := i18n.InitBundle()
 	if err != nil {
