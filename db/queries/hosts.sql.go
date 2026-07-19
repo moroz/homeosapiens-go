@@ -57,11 +57,11 @@ func (q *Queries) ListHosts(ctx context.Context) ([]*Host, error) {
 const paginateHosts = `-- name: PaginateHosts :many
 select id, salutation, given_name, family_name, profile_picture_id, inserted_at, updated_at, country from hosts
 order by family_name, given_name
-limit $2 offset (($1- 1) * $2)
+limit ($2::int) offset ((($1::int) - 1) * $2::int)
 `
 
 type PaginateHostsParams struct {
-	Page    interface{}
+	Page    int32
 	PerPage int32
 }
 

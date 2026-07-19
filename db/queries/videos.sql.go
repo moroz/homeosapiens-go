@@ -536,11 +536,11 @@ func (q *Queries) ListYoutubeVideos(ctx context.Context) ([]*Video, error) {
 
 const paginateVideos = `-- name: PaginateVideos :many
 select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos v order by v.id desc
-limit $2 offset (($1- 1) * $2)
+limit ($2::int) offset ((($1::int) - 1) * $2::int)
 `
 
 type PaginateVideosParams struct {
-	Page    interface{}
+	Page    int32
 	PerPage int32
 }
 

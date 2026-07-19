@@ -4,7 +4,7 @@ order by v.id desc;
 
 -- name: PaginateVideos :many
 select * from videos v order by v.id desc
-limit @per_page offset ((@page - 1) * @per_page);
+limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
 
 -- name: CountVideos :one
 select count(*) from videos;

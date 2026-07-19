@@ -13,6 +13,17 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const countEvents = `-- name: CountEvents :one
+select count(*) from events
+`
+
+func (q *Queries) CountEvents(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countEvents)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getEventById = `-- name: GetEventById :one
 select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where id = $1
 `
@@ -398,6 +409,60 @@ func (q *Queries) ListProductsForEvents(ctx context.Context, eventids []uuid.UUI
 			&i.Product.BasePriceCurrency,
 			&i.Product.InsertedAt,
 			&i.Product.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const paginateEvents = `-- name: PaginateEvents :many
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events
+order by starts_at desc
+limit ($2::int) offset ((($1::int) - 1) * $2::int)
+`
+
+type PaginateEventsParams struct {
+	Page    int32
+	PerPage int32
+}
+
+func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams) ([]*Event, error) {
+	rows, err := q.db.Query(ctx, paginateEvents, arg.Page, arg.PerPage)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Event
+	for rows.Next() {
+		var i Event
+		if err := rows.Scan(
+			&i.ID,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.StartsAt,
+			&i.EndsAt,
+			&i.IsVirtual,
+			&i.DescriptionEn,
+			&i.DescriptionPl,
+			&i.EventType,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.Slug,
+			&i.SubtitleEn,
+			&i.SubtitlePl,
+			&i.VenueNameEn,
+			&i.VenueNamePl,
+			&i.VenueStreet,
+			&i.VenueCityEn,
+			&i.VenueCityPl,
+			&i.VenuePostalCode,
+			&i.VenueCountryCode,
+			&i.ProductID,
 		); err != nil {
 			return nil, err
 		}

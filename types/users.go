@@ -35,6 +35,17 @@ type SendPasswordResetParams struct {
 	Email string `form:"email"`
 }
 
+type ListUsersParams struct {
+	SearchParam string
+	PerPage     int32
+	Page        int32
+}
+
+type ListUsersResponse struct {
+	Users      []*queries.User
+	TotalCount int64
+}
+
 func (p *RegisterUserParams) Validate() error {
 	return validation.ValidateStruct(p,
 		validation.Field(&p.PreferredLocale, validation.Required, validation.In("pl", "en")),

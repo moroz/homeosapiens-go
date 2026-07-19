@@ -14,6 +14,17 @@ import (
 	"github.com/google/uuid"
 )
 
+const countUsers = `-- name: CountUsers :one
+select count(*) from users
+`
+
+func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countUsers)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const findOrCreateUserFromClaims = `-- name: FindOrCreateUserFromClaims :one
 insert into users (email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, profile_picture, preferred_locale, email_confirmed_at, google_oauth_last_used_at)
 values ($1, $2, $3, $4, $5, $6, now(), now())
@@ -244,6 +255,60 @@ select id, salutation, country, profession, organization, company, password_hash
 
 func (q *Queries) ListUsers(ctx context.Context) ([]*User, error) {
 	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Salutation,
+			&i.Country,
+			&i.Profession,
+			&i.Organization,
+			&i.Company,
+			&i.PasswordHash,
+			&i.LastLoginAt,
+			&i.LastLoginIp,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.ProfilePicture,
+			&i.UserRole,
+			&i.Email,
+			&i.EmailHash,
+			&i.GivenName,
+			&i.FamilyName,
+			&i.EmailConfirmedAt,
+			&i.LicenceNumber,
+			&i.PreferredLocale,
+			&i.GoogleOauthLastUsedAt,
+			&i.PreferredTimezone,
+			&i.PreferredTimezoneLocked,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const paginateUsers = `-- name: PaginateUsers :many
+select id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted, preferred_timezone_locked from users order by id
+limit ($2::int) offset ((($1::int) - 1) * $2::int)
+`
+
+type PaginateUsersParams struct {
+	Page    int32
+	PerPage int32
+}
+
+func (q *Queries) PaginateUsers(ctx context.Context, arg *PaginateUsersParams) ([]*User, error) {
+	rows, err := q.db.Query(ctx, paginateUsers, arg.Page, arg.PerPage)
 	if err != nil {
 		return nil, err
 	}

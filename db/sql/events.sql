@@ -12,6 +12,14 @@ from events e
 left join products p on e.product_id = p.id
 order by e.starts_at desc;
 
+-- name: PaginateEvents :many
+select * from events
+order by starts_at desc
+limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
+
+-- name: CountEvents :one
+select count(*) from events;
+
 -- name: ListProductsForEvents :many
 select e.id event_id, sqlc.embed(p)
 from events e

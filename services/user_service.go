@@ -131,8 +131,66 @@ func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User,
 	})
 }
 
-func (s *UserService) ListUsers(ctx context.Context) ([]*queries.User, error) {
-	return queries.New(s.db).ListUsers(ctx)
+func (s *UserService) ListUsers(ctx context.Context, params *types.ListUsersParams) (*types.ListUsersResponse, error) {
+	q := strings.ToLower(strings.TrimSpace(params.SearchParam))
+
+	if types.EmailValidationRegexp.MatchString(q) {
+		user, err := s.FindUserByEmail(ctx, q)
+		if err != nil {
+			return nil, err
+		}
+		return &types.ListUsersResponse{
+			Users:      []*queries.User{user},
+			TotalCount: 1,
+		}, nil
+	}
+
+	if q == "" {
+		users, err := queries.New(s.db).PaginateUsers(ctx, &queries.PaginateUsersParams{
+			Page:    params.Page,
+			PerPage: params.PerPage,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		count, err := queries.New(s.db).CountUsers(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		return &types.ListUsersResponse{
+			Users:      users,
+			TotalCount: count,
+		}, nil
+	}
+
+	users, err := queries.New(s.db).ListUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	startIndex := (params.Page - 1) * params.PerPage
+
+	var filtered []*queries.User
+
+	for _, user := range users {
+		fullName := fmt.Sprintf("%s %s", user.GivenName.Plaintext(), user.FamilyName.Plaintext())
+		if strings.Contains(strings.ToLower(fullName), q) || strings.Contains(user.Email.Plaintext(), q) {
+			filtered = append(filtered, user)
+		}
+	}
+
+	endIndex := startIndex + params.PerPage
+	count := int64(len(filtered))
+	if int64(endIndex) > count {
+		endIndex = int32(count)
+	}
+
+	return &types.ListUsersResponse{
+		Users:      filtered[startIndex:endIndex],
+		TotalCount: count,
+	}, nil
 }
 
 func (s *UserService) SetUserLastLogin(ctx context.Context, ipAddr string, userId uuid.UUID) error {

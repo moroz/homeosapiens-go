@@ -31,6 +31,13 @@ where id = $6 returning *;
 -- name: ListUsers :many
 select * from users order by id;
 
+-- name: PaginateUsers :many
+select * from users order by id
+limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
+
+-- name: CountUsers :one
+select count(*) from users;
+
 -- name: SetUserLastLogin :exec
 update users set last_login_ip = $1, last_login_at = now(), updated_at = now()
 where id = $2;
