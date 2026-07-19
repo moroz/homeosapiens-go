@@ -33,7 +33,7 @@ func UserHeader(ctx *types.CustomContext) Node {
 				}))),
 				Iff(ctx.User.UserRole == queries.UserRoleAdministrator, func() Node {
 					return A(
-						Href("/admin"),
+						Href("/admin/"),
 						Class("dropdown-item"),
 						Text("Admin dashboard"),
 					)

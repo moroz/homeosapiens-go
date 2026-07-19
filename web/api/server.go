@@ -22,7 +22,7 @@ func NewServer(db queries.DBTX) *Server {
 }
 
 // Handler builds the net/http handler for the admin API, with every route
-// registered under baseURL (e.g. "/admin/api"). Alongside the generated API
+// registered under baseURL (e.g. "/api/admin"). Alongside the generated API
 // routes it serves the OpenAPI document at <baseURL>/openapi.json and an
 // interactive Swagger UI at <baseURL>/docs/ (assets embedded via swgui/v5emb,
 // so the page makes no external requests). The returned handler is wrapped into

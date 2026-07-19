@@ -4,10 +4,10 @@ info:
   version: 0.1.0
   description: >
     Internal admin dashboard API. Every endpoint is served behind an
-    authenticated admin session (see the /admin/api mount in web/router),
+    authenticated admin session (see the /api/admin mount in web/router),
     so there is no per-endpoint or per-field authorization in the schema.
 servers:
-  - url: /admin/api
+  - url: /api/admin
 
 paths:
   /health:

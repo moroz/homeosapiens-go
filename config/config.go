@@ -87,6 +87,7 @@ var DatabaseUrl = MustGetenv("DATABASE_URL")
 var SecretKeyBase = MustGetenvBase64("SECRET_KEY_BASE")
 var SessionKey = MustDeriveKey(SecretKeyBase, "Sessions", 32)
 var IsProd = os.Getenv("GO_ENV") == "prod"
+var ViteDevServer = GetEnvWithDefault("VITE_DEV_SERVER", "http://localhost:5174")
 var IsTest = os.Getenv("GO_ENV") == "test"
 var GoogleClientId = RequireInProduction("GOOGLE_CLIENT_ID", "")
 var GoogleClientSecret = RequireInProduction("GOOGLE_CLIENT_SECRET", "")

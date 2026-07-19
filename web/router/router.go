@@ -2,6 +2,8 @@
 
 import (
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 
 	httpetag "github.com/go-http-utils/etag"
@@ -11,7 +13,6 @@ import (
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/i18n"
 	"github.com/moroz/homeosapiens-go/services"
-	"github.com/moroz/homeosapiens-go/web/admin"
 	"github.com/moroz/homeosapiens-go/web/api"
 	"github.com/moroz/homeosapiens-go/web/handlers"
 	"github.com/moroz/homeosapiens-go/web/middleware"
@@ -164,21 +165,23 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 		r.GET("/videos", videos.Index)
 	})
 
-	Group(r, "/admin", func(r *echo.Group) {
+	// JSON admin API (OpenAPI/oapi-codegen). Routes are generated from
+	// web/api/openapi.yaml and served under /api/admin. Kept off the /admin
+	// prefix so the whole /admin/* namespace belongs to the SPA with no
+	// proxy exceptions.
+	Group(r, "/api/admin", func(r *echo.Group) {
 		r.Use(middleware.RequireAdmin)
 
-		events := admin.EventController(db)
-		r.GET("", events.Index)
-		r.GET("/events/:id", events.Show)
-
-		users := admin.UserController(db)
-		r.GET("/users", users.Index)
-
-		// JSON admin API (OpenAPI/oapi-codegen). Routes are generated from
-		// web/api/openapi.yaml and served under /admin/api.
 		apiServer := api.NewServer(db)
-		r.Any("/api/*", echo.WrapHandler(apiServer.Handler("/admin/api")))
+		r.Any("/*", echo.WrapHandler(apiServer.Handler("/api/admin")))
 	})
+
+	// Admin SPA (React Router, library mode). In dev, reverse-proxy the whole
+	// /admin/* namespace to the Vite dev server so HMR works. In prod, Caddy
+	// serves the built dist/ directly and never reaches Go.
+	if !config.IsProd {
+		mountAdminSPAProxy(r)
+	}
 
 	if !config.IsProd {
 		email := handlers.EmailController(db)
@@ -190,6 +193,22 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	}
 
 	return r
+}
+
+// mountAdminSPAProxy reverse-proxies the whole /admin/* namespace to the Vite
+// dev server (default http://localhost:5173, override with VITE_DEV_SERVER).
+// Vite is configured with base "/admin/", so the path is forwarded unchanged.
+// Dev only — in prod Caddy serves the built assets and Go never sees /admin.
+func mountAdminSPAProxy(r *echo.Echo) {
+	target, err := url.Parse(config.ViteDevServer)
+	if err != nil {
+		panic(err)
+	}
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	handler := echo.WrapHandler(proxy)
+
+	r.Any("/admin", handler)
+	r.Any("/admin/*", handler)
 }
 
 func CacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

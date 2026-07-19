@@ -12,7 +12,7 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-const ManifestPath = "assets/dist/.vite/manifest.json"
+const ManifestPath = "assets/.vite/manifest.json"
 
 var manifest ViteManifest
 
