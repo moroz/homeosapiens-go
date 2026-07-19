@@ -39,6 +39,17 @@ func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideo
 	return &i, err
 }
 
+const countVideos = `-- name: CountVideos :one
+select count(*) from videos
+`
+
+func (q *Queries) CountVideos(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countVideos)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getMinMaxRecordedDatesForVideoGroups = `-- name: GetMinMaxRecordedDatesForVideoGroups :many
 select vg.id, min(v.recorded_on)::date min_recorded_on, max(v.recorded_on):: date max_recorded_on
 from video_groups vg
@@ -488,6 +499,53 @@ select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_a
 
 func (q *Queries) ListYoutubeVideos(ctx context.Context) ([]*Video, error) {
 	rows, err := q.db.Query(ctx, listYoutubeVideos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.Provider,
+			&i.IsPublic,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.Slug,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.DurationSeconds,
+			&i.RecordedOn,
+			&i.HostID,
+			&i.ThumbnailEnID,
+			&i.ThumbnailPlID,
+			&i.YoutubeID,
+			&i.DescriptionPl,
+			&i.DescriptionEn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const paginateVideos = `-- name: PaginateVideos :many
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos v order by v.id desc
+limit $2 offset (($1- 1) * $2)
+`
+
+type PaginateVideosParams struct {
+	Page    interface{}
+	PerPage int32
+}
+
+func (q *Queries) PaginateVideos(ctx context.Context, arg *PaginateVideosParams) ([]*Video, error) {
+	rows, err := q.db.Query(ctx, paginateVideos, arg.Page, arg.PerPage)
 	if err != nil {
 		return nil, err
 	}

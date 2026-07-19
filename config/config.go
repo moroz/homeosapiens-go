@@ -128,3 +128,5 @@ const AccessTokenValidity = 24 * 60 * 60 * time.Second
 const PasswordResetTokenValidity = 60 * 60 * time.Second
 
 const UserTokenContextPasswordReset = "password_reset"
+
+const DefaultPageSize = 20

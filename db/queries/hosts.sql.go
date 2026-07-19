@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const countHosts = `-- name: CountHosts :one
+select count(*) from hosts
+`
+
+func (q *Queries) CountHosts(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countHosts)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const listHosts = `-- name: ListHosts :many
 select id, salutation, given_name, family_name, profile_picture_id, inserted_at, updated_at, country from hosts
 order by family_name, given_name
@@ -16,6 +27,46 @@ order by family_name, given_name
 
 func (q *Queries) ListHosts(ctx context.Context) ([]*Host, error) {
 	rows, err := q.db.Query(ctx, listHosts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Host
+	for rows.Next() {
+		var i Host
+		if err := rows.Scan(
+			&i.ID,
+			&i.Salutation,
+			&i.GivenName,
+			&i.FamilyName,
+			&i.ProfilePictureID,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.Country,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const paginateHosts = `-- name: PaginateHosts :many
+select id, salutation, given_name, family_name, profile_picture_id, inserted_at, updated_at, country from hosts
+order by family_name, given_name
+limit $2 offset (($1- 1) * $2)
+`
+
+type PaginateHostsParams struct {
+	Page    interface{}
+	PerPage int32
+}
+
+func (q *Queries) PaginateHosts(ctx context.Context, arg *PaginateHostsParams) ([]*Host, error) {
+	rows, err := q.db.Query(ctx, paginateHosts, arg.Page, arg.PerPage)
 	if err != nil {
 		return nil, err
 	}

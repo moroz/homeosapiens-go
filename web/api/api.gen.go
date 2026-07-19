@@ -11,15 +11,50 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
+
+// Defines values for UserRole.
+const (
+	Administrator UserRole = "Administrator"
+	Regular       UserRole = "Regular"
+)
+
+// Valid indicates whether the value is a known member of the UserRole enum.
+func (e UserRole) Valid() bool {
+	switch e {
+	case Administrator:
+		return true
+	case Regular:
+		return true
+	default:
+		return false
+	}
+}
+
+// Event defines model for Event.
+type Event struct {
+	EndsAt     time.Time          `json:"endsAt"`
+	EventType  string             `json:"eventType"`
+	Id         openapi_types.UUID `json:"id"`
+	IsVirtual  bool               `json:"isVirtual"`
+	Slug       string             `json:"slug"`
+	StartsAt   time.Time          `json:"startsAt"`
+	SubtitleEn *string            `json:"subtitleEn,omitempty"`
+	SubtitlePl *string            `json:"subtitlePl,omitempty"`
+	TitleEn    string             `json:"titleEn"`
+	TitlePl    string             `json:"titlePl"`
+}
 
 // Health defines model for Health.
 type Health struct {
@@ -39,6 +74,70 @@ type Host struct {
 	Salutation *string `json:"salutation,omitempty"`
 }
 
+// PaginatedEvents defines model for PaginatedEvents.
+type PaginatedEvents struct {
+	Data []Event `json:"data"`
+
+	// Pagination Pagination metadata describing the returned page.
+	Pagination Pagination `json:"pagination"`
+}
+
+// PaginatedHosts defines model for PaginatedHosts.
+type PaginatedHosts struct {
+	Data []Host `json:"data"`
+
+	// Pagination Pagination metadata describing the returned page.
+	Pagination Pagination `json:"pagination"`
+}
+
+// PaginatedUsers defines model for PaginatedUsers.
+type PaginatedUsers struct {
+	Data []User `json:"data"`
+
+	// Pagination Pagination metadata describing the returned page.
+	Pagination Pagination `json:"pagination"`
+}
+
+// PaginatedVideos defines model for PaginatedVideos.
+type PaginatedVideos struct {
+	Data []Video `json:"data"`
+
+	// Pagination Pagination metadata describing the returned page.
+	Pagination Pagination `json:"pagination"`
+}
+
+// Pagination Pagination metadata describing the returned page.
+type Pagination struct {
+	// Page The 1-based page number that was returned.
+	Page int32 `json:"page"`
+
+	// PerPage The effective page size after clamping.
+	PerPage int32 `json:"perPage"`
+
+	// Total Total number of items across all pages.
+	Total int64 `json:"total"`
+
+	// TotalPages Total number of pages given the effective page size.
+	TotalPages int32 `json:"totalPages"`
+}
+
+// User defines model for User.
+type User struct {
+	Email            openapi_types.Email `json:"email"`
+	EmailConfirmedAt *time.Time          `json:"emailConfirmedAt,omitempty"`
+	FamilyName       string              `json:"familyName"`
+	GivenName        string              `json:"givenName"`
+	Id               openapi_types.UUID  `json:"id"`
+	InsertedAt       time.Time           `json:"insertedAt"`
+
+	// PreferredLocale Locale code, e.g. pl or en
+	PreferredLocale string   `json:"preferredLocale"`
+	Role            UserRole `json:"role"`
+}
+
+// UserRole defines model for User.Role.
+type UserRole string
+
 // Video defines model for Video.
 type Video struct {
 	Id      openapi_types.UUID `json:"id"`
@@ -46,17 +145,68 @@ type Video struct {
 	TitlePl string             `json:"titlePl"`
 }
 
+// PageParam defines model for PageParam.
+type PageParam = int32
+
+// PerPageParam defines model for PerPageParam.
+type PerPageParam = int32
+
+// ListEventsParams defines parameters for ListEvents.
+type ListEventsParams struct {
+	// Page 1-based page number. Values below 1 are treated as 1.
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Number of items per page. Clamped to the [1, 100] range.
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ListHostsParams defines parameters for ListHosts.
+type ListHostsParams struct {
+	// Page 1-based page number. Values below 1 are treated as 1.
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Number of items per page. Clamped to the [1, 100] range.
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ListUsersParams defines parameters for ListUsers.
+type ListUsersParams struct {
+	// Page 1-based page number. Values below 1 are treated as 1.
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Number of items per page. Clamped to the [1, 100] range.
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Search Filter term. An email address is matched exactly via the email_hash index; any other value is a case-insensitive substring match on decrypted given/family names.
+	Search *string `form:"search,omitempty" json:"search,omitempty"`
+}
+
+// ListVideosParams defines parameters for ListVideos.
+type ListVideosParams struct {
+	// Page 1-based page number. Values below 1 are treated as 1.
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Number of items per page. Clamped to the [1, 100] range.
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// ListEvents List events
+	// (GET /events)
+	ListEvents(w http.ResponseWriter, r *http.Request, params ListEventsParams)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
-	// ListHosts List all hosts
+	// ListHosts List hosts
 	// (GET /hosts)
-	ListHosts(w http.ResponseWriter, r *http.Request)
-	// ListVideos List all videos
+	ListHosts(w http.ResponseWriter, r *http.Request, params ListHostsParams)
+	// ListUsers List users
+	// (GET /users)
+	ListUsers(w http.ResponseWriter, r *http.Request, params ListUsersParams)
+	// ListVideos List videos
 	// (GET /videos)
-	ListVideos(w http.ResponseWriter, r *http.Request)
+	ListVideos(w http.ResponseWriter, r *http.Request, params ListVideosParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -67,6 +217,52 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// ListEvents operation middleware
+func (siw *ServerInterfaceWrapper) ListEvents(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListEventsParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "page", r.URL.Query(), &params.Page, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "page"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "perPage", r.URL.Query(), &params.PerPage, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "perPage"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "perPage", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListEvents(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // GetHealth operation middleware
 func (siw *ServerInterfaceWrapper) GetHealth(w http.ResponseWriter, r *http.Request) {
@@ -85,8 +281,99 @@ func (siw *ServerInterfaceWrapper) GetHealth(w http.ResponseWriter, r *http.Requ
 // ListHosts operation middleware
 func (siw *ServerInterfaceWrapper) ListHosts(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListHostsParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "page", r.URL.Query(), &params.Page, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "page"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "perPage", r.URL.Query(), &params.PerPage, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "perPage"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "perPage", Err: err})
+		}
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListHosts(w, r)
+		siw.Handler.ListHosts(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListUsers operation middleware
+func (siw *ServerInterfaceWrapper) ListUsers(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListUsersParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "page", r.URL.Query(), &params.Page, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "page"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "perPage", r.URL.Query(), &params.PerPage, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "perPage"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "perPage", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "search" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "search", r.URL.Query(), &params.Search, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "search"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "search", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListUsers(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -99,8 +386,40 @@ func (siw *ServerInterfaceWrapper) ListHosts(w http.ResponseWriter, r *http.Requ
 // ListVideos operation middleware
 func (siw *ServerInterfaceWrapper) ListVideos(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListVideosParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "page", r.URL.Query(), &params.Page, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "page"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "perPage", r.URL.Query(), &params.PerPage, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "perPage"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "perPage", Err: err})
+		}
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListVideos(w, r)
+		siw.Handler.ListVideos(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -231,10 +550,34 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	}
 
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/health", wrapper.GetHealth)
-	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/users", wrapper.ListUsers)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/videos", wrapper.ListVideos)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events", wrapper.ListEvents)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
 
 	return m
+}
+
+type ListEventsRequestObject struct {
+	Params ListEventsParams
+}
+
+type ListEventsResponseObject interface {
+	VisitListEventsResponse(w http.ResponseWriter) error
+}
+
+type ListEvents200JSONResponse PaginatedEvents
+
+func (response ListEvents200JSONResponse) VisitListEventsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
 }
 
 type GetHealthRequestObject struct {
@@ -259,13 +602,14 @@ func (response GetHealth200JSONResponse) VisitGetHealthResponse(w http.ResponseW
 }
 
 type ListHostsRequestObject struct {
+	Params ListHostsParams
 }
 
 type ListHostsResponseObject interface {
 	VisitListHostsResponse(w http.ResponseWriter) error
 }
 
-type ListHosts200JSONResponse []Host
+type ListHosts200JSONResponse PaginatedHosts
 
 func (response ListHosts200JSONResponse) VisitListHostsResponse(w http.ResponseWriter) error {
 
@@ -279,14 +623,37 @@ func (response ListHosts200JSONResponse) VisitListHostsResponse(w http.ResponseW
 	return err
 }
 
+type ListUsersRequestObject struct {
+	Params ListUsersParams
+}
+
+type ListUsersResponseObject interface {
+	VisitListUsersResponse(w http.ResponseWriter) error
+}
+
+type ListUsers200JSONResponse PaginatedUsers
+
+func (response ListUsers200JSONResponse) VisitListUsersResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type ListVideosRequestObject struct {
+	Params ListVideosParams
 }
 
 type ListVideosResponseObject interface {
 	VisitListVideosResponse(w http.ResponseWriter) error
 }
 
-type ListVideos200JSONResponse []Video
+type ListVideos200JSONResponse PaginatedVideos
 
 func (response ListVideos200JSONResponse) VisitListVideosResponse(w http.ResponseWriter) error {
 
@@ -302,13 +669,19 @@ func (response ListVideos200JSONResponse) VisitListVideosResponse(w http.Respons
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// ListEvents List events
+	// (GET /events)
+	ListEvents(ctx context.Context, request ListEventsRequestObject) (ListEventsResponseObject, error)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(ctx context.Context, request GetHealthRequestObject) (GetHealthResponseObject, error)
-	// ListHosts List all hosts
+	// ListHosts List hosts
 	// (GET /hosts)
 	ListHosts(ctx context.Context, request ListHostsRequestObject) (ListHostsResponseObject, error)
-	// ListVideos List all videos
+	// ListUsers List users
+	// (GET /users)
+	ListUsers(ctx context.Context, request ListUsersRequestObject) (ListUsersResponseObject, error)
+	// ListVideos List videos
 	// (GET /videos)
 	ListVideos(ctx context.Context, request ListVideosRequestObject) (ListVideosResponseObject, error)
 }
@@ -352,6 +725,32 @@ type strictHandler struct {
 	options     StrictHTTPServerOptions
 }
 
+// ListEvents operation middleware
+func (sh *strictHandler) ListEvents(w http.ResponseWriter, r *http.Request, params ListEventsParams) {
+	var request ListEventsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListEvents(ctx, request.(ListEventsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListEvents")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListEventsResponseObject); ok {
+		if err := validResponse.VisitListEventsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetHealth operation middleware
 func (sh *strictHandler) GetHealth(w http.ResponseWriter, r *http.Request) {
 	var request GetHealthRequestObject
@@ -377,8 +776,10 @@ func (sh *strictHandler) GetHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 // ListHosts operation middleware
-func (sh *strictHandler) ListHosts(w http.ResponseWriter, r *http.Request) {
+func (sh *strictHandler) ListHosts(w http.ResponseWriter, r *http.Request, params ListHostsParams) {
 	var request ListHostsRequestObject
+
+	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
 		return sh.ssi.ListHosts(ctx, request.(ListHostsRequestObject))
@@ -400,9 +801,37 @@ func (sh *strictHandler) ListHosts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ListUsers operation middleware
+func (sh *strictHandler) ListUsers(w http.ResponseWriter, r *http.Request, params ListUsersParams) {
+	var request ListUsersRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListUsers(ctx, request.(ListUsersRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListUsers")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListUsersResponseObject); ok {
+		if err := validResponse.VisitListUsersResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // ListVideos operation middleware
-func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request) {
+func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, params ListVideosParams) {
 	var request ListVideosRequestObject
+
+	request.Params = params
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
 		return sh.ssi.ListVideos(ctx, request.(ListVideosRequestObject))
@@ -429,18 +858,35 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request) {
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"vFRRayNHDP4rQu1DC5tdO4FQ9s3QUBtCGwjkJc3DeEf2TjI7Mx1p3dsL/u/HzDo2iZ3LHQf3pl1ppO+T",
-	"9OkZG98F78gJY/2M3LTUqWzOSVlpkxWiDxTF0BgiSvps0SfVBUtYo3/CAmUIyWaJxq1xuy0w0n+9iaSx",
-	"vn959rCP88tHagS3Bc49y3GdxvdO4pBMTdxEE8R4hzUubv+Bi+nl5dkUlA2tOjuHXSw0XhMW6Hpr1TIh",
-	"k9jTEbICV6ozdvhbdZTSH7nXZkPuXa/R6ffKx04J1tj3RuOJGqxsL2rE/JaCmf7hoCNmtSZ4oqEAKtcl",
-	"NL7rvCtbz8Ll4X2p48ek3rQ7YzrweEX51AzujCZ/PIRv5CpGLF25k+3Kvht7wncK8kv0Iecx2vTQuJU/",
-	"sRpOKDplQenOONCK26VXUcPsZlHC1YbiAOR08MYJGAamuCENS2qN06AcqF5acmIaJaR3WZiYjXfwGxOB",
-	"tARV/l+pYKBLiwfGwf+0rKLvheLvBbBPcZFSCechUDzbV/Uxf68MWZ3L+Wg+5zGnNCn9qMHyX/fSBKxx",
-	"7jvywCoYcgyzjGt2s8ACNxR5JD8pp+UkddwHcioYrPGinJQXWGBQ0uZ5Vu1e1WvKokvTzuUXGmv8i2Sn",
-	"+zQbDt7xuAjnk8koSifk8kMVgk19Mt5Vjzxu+Qg9Wb9GWmGNv1SH+1Ltjku1q5Dn+Hp+txQ3psl9G4EO",
-	"eUu47zqVTgFep40mZgjRLyk7qyyXdxldG5Z5jvhBRkao4w+ppVO23W+silENp4jOwBoW8CvI6AvwUVNM",
-	"qziASxp9S5sFlLVj9Eh7kxT7dd53Y8jPID7ej+9iPhJ4RX3x53vEd2xzwqzayFjfP2MfLdZ4UCRuH7Zf",
-	"AgAA//8=",
+	"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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

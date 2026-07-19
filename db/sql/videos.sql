@@ -2,6 +2,13 @@
 select v.* from videos v
 order by v.id desc;
 
+-- name: PaginateVideos :many
+select * from videos v order by v.id desc
+limit @per_page offset ((@page - 1) * @per_page);
+
+-- name: CountVideos :one
+select count(*) from videos;
+
 -- name: ListVideoGroupsForUser :many
 select sqlc.embed(vg), a.has_access from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = @user_id::uuid

@@ -6,6 +6,13 @@ info:
     Internal admin dashboard API. Every endpoint is served behind an
     authenticated admin session (see the /api/admin mount in web/router),
     so there is no per-endpoint or per-field authorization in the schema.
+
+
+    List endpoints share a common pagination contract: they accept `page`
+    and `perPage` query parameters and return an envelope with a `data`
+    array and a `pagination` metadata object. Resource payloads are flat -
+    associations (hosts, prices, registrations, ...) are intentionally
+    omitted from the list representations.
 servers:
   - url: /api/admin
 
@@ -22,35 +29,106 @@ paths:
               schema:
                 $ref: "#/components/schemas/Health"
 
-  /hosts:
+  /users:
     get:
-      operationId: listHosts
-      summary: List all hosts
+      operationId: listUsers
+      summary: List users
+      description: >
+        Optionally filtered by `search`. Because user PII is encrypted at rest,
+        the filter has two paths: an email-shaped term is matched exactly against
+        the `email_hash` blind index (at most one result); any other term is
+        matched as a case-insensitive substring against the decrypted given and
+        family names, scanned in application code (unindexed, O(n)).
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - name: search
+          in: query
+          required: false
+          description: >
+            Filter term. An email address is matched exactly via the email_hash
+            index; any other value is a case-insensitive substring match on
+            decrypted given/family names.
+          schema:
+            type: string
+            minLength: 1
       responses:
         "200":
-          description: A list of hosts, ordered by name
+          description: A page of users, ordered by insertion time (newest first)
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Host"
+                $ref: "#/components/schemas/PaginatedUsers"
 
   /videos:
     get:
       operationId: listVideos
-      summary: List all videos
+      summary: List videos
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
       responses:
         "200":
-          description: A list of videos, ordered by ID
+          description: A page of videos, ordered by ID
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Video"
+                $ref: "#/components/schemas/PaginatedVideos"
+
+  /events:
+    get:
+      operationId: listEvents
+      summary: List events
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: A page of events, ordered by start time (newest first)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedEvents"
+
+  /hosts:
+    get:
+      operationId: listHosts
+      summary: List hosts
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: A page of hosts, ordered by name
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedHosts"
 
 components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      description: 1-based page number. Values below 1 are treated as 1.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        default: 1
+    PerPageParam:
+      name: perPage
+      in: query
+      required: false
+      description: Number of items per page. Clamped to the [1, 100] range.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 25
+
   schemas:
     Health:
       type: object
@@ -59,6 +137,146 @@ components:
         status:
           type: string
           example: ok
+
+    Pagination:
+      type: object
+      description: Pagination metadata describing the returned page.
+      required: [page, perPage, total, totalPages]
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          description: The 1-based page number that was returned.
+        perPage:
+          type: integer
+          format: int32
+          minimum: 1
+          description: The effective page size after clamping.
+        total:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Total number of items across all pages.
+        totalPages:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Total number of pages given the effective page size.
+
+    PaginatedUsers:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    PaginatedVideos:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Video"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    PaginatedEvents:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    PaginatedHosts:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Host"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    User:
+      type: object
+      required: [id, email, givenName, familyName, role, preferredLocale, insertedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        givenName:
+          type: string
+        familyName:
+          type: string
+        role:
+          type: string
+          enum: [Regular, Administrator]
+        preferredLocale:
+          type: string
+          description: Locale code, e.g. pl or en
+        emailConfirmedAt:
+          type: string
+          format: date-time
+          nullable: true
+        insertedAt:
+          type: string
+          format: date-time
+
+    Video:
+      type: object
+      required: [id, titlePl, titleEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+
+    Event:
+      type: object
+      required: [id, slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        subtitlePl:
+          type: string
+          nullable: true
+        subtitleEn:
+          type: string
+          nullable: true
+        eventType:
+          type: string
+        isVirtual:
+          type: boolean
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
 
     Host:
       type: object
@@ -79,15 +297,3 @@ components:
           type: string
           nullable: true
           description: ISO 3166-1 alpha-2 country code
-
-    Video:
-      type: object
-      required: [id, titlePl, titleEn]
-      properties:
-        id:
-          type: string
-          format: uuid
-        titlePl:
-          type: string
-        titleEn:
-          type: string
