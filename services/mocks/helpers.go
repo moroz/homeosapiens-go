@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -130,10 +129,7 @@ func Video(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 		Slug:            "video-" + hex.EncodeToString(unique),
 		Provider:        queries.VideoProviderCloudfront,
 		DurationSeconds: new(int32(420)),
-		RecordedOn: pgtype.Date{
-			Time:  time.Now(),
-			Valid: true,
-		},
+		RecordedOn:      new(time.Now()),
 	}
 
 	for _, f := range overrides {

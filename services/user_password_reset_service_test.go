@@ -28,7 +28,7 @@ func TestUserPasswordResetService(t *testing.T) {
 		_, err = db.Exec(ctx, "truncate river_job")
 		require.NoError(t, err)
 
-		sent, err := srv.MaybeIssuePasswordResetTokenForUser(ctx, user.Email.String())
+		sent, err := srv.MaybeIssuePasswordResetTokenForUser(ctx, user.Email.Plaintext())
 		assert.NoError(t, err)
 		assert.True(t, sent)
 

@@ -51,9 +51,9 @@ func (cc *orderController) New(c *echo.Context) error {
 	}
 
 	if ctx.User != nil {
-		params.BillingGivenName = ctx.User.GivenName.String()
-		params.BillingFamilyName = ctx.User.FamilyName.String()
-		params.Email = ctx.User.Email.String()
+		params.BillingGivenName = ctx.User.GivenName.Plaintext()
+		params.BillingFamilyName = ctx.User.FamilyName.Plaintext()
+		params.Email = ctx.User.Email.Plaintext()
 	}
 
 	return orders.New(ctx, cart, params, validation.Errors{}).Render(c.Response())

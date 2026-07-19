@@ -14,7 +14,7 @@ func Avatar(user *queries.User) Node {
 		)
 	}
 
-	initials := user.GivenName.String()[0:1] + user.FamilyName.String()[0:1]
+	initials := user.GivenName.Plaintext()[0:1] + user.FamilyName.Plaintext()[0:1]
 
 	return Div(
 		Class("inline-flex aspect-square h-10 items-center justify-center rounded-full bg-primary text-lg font-semibold text-white uppercase"),

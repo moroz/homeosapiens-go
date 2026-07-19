@@ -56,7 +56,7 @@ func TestPasswordResetFlow(t *testing.T) {
 		require.NoError(t, err)
 		db.Exec(t.Context(), "truncate river_job")
 
-		req := buildResetPasswordRequest(t, user.Email.String())
+		req := buildResetPasswordRequest(t, user.Email.Plaintext())
 		tt := httptest.NewRecorder()
 		r.ServeHTTP(tt, req)
 

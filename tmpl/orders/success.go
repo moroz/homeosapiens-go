@@ -22,7 +22,7 @@ func Success(ctx *types.CustomContext, order *types.OrderDTO) Node {
 		TemplateData: map[string]string{
 			"Amount":      helpers.FormatPrice(order.GrandTotal, order.Currency, ctx.Language),
 			"OrderNumber": strconv.Itoa(int(order.OrderNumber)),
-			"Email":       order.Email.String(),
+			"Email":       order.Email.Plaintext(),
 		},
 	})
 

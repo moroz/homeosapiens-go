@@ -28,9 +28,9 @@ func Index(ctx *types.CustomContext, users []*queries.User) Node {
 				Map(users, func(u *queries.User) Node {
 					return Tr(
 						Data("url", fmt.Sprintf("/admin/users/%s", u.ID)),
-						Td(Text(u.GivenName.String())),
-						Td(Text(u.FamilyName.String())),
-						Td(Text(u.Email.String())),
+						Td(Text(u.GivenName.Plaintext())),
+						Td(Text(u.FamilyName.Plaintext())),
+						Td(Text(u.Email.Plaintext())),
 						Td(Text(helpers.DerefOrEmpty(u.Country))),
 					)
 				}),

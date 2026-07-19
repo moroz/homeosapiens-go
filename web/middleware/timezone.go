@@ -22,7 +22,7 @@ func ResolveTimezone(next echo.HandlerFunc) echo.HandlerFunc {
 		// For logged-in users with no session timezone yet, fall back to the
 		// value persisted in the database from a previous session.
 		if !ctx.TimezoneSet && ctx.User != nil && ctx.User.PreferredTimezone != nil {
-			if loaded, err := time.LoadLocation(ctx.User.PreferredTimezone.String()); err == nil {
+			if loaded, err := time.LoadLocation(ctx.User.PreferredTimezone.Plaintext()); err == nil {
 				ctx.Timezone = loaded
 				ctx.TimezoneSet = true
 			}

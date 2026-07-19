@@ -46,7 +46,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 		require.NoError(t, err)
 		require.Nil(t, user.EmailConfirmedAt)
 
-		req := buildVerifyEmailRequest(t, user.Email.String())
+		req := buildVerifyEmailRequest(t, user.Email.Plaintext())
 
 		_, err = db.Exec(ctx, "truncate river_job")
 		require.NoError(t, err)
@@ -67,7 +67,7 @@ func TestUserVerificationController_Create(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, user.EmailConfirmedAt)
 
-		req := buildVerifyEmailRequest(t, user.Email.String())
+		req := buildVerifyEmailRequest(t, user.Email.Plaintext())
 
 		_, err = db.Exec(ctx, "truncate river_job")
 		require.NoError(t, err)

@@ -10,7 +10,7 @@ import (
 )
 
 func UserHeader(ctx *types.CustomContext) Node {
-	title := ctx.User.GivenName.String() + " " + ctx.User.FamilyName.String()
+	title := ctx.User.GivenName.Plaintext() + " " + ctx.User.FamilyName.Plaintext()
 	l := ctx.Localizer
 
 	return Div(
@@ -24,7 +24,7 @@ func UserHeader(ctx *types.CustomContext) Node {
 				Div(
 					Class("flex flex-col text-right"),
 					Strong(Text(title)),
-					Span(Class("text-sm"), Text(ctx.User.Email.String())),
+					Span(Class("text-sm"), Text(ctx.User.Email.Plaintext())),
 				),
 			),
 			Section(

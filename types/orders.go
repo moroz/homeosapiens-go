@@ -46,5 +46,5 @@ type OrderDTO struct {
 }
 
 func (o *OrderDTO) EmailRecipient() string {
-	return fmt.Sprintf("%s %s <%s>", o.BillingGivenName.String(), o.BillingFamilyName.String(), o.Email.String())
+	return fmt.Sprintf("%s %s <%s>", o.BillingGivenName.Plaintext(), o.BillingFamilyName.Plaintext(), o.Email.Plaintext())
 }

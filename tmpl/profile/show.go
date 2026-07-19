@@ -7,9 +7,11 @@ import (
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+
+	. "maragu.dev/gomponents"
+
+	. "maragu.dev/gomponents/html"
 )
-import . "maragu.dev/gomponents"
-import . "maragu.dev/gomponents/html"
 
 func Show(ctx *types.CustomContext) Node {
 	l := ctx.Localizer
@@ -29,14 +31,14 @@ func Show(ctx *types.CustomContext) Node {
 				Input(Type("hidden"), Name("_method"), Value("PUT")),
 				components.DisplayField(&components.DisplayFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{ID: "common.users.email"}),
-					Value: ctx.User.Email.String(),
+					Value: ctx.User.Email.Plaintext(),
 				}),
 				components.InputField(&components.InputFieldOptions{
 					Label: l.MustLocalizeMessage(&i18n.Message{
 						ID: "common.users.given_name",
 					}),
 					Name:     "given_name",
-					Value:    ctx.User.GivenName.String(),
+					Value:    ctx.User.GivenName.Plaintext(),
 					Required: true,
 				}),
 				components.InputField(&components.InputFieldOptions{
@@ -44,7 +46,7 @@ func Show(ctx *types.CustomContext) Node {
 						ID: "common.users.family_name",
 					}),
 					Name:     "family_name",
-					Value:    ctx.User.FamilyName.String(),
+					Value:    ctx.User.FamilyName.Plaintext(),
 					Required: true,
 				}),
 				components.CountrySelect(&components.CountrySelectOptions{

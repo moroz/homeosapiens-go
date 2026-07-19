@@ -16,7 +16,7 @@ type UserTokenDTO struct {
 }
 
 func (u *UserTokenDTO) EmailRecipient() string {
-	return fmt.Sprintf("%s %s <%s>", u.GivenName.String(), u.FamilyName.String(), u.Email.String())
+	return fmt.Sprintf("%s %s <%s>", u.GivenName.Plaintext(), u.FamilyName.Plaintext(), u.Email.Plaintext())
 }
 
 func (u *UserTokenDTO) EncodeToken() string {

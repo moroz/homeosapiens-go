@@ -15,11 +15,11 @@ func Success(ctx *types.CustomContext, user *queries.User, tokenParam string) No
 	l := ctx.Localizer
 	title := l.MustLocalizeMessage(&i18n.Message{ID: "user_registrations.success.title"})
 
-	isGoogle := user != nil && strings.HasSuffix(user.Email.String(), "@gmail.com")
+	isGoogle := user != nil && strings.HasSuffix(user.Email.Plaintext(), "@gmail.com")
 
 	email := ""
 	if user != nil {
-		email = user.Email.String()
+		email = user.Email.Plaintext()
 	}
 
 	return layout.Layout(ctx, title,

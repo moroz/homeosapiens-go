@@ -15,7 +15,7 @@ type EventRegistrationEmailDTO struct {
 }
 
 func (d *EventRegistrationEmailDTO) EmailRecipient() string {
-	return fmt.Sprintf("%s %s <%s>", d.User.GivenName.String(), d.User.FamilyName.String(), d.User.Email.String())
+	return fmt.Sprintf("%s %s <%s>", d.User.GivenName.Plaintext(), d.User.FamilyName.Plaintext(), d.User.Email.Plaintext())
 }
 
 func (d *EventRegistrationEmailDTO) lang() string {
@@ -31,7 +31,7 @@ func (d *EventRegistrationEmailDTO) Title() string {
 
 func (d *EventRegistrationEmailDTO) timezone() *time.Location {
 	if d.User.PreferredTimezone != nil {
-		if loc, err := time.LoadLocation(d.User.PreferredTimezone.String()); err == nil {
+		if loc, err := time.LoadLocation(d.User.PreferredTimezone.Plaintext()); err == nil {
 			return loc
 		}
 	}

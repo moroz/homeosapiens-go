@@ -50,13 +50,13 @@ func (s *stripeService) CreateCheckoutSession(ctx context.Context, order *types.
 	successUrl := config.PublicUrl + "/orders/success?session_id={CHECKOUT_SESSION_ID}"
 
 	return s.client.V1CheckoutSessions.Create(ctx, &stripe.CheckoutSessionCreateParams{
-		ClientReferenceID: stripe.String(order.ID.String()),
+		ClientReferenceID: new(order.ID.String()),
 		Mode:              stripe.String(stripe.CheckoutSessionModePayment),
 		Currency:          &order.Currency,
 		LineItems:         lineItems,
 		UIMode:            stripe.String(stripe.CheckoutSessionUIModeHosted),
-		CustomerEmail:     stripe.String(order.Email.String()),
-		SuccessURL:        stripe.String(successUrl),
+		CustomerEmail:     new(order.Email.Plaintext()),
+		SuccessURL:        new(successUrl),
 	})
 }
 

@@ -59,7 +59,7 @@ func TestAuthenticateUserByEmailPassword(t *testing.T) {
 		}
 
 		for _, pass := range passwords {
-			actual, err := subject.AuthenticateUserByEmailPassword(t.Context(), user.Email.String(), pass)
+			actual, err := subject.AuthenticateUserByEmailPassword(t.Context(), user.Email.Plaintext(), pass)
 			assert.Nil(t, actual)
 			assert.ErrorIs(t, err, services.ErrInvalidPassword)
 		}
