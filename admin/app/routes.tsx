@@ -1,12 +1,20 @@
 import type { RouteObject } from "react-router";
 
-import { RootLayout, RootErrorBoundary } from "./root";
-import Home from "./routes/home";
+import { AdminLayout } from "./components/admin-layout";
+import { RootErrorBoundary } from "./root";
+import Events from "./routes/events";
+import Users from "./routes/users";
+import Videos from "./routes/videos";
 
 export const routes: RouteObject[] = [
   {
-    element: <RootLayout />,
+    element: <AdminLayout />,
     errorElement: <RootErrorBoundary />,
-    children: [{ index: true, element: <Home /> }],
+    children: [
+      { index: true, element: <Videos /> },
+      { path: "videos", element: <Videos /> },
+      { path: "users", element: <Users /> },
+      { path: "events", element: <Events /> },
+    ],
   },
 ];
