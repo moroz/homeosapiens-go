@@ -14,6 +14,7 @@ func RootLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 		Head(
 			Meta(Charset("UTF-8")),
 			Meta(Name("viewport"), Content("width=device-width, initial-scale=1")),
+			Meta(Name("robots"), Content("noindex, nofollow")),
 			TitleEl(Text(title+" | Homeo sapiens")),
 			AssetEntryPoint(ctx),
 			fonts(),

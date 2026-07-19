@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 
 param(
-  [string]$RemoteHost = "hs.authorizz.com",
+  [string]$RemoteHost = "64.176.71.228",
   [string]$RemoteUser = "deploy"
 )
 
