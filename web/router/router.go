@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 
 	httpetag "github.com/go-http-utils/etag"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -55,12 +54,11 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	}
 	r.Use(echomiddleware.Recover())
 
-	if config.IsProd {
-		r.IPExtractor = echo.ExtractIPFromXFFHeader()
-		r.Static("/assets", "assets/dist/assets", CacheControlMiddleware)
-	} else {
+	if !config.IsProd {
 		r.IPExtractor = echo.ExtractIPDirect()
 		r.Static("/assets", "assets/public/assets")
+
+		mountAdminSPAProxy(r)
 	}
 
 	r.Use(middleware.ExtendContext(store))
@@ -180,7 +178,6 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	// /admin/* namespace to the Vite dev server so HMR works. In prod, Caddy
 	// serves the built dist/ directly and never reaches Go.
 	if !config.IsProd {
-		mountAdminSPAProxy(r)
 	}
 
 	if !config.IsProd {
@@ -207,22 +204,9 @@ func mountAdminSPAProxy(r *echo.Echo) {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	handler := echo.WrapHandler(proxy)
 
-	r.Any("/admin", handler)
-	r.Any("/admin/*", handler)
-}
+	r.Any("/admin/*", handler, middleware.RequireAdmin)
 
-func CacheControlMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c *echo.Context) error {
-		path := c.Request().URL.Path
-
-		// Cache versioned assets (containing hash in filename) for 1 year
-		if strings.Contains(path, "-") && (strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".css")) {
-			c.Response().Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		} else {
-			// Short cache for other assets
-			c.Response().Header().Set("Cache-Control", "public, max-age=3600")
-		}
-
-		return next(c)
-	}
+	r.GET("/admin", func(c *echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/admin/")
+	})
 }
