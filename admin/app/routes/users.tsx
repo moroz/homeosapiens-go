@@ -1,3 +1,3 @@
 export default function Users() {
-  return <h1 className="text-2xl font-semibold font-heading">Users</h1>;
+  return <h1 className="font-heading text-2xl font-semibold">Users</h1>;
 }

@@ -29,9 +29,7 @@ export function AdminLayout() {
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <div className="px-2 py-1.5 text-lg font-semibold font-heading">
-            Homeo sapiens
-          </div>
+          <div className="px-2 py-1.5 font-heading text-lg font-semibold">Homeo sapiens</div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
@@ -41,10 +39,7 @@ export function AdminLayout() {
                 {NAV_ITEMS.map((item) => (
                   <SidebarMenuItem key={item.to}>
                     <SidebarMenuButton
-                      isActive={
-                        pathname === item.to ||
-                        pathname.startsWith(item.to + "/")
-                      }
+                      isActive={pathname === item.to || pathname.startsWith(item.to + "/")}
                       tooltip={item.title}
                       render={<NavLink to={item.to} />}
                     >

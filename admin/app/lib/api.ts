@@ -15,10 +15,7 @@ export class ApiError extends Error {
  *
  * @param path API path relative to `/api/admin`, e.g. `/health`.
  */
-export async function apiFetch<T>(
-  path: string,
-  init?: RequestInit
-): Promise<T> {
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
@@ -28,10 +25,7 @@ export async function apiFetch<T>(
   });
 
   if (!response.ok) {
-    throw new ApiError(
-      response.status,
-      `Request to ${path} failed with status ${response.status}`
-    );
+    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
   }
 
   return response.json() as Promise<T>;

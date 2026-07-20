@@ -1,3 +1,3 @@
 export default function Events() {
-  return <h1 className="text-2xl font-semibold font-heading">Events</h1>;
+  return <h1 className="font-heading text-2xl font-semibold">Events</h1>;
 }

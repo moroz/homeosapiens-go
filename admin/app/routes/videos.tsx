@@ -1,3 +1,3 @@
 export default function Videos() {
-  return <h1 className="text-2xl font-semibold font-heading">Videos</h1>;
+  return <h1 className="font-heading text-2xl font-semibold">Videos</h1>;
 }
