@@ -1,3 +1,7 @@
+import createClient, { type Middleware } from "openapi-fetch";
+
+import type { paths } from "~/lib/api-types";
+
 const API_BASE = "/api/admin";
 
 export class ApiError extends Error {
@@ -11,22 +15,27 @@ export class ApiError extends Error {
 }
 
 /**
- * Minimal typed fetch helper for the same-origin `/api/admin` JSON API.
- *
- * @param path API path relative to `/api/admin`, e.g. `/health`.
+ * Throw {@link ApiError} on non-2xx so React Query treats it as an error.
  */
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      ...init?.headers,
-    },
-  });
+const throwOnError: Middleware = {
+  async onResponse({ response }) {
+    if (!response.ok) {
+      throw new ApiError(
+        response.status,
+        `Request to ${new URL(response.url).pathname} failed with status ${response.status}`,
+      );
+    }
+    return response;
+  },
+};
 
-  if (!response.ok) {
-    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
-  }
+/**
+ * Typed client for the same-origin `/api/admin` JSON API.
+ * Paths and payloads are checked against `api-types.ts` (regen with `pnpm gen:api`).
+ */
+export const api = createClient<paths>({
+  baseUrl: API_BASE,
+  headers: { Accept: "application/json" },
+});
 
-  return response.json() as Promise<T>;
-}
+api.use(throwOnError);

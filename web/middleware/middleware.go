@@ -16,7 +16,7 @@ import (
 func ExtendContext(store *sessions.Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			c.Set("context", types.NewContext(store))
+			c.Set(config.CustomContextKey, types.NewContext(store))
 			return next(c)
 		}
 	}
@@ -73,5 +73,15 @@ func StoreLocalePreference(db queries.DBTX) echo.MiddlewareFunc {
 
 			return next(c)
 		}
+	}
+}
+
+func InjectCustomContextInRequestContext(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		customContext := helpers.GetRequestContext(c)
+		req := c.Request()
+		ctx := context.WithValue(req.Context(), config.CustomContextKey, customContext)
+		c.SetRequest(req.WithContext(ctx))
+		return next(c)
 	}
 }

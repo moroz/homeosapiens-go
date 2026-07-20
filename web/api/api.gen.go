@@ -132,6 +132,7 @@ type User struct {
 
 	// PreferredLocale Locale code, e.g. pl or en
 	PreferredLocale string   `json:"preferredLocale"`
+	ProfilePicture  *string  `json:"profilePicture,omitempty"`
 	Role            UserRole `json:"role"`
 }
 
@@ -201,6 +202,9 @@ type ServerInterface interface {
 	// ListHosts List hosts
 	// (GET /hosts)
 	ListHosts(w http.ResponseWriter, r *http.Request, params ListHostsParams)
+	// GetSession Get the currently signed in user
+	// (GET /session)
+	GetSession(w http.ResponseWriter, r *http.Request)
 	// ListUsers List users
 	// (GET /users)
 	ListUsers(w http.ResponseWriter, r *http.Request, params ListUsersParams)
@@ -315,6 +319,20 @@ func (siw *ServerInterfaceWrapper) ListHosts(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListHosts(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetSession operation middleware
+func (siw *ServerInterfaceWrapper) GetSession(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetSession(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -550,6 +568,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	}
 
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/health", wrapper.GetHealth)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/session", wrapper.GetSession)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/users", wrapper.ListUsers)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/videos", wrapper.ListVideos)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events", wrapper.ListEvents)
@@ -623,6 +642,35 @@ func (response ListHosts200JSONResponse) VisitListHostsResponse(w http.ResponseW
 	return err
 }
 
+type GetSessionRequestObject struct {
+}
+
+type GetSessionResponseObject interface {
+	VisitGetSessionResponse(w http.ResponseWriter) error
+}
+
+type GetSession200JSONResponse User
+
+func (response GetSession200JSONResponse) VisitGetSessionResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetSession401Response struct {
+}
+
+func (response GetSession401Response) VisitGetSessionResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 type ListUsersRequestObject struct {
 	Params ListUsersParams
 }
@@ -678,6 +726,9 @@ type StrictServerInterface interface {
 	// ListHosts List hosts
 	// (GET /hosts)
 	ListHosts(ctx context.Context, request ListHostsRequestObject) (ListHostsResponseObject, error)
+	// GetSession Get the currently signed in user
+	// (GET /session)
+	GetSession(ctx context.Context, request GetSessionRequestObject) (GetSessionResponseObject, error)
 	// ListUsers List users
 	// (GET /users)
 	ListUsers(ctx context.Context, request ListUsersRequestObject) (ListUsersResponseObject, error)
@@ -801,6 +852,30 @@ func (sh *strictHandler) ListHosts(w http.ResponseWriter, r *http.Request, param
 	}
 }
 
+// GetSession operation middleware
+func (sh *strictHandler) GetSession(w http.ResponseWriter, r *http.Request) {
+	var request GetSessionRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetSession(ctx, request.(GetSessionRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetSession")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetSessionResponseObject); ok {
+		if err := validResponse.VisitGetSessionResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // ListUsers operation middleware
 func (sh *strictHandler) ListUsers(w http.ResponseWriter, r *http.Request, params ListUsersParams) {
 	var request ListUsersRequestObject
@@ -858,35 +933,37 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, para
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
+	"/wUAAP//",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

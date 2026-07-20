@@ -169,6 +169,7 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	// proxy exceptions.
 	Group(r, "/api/admin", func(r *echo.Group) {
 		r.Use(middleware.RequireAdmin)
+		r.Use(middleware.InjectCustomContextInRequestContext)
 
 		apiServer := api.NewServer(db)
 		r.Any("/*", echo.WrapHandler(apiServer.Handler("/api/admin")))

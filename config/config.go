@@ -112,6 +112,7 @@ const FlashSessionKey = "_flash"
 const CartIdSessionKey = "cart_id"
 const AccessTokenSessionKey = "access_token"
 const LanguageSessionKey = "lang"
+const CustomContextKey = "context"
 
 const MinPasswordLength = 8
 const MaxPasswordLength = 128

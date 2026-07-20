@@ -169,3 +169,10 @@ if [[ $(uname) = "Linux" ]]; then
   getcap $(mise which caddy) | grep -q 'cap_net_bind_service' || sudo setcap 'cap_net_bind_service=+ep' $(mise which caddy)
 fi
 """
+
+[tasks.gen]
+run = """
+sqlc generate
+go generate ./...
+cd admin && pnpm run gen:api
+"""

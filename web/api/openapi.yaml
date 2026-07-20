@@ -29,6 +29,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/Health"
 
+  /session:
+    get:
+      operationId: getSession
+      summary: Get the currently signed in user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+
   /users:
     get:
       operationId: listUsers
@@ -235,6 +249,9 @@ components:
         insertedAt:
           type: string
           format: date-time
+        profilePicture:
+          type: string
+          format: uri
 
     Video:
       type: object

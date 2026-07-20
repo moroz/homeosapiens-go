@@ -1,9 +1,15 @@
-import { CalendarDots, Users, VideoCamera } from "@phosphor-icons/react";
+import {
+  CalendarDotsIcon as CalendarDots,
+  UsersIcon as Users,
+  VideoCameraIcon as VideoCamera,
+} from "@phosphor-icons/react";
 import { NavLink, Outlet, useLocation } from "react-router";
 
+import { NavUser } from "~/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,6 +21,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
+import { useGetSessionQuery } from "~/hooks";
 
 const NAV_ITEMS = [
   { title: "Videos", to: "/videos", icon: VideoCamera },
@@ -24,6 +31,7 @@ const NAV_ITEMS = [
 
 export function AdminLayout() {
   const { pathname } = useLocation();
+  const { data: session } = useGetSessionQuery();
 
   return (
     <SidebarProvider>
@@ -52,6 +60,7 @@ export function AdminLayout() {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-2 border-b px-4">

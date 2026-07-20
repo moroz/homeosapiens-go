@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
@@ -23,6 +24,10 @@ type Server struct {
 
 func NewServer(db queries.DBTX) *Server {
 	return &Server{q: queries.New(db), db: db}
+}
+
+func getRequestContext(ctx context.Context) *types.CustomContext {
+	return ctx.Value(config.CustomContextKey).(*types.CustomContext)
 }
 
 // Handler builds the net/http handler for the admin API, with every route
@@ -209,6 +214,7 @@ func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (
 			InsertedAt:       e.InsertedAt,
 			PreferredLocale:  string(e.PreferredLocale),
 			Role:             UserRole(e.UserRole),
+			ProfilePicture:   e.ProfilePicture,
 		}
 	}
 
@@ -220,5 +226,24 @@ func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (
 			Total:      result.TotalCount,
 			TotalPages: countPages(result.TotalCount, perPage),
 		},
+	}, nil
+}
+
+func (s *Server) GetSession(ctx context.Context, params GetSessionRequestObject) (GetSessionResponseObject, error) {
+	user := getRequestContext(ctx).User
+	if user == nil {
+		return GetSession401Response{}, nil
+	}
+
+	return GetSession200JSONResponse{
+		Email:            openapi_types.Email(user.Email.Plaintext()),
+		EmailConfirmedAt: user.EmailConfirmedAt,
+		FamilyName:       user.FamilyName.Plaintext(),
+		GivenName:        user.GivenName.Plaintext(),
+		InsertedAt:       user.InsertedAt,
+		Id:               user.ID,
+		PreferredLocale:  string(user.PreferredLocale),
+		Role:             UserRole(user.UserRole),
+		ProfilePicture:   user.ProfilePicture,
 	}, nil
 }
