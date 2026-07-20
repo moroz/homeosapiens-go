@@ -1,10 +1,9 @@
-import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
-import { useState } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
 import { DataTable } from "~/components/data-table";
-import { useListEventsQuery } from "~/hooks";
+import { useListEventsQuery, useTableSearchParams } from "~/hooks";
 import type { components } from "~/lib/api-types";
 
 type Event = components["schemas"]["Event"];
@@ -37,7 +36,7 @@ const columns: ColumnDef<Event>[] = [
 
 export default function Events() {
   const navigate = useNavigate();
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
+  const { pagination, onPaginationChange, sorting, onSortingChange } = useTableSearchParams(20);
   const { data, isPending, isError } = useListEventsQuery(
     pagination.pageIndex + 1,
     pagination.pageSize,
@@ -50,7 +49,9 @@ export default function Events() {
         data={data?.data ?? []}
         pageCount={data?.pagination.totalPages ?? 0}
         pagination={pagination}
-        onPaginationChange={setPagination}
+        onPaginationChange={onPaginationChange}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
         isPending={isPending}
         isError={isError}
         onRowClick={(event) => navigate(`/events/${event.id}`)}

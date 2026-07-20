@@ -43,6 +43,9 @@ interface DataTableProps<TData, TValue> {
   pageCount: number;
   pagination: PaginationState;
   onPaginationChange: OnChangeFn<PaginationState>;
+  /** Controlled sorting. Falls back to internal state when omitted. */
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
   isPending?: boolean;
   isError?: boolean;
   onRowClick?: (row: TData) => void;
@@ -54,12 +57,16 @@ export function DataTable<TData, TValue>({
   pageCount,
   pagination,
   onPaginationChange,
+  sorting: sortingProp,
+  onSortingChange,
   isPending,
   isError,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sortingState, setSortingState] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
+  const sorting = sortingProp ?? sortingState;
 
   const table = useReactTable({
     data,
@@ -68,7 +75,7 @@ export function DataTable<TData, TValue>({
     state: { sorting, columnVisibility, pagination },
     manualPagination: true,
     onPaginationChange,
-    onSortingChange: setSorting,
+    onSortingChange: onSortingChange ?? setSortingState,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
