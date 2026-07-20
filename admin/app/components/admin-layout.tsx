@@ -3,9 +3,11 @@ import {
   UsersIcon as Users,
   VideoCameraIcon as VideoCamera,
 } from "@phosphor-icons/react";
-import { NavLink, Outlet, useLocation } from "react-router";
+import type { ReactNode } from "react";
+import { NavLink, useLocation } from "react-router";
 
 import { NavUser } from "~/components/nav-user";
+import { Separator } from "~/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -29,12 +31,27 @@ const NAV_ITEMS = [
   { title: "Events", to: "/events", icon: CalendarDots },
 ];
 
-export function AdminLayout() {
+/**
+ * The SPA has no server render, so `SidebarProvider` never seeds its initial
+ * open state from the persisted cookie. Read it here so remounting the layout
+ * (it renders per page) keeps the collapsed/expanded state the user chose.
+ */
+function sidebarDefaultOpen() {
+  const match = document.cookie.match(/(?:^|; )sidebar_state=([^;]+)/);
+  return match ? match[1] === "true" : true;
+}
+
+interface Props {
+  title?: ReactNode;
+  children?: ReactNode;
+}
+
+export function AdminLayout({ title, children }: Props) {
   const { pathname } = useLocation();
   const { data: session } = useGetSessionQuery();
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={sidebarDefaultOpen()}>
       <Sidebar>
         <SidebarHeader>
           <div className="px-2 py-1.5 font-heading text-lg font-semibold">Homeo sapiens</div>
@@ -65,10 +82,10 @@ export function AdminLayout() {
       <SidebarInset>
         <header className="flex h-14 items-center gap-2 border-b px-4">
           <SidebarTrigger />
+          <Separator orientation="vertical" className="mx-2" />
+          <h1 className="text-base font-medium">{title}</h1>
         </header>
-        <main className="flex-1 p-4">
-          <Outlet />
-        </main>
+        <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

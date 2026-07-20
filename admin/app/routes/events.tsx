@@ -1,12 +1,13 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
+import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+
+import { AdminLayout } from "~/components/admin-layout";
+import { DataTable } from "~/components/data-table";
 import { useListEventsQuery } from "~/hooks";
+import type { components } from "~/lib/api-types";
+
+type Event = components["schemas"]["Event"];
 
 const dateStyle = { dateStyle: "medium", timeStyle: "short" } as const;
 
@@ -14,60 +15,46 @@ function formatInstant(iso: string) {
   return Temporal.Instant.from(iso).toLocaleString("en-GB", dateStyle);
 }
 
-function formatRange(startsAt: string, endsAt: string) {
-  return `${formatInstant(startsAt)} – ${formatInstant(endsAt)}`;
-}
+const columns: ColumnDef<Event>[] = [
+  {
+    accessorKey: "titleEn",
+    header: "Title (EN)",
+    cell: ({ row }) => <span className="font-medium">{row.original.titleEn}</span>,
+  },
+  { accessorKey: "titlePl", header: "Title (PL)" },
+  {
+    accessorKey: "eventType",
+    header: "Type",
+  },
+  {
+    id: "when",
+    header: "When",
+    accessorKey: "startsAt",
+    cell: ({ row }) =>
+      `${formatInstant(row.original.startsAt)} – ${formatInstant(row.original.endsAt)}`,
+  },
+];
 
 export default function Events() {
-  const { data, isPending, isError } = useListEventsQuery();
-  const events = data?.data ?? [];
+  const navigate = useNavigate();
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
+  const { data, isPending, isError } = useListEventsQuery(
+    pagination.pageIndex + 1,
+    pagination.pageSize,
+  );
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-heading text-2xl font-semibold">Events</h1>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title (EN)</TableHead>
-            <TableHead>Title (PL)</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Format</TableHead>
-            <TableHead>When</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isPending ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
-                Loading…
-              </TableCell>
-            </TableRow>
-          ) : isError ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-destructive">
-                Failed to load events.
-              </TableCell>
-            </TableRow>
-          ) : events.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
-                No events yet.
-              </TableCell>
-            </TableRow>
-          ) : (
-            events.map((event) => (
-              <TableRow key={event.id}>
-                <TableCell>{event.titleEn}</TableCell>
-                <TableCell>{event.titlePl}</TableCell>
-                <TableCell>{event.eventType}</TableCell>
-                <TableCell>{event.isVirtual ? "Virtual" : "In person"}</TableCell>
-                <TableCell>{formatRange(event.startsAt, event.endsAt)}</TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
+    <AdminLayout title="Events">
+      <DataTable
+        columns={columns}
+        data={data?.data ?? []}
+        pageCount={data?.pagination.totalPages ?? 0}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        isPending={isPending}
+        isError={isError}
+        onRowClick={(event) => navigate(`/events/${event.id}`)}
+      />
+    </AdminLayout>
   );
 }

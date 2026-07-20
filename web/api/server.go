@@ -2,7 +2,9 @@ package api
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/moroz/homeosapiens-go/config"
@@ -140,6 +142,29 @@ func (s *Server) ListVideos(ctx context.Context, params ListVideosRequestObject)
 			Total:      count,
 			TotalPages: countPages(count, perPage),
 		},
+	}, nil
+}
+
+func (s *Server) GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error) {
+	e, err := s.q.GetEventById(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return GetEvent404Response{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return GetEvent200JSONResponse{
+		Id:         e.ID,
+		Slug:       e.Slug,
+		TitleEn:    e.TitleEn,
+		TitlePl:    e.TitlePl,
+		SubtitleEn: e.SubtitleEn,
+		SubtitlePl: e.SubtitlePl,
+		EventType:  string(e.EventType),
+		IsVirtual:  e.IsVirtual,
+		StartsAt:   e.StartsAt,
+		EndsAt:     e.EndsAt,
 	}, nil
 }
 

@@ -1,3 +1,5 @@
+import { AdminLayout } from "~/components/admin-layout";
+
 export default function Videos() {
-  return <h1 className="font-heading text-2xl font-semibold">Videos</h1>;
+  return <AdminLayout title="Videos" />;
 }

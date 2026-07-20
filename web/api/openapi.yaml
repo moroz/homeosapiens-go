@@ -104,6 +104,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedEvents"
 
+  /events/{id}:
+    get:
+      operationId: getEvent
+      summary: Get a single event by primary key
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The requested event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          description: No event with that id
+
   /hosts:
     get:
       operationId: listHosts

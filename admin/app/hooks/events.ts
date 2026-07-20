@@ -12,3 +12,15 @@ export function useListEventsQuery(page = 1, perPage = 20) {
     },
   });
 }
+
+/** `GET /api/admin/events/{id}` — a single event by primary key. */
+export function useGetEventQuery(id: string | undefined) {
+  return useQuery({
+    queryKey: ["getEvent", id],
+    enabled: id != null,
+    queryFn: async () => {
+      const { data } = await api.GET("/events/{id}", { params: { path: { id: id! } } });
+      return data;
+    },
+  });
+}
