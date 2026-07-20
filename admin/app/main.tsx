@@ -8,6 +8,10 @@ import { queryClient } from "~/lib/query-client";
 import { routes } from "./routes";
 import "./app.css";
 
+if (typeof globalThis.Temporal === "undefined") {
+  await import("temporal-polyfill/global");
+}
+
 const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
 
 const router = createBrowserRouter(routes, { basename });
