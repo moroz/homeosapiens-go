@@ -4,10 +4,10 @@ import {
   VideoCameraIcon as VideoCamera,
 } from "@phosphor-icons/react";
 import { useEffect, type ReactNode } from "react";
-import { Helmet } from "react-helmet-async";
 import { NavLink, useLocation } from "react-router";
 
 import { NavUser } from "~/components/nav-user";
+import { ThemeToggle } from "~/components/theme-toggle";
 import { Separator } from "~/components/ui/separator";
 import {
   Sidebar,
@@ -95,6 +95,7 @@ export function AdminLayout({ title, children }: Props) {
         <header className="flex h-14 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="mx-2" />
+          <ThemeToggle className="ml-auto" />
         </header>
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>

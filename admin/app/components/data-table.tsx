@@ -1,11 +1,9 @@
 import {
   CaretDoubleLeftIcon as CaretDoubleLeft,
   CaretDoubleRightIcon as CaretDoubleRight,
-  CaretDownIcon as CaretDown,
   CaretLeftIcon as CaretLeft,
   CaretRightIcon as CaretRight,
   CaretUpDownIcon as CaretUpDown,
-  ColumnsIcon as Columns,
 } from "@phosphor-icons/react";
 import {
   type ColumnDef,
@@ -21,12 +19,6 @@ import {
 import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -66,7 +58,6 @@ export function DataTable<TData, TValue>({
   title,
 }: DataTableProps<TData, TValue>) {
   const [sortingState, setSortingState] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const sorting = sortingProp ?? sortingState;
 
@@ -74,11 +65,10 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     pageCount,
-    state: { sorting, columnVisibility, pagination },
+    state: { sorting, pagination },
     manualPagination: true,
     onPaginationChange,
     onSortingChange: onSortingChange ?? setSortingState,
-    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
@@ -87,35 +77,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-end">
-        {title && <h2 className="mr-auto text-2xl font-bold">{title}</h2>}
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="outline" size="sm">
-                <Columns />
-                Columns
-                <CaretDown />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-40">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      {title && <h2 className="mr-auto text-2xl font-bold">{title}</h2>}
 
       <div className="overflow-hidden rounded-lg border">
         <Table>

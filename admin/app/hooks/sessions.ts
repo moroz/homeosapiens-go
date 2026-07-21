@@ -7,9 +7,16 @@ export function useGetSessionQuery() {
   return useQuery({
     queryKey: ["getSession"],
     queryFn: async () => {
-      const { data } = await api.GET("/session");
-      return data;
+      try {
+        const { data } = await api.GET("/session");
+        return data!;
+      } catch (e) {
+        return null;
+      }
     },
+    // Force a refetch on focus regardless of staleTime, so signing out in
+    // another tab is picked up as soon as this one regains focus.
+    refetchOnWindowFocus: "always",
   });
 }
 

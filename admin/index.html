@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Admin | Homeo sapiens</title>
+    <script>
+      // Apply the persisted theme before the app mounts, so there's no flash
+      // of the wrong theme. Kept in sync with app/hooks/theme.ts.
+      (function () {
+        try {
+          var theme = localStorage.getItem("theme");
+          var isDark =
+            theme === "dark" ||
+            (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.toggle("dark", isDark);
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
