@@ -2,6 +2,7 @@ import {
   DotsThreeVerticalIcon as DotsThreeVertical,
   SignOutIcon as SignOut,
 } from "@phosphor-icons/react";
+import { useCallback } from "react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import {
@@ -19,6 +20,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
+import { useSignOutMutation } from "~/hooks";
 import type { components } from "~/lib/api-types";
 import { cn } from "~/lib/utils";
 
@@ -45,6 +47,12 @@ function UserAvatar({ user, className }: UserAvatarProps) {
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
   const name = `${user.givenName} ${user.familyName}`;
+
+  const signOut = useSignOutMutation();
+
+  const onSignOut = useCallback(async () => {
+    await signOut.mutateAsync();
+  }, [signOut]);
 
   return (
     <SidebarMenu>
@@ -75,7 +83,7 @@ export function NavUser({ user }: { user: User }) {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <UserAvatar user={user} />
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="grid flex-1 text-left text-sm leading-tight select-none">
                     <span className="truncate font-medium text-foreground">{name}</span>
                     <span className="truncate text-xs text-muted-foreground">{user.email}</span>
                   </div>
@@ -83,7 +91,7 @@ export function NavUser({ user }: { user: User }) {
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={onSignOut}>
               <SignOut />
               Log out
             </DropdownMenuItem>

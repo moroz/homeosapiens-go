@@ -211,6 +211,10 @@ export interface components {
             startsAt: string;
             /** Format: date-time */
             endsAt: string;
+            /** Format: date-time */
+            insertedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
         Host: {
             /** Format: uuid */

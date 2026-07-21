@@ -289,7 +289,7 @@ components:
 
     Event:
       type: object
-      required: [id, slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt]
+      required: [id, slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, insertedAt, updatedAt]
       properties:
         id:
           type: string
@@ -314,6 +314,12 @@ components:
           type: string
           format: date-time
         endsAt:
+          type: string
+          format: date-time
+        insertedAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
 

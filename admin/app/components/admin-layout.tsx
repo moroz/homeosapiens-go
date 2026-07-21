@@ -3,7 +3,8 @@ import {
   UsersIcon as Users,
   VideoCameraIcon as VideoCamera,
 } from "@phosphor-icons/react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { Helmet } from "react-helmet-async";
 import { NavLink, useLocation } from "react-router";
 
 import { NavUser } from "~/components/nav-user";
@@ -48,13 +49,23 @@ interface Props {
 
 export function AdminLayout({ title, children }: Props) {
   const { pathname } = useLocation();
-  const { data: session } = useGetSessionQuery();
+  const { data: session, isLoading } = useGetSessionQuery();
+
+  useEffect(() => {
+    if (isLoading || session) return;
+    location.href = "/sign-in";
+  }, [isLoading, session]);
+
+  if (isLoading) {
+    return "Loading";
+  }
 
   return (
     <SidebarProvider defaultOpen={sidebarDefaultOpen()}>
+      <title>{`${title} | Homeo sapiens`}</title>
       <Sidebar>
         <SidebarHeader>
-          <div className="px-2 py-1.5 font-heading text-lg font-semibold">Homeo sapiens</div>
+          <h1 className="px-2 py-1.5 font-heading text-lg font-semibold">Homeo sapiens</h1>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
@@ -83,7 +94,6 @@ export function AdminLayout({ title, children }: Props) {
         <header className="flex h-14 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="mx-2" />
-          <h1 className="text-base font-medium">{title}</h1>
         </header>
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>

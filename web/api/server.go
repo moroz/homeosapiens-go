@@ -197,6 +197,8 @@ func (s *Server) ListEvents(ctx context.Context, params ListEventsRequestObject)
 			IsVirtual:  e.IsVirtual,
 			StartsAt:   e.StartsAt,
 			EndsAt:     e.EndsAt,
+			InsertedAt: e.InsertedAt,
+			UpdatedAt:  e.UpdatedAt,
 		}
 	}
 

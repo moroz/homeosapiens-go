@@ -205,7 +205,7 @@ func mountAdminSPAProxy(r *echo.Echo) {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	handler := echo.WrapHandler(proxy)
 
-	r.Any("/admin/*", handler, middleware.RequireAdmin)
+	r.Any("/admin/*", handler, middleware.RequireAuthenticatedUser, middleware.RequireAdmin)
 
 	r.GET("/admin", func(c *echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/admin/")

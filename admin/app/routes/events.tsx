@@ -5,14 +5,9 @@ import { AdminLayout } from "~/components/admin-layout";
 import { DataTable } from "~/components/data-table";
 import { useListEventsQuery, useTableSearchParams } from "~/hooks";
 import type { components } from "~/lib/api-types";
+import { formatInstant } from "~/lib/time";
 
 type Event = components["schemas"]["Event"];
-
-const dateStyle = { dateStyle: "medium", timeStyle: "short" } as const;
-
-function formatInstant(iso: string) {
-  return Temporal.Instant.from(iso).toLocaleString("en-GB", dateStyle);
-}
 
 const columns: ColumnDef<Event>[] = [
   {
@@ -30,7 +25,13 @@ const columns: ColumnDef<Event>[] = [
     header: "When",
     accessorKey: "startsAt",
     cell: ({ row }) =>
-      `${formatInstant(row.original.startsAt)} – ${formatInstant(row.original.endsAt)}`,
+      `${formatInstant(row.original.startsAt)}–${formatInstant(row.original.endsAt)}`,
+  },
+  {
+    id: "insertedAt",
+    header: "Created at",
+    accessorKey: "insertedAt",
+    cell: ({ row }) => formatInstant(row.original.insertedAt),
   },
 ];
 
@@ -55,6 +56,7 @@ export default function Events() {
         isPending={isPending}
         isError={isError}
         onRowClick={(event) => navigate(`/events/${event.id}`)}
+        title="Events"
       />
     </AdminLayout>
   );

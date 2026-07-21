@@ -49,6 +49,7 @@ interface DataTableProps<TData, TValue> {
   isPending?: boolean;
   isError?: boolean;
   onRowClick?: (row: TData) => void;
+  title?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -62,6 +63,7 @@ export function DataTable<TData, TValue>({
   isPending,
   isError,
   onRowClick,
+  title,
 }: DataTableProps<TData, TValue>) {
   const [sortingState, setSortingState] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -85,7 +87,8 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end">
+        {title && <h2 className="mr-auto text-2xl font-bold">{title}</h2>}
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
