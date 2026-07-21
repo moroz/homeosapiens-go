@@ -53,7 +53,8 @@ export function AdminLayout({ title, children }: Props) {
 
   useEffect(() => {
     if (isLoading || session) return;
-    location.href = "/sign-in";
+    const qs = new URLSearchParams({ ref: location.pathname });
+    location.href = `/sign-in?${qs}`;
   }, [isLoading, session]);
 
   if (isLoading) {

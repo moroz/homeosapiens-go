@@ -17,6 +17,7 @@ async function signOut() {
   return fetch("/sign-out", {
     method: "DELETE",
     credentials: "include",
+    headers: { Accept: "application/json" },
   });
 }
 
@@ -25,10 +26,11 @@ export function useSignOutMutation() {
 
   return useMutation({
     mutationFn: signOut,
-    async onSuccess() {
-      await client.invalidateQueries({
-        queryKey: ["getSession"],
-      });
+    onSuccess() {
+      // Set (not just invalidate) so the stale user doesn't linger: a failed
+      // background refetch keeps the last-known-good `data` in the cache,
+      // which would leave `useGetSessionQuery` reporting a signed-in user.
+      client.setQueryData(["getSession"], null);
     },
   });
 }

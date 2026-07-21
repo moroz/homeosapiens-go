@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
@@ -78,13 +79,29 @@ func (cc *sessionController) Delete(c *echo.Context) error {
 			log.Printf("Error deleting user token: %s", err)
 		}
 	}
+	delete(ctx.Session, config.AccessTokenSessionKey)
+
+	if !acceptsHTML(c) {
+		if err := ctx.SaveSession(c.Response()); err != nil {
+			return err
+		}
+		return c.NoContent(http.StatusNoContent)
+	}
+
 	ctx.PutFlash("success", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
 		ID: "sessions.delete.success",
 	}))
-	delete(ctx.Session, config.AccessTokenSessionKey)
 	if err := ctx.SaveSession(c.Response()); err != nil {
 		return err
 	}
 
 	return c.Redirect(http.StatusFound, "/")
+}
+
+// acceptsHTML reports whether the request's Accept header indicates a normal
+// browser navigation (as opposed to an XHR/fetch call from the admin SPA,
+// which sends "Accept: application/json" and expects a plain status code
+// rather than a redirect to follow).
+func acceptsHTML(c *echo.Context) bool {
+	return strings.Contains(c.Request().Header.Get("Accept"), "text/html")
 }
