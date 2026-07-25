@@ -56,7 +56,7 @@ type UpsertEventParams struct {
 	EndsAt           time.Time
 	IsVirtual        bool
 	DescriptionEn    string
-	DescriptionPl    *string
+	DescriptionPl    string
 	SubtitleEn       *string
 	SubtitlePl       *string
 	VenueStreet      *string

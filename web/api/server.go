@@ -163,7 +163,7 @@ func (s *Server) GetEvent(ctx context.Context, request GetEventRequestObject) (G
 
 	return GetEvent200JSONResponse{
 		Currency:      currency,
-		DescriptionEn: &e.DescriptionEn,
+		DescriptionEn: e.DescriptionEn,
 		DescriptionPl: e.DescriptionPl,
 		EndsAt:        e.EndsAt,
 		EventType:     string(e.EventType),
@@ -288,4 +288,8 @@ func (s *Server) GetSession(ctx context.Context, _ GetSessionRequestObject) (Get
 		Role:             UserRole(user.UserRole),
 		ProfilePicture:   user.ProfilePicture,
 	}, nil
+}
+
+func (s *Server) UpdateEvent(ctx context.Context, _ UpdateEventRequestObject) (UpdateEventResponseObject, error) {
+	panic("Unimplemented")
 }

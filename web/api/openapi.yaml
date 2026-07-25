@@ -125,6 +125,34 @@ paths:
                 $ref: "#/components/schemas/EventDetails"
         "404":
           description: No event with that id
+    put:
+      operationId: updateEvent
+      summary: Update an event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event primary key.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventUpdate"
+      responses:
+        "200":
+          description: The updated event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDetails"
+        "404":
+          description: No event with that id
+        "422":
+          description: Validation failed
 
   /hosts:
     get:
@@ -327,18 +355,12 @@ components:
       allOf:
         - $ref: "#/components/schemas/Event"
         - type: object
-          required: [isFree, hosts]
+          required: [isFree, hosts, descriptionPl, descriptionEn]
           properties:
             descriptionPl:
               type: string
-              nullable: true
             descriptionEn:
               type: string
-              nullable: true
-            coverImageUrl:
-              type: string
-              format: uri
-              nullable: true
             isFree:
               type: boolean
             price:
@@ -353,6 +375,54 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Host"
+
+    EventUpdate:
+      type: object
+      description: Editable fields of an event. Server-managed fields (id, insertedAt, updatedAt) are ignored.
+      required: [slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, isFree, hostIds, descriptionEn, descriptionPl]
+      properties:
+        slug:
+          type: string
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        subtitlePl:
+          type: string
+          nullable: true
+        subtitleEn:
+          type: string
+          nullable: true
+        eventType:
+          type: string
+        isVirtual:
+          type: boolean
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        descriptionPl:
+          type: string
+        descriptionEn:
+          type: string
+        isFree:
+          type: boolean
+        price:
+          type: string
+          nullable: true
+          description: Decimal price string, e.g. "19.99". Null when free.
+        currency:
+          type: string
+          nullable: true
+          description: Currency code. Null when free.
+        hostIds:
+          type: array
+          description: IDs of hosts associated with the event.
+          items:
+            type: string
+            format: uuid
 
     Host:
       type: object

@@ -101,7 +101,8 @@ export interface paths {
         };
         /** Get a single event by primary key */
         get: operations["getEvent"];
-        put?: never;
+        /** Update an event */
+        put: operations["updateEvent"];
         post?: never;
         delete?: never;
         options?: never;
@@ -217,16 +218,37 @@ export interface components {
             updatedAt: string;
         };
         EventDetails: components["schemas"]["Event"] & {
-            descriptionPl?: string | null;
-            descriptionEn?: string | null;
-            /** Format: uri */
-            coverImageUrl?: string | null;
+            descriptionPl: string;
+            descriptionEn: string;
             isFree: boolean;
             /** @description Decimal price string, e.g. "19.99". Null when free. */
             price?: string | null;
             /** @description Currency code. Null when free. */
             currency?: string | null;
             hosts: components["schemas"]["Host"][];
+        };
+        /** @description Editable fields of an event. Server-managed fields (id, insertedAt, updatedAt) are ignored. */
+        EventUpdate: {
+            slug: string;
+            titlePl: string;
+            titleEn: string;
+            subtitlePl?: string | null;
+            subtitleEn?: string | null;
+            eventType: string;
+            isVirtual: boolean;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            descriptionPl: string;
+            descriptionEn: string;
+            isFree: boolean;
+            /** @description Decimal price string, e.g. "19.99". Null when free. */
+            price?: string | null;
+            /** @description Currency code. Null when free. */
+            currency?: string | null;
+            /** @description IDs of hosts associated with the event. */
+            hostIds: string[];
         };
         Host: {
             /** Format: uuid */
@@ -399,6 +421,47 @@ export interface operations {
             };
             /** @description No event with that id */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventUpdate"];
+            };
+        };
+        responses: {
+            /** @description The updated event */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventDetails"];
+                };
+            };
+            /** @description No event with that id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

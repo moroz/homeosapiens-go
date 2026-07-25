@@ -54,3 +54,9 @@ select sqlc.embed(e), sqlc.embed(p)
 from events e
 join products p on e.product_id = p.id
 where e.id = $1;
+
+-- name: UpdateEvent :one
+update events
+set title_pl = $1, title_en = $2, subtitle_pl = $3, subtitle_en = $4, description_pl = $5, description_en = $6
+where id = @event_id::uuid
+returning *;

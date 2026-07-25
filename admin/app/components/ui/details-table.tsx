@@ -24,7 +24,9 @@ export function DataTableField({ label, children, className }: DataTableFieldPro
   return (
     <tr>
       <th className="w-48">{label}</th>
-      <td className={className}>{children}</td>
+      <td className={className}>
+        {children || <span className="text-sm text-muted-foreground">(empty)</span>}
+      </td>
     </tr>
   );
 }

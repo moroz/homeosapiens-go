@@ -387,7 +387,7 @@ type Event struct {
 	EndsAt           time.Time
 	IsVirtual        bool
 	DescriptionEn    string
-	DescriptionPl    *string
+	DescriptionPl    string
 	EventType        EventType
 	InsertedAt       time.Time
 	UpdatedAt        time.Time

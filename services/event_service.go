@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/types"
 	"github.com/shopspring/decimal"
 )
 
@@ -267,4 +269,22 @@ func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context,
 		result[row.EventID] = int(row.Quantity)
 	}
 	return result, nil
+}
+
+func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params *types.UpdateEventInput) (*queries.Event, error) {
+	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	return queries.New(tx).UpdateEvent(ctx, &queries.UpdateEventParams{
+		TitlePl:       params.TitlePl,
+		TitleEn:       params.TitleEn,
+		SubtitlePl:    params.SubtitlePl,
+		SubtitleEn:    params.SubtitleEn,
+		DescriptionPl: params.DescriptionPl,
+		DescriptionEn: params.DescriptionEn,
+		EventID:       eventId,
+	})
 }

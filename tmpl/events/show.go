@@ -77,8 +77,8 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	}
 
 	description := event.DescriptionEn
-	if lang == "pl" && event.DescriptionPl != nil && *event.DescriptionPl != "" {
-		description = *event.DescriptionPl
+	if lang == "pl" {
+		description = event.DescriptionPl
 	}
 
 	l := ctx.Localizer

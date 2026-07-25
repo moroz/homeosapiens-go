@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
@@ -145,4 +146,27 @@ func escapeICSText(s string) string {
 	s = strings.ReplaceAll(s, "\n", `\n`)
 	s = strings.ReplaceAll(s, "\r", "")
 	return s
+}
+
+type UpdateEventInput struct {
+	EventType string
+
+	TitleEn    string
+	TitlePl    string
+	SubtitleEn *string
+	SubtitlePl *string
+	Slug       string
+
+	DescriptionEn string
+	DescriptionPl string
+
+	// Pricing
+	Price    *string
+	Currency *string
+
+	StartsAt time.Time
+	EndsAt   time.Time
+
+	// HostIds IDs of hosts associated with the event.
+	HostIds []uuid.UUID
 }

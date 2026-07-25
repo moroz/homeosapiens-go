@@ -60,12 +60,10 @@ type Event struct {
 
 // EventDetails defines model for EventDetails.
 type EventDetails struct {
-	CoverImageUrl *string `json:"coverImageUrl,omitempty"`
-
 	// Currency Currency code. Null when free.
 	Currency      *string            `json:"currency,omitempty"`
-	DescriptionEn *string            `json:"descriptionEn,omitempty"`
-	DescriptionPl *string            `json:"descriptionPl,omitempty"`
+	DescriptionEn string             `json:"descriptionEn"`
+	DescriptionPl string             `json:"descriptionPl"`
 	EndsAt        time.Time          `json:"endsAt"`
 	EventType     string             `json:"eventType"`
 	Hosts         []Host             `json:"hosts"`
@@ -83,6 +81,30 @@ type EventDetails struct {
 	TitleEn    string    `json:"titleEn"`
 	TitlePl    string    `json:"titlePl"`
 	UpdatedAt  time.Time `json:"updatedAt"`
+}
+
+// EventUpdate Editable fields of an event. Server-managed fields (id, insertedAt, updatedAt) are ignored.
+type EventUpdate struct {
+	// Currency Currency code. Null when free.
+	Currency      *string   `json:"currency,omitempty"`
+	DescriptionEn string    `json:"descriptionEn"`
+	DescriptionPl string    `json:"descriptionPl"`
+	EndsAt        time.Time `json:"endsAt"`
+	EventType     string    `json:"eventType"`
+
+	// HostIds IDs of hosts associated with the event.
+	HostIds   []openapi_types.UUID `json:"hostIds"`
+	IsFree    bool                 `json:"isFree"`
+	IsVirtual bool                 `json:"isVirtual"`
+
+	// Price Decimal price string, e.g. "19.99". Null when free.
+	Price      *string   `json:"price,omitempty"`
+	Slug       string    `json:"slug"`
+	StartsAt   time.Time `json:"startsAt"`
+	SubtitleEn *string   `json:"subtitleEn,omitempty"`
+	SubtitlePl *string   `json:"subtitlePl,omitempty"`
+	TitleEn    string    `json:"titleEn"`
+	TitlePl    string    `json:"titlePl"`
 }
 
 // Health defines model for Health.
@@ -220,6 +242,9 @@ type ListVideosParams struct {
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
 
+// UpdateEventJSONRequestBody defines body for UpdateEvent for application/json ContentType.
+type UpdateEventJSONRequestBody = EventUpdate
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// ListEvents List events
@@ -228,6 +253,9 @@ type ServerInterface interface {
 	// GetEvent Get a single event by primary key
 	// (GET /events/{id})
 	GetEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	// UpdateEvent Update an event
+	// (PUT /events/{id})
+	UpdateEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
@@ -317,6 +345,32 @@ func (siw *ServerInterfaceWrapper) GetEvent(w http.ResponseWriter, r *http.Reque
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetEvent(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateEvent operation middleware
+func (siw *ServerInterfaceWrapper) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateEvent(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -631,6 +685,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/videos", wrapper.ListVideos)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events", wrapper.ListEvents)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events/{id}", wrapper.GetEvent)
+	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/events/{id}", wrapper.UpdateEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
 
 	return m
@@ -685,6 +740,45 @@ type GetEvent404Response struct {
 
 func (response GetEvent404Response) VisitGetEventResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
+	return nil
+}
+
+type UpdateEventRequestObject struct {
+	Id   openapi_types.UUID `json:"id"`
+	Body *UpdateEventJSONRequestBody
+}
+
+type UpdateEventResponseObject interface {
+	VisitUpdateEventResponse(w http.ResponseWriter) error
+}
+
+type UpdateEvent200JSONResponse EventDetails
+
+func (response UpdateEvent200JSONResponse) VisitUpdateEventResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdateEvent404Response struct {
+}
+
+func (response UpdateEvent404Response) VisitUpdateEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type UpdateEvent422Response struct {
+}
+
+func (response UpdateEvent422Response) VisitUpdateEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(422)
 	return nil
 }
 
@@ -812,6 +906,9 @@ type StrictServerInterface interface {
 	// GetEvent Get a single event by primary key
 	// (GET /events/{id})
 	GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error)
+	// UpdateEvent Update an event
+	// (PUT /events/{id})
+	UpdateEvent(ctx context.Context, request UpdateEventRequestObject) (UpdateEventResponseObject, error)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(ctx context.Context, request GetHealthRequestObject) (GetHealthResponseObject, error)
@@ -913,6 +1010,39 @@ func (sh *strictHandler) GetEvent(w http.ResponseWriter, r *http.Request, id ope
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetEventResponseObject); ok {
 		if err := validResponse.VisitGetEventResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateEvent operation middleware
+func (sh *strictHandler) UpdateEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+	var request UpdateEventRequestObject
+
+	request.Id = id
+
+	var body UpdateEventJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateEvent(ctx, request.(UpdateEventRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateEvent")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdateEventResponseObject); ok {
+		if err := validResponse.VisitUpdateEventResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1051,41 +1181,43 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, para
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
-	"AAD//w==",
+	"3Fpbk9M4Fv4rp7T70F3ldpKGnVqyTwwwQ1dRkBoYXoDanNjHsWZkyUhymgyV/76lI+dqJ93NbVjeOpZ8",
+	"rt+5uj+KzFS10aS9E+OPokaLFXmy/GuCc5qEJ+FHTi6zsvbSaDEWo4sZOsqhxjmBbqoZ2RReo2rIwYyU",
+	"uYYRoCXwltBTDuhglIpEyPDy+4bsUiRCY0ViLAINkQiXlVRhZFVgo7wYjxJRGFuhF2Mhtb93KRJRSS2r",
+	"puJDv6wpHtGcrFitEjEhe0Ls5ywpmAKkp8pBTZZVSOGRwqqmHLwBXxK8GSUwGg7fgUU9p6OSR2b9wl/+",
+	"q096/NBKPxzeoMtqTZV98WRB2rOLrKnJekn8mHTuHvLzDascPV14WQWxWqLOW6nnYpUICmRe8dOP3VOZ",
+	"71FqGpn3EZHakfWU34WxdK+l9Q2qHcYzYxShDsdONfNekZxH6++komtmXnpFT3R4RzdK4UyRGHvb0Inr",
+	"E3Wr6zuk+88mqvesqYPQdzDZKhGW3jfSUi7GbwR7gq205bOVZtexu7besV+yxsqe/3YFe7eRwcz+oMwH",
+	"sRl2j8mjVIw3VOpFIcZvPop/WirEWPxjsM0ggxavgwjWVXKI1qyxlnS27Abmo/YEMpNTCs8bpeC6JA2F",
+	"JQ6/Gx2zQ++Ie3ZuHHFSaVzMg5wdwh+ntHxqHNuoJYPW4jJC/RdL1I/z2sqMuuo/pkxWqICPIQqUAKXz",
+	"FN6K0YP0wYO34hOscoihKNhaz0OLHNqwi4d3a0T8zqDp6vEklz7IA4UklbuQaFEDYzOFl2QXZC8q1Din",
+	"fH3lTOYJbBGZwAaQ51xB5FwbS3nQ9v8LTF82NQeXXeWuq+zVYzYzuxTQOZNJrrjX0pdcyqL1Q9ivQX1j",
+	"gr8Lom9I7N8W8D98ITmI6C9VEHYTQ0DZYQQc4r2vVDwlVL7stijOo29is/IBq1rxW3/eWPDa13o5hcTb",
+	"4ZOZRnvbkw6uXr6Ae6OffroYAaq6xItLaO9ygrgNqgqspFo+566vx19zuSB99PSWXZVD1XiMMh+qIEf/",
+	"1lCRc6Hd/pOWbahkpqqMTjn20+37aW7vXhuCTFs99lTu88EE51KHRMP1wHXdkaPHW5fSdcPQyTx1ZNMa",
+	"5RSJyfbmoW4syh6tkxo9XXcBn6HQsd7g79Dnd9fOc5+hT6DxvejzWuZkPlchJvJ9aNQb8dszqMhjIAjx",
+	"xkzqORd2S76xuh3Cu/0Rj9Uduq9Kgp7hHXyJHq7RbagGgncavpPNONzLlIqCMi8XFNk6+RcBFp4sZGH0",
+	"lnr+CRy98bHxOOAXHq812wz7mFnjHKBSLII75PfT/V1+w6P8go7uZqbMAzilxj6sa4DTGg97Fxy7MGs3",
+	"J9s1RLTHnpx9wONo7u4SKpRqr1TFJ329ajh4ZHQhbXVyqP0uKuun7CtqSwVZS/kzk6HqwXR8zh1EW41r",
+	"BcYC6X5yppCKJjLzjaV9qa3se8OayJV0wMIb8RvNG4WhsD/MA0Sct+iN3fHvqcq+9uSRCt+y66q9Z7w+",
+	"KMU82sHSLT3zRZrgSLrTAnelXTEWCtPTImpPVqMCDLaFHF05M2hzeDi5SuHJguwSSOe1kdqDdODCKJvD",
+	"jEqp8zDiYuNL0l5mcdvJVBw5F/L3mSPiDDDAWg7iWRUaUJAarmk2sKbxZM8TcLx8DEOvA22gJnux4Wos",
+	"/+apmdkZK/+KBULGBBPrUvpWv9XPpPMbgR24MkzS2PaLsC1LkBntLWZ+HCgsAbOMag/TkFimgDqHaZtc",
+	"psC7T9huiPk4Vgse8vWClKkpDp4I01CypsB1la8ik20ZT7dVLXonhd/ImcZmIT0ulcHc8fhfKPRwsRls",
+	"pdEOzrjhTeLw6BKwNI/hEE4TSNO0XR1oH3xiNCq1BFNJH5xTWFOxvVQwkqXakiMdO2eXvtVrCImxeGoq",
+	"MuCwlqQdcNwFRIhELMi6CJ1hOkqHAa+mJo21FGNxLx2m97j8+5KjYUCbJnlOnIRCrDDHqzzkEul820cn",
+	"ezv4I3u27ZXBdtm9Sm6+vLscX70LYeRqo12M2cvhMM5RbDbe9tW1CpCWRg/+cLFN2W66b9EbbcYDjr39",
+	"mHsY66Ap4obCJWBsTjaE1RJ4SoWQnOFM0zU5D4W0zp9z9LumqjCMeiICfc0jWVt68FHmq6Pm/pWitbvG",
+	"PthmhUsBZYFZGLs23wGCZ7efATgBbTNSrHRbO92QBb+qH/b2tz1OeMV95PuGXAgNWo9h94f3ez6emHhh",
+	"vVpCDzI/8Mev5AHBST1X7eYpeHPHhFwMmx6nxJXid+cXNs3PJl9+WZe0C9TVfi0LEq7+ZjS069dPw0Ii",
+	"7l9edm+/RiXzWHAKlIoOUROtsVkVx0guN/ukY0Hcbpy+osFaDj2mekl2ITOu1FHQZSczLUiTc1BbM6NW",
+	"pfVm4WgVeNpu5n+sIhC1OlkD2pK+UwI4iHuyfdkSS8Sg7bBOYeRle+Urqhl3I13l4mcID027O7k/HPUF",
+	"kt9vHnsSamhW4tcOr5bg5DwM/VK3hIMhmvWKpzXDPo8X9aYJKqTyawNPHaHNymkKP1OGjSMmCJOrq4Bq",
+	"0pld1tzNhi7J+YTliASgRAf+2gC3OGOO3DBhXLgS+Ss62SoQqdBnZUgmHzALsuMcpXZRoym/8d8SXTmF",
+	"mQqNtNQ5fYAz9FAZ58HoUJxco/z5fwD1EkzojjvE0YXWFh1dhFlFO8lDtmtmMZPvMc1prVUczENjGucg",
+	"xptLwGWoW/vuQILnPDhrNItIeQIvzvT5eWwXu2EcV27fMIyTQ5//Ev0UbJXCw9Y9gHluQ07qcc1CYlxT",
+	"bLwS3bFr+QWqhlPeSXszZTD60NiDXUNHy/X9U0VE5d7/VFRSPyM9D9Vg9G37p4Ml6skUxkG4l8Li7Bzg",
+	"c8tOtmm5JGKw2Gw5jxaLdhH6o1WLVq2Tto7W2TP21eM+iy52iPHU3tqosUqMxXYiF6t3q/8FAAD//w==",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

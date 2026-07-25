@@ -7,6 +7,7 @@ import { useGetEventQuery } from "~/hooks";
 import { DetailsTable, DataTableField as Field } from "~/components/ui/details-table";
 import Markdown from "react-markdown";
 import { PencilIcon } from "@phosphor-icons/react/ssr";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 const dateStyle = { dateStyle: "full", timeStyle: "short" } as const;
 
@@ -21,10 +22,13 @@ export default function EventDetail() {
   return (
     <AdminLayout title={event?.titleEn ?? "Event"}>
       <div className="flex flex-col gap-3">
-        <Button variant="ghost" size="sm" className="w-fit" render={<Link to="/events" />}>
+        <Link
+          to="/events"
+          className={buttonVariants({ size: "sm", variant: "ghost", className: "w-fit" })}
+        >
           <CaretLeft />
           Back to events
-        </Button>
+        </Link>
 
         {isPending ? (
           <p className="text-muted-foreground">Loading…</p>
@@ -63,18 +67,22 @@ export default function EventDetail() {
             <section className="mt-6">
               <h4 className="text-xl font-bold">Descriptions</h4>
               <div className="mt-6 flex gap-6">
-                <div className="space-y-4 border p-6">
-                  <h5 className="text-xl">Polish</h5>
-                  <div className="prose text-foreground">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Polish</CardTitle>
+                  </CardHeader>
+                  <CardContent className="prose text-foreground">
                     <Markdown>{event.descriptionPl}</Markdown>
-                  </div>
-                </div>
-                <div className="space-y-4 border p-6">
-                  <h5 className="text-xl">English</h5>
-                  <div className="prose text-foreground">
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>English</CardTitle>
+                  </CardHeader>
+                  <CardContent className="prose text-foreground">
                     <Markdown>{event.descriptionEn}</Markdown>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
             </section>
           </>
