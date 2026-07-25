@@ -1,152 +1,14 @@
 package types
 
 import (
-	"fmt"
-	"strings"
+	"regexp"
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/shopspring/decimal"
 )
-
-type EventRegistrationEmailDTO struct {
-	Event *queries.Event
-	User  *queries.User
-}
-
-func (d *EventRegistrationEmailDTO) EmailRecipient() string {
-	return fmt.Sprintf("%s %s <%s>", d.User.GivenName.Plaintext(), d.User.FamilyName.Plaintext(), d.User.Email.Plaintext())
-}
-
-func (d *EventRegistrationEmailDTO) lang() string {
-	return string(d.User.PreferredLocale)
-}
-
-func (d *EventRegistrationEmailDTO) Title() string {
-	if d.lang() == "pl" {
-		return d.Event.TitlePl
-	}
-	return d.Event.TitleEn
-}
-
-func (d *EventRegistrationEmailDTO) timezone() *time.Location {
-	if d.User.PreferredTimezone != nil {
-		if loc, err := time.LoadLocation(d.User.PreferredTimezone.Plaintext()); err == nil {
-			return loc
-		}
-	}
-	return time.UTC
-}
-
-func formatUTCOffset(offsetSeconds int) string {
-	if offsetSeconds == 0 {
-		return "UTC"
-	}
-	sign := "+"
-	if offsetSeconds < 0 {
-		sign = "-"
-		offsetSeconds = -offsetSeconds
-	}
-	hours := offsetSeconds / 3600
-	minutes := (offsetSeconds % 3600) / 60
-	if minutes == 0 {
-		return fmt.Sprintf("UTC%s%d", sign, hours)
-	}
-	return fmt.Sprintf("UTC%s%d:%02d", sign, hours, minutes)
-}
-
-func (d *EventRegistrationEmailDTO) FormattedStartsAt() string {
-	t := d.Event.StartsAt.In(d.timezone())
-	_, offset := t.Zone()
-	tzStr := formatUTCOffset(offset)
-	if d.lang() == "pl" {
-		return t.Format("2.01.2006, 15:04") + " " + tzStr
-	}
-	return t.Format("January 2, 2006 at 15:04") + " " + tzStr
-}
-
-func (d *EventRegistrationEmailDTO) IsVirtual() bool {
-	return d.Event.IsVirtual
-}
-
-func (d *EventRegistrationEmailDTO) VenueNameLocalized() string {
-	if d.lang() == "pl" && d.Event.VenueNamePl != nil {
-		return *d.Event.VenueNamePl
-	}
-	if d.Event.VenueNameEn != nil {
-		return *d.Event.VenueNameEn
-	}
-	return ""
-}
-
-func (d *EventRegistrationEmailDTO) VenueAddress() string {
-	if d.Event.IsVirtual {
-		return ""
-	}
-	var parts []string
-	if name := d.VenueNameLocalized(); name != "" {
-		parts = append(parts, name)
-	}
-	if d.Event.VenueStreet != nil {
-		parts = append(parts, *d.Event.VenueStreet)
-	}
-	var cityLine string
-	if d.lang() == "pl" && d.Event.VenueCityPl != nil {
-		cityLine = *d.Event.VenueCityPl
-	} else if d.Event.VenueCityEn != nil {
-		cityLine = *d.Event.VenueCityEn
-	}
-	if d.Event.VenuePostalCode != nil && cityLine != "" {
-		cityLine = *d.Event.VenuePostalCode + " " + cityLine
-	}
-	if cityLine != "" {
-		parts = append(parts, cityLine)
-	}
-	return strings.Join(parts, ", ")
-}
-
-func (d *EventRegistrationEmailDTO) EventURL() string {
-	return config.PublicUrl + "/events/" + d.Event.Slug
-}
-
-// ICS generates an iCalendar (RFC 5545) payload for the event.
-func (d *EventRegistrationEmailDTO) ICS() []byte {
-	fmtTime := func(t time.Time) string {
-		return t.UTC().Format("20060102T150405Z")
-	}
-	uid := fmt.Sprintf("%s@homeosapiens.eu", d.Event.ID.String())
-	title := escapeICSText(d.Title())
-	location := escapeICSText(d.VenueAddress())
-
-	var sb strings.Builder
-	sb.WriteString("BEGIN:VCALENDAR\r\n")
-	sb.WriteString("VERSION:2.0\r\n")
-	sb.WriteString("PRODID:-//Homeo Sapiens//Go//EN\r\n")
-	sb.WriteString("METHOD:PUBLISH\r\n")
-	sb.WriteString("BEGIN:VEVENT\r\n")
-	fmt.Fprintf(&sb, "UID:%s\r\n", uid)
-	fmt.Fprintf(&sb, "DTSTAMP:%s\r\n", fmtTime(time.Now()))
-	fmt.Fprintf(&sb, "DTSTART:%s\r\n", fmtTime(d.Event.StartsAt))
-	fmt.Fprintf(&sb, "DTEND:%s\r\n", fmtTime(d.Event.EndsAt))
-	fmt.Fprintf(&sb, "SUMMARY:%s\r\n", title)
-	if location != "" {
-		fmt.Fprintf(&sb, "LOCATION:%s\r\n", location)
-	}
-	sb.WriteString("END:VEVENT\r\n")
-	sb.WriteString("END:VCALENDAR\r\n")
-
-	return []byte(sb.String())
-}
-
-func escapeICSText(s string) string {
-	s = strings.ReplaceAll(s, `\`, `\\`)
-	s = strings.ReplaceAll(s, ";", `\;`)
-	s = strings.ReplaceAll(s, ",", `\,`)
-	s = strings.ReplaceAll(s, "\n", `\n`)
-	s = strings.ReplaceAll(s, "\r", "")
-	return s
-}
 
 type UpdateEventInput struct {
 	EventType string
@@ -169,4 +31,87 @@ type UpdateEventInput struct {
 
 	// HostIds IDs of hosts associated with the event.
 	HostIds []uuid.UUID
+}
+
+type CreateEventInput struct {
+	EventType string
+
+	TitleEn    string
+	TitlePl    string
+	SubtitleEn *string
+	SubtitlePl *string
+	Slug       string
+
+	DescriptionEn string
+	DescriptionPl string
+
+	// Pricing
+	Price    *decimal.Decimal
+	Currency *string
+
+	// HostIds IDs of hosts associated with the event.
+	HostIds []uuid.UUID
+
+	StartsAt time.Time
+	EndsAt   time.Time
+
+	IsVirtual        bool
+	VenueNameEn      *string
+	VenueNamePl      *string
+	VenueStreet      *string
+	VenueCityEn      *string
+	VenueCityPl      *string
+	VenuePostalCode  *string
+	VenueCountryCode *string
+}
+
+func (p *CreateEventInput) Validate() error {
+	hasPrice := p.Price != nil && !p.Price.Equal(decimal.Zero)
+
+	return validation.ValidateStruct(p,
+		validation.Field(&p.EventType, validation.Required, validation.In("seminar", "webinar")),
+
+		validation.Field(&p.TitlePl, validation.Required),
+		validation.Field(&p.TitleEn, validation.Required),
+		validation.Field(&p.Slug, validation.Required, validation.Match(slugRegexp)),
+
+		validation.Field(&p.DescriptionEn, validation.Required),
+		validation.Field(&p.DescriptionPl, validation.Required),
+
+		// Currency is required (and constrained) only when the event carries a price.
+		validation.Field(&p.Currency,
+			validation.When(hasPrice,
+				validation.Required,
+				validation.In("PLN", "EUR"))),
+
+		validation.Field(&p.StartsAt, validation.Required),
+		validation.Field(&p.EndsAt, validation.Required, validation.Min(p.StartsAt).Exclusive().
+			Error("must be after the start time")),
+
+		// Physical events must carry a venue; virtual events need none.
+		validation.Field(&p.VenueNameEn, validation.Required.When(!p.IsVirtual)),
+		validation.Field(&p.VenueNamePl, validation.Required.When(!p.IsVirtual)),
+		validation.Field(&p.VenueStreet, validation.Required.When(!p.IsVirtual)),
+		validation.Field(&p.VenueCityEn, validation.Required.When(!p.IsVirtual)),
+		validation.Field(&p.VenueCityPl, validation.Required.When(!p.IsVirtual)),
+		validation.Field(&p.VenuePostalCode, validation.Required.When(!p.IsVirtual)),
+		validation.Field(&p.VenueCountryCode, validation.Required.When(!p.IsVirtual),
+			validation.Length(2, 2)),
+	)
+}
+
+var slugRegexp = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
+
+type EventDetailsDto struct {
+	*queries.Event
+	Product           *queries.Product
+	Prices            []*queries.ProductPrice
+	Hosts             []*queries.ListHostsForEventsRow
+	EventRegistration *queries.EventRegistration
+	RegistrationCount int
+	CountInCart       int
+}
+
+func (d *EventDetailsDto) IsFree() bool {
+	return d.ProductID == nil || d.Product.BasePriceAmount.Equal(decimal.Zero)
 }

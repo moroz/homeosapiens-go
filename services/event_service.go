@@ -98,21 +98,7 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User, cartI
 	return result, nil
 }
 
-type EventDetailsDto struct {
-	*queries.Event
-	Product           *queries.Product
-	Prices            []*queries.ProductPrice
-	Hosts             []*queries.ListHostsForEventsRow
-	EventRegistration *queries.EventRegistration
-	RegistrationCount int
-	CountInCart       int
-}
-
-func (d *EventDetailsDto) IsFree() bool {
-	return d.ProductID == nil || d.Product.BasePriceAmount.Equal(decimal.Zero)
-}
-
-func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUID, user *queries.User) (*EventDetailsDto, error) {
+func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUID, user *queries.User) (*types.EventDetailsDto, error) {
 	event, err := queries.New(s.db).GetEventById(ctx, eventId)
 	if err != nil {
 		return nil, err
@@ -121,7 +107,7 @@ func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUI
 	return s.GetEventDetailsForEvent(ctx, event, user, nil)
 }
 
-func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, user *queries.User, cartId *uuid.UUID) (*EventDetailsDto, error) {
+func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, user *queries.User, cartId *uuid.UUID) (*types.EventDetailsDto, error) {
 	event, err := queries.New(s.db).GetEventBySlug(ctx, slug)
 	if err != nil {
 		return nil, err
@@ -130,8 +116,8 @@ func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, u
 	return s.GetEventDetailsForEvent(ctx, event, user, cartId)
 }
 
-func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queries.Event, user *queries.User, cartId *uuid.UUID) (*EventDetailsDto, error) {
-	var dto EventDetailsDto
+func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queries.Event, user *queries.User, cartId *uuid.UUID) (*types.EventDetailsDto, error) {
+	var dto types.EventDetailsDto
 	dto.Event = event
 
 	products, err := s.preloadProductsForEvents(ctx, []uuid.UUID{event.ID})
@@ -269,6 +255,83 @@ func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context,
 		result[row.EventID] = int(row.Quantity)
 	}
 	return result, nil
+}
+
+func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEventInput) (*types.EventDetailsDto, error) {
+	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	var productId *uuid.UUID
+	var product *queries.Product
+
+	if params.Price != nil && !params.Price.Equal(decimal.Zero) {
+		product, err = queries.New(tx).InsertProduct(ctx, &queries.InsertProductParams{
+			ProductType:       queries.ProductTypeEvent,
+			TitlePl:           params.TitlePl,
+			TitleEn:           params.TitleEn,
+			BasePriceAmount:   *params.Price,
+			BasePriceCurrency: *params.Currency,
+		})
+		if err != nil {
+			return nil, err
+		}
+		productId = &product.ID
+	}
+
+	event, err := queries.New(tx).InsertEvent(ctx, &queries.InsertEventParams{
+		TitleEn:          params.TitleEn,
+		TitlePl:          params.TitlePl,
+		StartsAt:         params.StartsAt,
+		EndsAt:           params.EndsAt,
+		IsVirtual:        params.IsVirtual,
+		DescriptionEn:    params.DescriptionEn,
+		DescriptionPl:    params.DescriptionPl,
+		EventType:        queries.EventType(params.EventType),
+		Slug:             params.Slug,
+		SubtitleEn:       params.SubtitleEn,
+		SubtitlePl:       params.SubtitlePl,
+		VenueNameEn:      params.VenueNameEn,
+		VenueNamePl:      params.VenueNamePl,
+		VenueStreet:      params.VenueStreet,
+		VenueCityEn:      params.VenueCityEn,
+		VenueCityPl:      params.VenueCityPl,
+		VenuePostalCode:  params.VenuePostalCode,
+		VenueCountryCode: params.VenueCountryCode,
+		ProductID:        productId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for i, hostId := range params.HostIds {
+		_, err := queries.New(tx).InsertEventHost(ctx, &queries.InsertEventHostParams{
+			EventID:  event.ID,
+			HostID:   hostId,
+			Position: int32(i + 1),
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	hosts, err := s.preloadHostsForEvents(ctx, []uuid.UUID{event.ID})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return &types.EventDetailsDto{
+		Event:   event,
+		Product: product,
+		Prices:  nil,
+		Hosts:   hosts[event.ID],
+	}, nil
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params *types.UpdateEventInput) (*queries.Event, error) {

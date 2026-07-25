@@ -2,9 +2,7 @@ package api
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/moroz/homeosapiens-go/config"
@@ -20,12 +18,17 @@ import (
 // handlers assume the caller is an authenticated admin and perform no
 // per-request authorization.
 type Server struct {
+	*eventServer
 	q  *queries.Queries
 	db queries.DBTX
 }
 
 func NewServer(db queries.DBTX) *Server {
-	return &Server{q: queries.New(db), db: db}
+	return &Server{
+		eventServer: NewEventServer(db),
+		q:           queries.New(db),
+		db:          db,
+	}
 }
 
 func getRequestContext(ctx context.Context) *types.CustomContext {
@@ -145,89 +148,6 @@ func (s *Server) ListVideos(ctx context.Context, params ListVideosRequestObject)
 	}, nil
 }
 
-func (s *Server) GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error) {
-	e, err := services.NewEventService(s.db).GetEventDetailsById(ctx, request.Id, nil)
-	if errors.Is(err, sql.ErrNoRows) {
-		return GetEvent404Response{}, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	price := new(string)
-	currency := new(string)
-	if !e.IsFree() {
-		*price = e.Product.BasePriceAmount.StringFixedBank(2)
-		*currency = e.Product.BasePriceCurrency
-	}
-
-	return GetEvent200JSONResponse{
-		Currency:      currency,
-		DescriptionEn: e.DescriptionEn,
-		DescriptionPl: e.DescriptionPl,
-		EndsAt:        e.EndsAt,
-		EventType:     string(e.EventType),
-		Hosts:         nil,
-		Id:            e.ID,
-		InsertedAt:    e.InsertedAt,
-		IsFree:        e.IsFree(),
-		IsVirtual:     e.IsVirtual,
-		Price:         price,
-		Slug:          e.Slug,
-		StartsAt:      e.StartsAt,
-		SubtitleEn:    e.SubtitleEn,
-		SubtitlePl:    e.SubtitlePl,
-		TitleEn:       e.TitleEn,
-		TitlePl:       e.TitlePl,
-		UpdatedAt:     e.UpdatedAt,
-	}, nil
-}
-
-func (s *Server) ListEvents(ctx context.Context, params ListEventsRequestObject) (ListEventsResponseObject, error) {
-	page, perPage := resolvePaginationParams(params.Params.Page, params.Params.PerPage)
-
-	events, err := s.q.PaginateEvents(ctx, &queries.PaginateEventsParams{
-		Page:    page,
-		PerPage: perPage,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	count, err := s.q.CountEvents(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]Event, len(events))
-	for i, e := range events {
-		out[i] = Event{
-			Id:         e.ID,
-			Slug:       e.Slug,
-			TitleEn:    e.TitleEn,
-			TitlePl:    e.TitlePl,
-			SubtitleEn: e.SubtitleEn,
-			SubtitlePl: e.SubtitlePl,
-			EventType:  string(e.EventType),
-			IsVirtual:  e.IsVirtual,
-			StartsAt:   e.StartsAt,
-			EndsAt:     e.EndsAt,
-			InsertedAt: e.InsertedAt,
-			UpdatedAt:  e.UpdatedAt,
-		}
-	}
-
-	return ListEvents200JSONResponse{
-		Data: out,
-		Pagination: Pagination{
-			Page:       page,
-			PerPage:    perPage,
-			Total:      count,
-			TotalPages: countPages(count, perPage),
-		},
-	}, nil
-}
-
 func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (ListUsersResponseObject, error) {
 	page, perPage := resolvePaginationParams(params.Params.Page, params.Params.PerPage)
 
@@ -288,8 +208,4 @@ func (s *Server) GetSession(ctx context.Context, _ GetSessionRequestObject) (Get
 		Role:             UserRole(user.UserRole),
 		ProfilePicture:   user.ProfilePicture,
 	}, nil
-}
-
-func (s *Server) UpdateEvent(ctx context.Context, _ UpdateEventRequestObject) (UpdateEventResponseObject, error) {
-	panic("Unimplemented")
 }

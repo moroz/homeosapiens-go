@@ -91,3 +91,7 @@ sql:
           - column: "user_tokens.token"
             go_type:
               type: "[]byte"
+
+          - column: "river_job.unique_key"
+            go_type:
+              type: "[]byte"

@@ -176,6 +176,108 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidE
 	return &i, err
 }
 
+const insertEvent = `-- name: InsertEvent :one
+insert into events (title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14, $15, $16, $17, $18, $19)
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id
+`
+
+type InsertEventParams struct {
+	TitleEn          string
+	TitlePl          string
+	StartsAt         time.Time
+	EndsAt           time.Time
+	IsVirtual        bool
+	DescriptionEn    string
+	DescriptionPl    string
+	EventType        EventType
+	Slug             string
+	SubtitleEn       *string
+	SubtitlePl       *string
+	VenueNameEn      *string
+	VenueNamePl      *string
+	VenueStreet      *string
+	VenueCityEn      *string
+	VenueCityPl      *string
+	VenuePostalCode  *string
+	VenueCountryCode *string
+	ProductID        *uuid.UUID
+}
+
+func (q *Queries) InsertEvent(ctx context.Context, arg *InsertEventParams) (*Event, error) {
+	row := q.db.QueryRow(ctx, insertEvent,
+		arg.TitleEn,
+		arg.TitlePl,
+		arg.StartsAt,
+		arg.EndsAt,
+		arg.IsVirtual,
+		arg.DescriptionEn,
+		arg.DescriptionPl,
+		arg.EventType,
+		arg.Slug,
+		arg.SubtitleEn,
+		arg.SubtitlePl,
+		arg.VenueNameEn,
+		arg.VenueNamePl,
+		arg.VenueStreet,
+		arg.VenueCityEn,
+		arg.VenueCityPl,
+		arg.VenuePostalCode,
+		arg.VenueCountryCode,
+		arg.ProductID,
+	)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Slug,
+		&i.SubtitleEn,
+		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
+		&i.ProductID,
+	)
+	return &i, err
+}
+
+const insertEventHost = `-- name: InsertEventHost :one
+insert into events_hosts (event_id, host_id, position) values ($1, $2, $3) returning id, event_id, host_id, position, inserted_at, updated_at
+`
+
+type InsertEventHostParams struct {
+	EventID  uuid.UUID
+	HostID   uuid.UUID
+	Position int32
+}
+
+func (q *Queries) InsertEventHost(ctx context.Context, arg *InsertEventHostParams) (*EventsHost, error) {
+	row := q.db.QueryRow(ctx, insertEventHost, arg.EventID, arg.HostID, arg.Position)
+	var i EventsHost
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.HostID,
+		&i.Position,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
 const listEventRegistrationsForUserForEvents = `-- name: ListEventRegistrationsForUserForEvents :many
 select er.id, er.event_id, er.user_id, er.inserted_at from event_registrations er
 where er.event_id = any($1::uuid[])

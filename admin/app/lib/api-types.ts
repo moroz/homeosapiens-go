@@ -85,7 +85,8 @@ export interface paths {
         /** List events */
         get: operations["listEvents"];
         put?: never;
-        post?: never;
+        /** Create an event */
+        post: operations["createEvent"];
         delete?: never;
         options?: never;
         head?: never;
@@ -227,8 +228,8 @@ export interface components {
             currency?: string | null;
             hosts: components["schemas"]["Host"][];
         };
-        /** @description Editable fields of an event. Server-managed fields (id, insertedAt, updatedAt) are ignored. */
-        EventUpdate: {
+        /** @description Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored. */
+        EventInput: {
             slug: string;
             titlePl: string;
             titleEn: string;
@@ -398,6 +399,39 @@ export interface operations {
             };
         };
     };
+    createEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventInput"];
+            };
+        };
+        responses: {
+            /** @description The created event */
+            201: {
+                headers: {
+                    /** @description URL of the created event. */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventDetails"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getEvent: {
         parameters: {
             query?: never;
@@ -440,7 +474,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EventUpdate"];
+                "application/json": components["schemas"]["EventInput"];
             };
         };
         responses: {

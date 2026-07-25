@@ -83,8 +83,8 @@ type EventDetails struct {
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
-// EventUpdate Editable fields of an event. Server-managed fields (id, insertedAt, updatedAt) are ignored.
-type EventUpdate struct {
+// EventInput Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored.
+type EventInput struct {
 	// Currency Currency code. Null when free.
 	Currency      *string   `json:"currency,omitempty"`
 	DescriptionEn string    `json:"descriptionEn"`
@@ -242,14 +242,20 @@ type ListVideosParams struct {
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
 
+// CreateEventJSONRequestBody defines body for CreateEvent for application/json ContentType.
+type CreateEventJSONRequestBody = EventInput
+
 // UpdateEventJSONRequestBody defines body for UpdateEvent for application/json ContentType.
-type UpdateEventJSONRequestBody = EventUpdate
+type UpdateEventJSONRequestBody = EventInput
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// ListEvents List events
 	// (GET /events)
 	ListEvents(w http.ResponseWriter, r *http.Request, params ListEventsParams)
+	// CreateEvent Create an event
+	// (POST /events)
+	CreateEvent(w http.ResponseWriter, r *http.Request)
 	// GetEvent Get a single event by primary key
 	// (GET /events/{id})
 	GetEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
@@ -319,6 +325,20 @@ func (siw *ServerInterfaceWrapper) ListEvents(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListEvents(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateEvent operation middleware
+func (siw *ServerInterfaceWrapper) CreateEvent(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateEvent(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -684,6 +704,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/users", wrapper.ListUsers)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/videos", wrapper.ListVideos)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events", wrapper.ListEvents)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events", wrapper.CreateEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events/{id}", wrapper.GetEvent)
 	m.HandleFunc(http.MethodPut+" "+options.BaseURL+"/events/{id}", wrapper.UpdateEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
@@ -711,6 +732,46 @@ func (response ListEvents200JSONResponse) VisitListEventsResponse(w http.Respons
 	w.WriteHeader(200)
 	_, err := buf.WriteTo(w)
 	return err
+}
+
+type CreateEventRequestObject struct {
+	Body *CreateEventJSONRequestBody
+}
+
+type CreateEventResponseObject interface {
+	VisitCreateEventResponse(w http.ResponseWriter) error
+}
+
+type CreateEvent201ResponseHeaders struct {
+	Location *string
+}
+
+type CreateEvent201JSONResponse struct {
+	Body    EventDetails
+	Headers CreateEvent201ResponseHeaders
+}
+
+func (response CreateEvent201JSONResponse) VisitCreateEventResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response.Body); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if response.Headers.Location != nil {
+		w.Header().Set("Location", fmt.Sprint(*response.Headers.Location))
+	}
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateEvent422Response struct {
+}
+
+func (response CreateEvent422Response) VisitCreateEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(422)
+	return nil
 }
 
 type GetEventRequestObject struct {
@@ -903,6 +964,9 @@ type StrictServerInterface interface {
 	// ListEvents List events
 	// (GET /events)
 	ListEvents(ctx context.Context, request ListEventsRequestObject) (ListEventsResponseObject, error)
+	// CreateEvent Create an event
+	// (POST /events)
+	CreateEvent(ctx context.Context, request CreateEventRequestObject) (CreateEventResponseObject, error)
 	// GetEvent Get a single event by primary key
 	// (GET /events/{id})
 	GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error)
@@ -984,6 +1048,37 @@ func (sh *strictHandler) ListEvents(w http.ResponseWriter, r *http.Request, para
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ListEventsResponseObject); ok {
 		if err := validResponse.VisitListEventsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateEvent operation middleware
+func (sh *strictHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
+	var request CreateEventRequestObject
+
+	var body CreateEventJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateEvent(ctx, request.(CreateEventRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateEvent")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateEventResponseObject); ok {
+		if err := validResponse.VisitCreateEventResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1181,43 +1276,45 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, para
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
+	"JtmotUqMxWbZIpbvl/8LAAD//w==",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

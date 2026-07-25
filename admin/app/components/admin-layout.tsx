@@ -63,7 +63,7 @@ export function AdminLayout({ title, children }: Props) {
 
   return (
     <SidebarProvider defaultOpen={sidebarDefaultOpen()}>
-      <title>{`${title} | Homeo sapiens`}</title>
+      <title>{title ? `${title} | Homeo sapiens` : "Homeo sapiens"}</title>
       <Sidebar>
         <SidebarHeader>
           <h1 className="px-2 py-1.5 font-heading text-lg font-semibold">Homeo sapiens</h1>

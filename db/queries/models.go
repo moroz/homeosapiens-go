@@ -531,7 +531,7 @@ type RiverJob struct {
 	Metadata     []byte
 	Queue        string
 	Tags         []string
-	UniqueKey    *sqlcrypter.EncryptedBytes
+	UniqueKey    []byte
 	UniqueStates pgtype.Bits
 }
 
