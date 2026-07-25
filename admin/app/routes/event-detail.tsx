@@ -2,23 +2,14 @@ import { CaretLeftIcon as CaretLeft } from "@phosphor-icons/react";
 import { Link, useParams } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { useGetEventQuery } from "~/hooks";
+import { DetailsTable, DataTableField as Field } from "~/components/ui/details-table";
 
 const dateStyle = { dateStyle: "full", timeStyle: "short" } as const;
 
 function formatInstant(iso: string) {
   return Temporal.Instant.from(iso).toLocaleString("en-GB", dateStyle);
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-      <dd className="text-sm">{children}</dd>
-    </div>
-  );
 }
 
 export default function EventDetail() {
@@ -27,7 +18,7 @@ export default function EventDetail() {
 
   return (
     <AdminLayout title={event?.titleEn ?? "Event"}>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
         <Button variant="ghost" size="sm" className="w-fit" render={<Link to="/events" />}>
           <CaretLeft />
           Back to events
@@ -38,30 +29,25 @@ export default function EventDetail() {
         ) : isError || !event ? (
           <p className="text-destructive">Event not found.</p>
         ) : (
-          <div className="flex flex-col gap-6">
-            <p className="text-muted-foreground">{event.titlePl}</p>
+          <>
+            <div className="flex flex-col">
+              <h2 className="text-2xl font-bold">{event.titleEn}</h2>
+              <p className="subtitle text-xl text-muted-foreground">Event details</p>
+            </div>
 
-            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              <Field label="Type">
-                <Badge variant="outline">{event.eventType}</Badge>
+            <DetailsTable>
+              <Field label="ID" className="font-mono select-all">
+                {event.id}
               </Field>
-              <Field label="Format">
-                <Badge variant="outline">{event.isVirtual ? "Virtual" : "In person"}</Badge>
+              <Field label="Title (PL)">{event.titlePl}</Field>
+              <Field label="Subtitle (PL)">{event.subtitlePl}</Field>
+              <Field label="Title (EN)">{event.titleEn}</Field>
+              <Field label="Subtitle (EN)">{event.subtitleEn}</Field>
+              <Field label="Slug" className="font-mono select-all">
+                {event.slug}
               </Field>
-              <Field label="Slug">{event.slug}</Field>
-              <Field label="Starts">{formatInstant(event.startsAt)}</Field>
-              <Field label="Ends">{formatInstant(event.endsAt)}</Field>
-            </dl>
-
-            {(event.subtitleEn || event.subtitlePl) && (
-              <div className="flex flex-col gap-1">
-                {event.subtitleEn && <p className="text-sm">{event.subtitleEn}</p>}
-                {event.subtitlePl && (
-                  <p className="text-sm text-muted-foreground">{event.subtitlePl}</p>
-                )}
-              </div>
-            )}
-          </div>
+            </DetailsTable>
+          </>
         )}
       </div>
     </AdminLayout>
