@@ -146,7 +146,7 @@ func (s *Server) ListVideos(ctx context.Context, params ListVideosRequestObject)
 }
 
 func (s *Server) GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error) {
-	e, err := s.q.GetEventById(ctx, request.Id)
+	e, err := services.NewEventService(s.db).GetEventDetailsById(ctx, request.Id, nil)
 	if errors.Is(err, sql.ErrNoRows) {
 		return GetEvent404Response{}, nil
 	}
@@ -154,17 +154,32 @@ func (s *Server) GetEvent(ctx context.Context, request GetEventRequestObject) (G
 		return nil, err
 	}
 
+	price := new(string)
+	currency := new(string)
+	if !e.IsFree() {
+		*price = e.Product.BasePriceAmount.StringFixedBank(2)
+		*currency = e.Product.BasePriceCurrency
+	}
+
 	return GetEvent200JSONResponse{
-		Id:         e.ID,
-		Slug:       e.Slug,
-		TitleEn:    e.TitleEn,
-		TitlePl:    e.TitlePl,
-		SubtitleEn: e.SubtitleEn,
-		SubtitlePl: e.SubtitlePl,
-		EventType:  string(e.EventType),
-		IsVirtual:  e.IsVirtual,
-		StartsAt:   e.StartsAt,
-		EndsAt:     e.EndsAt,
+		Currency:      currency,
+		DescriptionEn: &e.DescriptionEn,
+		DescriptionPl: e.DescriptionPl,
+		EndsAt:        e.EndsAt,
+		EventType:     string(e.EventType),
+		Hosts:         nil,
+		Id:            e.ID,
+		InsertedAt:    e.InsertedAt,
+		IsFree:        e.IsFree(),
+		IsVirtual:     e.IsVirtual,
+		Price:         price,
+		Slug:          e.Slug,
+		StartsAt:      e.StartsAt,
+		SubtitleEn:    e.SubtitleEn,
+		SubtitlePl:    e.SubtitlePl,
+		TitleEn:       e.TitleEn,
+		TitlePl:       e.TitlePl,
+		UpdatedAt:     e.UpdatedAt,
 	}, nil
 }
 
@@ -256,7 +271,7 @@ func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (
 	}, nil
 }
 
-func (s *Server) GetSession(ctx context.Context, params GetSessionRequestObject) (GetSessionResponseObject, error) {
+func (s *Server) GetSession(ctx context.Context, _ GetSessionRequestObject) (GetSessionResponseObject, error) {
 	user := getRequestContext(ctx).User
 	if user == nil {
 		return GetSession401Response{}, nil

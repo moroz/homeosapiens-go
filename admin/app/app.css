@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/ibm-plex-sans";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -149,12 +150,14 @@ html.dark {
 }
 
 @layer components {
-  th,
-  td {
-    @apply border px-3 py-1 text-left;
-  }
+  .details-table {
+    th,
+    td {
+      @apply border px-3 py-1 text-left;
+    }
 
-  th {
-    @apply font-medium;
+    th {
+      @apply font-medium;
+    }
   }
 }

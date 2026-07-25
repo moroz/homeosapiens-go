@@ -11,7 +11,6 @@ import (
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/shopspring/decimal"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
@@ -83,7 +82,6 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 	}
 
 	l := ctx.Localizer
-	isFree := event.Product == nil || event.Product.BasePriceAmount.Equal(decimal.Zero)
 
 	return layout.Layout(ctx, event.TitleEn, Div(
 		Class("card mx-auto"),
@@ -113,17 +111,17 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 			),
 		),
 		Div(Class("my-4 flex items-center gap-4"),
-			Iff(isFree, func() Node {
+			Iff(event.IsFree(), func() Node {
 				return freeEventCTA(&freeEventCTAProps{
 					Event:     event,
 					User:      ctx.User,
 					Localizer: ctx.Localizer,
 				})
 			}),
-			If(!isFree, components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
-			If(!isFree && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
+			If(!event.IsFree(), components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
+			If(!event.IsFree() && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
 			If(
-				isFree && event.RegistrationCount > 0,
+				event.IsFree() && event.RegistrationCount > 0,
 				Text(l.MustLocalize(&i18n.LocalizeConfig{
 					DefaultMessage: &i18n.Message{
 						ID: "common.events.attendance_count",
@@ -134,7 +132,7 @@ func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
 					PluralCount: event.RegistrationCount,
 				})),
 			),
-			If(isFree && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
+			If(event.IsFree() && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 		),
 		Div(
 			Class("prose lg:prose-lg mt-4 w-full"),

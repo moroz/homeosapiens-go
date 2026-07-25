@@ -122,7 +122,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Event"
+                $ref: "#/components/schemas/EventDetails"
         "404":
           description: No event with that id
 
@@ -322,6 +322,37 @@ components:
         updatedAt:
           type: string
           format: date-time
+
+    EventDetails:
+      allOf:
+        - $ref: "#/components/schemas/Event"
+        - type: object
+          required: [isFree, hosts]
+          properties:
+            descriptionPl:
+              type: string
+              nullable: true
+            descriptionEn:
+              type: string
+              nullable: true
+            coverImageUrl:
+              type: string
+              format: uri
+              nullable: true
+            isFree:
+              type: boolean
+            price:
+              type: string
+              nullable: true
+              description: Decimal price string, e.g. "19.99". Null when free.
+            currency:
+              type: string
+              nullable: true
+              description: Currency code. Null when free.
+            hosts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Host"
 
     Host:
       type: object

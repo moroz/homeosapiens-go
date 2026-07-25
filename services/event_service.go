@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/shopspring/decimal"
 )
 
 type EventService struct {
@@ -103,6 +104,10 @@ type EventDetailsDto struct {
 	EventRegistration *queries.EventRegistration
 	RegistrationCount int
 	CountInCart       int
+}
+
+func (d *EventDetailsDto) IsFree() bool {
+	return d.ProductID == nil || d.Product.BasePriceAmount.Equal(decimal.Zero)
 }
 
 func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUID, user *queries.User) (*EventDetailsDto, error) {

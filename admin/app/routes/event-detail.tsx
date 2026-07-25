@@ -2,9 +2,11 @@ import { CaretLeftIcon as CaretLeft } from "@phosphor-icons/react";
 import { Link, useParams } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { useGetEventQuery } from "~/hooks";
 import { DetailsTable, DataTableField as Field } from "~/components/ui/details-table";
+import Markdown from "react-markdown";
+import { PencilIcon } from "@phosphor-icons/react/ssr";
 
 const dateStyle = { dateStyle: "full", timeStyle: "short" } as const;
 
@@ -30,10 +32,21 @@ export default function EventDetail() {
           <p className="text-destructive">Event not found.</p>
         ) : (
           <>
-            <div className="flex flex-col">
-              <h2 className="text-2xl font-bold">{event.titleEn}</h2>
-              <p className="subtitle text-xl text-muted-foreground">Event details</p>
-            </div>
+            <header className="flex justify-between">
+              <div className="flex flex-col">
+                <h2 className="text-2xl font-bold">{event.titleEn}</h2>
+                <p className="subtitle text-xl text-muted-foreground">Event details</p>
+              </div>
+              <div>
+                <Link
+                  to={`/events/${event.id}/edit`}
+                  className={buttonVariants({ variant: "secondary" })}
+                >
+                  <PencilIcon className="w-5" />
+                  Edit
+                </Link>
+              </div>
+            </header>
 
             <DetailsTable>
               <Field label="ID" className="font-mono select-all">
@@ -47,6 +60,23 @@ export default function EventDetail() {
                 {event.slug}
               </Field>
             </DetailsTable>
+            <section className="mt-6">
+              <h4 className="text-xl font-bold">Descriptions</h4>
+              <div className="mt-6 flex gap-6">
+                <div className="space-y-4 border p-6">
+                  <h5 className="text-xl">Polish</h5>
+                  <div className="prose text-foreground">
+                    <Markdown>{event.descriptionPl}</Markdown>
+                  </div>
+                </div>
+                <div className="space-y-4 border p-6">
+                  <h5 className="text-xl">English</h5>
+                  <div className="prose text-foreground">
+                    <Markdown>{event.descriptionEn}</Markdown>
+                  </div>
+                </div>
+              </div>
+            </section>
           </>
         )}
       </div>

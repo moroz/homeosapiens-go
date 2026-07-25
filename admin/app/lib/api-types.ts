@@ -216,6 +216,18 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        EventDetails: components["schemas"]["Event"] & {
+            descriptionPl?: string | null;
+            descriptionEn?: string | null;
+            /** Format: uri */
+            coverImageUrl?: string | null;
+            isFree: boolean;
+            /** @description Decimal price string, e.g. "19.99". Null when free. */
+            price?: string | null;
+            /** @description Currency code. Null when free. */
+            currency?: string | null;
+            hosts: components["schemas"]["Host"][];
+        };
         Host: {
             /** Format: uuid */
             id: string;
@@ -382,7 +394,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Event"];
+                    "application/json": components["schemas"]["EventDetails"];
                 };
             };
             /** @description No event with that id */
