@@ -1,6 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "~/lib/api";
+import type { components } from "~/lib/api-types";
+
+type EventInput = components["schemas"]["EventInput"];
 
 /** `GET /api/admin/events` — a page of events, newest first. */
 export function useListEventsQuery(page = 1, perPage = 20) {
@@ -21,6 +24,21 @@ export function useGetEventQuery(id: string | undefined) {
     queryFn: async () => {
       const { data } = await api.GET("/events/{id}", { params: { path: { id: id! } } });
       return data;
+    },
+  });
+}
+
+/** `POST /api/admin/events` — create an event. Throws {@link ApiError} on failure (see `~/lib/api`). */
+export function useCreateEventMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (body: EventInput) => {
+      const { data } = await api.POST("/events", { body });
+      return data!;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["listEvents"] });
     },
   });
 }

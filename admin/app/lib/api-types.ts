@@ -250,6 +250,20 @@ export interface components {
             currency?: string | null;
             /** @description IDs of hosts associated with the event. */
             hostIds: string[];
+            venueNameEn?: string | null;
+            venueNamePl?: string | null;
+            venueStreet?: string | null;
+            venueCityEn?: string | null;
+            venueCityPl?: string | null;
+            venuePostalCode?: string | null;
+            /** @description ISO 3166-1 alpha-2 country code */
+            venueCountryCode?: string | null;
+        };
+        /** @description Map of field name to validation error message(s) for that field. */
+        ValidationErrors: {
+            errors: {
+                [key: string]: string;
+            };
         };
         Host: {
             /** Format: uuid */
@@ -428,7 +442,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
             };
         };
     };
@@ -499,7 +515,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
             };
         };
     };

@@ -71,7 +71,7 @@ export default function EventDetail() {
                   <CardHeader>
                     <CardTitle>Polish</CardTitle>
                   </CardHeader>
-                  <CardContent className="prose text-foreground">
+                  <CardContent className="prose w-[65ch] text-foreground">
                     <Markdown>{event.descriptionPl}</Markdown>
                   </CardContent>
                 </Card>
@@ -79,7 +79,7 @@ export default function EventDetail() {
                   <CardHeader>
                     <CardTitle>English</CardTitle>
                   </CardHeader>
-                  <CardContent className="prose text-foreground">
+                  <CardContent className="prose w-[65ch] text-foreground">
                     <Markdown>{event.descriptionEn}</Markdown>
                   </CardContent>
                 </Card>

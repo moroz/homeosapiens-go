@@ -1,8 +1,10 @@
+import { PlusIcon } from "@phosphor-icons/react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
 import { DataTable } from "~/components/data-table";
+import { buttonVariants } from "~/components/ui/button";
 import { useListEventsQuery, useTableSearchParams } from "~/hooks";
 import type { components } from "~/lib/api-types";
 import { formatInstant } from "~/lib/time";
@@ -45,19 +47,28 @@ export default function Events() {
 
   return (
     <AdminLayout title="Events">
-      <DataTable
-        columns={columns}
-        data={data?.data ?? []}
-        pageCount={data?.pagination.totalPages ?? 0}
-        pagination={pagination}
-        onPaginationChange={onPaginationChange}
-        sorting={sorting}
-        onSortingChange={onSortingChange}
-        isPending={isPending}
-        isError={isError}
-        onRowClick={(event) => navigate(`/events/${event.id}`)}
-        title="Events"
-      />
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Events</h2>
+          <Link to="/events/new" className={buttonVariants()}>
+            <PlusIcon />
+            New event
+          </Link>
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={data?.data ?? []}
+          pageCount={data?.pagination.totalPages ?? 0}
+          pagination={pagination}
+          onPaginationChange={onPaginationChange}
+          sorting={sorting}
+          onSortingChange={onSortingChange}
+          isPending={isPending}
+          isError={isError}
+          onRowClick={(event) => navigate(`/events/${event.id}`)}
+        />
+      </div>
     </AdminLayout>
   );
 }

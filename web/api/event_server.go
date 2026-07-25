@@ -146,9 +146,8 @@ func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventReques
 
 	e, err := services.NewEventService(s.db).CreateEvent(ctx, input)
 	if err != nil {
-		var verrs validation.Errors
-		if errors.As(err, &verrs) {
-			return CreateEvent422JSONResponse{Errors: validationErrorMessages(verrs)}, nil
+		if err, ok := errors.AsType[validation.Errors](err); ok {
+			return CreateEvent422JSONResponse{Errors: validationErrorMessages(err)}, nil
 		}
 		return nil, err
 	}
