@@ -127,6 +127,10 @@ paths:
                 $ref: "#/components/schemas/EventDetails"
         "422":
           description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
 
   /events/{id}:
     get:
@@ -177,6 +181,10 @@ paths:
           description: No event with that id
         "422":
           description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
 
   /hosts:
     get:
@@ -447,6 +455,38 @@ components:
           items:
             type: string
             format: uuid
+        venueNameEn:
+          type: string
+          nullable: true
+        venueNamePl:
+          type: string
+          nullable: true
+        venueStreet:
+          type: string
+          nullable: true
+        venueCityEn:
+          type: string
+          nullable: true
+        venueCityPl:
+          type: string
+          nullable: true
+        venuePostalCode:
+          type: string
+          nullable: true
+        venueCountryCode:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code
+
+    ValidationErrors:
+      type: object
+      description: Map of field name to validation error message(s) for that field.
+      required: [errors]
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
 
     Host:
       type: object

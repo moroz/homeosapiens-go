@@ -2,9 +2,12 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/types"
@@ -258,6 +261,10 @@ func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context,
 }
 
 func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEventInput) (*types.EventDetailsDto, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
 	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -302,6 +309,11 @@ func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEven
 		VenueCountryCode: params.VenueCountryCode,
 		ProductID:        productId,
 	})
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" && pgErr.ConstraintName == "events_slug_idx" {
+		return nil, validation.Errors{
+			"slug": validation.NewError("unique", "has already been taken"),
+		}
+	}
 	if err != nil {
 		return nil, err
 	}

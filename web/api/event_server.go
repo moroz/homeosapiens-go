@@ -4,9 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/types"
+	"github.com/shopspring/decimal"
 )
 
 type eventServer struct {
@@ -66,11 +70,6 @@ func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestOb
 	}, nil
 }
 
-func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventRequestObject) (CreateEventResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (s *eventServer) GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error) {
 	e, err := services.NewEventService(s.db).GetEventDetailsById(ctx, request.Id, nil)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -107,4 +106,93 @@ func (s *eventServer) GetEvent(ctx context.Context, request GetEventRequestObjec
 		TitlePl:       e.TitlePl,
 		UpdatedAt:     e.UpdatedAt,
 	}, nil
+}
+
+func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventRequestObject) (CreateEventResponseObject, error) {
+	p := request.Body
+
+	var price *decimal.Decimal
+	if p.Price != nil {
+		parsed, err := decimal.NewFromString(*p.Price)
+		if err != nil {
+			return nil, err
+		}
+		price = &parsed
+	}
+
+	input := &types.CreateEventInput{
+		EventType:        p.EventType,
+		TitleEn:          p.TitleEn,
+		TitlePl:          p.TitlePl,
+		SubtitleEn:       p.SubtitleEn,
+		SubtitlePl:       p.SubtitlePl,
+		Slug:             p.Slug,
+		DescriptionEn:    p.DescriptionEn,
+		DescriptionPl:    p.DescriptionPl,
+		Price:            price,
+		Currency:         p.Currency,
+		HostIds:          p.HostIds,
+		StartsAt:         p.StartsAt,
+		EndsAt:           p.EndsAt,
+		IsVirtual:        p.IsVirtual,
+		VenueNameEn:      p.VenueNameEn,
+		VenueNamePl:      p.VenueNamePl,
+		VenueStreet:      p.VenueStreet,
+		VenueCityEn:      p.VenueCityEn,
+		VenueCityPl:      p.VenueCityPl,
+		VenuePostalCode:  p.VenuePostalCode,
+		VenueCountryCode: p.VenueCountryCode,
+	}
+
+	e, err := services.NewEventService(s.db).CreateEvent(ctx, input)
+	if err != nil {
+		var verrs validation.Errors
+		if errors.As(err, &verrs) {
+			return CreateEvent422JSONResponse{Errors: validationErrorMessages(verrs)}, nil
+		}
+		return nil, err
+	}
+
+	eventPrice := new(string)
+	currency := new(string)
+	if !e.IsFree() {
+		*eventPrice = e.Product.BasePriceAmount.StringFixedBank(2)
+		*currency = e.Product.BasePriceCurrency
+	}
+
+	location := fmt.Sprintf("/events/%s", e.ID)
+
+	return CreateEvent201JSONResponse{
+		Headers: CreateEvent201ResponseHeaders{
+			Location: &location,
+		},
+		Body: EventDetails{
+			Currency:      currency,
+			DescriptionEn: e.DescriptionEn,
+			DescriptionPl: e.DescriptionPl,
+			EndsAt:        e.EndsAt,
+			EventType:     string(e.EventType),
+			Hosts:         nil,
+			Id:            e.ID,
+			InsertedAt:    e.InsertedAt,
+			IsFree:        e.IsFree(),
+			IsVirtual:     e.IsVirtual,
+			Price:         eventPrice,
+			Slug:          e.Slug,
+			StartsAt:      e.StartsAt,
+			SubtitleEn:    e.SubtitleEn,
+			SubtitlePl:    e.SubtitlePl,
+			TitleEn:       e.TitleEn,
+			TitlePl:       e.TitlePl,
+			UpdatedAt:     e.UpdatedAt,
+		},
+	}, nil
+}
+
+func validationErrorMessages(verrs validation.Errors) map[string]string {
+	messages := make(map[string]string, len(verrs))
+	for field, ferr := range verrs {
+		messages[field] = ferr.Error()
+	}
+	return messages
 }

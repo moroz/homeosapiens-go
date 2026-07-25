@@ -5,7 +5,6 @@ import (
 
 	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/tmpl/layout"
@@ -20,7 +19,7 @@ const EventRegistrationButtonNotGoingClasses = "bg-slate-100 text-slate-900 hove
 const EventRegistrationButtonGoingClasses = "bg-primary/10 text-primary hover:bg-primary/20"
 
 // ananymousEventRegistrationButtonLink displays a faux button that redirects the user to the login page if they want to register for an event. If they are already signed in, the GET handler registers the user for the event.
-func ananymousEventRegistrationButtonLink(l *i18n.Localizer, event *services.EventDetailsDto) Node {
+func ananymousEventRegistrationButtonLink(l *i18n.Localizer, event *types.EventDetailsDto) Node {
 	return A(
 		Href(fmt.Sprintf("/events/%s/register", event.ID)),
 		Class(twmerge.Merge(EventRegistrationButtonBaseClasses, EventRegistrationButtonNotGoingClasses)),
@@ -32,7 +31,7 @@ func ananymousEventRegistrationButtonLink(l *i18n.Localizer, event *services.Eve
 }
 
 type freeEventCTAProps struct {
-	Event     *services.EventDetailsDto
+	Event     *types.EventDetailsDto
 	User      *queries.User
 	Localizer *i18n.Localizer
 }
@@ -67,7 +66,7 @@ func freeEventCTA(props *freeEventCTAProps) Node {
 	)
 }
 
-func Show(ctx *types.CustomContext, event *services.EventDetailsDto) Node {
+func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 	lang := ctx.Language
 	tz := ctx.Timezone
 
