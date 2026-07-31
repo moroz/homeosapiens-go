@@ -21,6 +21,7 @@ import { useCreateEventMutation, useListHostsQuery } from "~/hooks";
 import { InputField } from "~/components/forms/input-field";
 import { FieldError } from "~/components/forms/field-error";
 import { type EventFormValues, toEventInput } from "./interfaces";
+import { InputGroup } from "~/components/forms/input-group";
 
 const defaultValues: Partial<EventFormValues> = {
   eventType: "webinar",
@@ -124,7 +125,7 @@ export default function NewEvent() {
         <section className="flex flex-col gap-4">
           <h3 className="text-lg font-semibold">Basics</h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <InputGroup>
             <InputField
               label="Title (EN)"
               errors={errors}
@@ -137,9 +138,9 @@ export default function NewEvent() {
             />
             <InputField label="Subtitle (EN)" errors={errors} {...register("subtitleEn")} />
             <InputField label="Subtitle (PL)" errors={errors} {...register("subtitlePl")} />
-          </div>
+          </InputGroup>
 
-          <div className="grid grid-cols-2 gap-4">
+          <InputGroup>
             <InputField
               label="Slug"
               className="font-mono"
@@ -166,9 +167,9 @@ export default function NewEvent() {
               />
               <FieldError message={errors.eventType?.message} />
             </div>
-          </div>
+          </InputGroup>
 
-          <div className="grid grid-cols-2 gap-4">
+          <InputGroup>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="descriptionEn">Description (EN)</Label>
               <Textarea
@@ -185,12 +186,12 @@ export default function NewEvent() {
               />
               <FieldError message={errors.descriptionPl?.message} />
             </div>
-          </div>
+          </InputGroup>
         </section>
 
         <section className="flex flex-col gap-4">
           <h3 className="text-lg font-semibold">Schedule</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <InputGroup>
             <InputField
               label="Starts at"
               type="datetime-local"
@@ -203,7 +204,7 @@ export default function NewEvent() {
               errors={errors}
               {...register("endsAt", { required: "Required" })}
             />
-          </div>
+          </InputGroup>
         </section>
 
         <section className="flex flex-col gap-4">
@@ -219,7 +220,7 @@ export default function NewEvent() {
           </div>
 
           {!isVirtual && (
-            <div className="grid grid-cols-2 gap-4 rounded-md border border-input p-4">
+            <InputGroup className="rounded-md border border-input p-4">
               <InputField
                 label="Venue name (EN)"
                 errors={errors}
@@ -262,7 +263,7 @@ export default function NewEvent() {
                   maxLength: { value: 2, message: "Must be 2 letters" },
                 })}
               />
-            </div>
+            </InputGroup>
           )}
         </section>
 
@@ -279,7 +280,7 @@ export default function NewEvent() {
           </div>
 
           {!isFree && (
-            <div className="grid grid-cols-2 gap-4 rounded-md border border-input p-4">
+            <InputGroup className="rounded-md border border-input p-4">
               <InputField
                 label="Price"
                 placeholder="19.99"
@@ -305,7 +306,7 @@ export default function NewEvent() {
                 />
                 <FieldError message={errors.currency?.message} />
               </div>
-            </div>
+            </InputGroup>
           )}
         </section>
 
