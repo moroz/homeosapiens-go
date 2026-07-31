@@ -386,8 +386,8 @@ type Event struct {
 	StartsAt         time.Time
 	EndsAt           time.Time
 	IsVirtual        bool
-	DescriptionEn    string
-	DescriptionPl    string
+	DescriptionEn    *string
+	DescriptionPl    *string
 	EventType        EventType
 	InsertedAt       time.Time
 	UpdatedAt        time.Time
@@ -402,6 +402,7 @@ type Event struct {
 	VenuePostalCode  *string
 	VenueCountryCode *string
 	ProductID        *uuid.UUID
+	PublishedAt      *time.Time
 }
 
 type EventRegistration struct {

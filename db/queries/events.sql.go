@@ -25,7 +25,7 @@ func (q *Queries) CountEvents(ctx context.Context) (int64, error) {
 }
 
 const getEventById = `-- name: GetEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events where id = $1
 `
 
 func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -54,12 +54,13 @@ func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
 		&i.ProductID,
+		&i.PublishedAt,
 	)
 	return &i, err
 }
 
 const getEventBySlug = `-- name: GetEventBySlug :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where slug = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events where slug = $1
 `
 
 func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, error) {
@@ -88,12 +89,13 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
 		&i.ProductID,
+		&i.PublishedAt,
 	)
 	return &i, err
 }
 
 const getFreeEventById = `-- name: GetFreeEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events where product_id is null and id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events where product_id is null and id = $1
 `
 
 func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -122,12 +124,13 @@ func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, e
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
 		&i.ProductID,
+		&i.PublishedAt,
 	)
 	return &i, err
 }
 
 const getPaidEventById = `-- name: GetPaidEventById :one
-select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
 from events e
 join products p on e.product_id = p.id
 where e.id = $1
@@ -164,6 +167,7 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidE
 		&i.Event.VenuePostalCode,
 		&i.Event.VenueCountryCode,
 		&i.Event.ProductID,
+		&i.Event.PublishedAt,
 		&i.Product.ID,
 		&i.Product.ProductType,
 		&i.Product.TitlePl,
@@ -179,7 +183,7 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidE
 const insertEvent = `-- name: InsertEvent :one
 insert into events (title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14, $15, $16, $17, $18, $19)
-returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
 `
 
 type InsertEventParams struct {
@@ -188,8 +192,8 @@ type InsertEventParams struct {
 	StartsAt         time.Time
 	EndsAt           time.Time
 	IsVirtual        bool
-	DescriptionEn    string
-	DescriptionPl    string
+	DescriptionEn    *string
+	DescriptionPl    *string
 	EventType        EventType
 	Slug             string
 	SubtitleEn       *string
@@ -250,6 +254,7 @@ func (q *Queries) InsertEvent(ctx context.Context, arg *InsertEventParams) (*Eve
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
 		&i.ProductID,
+		&i.PublishedAt,
 	)
 	return &i, err
 }
@@ -523,7 +528,7 @@ func (q *Queries) ListProductsForEvents(ctx context.Context, eventids []uuid.UUI
 }
 
 const paginateEvents = `-- name: PaginateEvents :many
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id from events
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events
 order by starts_at desc
 limit ($2::int) offset ((($1::int) - 1) * $2::int)
 `
@@ -565,6 +570,7 @@ func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams)
 			&i.VenuePostalCode,
 			&i.VenueCountryCode,
 			&i.ProductID,
+			&i.PublishedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -580,7 +586,7 @@ const updateEvent = `-- name: UpdateEvent :one
 update events
 set title_pl = $1, title_en = $2, subtitle_pl = $3, subtitle_en = $4, description_pl = $5, description_en = $6
 where id = $7::uuid
-returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
 `
 
 type UpdateEventParams struct {
@@ -588,8 +594,8 @@ type UpdateEventParams struct {
 	TitleEn       string
 	SubtitlePl    *string
 	SubtitleEn    *string
-	DescriptionPl string
-	DescriptionEn string
+	DescriptionPl *string
+	DescriptionEn *string
 	EventID       uuid.UUID
 }
 
@@ -627,6 +633,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg *UpdateEventParams) (*Eve
 		&i.VenuePostalCode,
 		&i.VenueCountryCode,
 		&i.ProductID,
+		&i.PublishedAt,
 	)
 	return &i, err
 }
