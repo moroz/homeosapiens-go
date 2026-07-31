@@ -17,103 +17,24 @@ import {
 import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import { ApiError, isValidationErrorBody } from "~/lib/api";
-import type { components } from "~/lib/api-types";
 import { useCreateEventMutation, useListHostsQuery } from "~/hooks";
+import { InputField } from "~/components/forms/input-field";
+import { FieldError } from "~/components/forms/field-error";
+import { type EventFormValues, toEventInput } from "./interfaces";
 
-type EventInput = components["schemas"]["EventInput"];
-
-interface FormValues {
-  titleEn: string;
-  titlePl: string;
-  subtitleEn: string;
-  subtitlePl: string;
-  slug: string;
-  eventType: string;
-  descriptionEn: string;
-  descriptionPl: string;
-  startsAt: string;
-  endsAt: string;
-  isVirtual: boolean;
-  venueNameEn: string;
-  venueNamePl: string;
-  venueStreet: string;
-  venueCityEn: string;
-  venueCityPl: string;
-  venuePostalCode: string;
-  venueCountryCode: string;
-  isFree: boolean;
-  price: string;
-  currency: string;
-  hostIds: string[];
-}
-
-const defaultValues: FormValues = {
-  titleEn: "",
-  titlePl: "",
-  subtitleEn: "",
-  subtitlePl: "",
-  slug: "",
+const defaultValues: Partial<EventFormValues> = {
   eventType: "webinar",
-  descriptionEn: "",
-  descriptionPl: "",
-  startsAt: "",
-  endsAt: "",
   isVirtual: true,
-  venueNameEn: "",
-  venueNamePl: "",
-  venueStreet: "",
-  venueCityEn: "",
-  venueCityPl: "",
-  venuePostalCode: "",
-  venueCountryCode: "",
   isFree: true,
-  price: "",
   currency: "PLN",
   hostIds: [],
 };
 
-/** Empty strings are sent as `null` for nullable fields, matching how the server treats "not provided". */
-function blankToNull(value: string): string | null {
-  return value.trim() === "" ? null : value;
-}
-
-function toEventInput(values: FormValues): EventInput {
-  return {
-    titleEn: values.titleEn,
-    titlePl: values.titlePl,
-    subtitleEn: blankToNull(values.subtitleEn),
-    subtitlePl: blankToNull(values.subtitlePl),
-    slug: values.slug,
-    eventType: values.eventType,
-    descriptionEn: values.descriptionEn,
-    descriptionPl: values.descriptionPl,
-    startsAt: new Date(values.startsAt).toISOString(),
-    endsAt: new Date(values.endsAt).toISOString(),
-    isVirtual: values.isVirtual,
-    venueNameEn: values.isVirtual ? null : blankToNull(values.venueNameEn),
-    venueNamePl: values.isVirtual ? null : blankToNull(values.venueNamePl),
-    venueStreet: values.isVirtual ? null : blankToNull(values.venueStreet),
-    venueCityEn: values.isVirtual ? null : blankToNull(values.venueCityEn),
-    venueCityPl: values.isVirtual ? null : blankToNull(values.venueCityPl),
-    venuePostalCode: values.isVirtual ? null : blankToNull(values.venuePostalCode),
-    venueCountryCode: values.isVirtual ? null : blankToNull(values.venueCountryCode),
-    isFree: values.isFree,
-    price: values.isFree ? null : blankToNull(values.price),
-    currency: values.isFree ? null : values.currency,
-    hostIds: values.hostIds,
-  };
-}
-
 /** Server field names line up 1:1 with `FormValues` keys, so validation errors map straight onto form fields. */
 const FORM_FIELDS = new Set<string>(Object.keys(defaultValues));
 
-function isFormField(field: string): field is keyof FormValues {
+function isFormField(field: string): field is keyof EventFormValues {
   return FORM_FIELDS.has(field);
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="text-sm text-destructive">{message}</p>;
 }
 
 function HostMultiSelect({
@@ -171,12 +92,12 @@ export default function NewEvent() {
     watch,
     setError,
     formState: { errors },
-  } = useForm<FormValues>({ defaultValues });
+  } = useForm<EventFormValues>({ defaultValues });
 
   const isVirtual = watch("isVirtual");
   const isFree = watch("isFree");
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit(values: EventFormValues) {
     setFormError(null);
     try {
       const event = await createEvent.mutateAsync(toEventInput(values));
@@ -204,39 +125,28 @@ export default function NewEvent() {
           <h3 className="text-lg font-semibold">Basics</h3>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="titleEn">Title (EN)</Label>
-              <Input id="titleEn" {...register("titleEn", { required: "Required" })} />
-              <FieldError message={errors.titleEn?.message} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="titlePl">Title (PL)</Label>
-              <Input id="titlePl" {...register("titlePl", { required: "Required" })} />
-              <FieldError message={errors.titlePl?.message} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="subtitleEn">Subtitle (EN)</Label>
-              <Input id="subtitleEn" {...register("subtitleEn")} />
-              <FieldError message={errors.subtitleEn?.message} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="subtitlePl">Subtitle (PL)</Label>
-              <Input id="subtitlePl" {...register("subtitlePl")} />
-              <FieldError message={errors.subtitlePl?.message} />
-            </div>
+            <InputField
+              label="Title (EN)"
+              errors={errors}
+              {...register("titleEn", { required: "Required" })}
+            />
+            <InputField
+              label="Title (PL)"
+              errors={errors}
+              {...register("titlePl", { required: "Required" })}
+            />
+            <InputField label="Subtitle (EN)" errors={errors} {...register("subtitleEn")} />
+            <InputField label="Subtitle (PL)" errors={errors} {...register("subtitlePl")} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="slug">Slug</Label>
-              <Input
-                id="slug"
-                className="font-mono"
-                placeholder="my-event-slug"
-                {...register("slug", { required: "Required" })}
-              />
-              <FieldError message={errors.slug?.message} />
-            </div>
+            <InputField
+              label="Slug"
+              className="font-mono"
+              placeholder="my-event-slug"
+              errors={errors}
+              {...register("slug", { required: "Required" })}
+            />
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="eventType">Event type</Label>
               <Controller
@@ -281,24 +191,18 @@ export default function NewEvent() {
         <section className="flex flex-col gap-4">
           <h3 className="text-lg font-semibold">Schedule</h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="startsAt">Starts at</Label>
-              <Input
-                id="startsAt"
-                type="datetime-local"
-                {...register("startsAt", { required: "Required" })}
-              />
-              <FieldError message={errors.startsAt?.message} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="endsAt">Ends at</Label>
-              <Input
-                id="endsAt"
-                type="datetime-local"
-                {...register("endsAt", { required: "Required" })}
-              />
-              <FieldError message={errors.endsAt?.message} />
-            </div>
+            <InputField
+              label="Starts at"
+              type="datetime-local"
+              errors={errors}
+              {...register("startsAt", { required: "Required" })}
+            />
+            <InputField
+              label="Ends at"
+              type="datetime-local"
+              errors={errors}
+              {...register("endsAt", { required: "Required" })}
+            />
           </div>
         </section>
 
@@ -316,68 +220,48 @@ export default function NewEvent() {
 
           {!isVirtual && (
             <div className="grid grid-cols-2 gap-4 rounded-md border border-input p-4">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="venueNameEn">Venue name (EN)</Label>
-                <Input
-                  id="venueNameEn"
-                  {...register("venueNameEn", { required: "Required for in-person events" })}
-                />
-                <FieldError message={errors.venueNameEn?.message} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="venueNamePl">Venue name (PL)</Label>
-                <Input
-                  id="venueNamePl"
-                  {...register("venueNamePl", { required: "Required for in-person events" })}
-                />
-                <FieldError message={errors.venueNamePl?.message} />
-              </div>
-              <div className="col-span-2 flex flex-col gap-1.5">
-                <Label htmlFor="venueStreet">Street</Label>
-                <Input
-                  id="venueStreet"
-                  {...register("venueStreet", { required: "Required for in-person events" })}
-                />
-                <FieldError message={errors.venueStreet?.message} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="venueCityEn">City (EN)</Label>
-                <Input
-                  id="venueCityEn"
-                  {...register("venueCityEn", { required: "Required for in-person events" })}
-                />
-                <FieldError message={errors.venueCityEn?.message} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="venueCityPl">City (PL)</Label>
-                <Input
-                  id="venueCityPl"
-                  {...register("venueCityPl", { required: "Required for in-person events" })}
-                />
-                <FieldError message={errors.venueCityPl?.message} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="venuePostalCode">Postal code</Label>
-                <Input
-                  id="venuePostalCode"
-                  {...register("venuePostalCode", { required: "Required for in-person events" })}
-                />
-                <FieldError message={errors.venuePostalCode?.message} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="venueCountryCode">Country code</Label>
-                <Input
-                  id="venueCountryCode"
-                  placeholder="PL"
-                  maxLength={2}
-                  {...register("venueCountryCode", {
-                    required: "Required for in-person events",
-                    minLength: { value: 2, message: "Must be 2 letters" },
-                    maxLength: { value: 2, message: "Must be 2 letters" },
-                  })}
-                />
-                <FieldError message={errors.venueCountryCode?.message} />
-              </div>
+              <InputField
+                label="Venue name (EN)"
+                errors={errors}
+                {...register("venueNameEn", { required: "Required for in-person events" })}
+              />
+              <InputField
+                label="Venue name (PL)"
+                errors={errors}
+                {...register("venueNamePl", { required: "Required for in-person events" })}
+              />
+              <InputField
+                label="Street"
+                containerClassName="col-span-2"
+                errors={errors}
+                {...register("venueStreet", { required: "Required for in-person events" })}
+              />
+              <InputField
+                label="City (EN)"
+                errors={errors}
+                {...register("venueCityEn", { required: "Required for in-person events" })}
+              />
+              <InputField
+                label="City (PL)"
+                errors={errors}
+                {...register("venueCityPl", { required: "Required for in-person events" })}
+              />
+              <InputField
+                label="Postal code"
+                errors={errors}
+                {...register("venuePostalCode", { required: "Required for in-person events" })}
+              />
+              <InputField
+                label="Country code"
+                placeholder="PL"
+                maxLength={2}
+                errors={errors}
+                {...register("venueCountryCode", {
+                  required: "Required for in-person events",
+                  minLength: { value: 2, message: "Must be 2 letters" },
+                  maxLength: { value: 2, message: "Must be 2 letters" },
+                })}
+              />
             </div>
           )}
         </section>
@@ -396,15 +280,12 @@ export default function NewEvent() {
 
           {!isFree && (
             <div className="grid grid-cols-2 gap-4 rounded-md border border-input p-4">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  placeholder="19.99"
-                  {...register("price", { required: "Required for paid events" })}
-                />
-                <FieldError message={errors.price?.message} />
-              </div>
+              <InputField
+                label="Price"
+                placeholder="19.99"
+                errors={errors}
+                {...register("price", { required: "Required for paid events" })}
+              />
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="currency">Currency</Label>
                 <Controller
