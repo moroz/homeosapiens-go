@@ -8,6 +8,7 @@ import { DetailsTable, DataTableField as Field } from "~/components/ui/details-t
 import Markdown from "react-markdown";
 import { PencilIcon } from "@phosphor-icons/react/ssr";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { PageTitle } from "~/components/page-title";
 
 const dateStyle = { dateStyle: "full", timeStyle: "short" } as const;
 
@@ -37,10 +38,7 @@ export default function EventDetail() {
         ) : (
           <>
             <header className="flex justify-between">
-              <div className="flex flex-col">
-                <h2 className="text-2xl font-bold">{event.titleEn}</h2>
-                <p className="subtitle text-xl text-muted-foreground">Event details</p>
-              </div>
+              <PageTitle subtitle="Event details">{event.titleEn}</PageTitle>
               <div>
                 <Link
                   to={`/events/${event.id}/edit`}

@@ -409,6 +409,28 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Host"
+            venueNameEn:
+              type: string
+              nullable: true
+            venueNamePl:
+              type: string
+              nullable: true
+            venueStreet:
+              type: string
+              nullable: true
+            venueCityEn:
+              type: string
+              nullable: true
+            venueCityPl:
+              type: string
+              nullable: true
+            venuePostalCode:
+              type: string
+              nullable: true
+            venueCountryCode:
+              type: string
+              nullable: true
+              description: ISO 3166-1 alpha-2 country code
 
     EventInput:
       type: object

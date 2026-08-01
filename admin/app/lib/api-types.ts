@@ -227,6 +227,14 @@ export interface components {
             /** @description Currency code. Null when free. */
             currency?: string | null;
             hosts: components["schemas"]["Host"][];
+            venueNameEn?: string | null;
+            venueNamePl?: string | null;
+            venueStreet?: string | null;
+            venueCityEn?: string | null;
+            venueCityPl?: string | null;
+            venuePostalCode?: string | null;
+            /** @description ISO 3166-1 alpha-2 country code */
+            venueCountryCode?: string | null;
         };
         /** @description Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored. */
         EventInput: {
