@@ -364,6 +364,7 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 	}{
 		{"title_en", params.TitleEn},
 		{"title_pl", params.TitlePl},
+		{"slug", params.Slug},
 		{"subtitle_en", params.SubtitleEn},
 		{"subtitle_pl", params.SubtitlePl},
 		{"description_en", params.DescriptionEn},
@@ -392,6 +393,11 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 	fmt.Fprintf(&query, "updated_at = now() where id = $%d", len(queryVars))
 
 	if _, err := s.db.Exec(ctx, query.String(), queryVars...); err != nil {
+		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" && pgErr.ConstraintName == "events_slug_idx" {
+			return nil, validation.Errors{
+				"slug": validation.NewError("unique", "has already been taken"),
+			}
+		}
 		return nil, err
 	}
 

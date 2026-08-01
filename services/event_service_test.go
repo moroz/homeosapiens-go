@@ -197,10 +197,43 @@ func TestEventService_UpdateEvent(t *testing.T) {
 		assert.Equal(t, before.UpdatedAt, updated.UpdatedAt)
 	})
 
+	t.Run("Updating the slug", func(t *testing.T) {
+		updated, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			Slug: types.Some("a-brand-new-slug"),
+		})
+		require.NoError(t, err)
+
+		assert.Equal(t, "a-brand-new-slug", updated.Slug)
+	})
+
+	t.Run("Rejects a malformed slug", func(t *testing.T) {
+		_, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			Slug: types.Some("Not A Slug"),
+		})
+
+		verrs, ok := errors.AsType[validation.Errors](err)
+		require.True(t, ok, "expected validation.Errors, got %v", err)
+		assert.Contains(t, verrs, "slug")
+	})
+
+	t.Run("Rejects a duplicate slug", func(t *testing.T) {
+		other, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		_, err = srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			Slug: types.Some(other.Slug),
+		})
+
+		verrs, ok := errors.AsType[validation.Errors](err)
+		require.True(t, ok, "expected validation.Errors, got %v", err)
+		assert.Contains(t, verrs, "slug")
+	})
+
 	t.Run("NOT NULL columns cannot be cleared or blanked", func(t *testing.T) {
 		for name, params := range map[string]types.PatchEventInput{
 			"explicit null": {TitleEn: types.Null[string]()},
 			"blank string":  {TitlePl: types.Some("   ")},
+			"null slug":     {Slug: types.Null[string]()},
 		} {
 			t.Run(name, func(t *testing.T) {
 				_, err := srv.UpdateEvent(ctx, event.ID, &params)

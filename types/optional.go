@@ -57,6 +57,20 @@ func (o Optional[T]) Ptr() *T {
 	return &o.Value
 }
 
+// WhenSet applies ordinary validation rules to the wrapped value, but only
+// when the key was present in the payload. An explicit null presents the zero
+// value to the rules, so pair it with NotBlankWhenSet on NOT NULL columns.
+func WhenSet[T any](rules ...validation.Rule) validation.Rule {
+	return validation.By(func(value any) error {
+		opt, ok := value.(Optional[T])
+		if !ok || !opt.Set {
+			return nil
+		}
+
+		return validation.Validate(opt.Value, rules...)
+	})
+}
+
 // NotBlankWhenSet validates an Optional[string] field backed by a NOT NULL
 // column: an absent key is fine, but a key that is present must carry a
 // non-blank value. Absent keys are never rejected, so the same rule works for

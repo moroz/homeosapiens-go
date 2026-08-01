@@ -39,6 +39,7 @@ type UpdateEventInput struct {
 type PatchEventInput struct {
 	TitleEn Optional[string] `json:"titleEn"`
 	TitlePl Optional[string] `json:"titlePl"`
+	Slug    Optional[string] `json:"slug"`
 
 	SubtitleEn Optional[string] `json:"subtitleEn"`
 	SubtitlePl Optional[string] `json:"subtitlePl"`
@@ -49,9 +50,13 @@ type PatchEventInput struct {
 
 func (p *PatchEventInput) Validate() error {
 	return validation.ValidateStruct(p,
-		// title_en and title_pl are NOT NULL: they may be changed, never cleared.
+		// title_en, title_pl and slug are NOT NULL: they may be changed, never cleared.
 		validation.Field(&p.TitleEn, NotBlankWhenSet),
 		validation.Field(&p.TitlePl, NotBlankWhenSet),
+
+		// Slug uniqueness cannot be checked here without racing another writer;
+		// the service catches the constraint violation instead.
+		validation.Field(&p.Slug, NotBlankWhenSet, WhenSet[string](validation.Match(slugRegexp))),
 	)
 }
 
