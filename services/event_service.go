@@ -8,7 +8,6 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"github.com/iancoleman/strcase"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -348,29 +347,45 @@ func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEven
 	}, nil
 }
 
-// UpdateEvent updates an event based on a selective map of changes to the object. This bespoke logic is intended to mimic the selective update behavior of Ecto.Changeset in Elixir.
-func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params map[string]any) (*queries.Event, error) {
-	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
-	if err != nil {
+// UpdateEvent applies a selective update to an event. This bespoke logic is
+// intended to mimic the selective update behavior of Ecto.Changeset in Elixir:
+// only the fields present in the payload are written, and fields backed by a
+// nullable column can be cleared by passing an explicit null.
+func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params *types.PatchEventInput) (*queries.Event, error) {
+	if err := params.Validate(); err != nil {
 		return nil, err
 	}
-	defer tx.Rollback(ctx)
+
+	// The column list is the contract between the payload and the table, so it
+	// is spelled out rather than derived from field names at runtime.
+	assignments := []struct {
+		column string
+		value  types.Optional[string]
+	}{
+		{"title_en", params.TitleEn},
+		{"title_pl", params.TitlePl},
+		{"subtitle_en", params.SubtitleEn},
+		{"subtitle_pl", params.SubtitlePl},
+		{"description_en", params.DescriptionEn},
+		{"description_pl", params.DescriptionPl},
+	}
 
 	var query strings.Builder
 	query.WriteString("update events set ")
 
 	var queryVars []any
-	for key, value := range params {
-		switch key {
-		case "titlePl", "titleEn", "descriptionPl", "descriptionEn", "subtitlePl", "subtitleEn":
-			queryVars = append(queryVars, value)
-			fmt.Fprintf(&query, `"%s" = $%d, `, strcase.ToSnake(key), len(queryVars))
+	for _, assignment := range assignments {
+		if !assignment.value.Set {
+			continue
 		}
+
+		queryVars = append(queryVars, assignment.value.Ptr())
+		fmt.Fprintf(&query, "%s = $%d, ", assignment.column, len(queryVars))
 	}
 
 	// If there are no changes, do not touch the record
 	if len(queryVars) == 0 {
-		return nil, nil
+		return s.GetEventById(ctx, eventId)
 	}
 
 	queryVars = append(queryVars, eventId)

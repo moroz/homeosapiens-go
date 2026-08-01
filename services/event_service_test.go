@@ -1,9 +1,11 @@
 package services_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
@@ -139,25 +141,74 @@ func TestEventService_UpdateEvent(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Updating titles and descriptions", func(t *testing.T) {
-		params := map[string]any{
-			"titleEn":       "Updated title",
-			"titlePl":       "Zaktualizowany tytuł",
-			"subtitlePl":    "Zaktualizowany podtytuł",
-			"subtitleEn":    "Updated subtitle",
-			"descriptionEn": "Updated description",
-			"descriptionPl": "Zaktualizowany opis",
+		params := types.PatchEventInput{
+			TitleEn:       types.Some("Updated title"),
+			TitlePl:       types.Some("Zaktualizowany tytuł"),
+			SubtitlePl:    types.Some("Zaktualizowany podtytuł"),
+			SubtitleEn:    types.Some("Updated subtitle"),
+			DescriptionEn: types.Some("Updated description"),
+			DescriptionPl: types.Some("Zaktualizowany opis"),
 		}
 
-		updated, err := srv.UpdateEvent(ctx, event.ID, params)
+		updated, err := srv.UpdateEvent(ctx, event.ID, &params)
 		assert.NoError(t, err)
 		assert.Equal(t, event.ID, updated.ID)
 
-		assert.Equal(t, params["titleEn"], updated.TitleEn)
-		assert.Equal(t, params["titlePl"], updated.TitlePl)
-		assert.Equal(t, params["subtitlePl"], *updated.SubtitlePl)
-		assert.Equal(t, params["subtitleEn"], *updated.SubtitleEn)
-		assert.Equal(t, params["descriptionEn"], *updated.DescriptionEn)
-		assert.Equal(t, params["descriptionPl"], *updated.DescriptionPl)
+		assert.Equal(t, params.TitleEn.Value, updated.TitleEn)
+		assert.Equal(t, params.TitlePl.Value, updated.TitlePl)
+		assert.Equal(t, params.SubtitlePl.Value, *updated.SubtitlePl)
+		assert.Equal(t, params.SubtitleEn.Value, *updated.SubtitleEn)
+		assert.Equal(t, params.DescriptionEn.Value, *updated.DescriptionEn)
+		assert.Equal(t, params.DescriptionPl.Value, *updated.DescriptionPl)
 		assert.Equal(t, event.Slug, updated.Slug)
+	})
+
+	t.Run("Absent fields are left untouched", func(t *testing.T) {
+		before, err := srv.GetEventById(ctx, event.ID)
+		require.NoError(t, err)
+
+		updated, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			TitleEn: types.Some("Only the English title changes"),
+		})
+		require.NoError(t, err)
+
+		assert.Equal(t, "Only the English title changes", updated.TitleEn)
+		assert.Equal(t, before.TitlePl, updated.TitlePl)
+		assert.Equal(t, before.SubtitleEn, updated.SubtitleEn)
+		assert.Equal(t, before.DescriptionPl, updated.DescriptionPl)
+	})
+
+	t.Run("Explicit null clears a nullable column", func(t *testing.T) {
+		updated, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			SubtitleEn: types.Null[string](),
+		})
+		require.NoError(t, err)
+
+		assert.Nil(t, updated.SubtitleEn)
+	})
+
+	t.Run("Empty payload is a no-op", func(t *testing.T) {
+		before, err := srv.GetEventById(ctx, event.ID)
+		require.NoError(t, err)
+
+		updated, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{})
+		require.NoError(t, err)
+
+		assert.Equal(t, before.UpdatedAt, updated.UpdatedAt)
+	})
+
+	t.Run("NOT NULL columns cannot be cleared or blanked", func(t *testing.T) {
+		for name, params := range map[string]types.PatchEventInput{
+			"explicit null": {TitleEn: types.Null[string]()},
+			"blank string":  {TitlePl: types.Some("   ")},
+		} {
+			t.Run(name, func(t *testing.T) {
+				_, err := srv.UpdateEvent(ctx, event.ID, &params)
+
+				verrs, ok := errors.AsType[validation.Errors](err)
+				require.True(t, ok, "expected validation.Errors, got %v", err)
+				assert.Len(t, verrs, 1)
+			})
+		}
 	})
 }

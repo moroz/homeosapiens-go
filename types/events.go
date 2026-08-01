@@ -33,6 +33,28 @@ type UpdateEventInput struct {
 	HostIds []uuid.UUID
 }
 
+// PatchEventInput describes a selective update of an event. Every field is
+// optional: absent fields are left untouched, and fields backed by a nullable
+// column may be cleared by passing an explicit null.
+type PatchEventInput struct {
+	TitleEn Optional[string] `json:"titleEn"`
+	TitlePl Optional[string] `json:"titlePl"`
+
+	SubtitleEn Optional[string] `json:"subtitleEn"`
+	SubtitlePl Optional[string] `json:"subtitlePl"`
+
+	DescriptionEn Optional[string] `json:"descriptionEn"`
+	DescriptionPl Optional[string] `json:"descriptionPl"`
+}
+
+func (p *PatchEventInput) Validate() error {
+	return validation.ValidateStruct(p,
+		// title_en and title_pl are NOT NULL: they may be changed, never cleared.
+		validation.Field(&p.TitleEn, NotBlankWhenSet),
+		validation.Field(&p.TitlePl, NotBlankWhenSet),
+	)
+}
+
 type CreateEventInput struct {
 	EventType string
 
