@@ -153,7 +153,7 @@ paths:
                 $ref: "#/components/schemas/EventDetails"
         "404":
           description: No event with that id
-    put:
+    patch:
       operationId: updateEvent
       summary: Update an event
       parameters:
@@ -169,7 +169,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/EventInput"
+              $ref: "#/components/schemas/PatchEventInput"
       responses:
         "200":
           description: The updated event
@@ -481,6 +481,49 @@ components:
           type: string
           nullable: true
           description: ISO 3166-1 alpha-2 country code
+
+    PatchEventInput:
+      type: object
+      description: >-
+        Selective update of an event. Every field is optional: absent fields
+        are left untouched, and fields backed by a nullable column may be
+        cleared by passing an explicit null.
+      x-go-type: types.PatchEventInput
+      x-go-type-import:
+        path: github.com/moroz/homeosapiens-go/types
+      properties:
+        titleEn:
+          type: string
+        titlePl:
+          type: string
+        slug:
+          type: string
+        subtitleEn:
+          type: string
+          nullable: true
+        subtitlePl:
+          type: string
+          nullable: true
+        descriptionEn:
+          type: string
+          nullable: true
+        descriptionPl:
+          type: string
+          nullable: true
+        price:
+          type: string
+          nullable: true
+          description: Decimal price string, e.g. "19.99". Null when free.
+        currency:
+          type: string
+          nullable: true
+          description: Currency code. Null when free.
+        hostIds:
+          type: array
+          description: IDs of hosts associated with the event. Replaces the existing set wholesale.
+          items:
+            type: string
+            format: uuid
 
     ValidationErrors:
       type: object

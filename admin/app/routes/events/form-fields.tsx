@@ -3,7 +3,6 @@ import { Controller, useFormContext } from "react-hook-form";
 import type { EventFormValues } from "./interfaces";
 import { InputGroup, InputField, FieldError } from "~/components/forms";
 import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -68,19 +67,6 @@ export const FormFields: React.FC<Props> = () => {
               )}
             />
             <FieldError message={errors.eventType?.message} />
-          </div>
-        </InputGroup>
-
-        <InputGroup>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="descriptionEn">Description (EN)</Label>
-            <Textarea id="descriptionEn" {...register("descriptionEn", { required: "Required" })} />
-            <FieldError message={errors.descriptionEn?.message} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="descriptionPl">Description (PL)</Label>
-            <Textarea id="descriptionPl" {...register("descriptionPl", { required: "Required" })} />
-            <FieldError message={errors.descriptionPl?.message} />
           </div>
         </InputGroup>
       </section>

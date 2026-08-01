@@ -21,8 +21,51 @@ func NewEventServer(db queries.DBTX) *eventServer {
 	return &eventServer{db: db}
 }
 
-func (s *eventServer) UpdateEvent(ctx context.Context, _ UpdateEventRequestObject) (UpdateEventResponseObject, error) {
-	panic("Unimplemented")
+func (s *eventServer) UpdateEvent(ctx context.Context, request UpdateEventRequestObject) (UpdateEventResponseObject, error) {
+	svc := services.NewEventService(s.db)
+
+	if _, err := svc.UpdateEvent(ctx, request.Id, request.Body); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return UpdateEvent404Response{}, nil
+		}
+		if verr, ok := errors.AsType[validation.Errors](err); ok {
+			return UpdateEvent422JSONResponse{Errors: validationErrorMessages(verr)}, nil
+		}
+		return nil, err
+	}
+
+	e, err := svc.GetEventDetailsById(ctx, request.Id, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	price := new(string)
+	currency := new(string)
+	if !e.IsFree() {
+		*price = e.Product.BasePriceAmount.StringFixedBank(2)
+		*currency = e.Product.BasePriceCurrency
+	}
+
+	return UpdateEvent200JSONResponse{
+		Currency:      currency,
+		DescriptionEn: e.DescriptionEn,
+		DescriptionPl: e.DescriptionPl,
+		EndsAt:        e.EndsAt,
+		EventType:     string(e.EventType),
+		Hosts:         nil,
+		Id:            e.ID,
+		InsertedAt:    e.InsertedAt,
+		IsFree:        e.IsFree(),
+		IsVirtual:     e.IsVirtual,
+		Price:         price,
+		Slug:          e.Slug,
+		StartsAt:      e.StartsAt,
+		SubtitleEn:    e.SubtitleEn,
+		SubtitlePl:    e.SubtitlePl,
+		TitleEn:       e.TitleEn,
+		TitlePl:       e.TitlePl,
+		UpdatedAt:     e.UpdatedAt,
+	}, nil
 }
 
 func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestObject) (ListEventsResponseObject, error) {

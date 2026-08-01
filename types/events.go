@@ -10,29 +10,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type UpdateEventInput struct {
-	EventType string
-
-	TitleEn    string
-	TitlePl    string
-	SubtitleEn *string
-	SubtitlePl *string
-	Slug       string
-
-	DescriptionEn string
-	DescriptionPl string
-
-	// Pricing
-	Price    *string
-	Currency *string
-
-	StartsAt time.Time
-	EndsAt   time.Time
-
-	// HostIds IDs of hosts associated with the event.
-	HostIds []uuid.UUID
-}
-
 // PatchEventInput describes a selective update of an event. Every field is
 // optional: absent fields are left untouched, and fields backed by a nullable
 // column may be cleared by passing an explicit null.

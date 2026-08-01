@@ -8,8 +8,6 @@ export interface EventFormValues {
   subtitlePl: string;
   slug: string;
   eventType: string;
-  descriptionEn: string;
-  descriptionPl: string;
   startsAt: string;
   endsAt: string;
   isVirtual: boolean;
@@ -41,8 +39,6 @@ export function toEventInput(values: EventFormValues): EventInput {
     subtitlePl: blankToNull(values.subtitlePl),
     slug: values.slug,
     eventType: values.eventType,
-    descriptionEn: values.descriptionEn,
-    descriptionPl: values.descriptionPl,
     startsAt: datetimeLocalValueToISO8601(values.startsAt),
     endsAt: datetimeLocalValueToISO8601(values.endsAt),
     isVirtual: values.isVirtual,

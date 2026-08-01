@@ -102,13 +102,13 @@ export interface paths {
         };
         /** Get a single event by primary key */
         get: operations["getEvent"];
-        /** Update an event */
-        put: operations["updateEvent"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update an event */
+        patch: operations["updateEvent"];
         trace?: never;
     };
     "/hosts": {
@@ -258,6 +258,22 @@ export interface components {
             venuePostalCode?: string | null;
             /** @description ISO 3166-1 alpha-2 country code */
             venueCountryCode?: string | null;
+        };
+        /** @description Selective update of an event. Every field is optional: absent fields are left untouched, and fields backed by a nullable column may be cleared by passing an explicit null. */
+        PatchEventInput: {
+            titleEn?: string;
+            titlePl?: string;
+            slug?: string;
+            subtitleEn?: string | null;
+            subtitlePl?: string | null;
+            descriptionEn?: string | null;
+            descriptionPl?: string | null;
+            /** @description Decimal price string, e.g. "19.99". Null when free. */
+            price?: string | null;
+            /** @description Currency code. Null when free. */
+            currency?: string | null;
+            /** @description IDs of hosts associated with the event. Replaces the existing set wholesale. */
+            hostIds?: string[];
         };
         /** @description Map of field name to validation error message(s) for that field. */
         ValidationErrors: {
@@ -490,7 +506,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EventInput"];
+                "application/json": components["schemas"]["PatchEventInput"];
             };
         };
         responses: {

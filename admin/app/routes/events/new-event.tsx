@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
-import { Textarea } from "~/components/ui/textarea";
 import { ApiError, isValidationErrorBody } from "~/lib/api";
 import { useCreateEventMutation, useListHostsQuery } from "~/hooks";
 import { InputField } from "~/components/forms/input-field";
