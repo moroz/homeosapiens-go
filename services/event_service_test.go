@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -29,8 +30,8 @@ func TestEventService_CreateEvent(t *testing.T) {
 		SubtitleEn:    nil,
 		SubtitlePl:    nil,
 		Slug:          "test-webinar-1",
-		DescriptionEn: "Test Description",
-		DescriptionPl: "Opis wydarzenia",
+		DescriptionEn: new("Test Description"),
+		DescriptionPl: new("Opis wydarzenia"),
 		Price:         new(decimal.NewFromInt(250)),
 		Currency:      new("PLN"),
 		HostIds:       nil,
@@ -120,5 +121,43 @@ func TestEventService_CreateEvent(t *testing.T) {
 		p.TitleEn = "Dup Slug B"
 		_, err = srv.CreateEvent(ctx, &p)
 		assert.Error(t, err)
+	})
+}
+
+func TestEventService_UpdateEvent(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
+	require.NoError(t, err)
+	defer db.Close()
+
+	_, err = db.Exec(ctx, "truncate events, products cascade")
+	require.NoError(t, err)
+
+	srv := services.NewEventService(db)
+
+	event, err := mocks.Event(db, ctx)
+	require.NoError(t, err)
+
+	t.Run("Updating titles and descriptions", func(t *testing.T) {
+		params := map[string]any{
+			"titleEn":       "Updated title",
+			"titlePl":       "Zaktualizowany tytuł",
+			"subtitlePl":    "Zaktualizowany podtytuł",
+			"subtitleEn":    "Updated subtitle",
+			"descriptionEn": "Updated description",
+			"descriptionPl": "Zaktualizowany opis",
+		}
+
+		updated, err := srv.UpdateEvent(ctx, event.ID, params)
+		assert.NoError(t, err)
+		assert.Equal(t, event.ID, updated.ID)
+
+		assert.Equal(t, params["titleEn"], updated.TitleEn)
+		assert.Equal(t, params["titlePl"], updated.TitlePl)
+		assert.Equal(t, params["subtitlePl"], *updated.SubtitlePl)
+		assert.Equal(t, params["subtitleEn"], *updated.SubtitleEn)
+		assert.Equal(t, params["descriptionEn"], *updated.DescriptionEn)
+		assert.Equal(t, params["descriptionPl"], *updated.DescriptionPl)
+		assert.Equal(t, event.Slug, updated.Slug)
 	})
 }

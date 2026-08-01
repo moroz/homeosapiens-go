@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
+	"github.com/iancoleman/strcase"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -346,20 +348,37 @@ func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEven
 	}, nil
 }
 
-func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params *types.UpdateEventInput) (*queries.Event, error) {
+// UpdateEvent updates an event based on a selective map of changes to the object. This bespoke logic is intended to mimic the selective update behavior of Ecto.Changeset in Elixir.
+func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params map[string]any) (*queries.Event, error) {
 	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
 
-	return queries.New(tx).UpdateEvent(ctx, &queries.UpdateEventParams{
-		TitlePl:       params.TitlePl,
-		TitleEn:       params.TitleEn,
-		SubtitlePl:    params.SubtitlePl,
-		SubtitleEn:    params.SubtitleEn,
-		DescriptionPl: params.DescriptionPl,
-		DescriptionEn: params.DescriptionEn,
-		EventID:       eventId,
-	})
+	var query strings.Builder
+	query.WriteString("update events set ")
+
+	var queryVars []any
+	for key, value := range params {
+		switch key {
+		case "titlePl", "titleEn", "descriptionPl", "descriptionEn", "subtitlePl", "subtitleEn":
+			queryVars = append(queryVars, value)
+			fmt.Fprintf(&query, `"%s" = $%d, `, strcase.ToSnake(key), len(queryVars))
+		}
+	}
+
+	// If there are no changes, do not touch the record
+	if len(queryVars) == 0 {
+		return nil, nil
+	}
+
+	queryVars = append(queryVars, eventId)
+	fmt.Fprintf(&query, "updated_at = now() where id = $%d", len(queryVars))
+
+	if _, err := s.db.Exec(ctx, query.String(), queryVars...); err != nil {
+		return nil, err
+	}
+
+	return s.GetEventById(ctx, eventId)
 }

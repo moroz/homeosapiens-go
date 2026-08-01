@@ -135,7 +135,9 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 		),
 		Div(
 			Class("prose lg:prose-lg mt-4 w-full"),
-			helpers.RenderMarkdown(description),
+			Iff(description != nil, func() Node {
+				return helpers.RenderMarkdown(*description)
+			}),
 		),
 	))
 }

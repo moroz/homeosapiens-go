@@ -387,12 +387,14 @@ components:
       allOf:
         - $ref: "#/components/schemas/Event"
         - type: object
-          required: [isFree, hosts, descriptionPl, descriptionEn]
+          required: [isFree, hosts]
           properties:
             descriptionPl:
               type: string
+              nullable: true
             descriptionEn:
               type: string
+              nullable: true
             isFree:
               type: boolean
             price:
@@ -411,7 +413,7 @@ components:
     EventInput:
       type: object
       description: Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored.
-      required: [slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, isFree, hostIds, descriptionEn, descriptionPl]
+      required: [slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, isFree, hostIds]
       properties:
         slug:
           type: string
@@ -437,8 +439,10 @@ components:
           format: date-time
         descriptionPl:
           type: string
+          nullable: true
         descriptionEn:
           type: string
+          nullable: true
         isFree:
           type: boolean
         price:

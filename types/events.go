@@ -42,8 +42,8 @@ type CreateEventInput struct {
 	SubtitlePl *string
 	Slug       string
 
-	DescriptionEn string
-	DescriptionPl string
+	DescriptionEn *string
+	DescriptionPl *string
 
 	// Pricing
 	Price    *decimal.Decimal

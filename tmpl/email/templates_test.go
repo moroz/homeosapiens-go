@@ -199,21 +199,21 @@ func testEventRegistrationEmailDTO(lang string) *types.EventRegistrationEmailDTO
 	postalCode := "00-001"
 	return &types.EventRegistrationEmailDTO{
 		Event: &queries.Event{
-			ID:           uuid.New(),
-			TitleEn:      "Advanced Homeopathy Seminar",
-			TitlePl:      "Zaawansowane seminarium homeopatyczne",
-			Slug:         "advanced-homeopathy-seminar",
-			StartsAt:     startsAt,
-			EndsAt:       endsAt,
-			IsVirtual:    false,
-			EventType:    queries.EventTypeSeminar,
-			VenueNameEn:  &venueName,
-			VenueNamePl:  &venueName,
-			VenueStreet:  &venueStreet,
-			VenueCityEn:  &venueCity,
-			VenueCityPl:  &venueCity,
+			ID:              uuid.New(),
+			TitleEn:         "Advanced Homeopathy Seminar",
+			TitlePl:         "Zaawansowane seminarium homeopatyczne",
+			Slug:            "advanced-homeopathy-seminar",
+			StartsAt:        startsAt,
+			EndsAt:          endsAt,
+			IsVirtual:       false,
+			EventType:       queries.EventTypeSeminar,
+			VenueNameEn:     &venueName,
+			VenueNamePl:     &venueName,
+			VenueStreet:     &venueStreet,
+			VenueCityEn:     &venueCity,
+			VenueCityPl:     &venueCity,
 			VenuePostalCode: &postalCode,
-			DescriptionEn: "A hands-on seminar.",
+			DescriptionEn:   new("A hands-on seminar."),
 		},
 		User: &queries.User{
 			ID:              uuid.New(),
@@ -229,9 +229,9 @@ func TestEventRegistrationConfirmationTemplate(t *testing.T) {
 	bundle := mustInitBundle(t)
 
 	locales := []struct {
-		lang         string
-		heading      string
-		title        string
+		lang          string
+		heading       string
+		title         string
 		formattedDate string
 	}{
 		{"en", "Registration Confirmed", "Advanced Homeopathy Seminar", "September 15, 2026 at 14:00 UTC"},

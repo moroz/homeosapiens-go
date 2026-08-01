@@ -219,8 +219,8 @@ export interface components {
             updatedAt: string;
         };
         EventDetails: components["schemas"]["Event"] & {
-            descriptionPl: string;
-            descriptionEn: string;
+            descriptionPl?: string | null;
+            descriptionEn?: string | null;
             isFree: boolean;
             /** @description Decimal price string, e.g. "19.99". Null when free. */
             price?: string | null;
@@ -241,8 +241,8 @@ export interface components {
             startsAt: string;
             /** Format: date-time */
             endsAt: string;
-            descriptionPl: string;
-            descriptionEn: string;
+            descriptionPl?: string | null;
+            descriptionEn?: string | null;
             isFree: boolean;
             /** @description Decimal price string, e.g. "19.99". Null when free. */
             price?: string | null;
