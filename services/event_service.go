@@ -8,6 +8,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -356,6 +357,28 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		return nil, err
 	}
 
+	event, err := s.GetEventById(ctx, eventId)
+	if err != nil {
+		return nil, err
+	}
+
+	if params.IsEmpty() {
+		return event, nil
+	}
+
+	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	// Pricing may attach a brand new product to the event, in which case the
+	// events row has to carry the resulting foreign key.
+	productId, err := s.patchEventProduct(ctx, tx, event, params)
+	if err != nil {
+		return nil, err
+	}
+
 	// The column list is the contract between the payload and the table, so it
 	// is spelled out rather than derived from field names at runtime.
 	assignments := []struct {
@@ -384,15 +407,15 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		fmt.Fprintf(&query, "%s = $%d, ", assignment.column, len(queryVars))
 	}
 
-	// If there are no changes, do not touch the record
-	if len(queryVars) == 0 {
-		return s.GetEventById(ctx, eventId)
+	if productId != nil {
+		queryVars = append(queryVars, productId)
+		fmt.Fprintf(&query, "product_id = $%d, ", len(queryVars))
 	}
 
 	queryVars = append(queryVars, eventId)
 	fmt.Fprintf(&query, "updated_at = now() where id = $%d", len(queryVars))
 
-	if _, err := s.db.Exec(ctx, query.String(), queryVars...); err != nil {
+	if _, err := tx.Exec(ctx, query.String(), queryVars...); err != nil {
 		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" && pgErr.ConstraintName == "events_slug_idx" {
 			return nil, validation.Errors{
 				"slug": validation.NewError("unique", "has already been taken"),
@@ -401,5 +424,118 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		return nil, err
 	}
 
-	return s.GetEventById(ctx, eventId)
+	if params.HostIds.Set {
+		if err := s.replaceEventHosts(ctx, tx, eventId, params.HostIds.Value); err != nil {
+			return nil, err
+		}
+	}
+
+	updated, err := queries.New(tx).GetEventById(ctx, eventId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return updated, nil
+}
+
+// patchEventProduct applies a pricing change to the event's product, returning
+// the product ID that the events row must be pointed at, or nil when the
+// existing association already holds.
+func (s *EventService) patchEventProduct(ctx context.Context, tx pgx.Tx, event *queries.Event, params *types.PatchEventInput) (*uuid.UUID, error) {
+	if !params.Price.Set && !params.Currency.Set {
+		return nil, nil
+	}
+
+	// An event that already has a product keeps it, even when the price drops
+	// to zero: cart and order line items reference it by ID.
+	if event.ProductID != nil {
+		product, err := queries.New(tx).GetProductById(ctx, *event.ProductID)
+		if err != nil {
+			return nil, err
+		}
+
+		amount := product.BasePriceAmount
+		if params.Price.Set {
+			amount = params.Price.Value
+		}
+
+		currency := product.BasePriceCurrency
+		if params.Currency.Set {
+			currency = params.Currency.Value
+		}
+
+		_, err = queries.New(tx).UpdateProductPrice(ctx, &queries.UpdateProductPriceParams{
+			ProductID:         product.ID,
+			BasePriceAmount:   amount,
+			BasePriceCurrency: currency,
+		})
+
+		return nil, err
+	}
+
+	// A free event stays free until it is given a non-zero price; a currency on
+	// its own has nowhere to be stored.
+	if !params.Price.Set || params.Price.Value.Equal(decimal.Zero) {
+		return nil, nil
+	}
+
+	if !params.Currency.Set {
+		return nil, validation.Errors{
+			"currency": validation.NewError("required", "is required when setting a price"),
+		}
+	}
+
+	titlePl := event.TitlePl
+	if params.TitlePl.Set {
+		titlePl = params.TitlePl.Value
+	}
+
+	titleEn := event.TitleEn
+	if params.TitleEn.Set {
+		titleEn = params.TitleEn.Value
+	}
+
+	product, err := queries.New(tx).InsertProduct(ctx, &queries.InsertProductParams{
+		ProductType:       queries.ProductTypeEvent,
+		TitlePl:           titlePl,
+		TitleEn:           titleEn,
+		BasePriceAmount:   params.Price.Value,
+		BasePriceCurrency: params.Currency.Value,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &product.ID, nil
+}
+
+// replaceEventHosts swaps the event's entire host list. Positions are unique
+// per event, so incremental edits would have to shuffle rows around a unique
+// index; deleting and reinserting inside the caller's transaction is simpler.
+func (s *EventService) replaceEventHosts(ctx context.Context, tx pgx.Tx, eventId uuid.UUID, hostIds []uuid.UUID) error {
+	if err := queries.New(tx).DeleteEventHosts(ctx, eventId); err != nil {
+		return err
+	}
+
+	for i, hostId := range hostIds {
+		_, err := queries.New(tx).InsertEventHost(ctx, &queries.InsertEventHostParams{
+			EventID:  eventId,
+			HostID:   hostId,
+			Position: int32(i + 1),
+		})
+		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23503" {
+			return validation.Errors{
+				"hostIds": validation.NewError("exists", "references a host that does not exist"),
+			}
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

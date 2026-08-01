@@ -6,6 +6,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
@@ -227,6 +228,153 @@ func TestEventService_UpdateEvent(t *testing.T) {
 		verrs, ok := errors.AsType[validation.Errors](err)
 		require.True(t, ok, "expected validation.Errors, got %v", err)
 		assert.Contains(t, verrs, "slug")
+	})
+
+	t.Run("Replacing the host list", func(t *testing.T) {
+		first, err := mocks.Host(db, ctx)
+		require.NoError(t, err)
+		second, err := mocks.Host(db, ctx)
+		require.NoError(t, err)
+
+		_, err = srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			HostIds: types.Some([]uuid.UUID{second.ID, first.ID}),
+		})
+		require.NoError(t, err)
+
+		details, err := srv.GetEventDetailsById(ctx, event.ID, nil)
+		require.NoError(t, err)
+		require.Len(t, details.Hosts, 2)
+
+		// Hosts are positional, so the payload order is the stored order.
+		assert.Equal(t, second.ID, details.Hosts[0].ID)
+		assert.Equal(t, first.ID, details.Hosts[1].ID)
+
+		// A second replacement wins outright rather than accumulating.
+		_, err = srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			HostIds: types.Some([]uuid.UUID{first.ID}),
+		})
+		require.NoError(t, err)
+
+		details, err = srv.GetEventDetailsById(ctx, event.ID, nil)
+		require.NoError(t, err)
+		require.Len(t, details.Hosts, 1)
+		assert.Equal(t, first.ID, details.Hosts[0].ID)
+	})
+
+	t.Run("Clearing the host list", func(t *testing.T) {
+		_, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+			HostIds: types.Some([]uuid.UUID{}),
+		})
+		require.NoError(t, err)
+
+		details, err := srv.GetEventDetailsById(ctx, event.ID, nil)
+		require.NoError(t, err)
+		assert.Empty(t, details.Hosts)
+	})
+
+	t.Run("Rejects duplicate and unknown hosts", func(t *testing.T) {
+		host, err := mocks.Host(db, ctx)
+		require.NoError(t, err)
+
+		for name, hostIds := range map[string][]uuid.UUID{
+			"duplicate": {host.ID, host.ID},
+			"unknown":   {uuid.Must(uuid.NewV7())},
+		} {
+			t.Run(name, func(t *testing.T) {
+				_, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{
+					HostIds: types.Some(hostIds),
+				})
+
+				verrs, ok := errors.AsType[validation.Errors](err)
+				require.True(t, ok, "expected validation.Errors, got %v", err)
+				assert.Contains(t, verrs, "hostIds")
+			})
+		}
+	})
+
+	t.Run("Pricing a free event creates a product", func(t *testing.T) {
+		free, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		require.Nil(t, free.ProductID)
+
+		updated, err := srv.UpdateEvent(ctx, free.ID, &types.PatchEventInput{
+			Price:    types.Some(decimal.NewFromInt(250)),
+			Currency: types.Some("PLN"),
+		})
+		require.NoError(t, err)
+		require.NotNil(t, updated.ProductID)
+
+		details, err := srv.GetEventDetailsById(ctx, free.ID, nil)
+		require.NoError(t, err)
+		assert.False(t, details.IsFree())
+		assert.Equal(t, "250.00", details.Product.BasePriceAmount.StringFixedBank(2))
+		assert.Equal(t, "PLN", details.Product.BasePriceCurrency)
+	})
+
+	t.Run("A price without a currency is rejected on a free event", func(t *testing.T) {
+		free, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		_, err = srv.UpdateEvent(ctx, free.ID, &types.PatchEventInput{
+			Price: types.Some(decimal.NewFromInt(250)),
+		})
+
+		verrs, ok := errors.AsType[validation.Errors](err)
+		require.True(t, ok, "expected validation.Errors, got %v", err)
+		assert.Contains(t, verrs, "currency")
+
+		// The failed attempt must not have left a half-built product behind.
+		unchanged, err := srv.GetEventById(ctx, free.ID)
+		require.NoError(t, err)
+		assert.Nil(t, unchanged.ProductID)
+	})
+
+	t.Run("Repricing a paid event reuses its product", func(t *testing.T) {
+		paid, err := mocks.PaidEvent(db, ctx)
+		require.NoError(t, err)
+		require.NotNil(t, paid.ProductID)
+
+		updated, err := srv.UpdateEvent(ctx, paid.ID, &types.PatchEventInput{
+			Price: types.Some(decimal.NewFromInt(99)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, paid.ProductID, updated.ProductID)
+
+		details, err := srv.GetEventDetailsById(ctx, paid.ID, nil)
+		require.NoError(t, err)
+		assert.Equal(t, "99.00", details.Product.BasePriceAmount.StringFixedBank(2))
+	})
+
+	t.Run("Zeroing a paid event keeps the product", func(t *testing.T) {
+		paid, err := mocks.PaidEvent(db, ctx)
+		require.NoError(t, err)
+
+		updated, err := srv.UpdateEvent(ctx, paid.ID, &types.PatchEventInput{
+			Price: types.Null[decimal.Decimal](),
+		})
+		require.NoError(t, err)
+
+		// The association survives so that existing order line items still resolve.
+		assert.Equal(t, paid.ProductID, updated.ProductID)
+
+		details, err := srv.GetEventDetailsById(ctx, paid.ID, nil)
+		require.NoError(t, err)
+		assert.True(t, details.IsFree())
+	})
+
+	t.Run("Rejects a negative price and an unsupported currency", func(t *testing.T) {
+		for field, params := range map[string]types.PatchEventInput{
+			"price":    {Price: types.Some(decimal.NewFromInt(-1))},
+			"currency": {Currency: types.Some("USD")},
+		} {
+			t.Run(field, func(t *testing.T) {
+				_, err := srv.UpdateEvent(ctx, event.ID, &params)
+
+				verrs, ok := errors.AsType[validation.Errors](err)
+				require.True(t, ok, "expected validation.Errors, got %v", err)
+				assert.Contains(t, verrs, field)
+			})
+		}
 	})
 
 	t.Run("NOT NULL columns cannot be cleared or blanked", func(t *testing.T) {

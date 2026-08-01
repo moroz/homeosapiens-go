@@ -64,6 +64,20 @@ func Product(db queries.DBTX, ctx context.Context, overrides ...func(params *que
 	return queries.New(db).InsertProduct(ctx, params)
 }
 
+func Host(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.UpsertHostParams)) (*queries.Host, error) {
+	params := &queries.UpsertHostParams{
+		ID:         uuid.Must(uuid.NewV7()),
+		GivenName:  "Jane",
+		FamilyName: "Doe",
+	}
+
+	for _, f := range overrides {
+		f(params)
+	}
+
+	return queries.New(db).UpsertHost(ctx, params)
+}
+
 func Event(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.UpsertEventParams)) (*queries.Event, error) {
 	unique := make([]byte, 4)
 	_, _ = rand.Read(unique)

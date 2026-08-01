@@ -46,6 +46,25 @@ type PatchEventInput struct {
 
 	DescriptionEn Optional[string] `json:"descriptionEn"`
 	DescriptionPl Optional[string] `json:"descriptionPl"`
+
+	// Pricing lives on the event's product, not on the event itself. A null or
+	// zero price makes the event free without discarding the product, so that
+	// order and cart line items referencing it keep resolving.
+	Price    Optional[decimal.Decimal] `json:"price"`
+	Currency Optional[string]          `json:"currency"`
+
+	// HostIds replaces the event's hosts wholesale, in the given order. Hosts
+	// are positional, so there is no meaningful way to patch one in isolation.
+	HostIds Optional[[]uuid.UUID] `json:"hostIds"`
+}
+
+// IsEmpty reports whether the payload carries no changes at all, in which case
+// the record should be left alone rather than having its updated_at bumped.
+func (p *PatchEventInput) IsEmpty() bool {
+	return !(p.TitleEn.Set || p.TitlePl.Set || p.Slug.Set ||
+		p.SubtitleEn.Set || p.SubtitlePl.Set ||
+		p.DescriptionEn.Set || p.DescriptionPl.Set ||
+		p.Price.Set || p.Currency.Set || p.HostIds.Set)
 }
 
 func (p *PatchEventInput) Validate() error {
@@ -57,7 +76,38 @@ func (p *PatchEventInput) Validate() error {
 		// Slug uniqueness cannot be checked here without racing another writer;
 		// the service catches the constraint violation instead.
 		validation.Field(&p.Slug, NotBlankWhenSet, WhenSet[string](validation.Match(slugRegexp))),
+
+		validation.Field(&p.Price, WhenSet[decimal.Decimal](validation.By(nonNegative))),
+		validation.Field(&p.Currency, NotBlankWhenSet, WhenSet[string](validation.In("PLN", "EUR"))),
+
+		validation.Field(&p.HostIds, WhenSet[[]uuid.UUID](validation.By(distinctIDs))),
 	)
+}
+
+func nonNegative(value any) error {
+	amount, ok := value.(decimal.Decimal)
+	if !ok || !amount.IsNegative() {
+		return nil
+	}
+
+	return validation.NewError("min", "must not be negative")
+}
+
+func distinctIDs(value any) error {
+	ids, ok := value.([]uuid.UUID)
+	if !ok {
+		return nil
+	}
+
+	seen := make(map[uuid.UUID]struct{}, len(ids))
+	for _, id := range ids {
+		if _, duplicate := seen[id]; duplicate {
+			return validation.NewError("distinct", "must not contain duplicates")
+		}
+		seen[id] = struct{}{}
+	}
+
+	return nil
 }
 
 type CreateEventInput struct {

@@ -24,6 +24,15 @@ func (q *Queries) CountEvents(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const deleteEventHosts = `-- name: DeleteEventHosts :exec
+delete from events_hosts where event_id = $1
+`
+
+func (q *Queries) DeleteEventHosts(ctx context.Context, eventID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteEventHosts, eventID)
+	return err
+}
+
 const getEventById = `-- name: GetEventById :one
 select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events where id = $1
 `
@@ -390,7 +399,7 @@ from hosts h
 join events_hosts eh on eh.host_id = h.id
 left join assets a on h.profile_picture_id = a.id
 where eh.event_id = any($1::uuid[])
-order by eh.host_id, eh.position
+order by eh.event_id, eh.position
 `
 
 type ListHostsForEventsRow struct {
@@ -580,60 +589,4 @@ func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams)
 		return nil, err
 	}
 	return items, nil
-}
-
-const updateEvent = `-- name: UpdateEvent :one
-update events
-set title_pl = $1, title_en = $2, subtitle_pl = $3, subtitle_en = $4, description_pl = $5, description_en = $6
-where id = $7::uuid
-returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
-`
-
-type UpdateEventParams struct {
-	TitlePl       string
-	TitleEn       string
-	SubtitlePl    *string
-	SubtitleEn    *string
-	DescriptionPl *string
-	DescriptionEn *string
-	EventID       uuid.UUID
-}
-
-func (q *Queries) UpdateEvent(ctx context.Context, arg *UpdateEventParams) (*Event, error) {
-	row := q.db.QueryRow(ctx, updateEvent,
-		arg.TitlePl,
-		arg.TitleEn,
-		arg.SubtitlePl,
-		arg.SubtitleEn,
-		arg.DescriptionPl,
-		arg.DescriptionEn,
-		arg.EventID,
-	)
-	var i Event
-	err := row.Scan(
-		&i.ID,
-		&i.TitleEn,
-		&i.TitlePl,
-		&i.StartsAt,
-		&i.EndsAt,
-		&i.IsVirtual,
-		&i.DescriptionEn,
-		&i.DescriptionPl,
-		&i.EventType,
-		&i.InsertedAt,
-		&i.UpdatedAt,
-		&i.Slug,
-		&i.SubtitleEn,
-		&i.SubtitlePl,
-		&i.VenueNameEn,
-		&i.VenueNamePl,
-		&i.VenueStreet,
-		&i.VenueCityEn,
-		&i.VenueCityPl,
-		&i.VenuePostalCode,
-		&i.VenueCountryCode,
-		&i.ProductID,
-		&i.PublishedAt,
-	)
-	return &i, err
 }

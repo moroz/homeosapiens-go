@@ -33,7 +33,7 @@ from hosts h
 join events_hosts eh on eh.host_id = h.id
 left join assets a on h.profile_picture_id = a.id
 where eh.event_id = any(@EventIDs::uuid[])
-order by eh.host_id, eh.position;
+order by eh.event_id, eh.position;
 
 -- name: ListPricesForEvents :many
 select e.id event_id, sqlc.embed(p) from product_prices p
@@ -55,12 +55,6 @@ from events e
 join products p on e.product_id = p.id
 where e.id = $1;
 
--- name: UpdateEvent :one
-update events
-set title_pl = $1, title_en = $2, subtitle_pl = $3, subtitle_en = $4, description_pl = $5, description_en = $6
-where id = @event_id::uuid
-returning *;
-
 -- name: InsertEvent :one
 insert into events (title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14, $15, $16, $17, $18, $19)
@@ -68,3 +62,6 @@ returning *;
 
 -- name: InsertEventHost :one
 insert into events_hosts (event_id, host_id, position) values ($1, $2, $3) returning *;
+
+-- name: DeleteEventHosts :exec
+delete from events_hosts where event_id = $1;

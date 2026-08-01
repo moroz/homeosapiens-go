@@ -8,8 +8,29 @@ package queries
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
+
+const getProductById = `-- name: GetProductById :one
+select id, product_type, title_pl, title_en, base_price_amount, base_price_currency, inserted_at, updated_at from products where id = $1
+`
+
+func (q *Queries) GetProductById(ctx context.Context, id uuid.UUID) (*Product, error) {
+	row := q.db.QueryRow(ctx, getProductById, id)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.ProductType,
+		&i.TitlePl,
+		&i.TitleEn,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
 
 const insertProduct = `-- name: InsertProduct :one
 insert into products (product_type, title_pl, title_en, base_price_amount, base_price_currency) values ($1, $2, $3, $4, $5) returning id, product_type, title_pl, title_en, base_price_amount, base_price_currency, inserted_at, updated_at
@@ -31,6 +52,34 @@ func (q *Queries) InsertProduct(ctx context.Context, arg *InsertProductParams) (
 		arg.BasePriceAmount,
 		arg.BasePriceCurrency,
 	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.ProductType,
+		&i.TitlePl,
+		&i.TitleEn,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const updateProductPrice = `-- name: UpdateProductPrice :one
+update products set base_price_amount = $1, base_price_currency = $2, updated_at = now()
+where id = $3::uuid
+returning id, product_type, title_pl, title_en, base_price_amount, base_price_currency, inserted_at, updated_at
+`
+
+type UpdateProductPriceParams struct {
+	BasePriceAmount   decimal.Decimal
+	BasePriceCurrency string
+	ProductID         uuid.UUID
+}
+
+func (q *Queries) UpdateProductPrice(ctx context.Context, arg *UpdateProductPriceParams) (*Product, error) {
+	row := q.db.QueryRow(ctx, updateProductPrice, arg.BasePriceAmount, arg.BasePriceCurrency, arg.ProductID)
 	var i Product
 	err := row.Scan(
 		&i.ID,
