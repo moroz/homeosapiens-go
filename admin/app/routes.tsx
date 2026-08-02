@@ -19,12 +19,12 @@ export const routes: RouteObject[] = [
       { path: "users", element: <Users /> },
       { path: "events", element: <Events /> },
       { path: "events/new", element: <NewEvent /> },
-      { path: "events/:id", element: <EventDetail /> },
       {
-        path: "events/:id/edit",
-        element: <EditEvent />,
+        path: "events/:id",
+        element: <EventDetail />,
         children: [{ path: "description/:locale", element: <MarkdownEditorDialog /> }],
       },
+      { path: "events/:id/edit", element: <EditEvent /> },
     ],
   },
 ];

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { AdminLayout } from "~/components/admin-layout";
-import { Outlet, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useGetEventQuery, useUpdateEventMutation } from "~/hooks";
 import { FormProvider, type Path, useForm } from "react-hook-form";
 import type { EventFormValues } from "./interfaces";
@@ -71,7 +71,6 @@ export const EditEvent: React.FC<Props> = () => {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <PageTitle subtitle="Edit event">{event.titleEn}</PageTitle>
             <FormFields />
-            <Outlet />
             <div className="flex gap-2">
               <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending ? "Updating…" : "Update event"}

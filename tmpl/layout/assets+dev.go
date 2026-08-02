@@ -9,7 +9,7 @@ import (
 )
 
 func AssetEntryPoint(ctx *types.CustomContext) Node {
-	entrypoint := "https://assets.hs.localhost/src/main.ts"
+	entrypoint := "http://localhost:5173/src/main.ts"
 
 	return Script(Type("module"), Src(entrypoint))
 }

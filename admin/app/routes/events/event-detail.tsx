@@ -1,5 +1,5 @@
 import { CaretLeftIcon as CaretLeft } from "@phosphor-icons/react";
-import { Link, useParams } from "react-router";
+import { Link, Outlet, useParams } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
 import { Button, buttonVariants } from "~/components/ui/button";
@@ -79,22 +79,40 @@ export default function EventDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Polish</CardTitle>
-                    <CardAction></CardAction>
+                    <CardAction>
+                      <Link
+                        to="description/pl"
+                        className={buttonVariants({ variant: "ghost", size: "sm" })}
+                      >
+                        <PencilIcon className="w-4" />
+                        Edit
+                      </Link>
+                    </CardAction>
                   </CardHeader>
-                  <CardContent className="prose w-[65ch] text-foreground">
+                  <CardContent className="prose w-[65ch] text-foreground dark:prose-invert">
                     <Markdown>{event.descriptionPl}</Markdown>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader>
                     <CardTitle>English</CardTitle>
+                    <CardAction>
+                      <Link
+                        to="description/en"
+                        className={buttonVariants({ variant: "ghost", size: "sm" })}
+                      >
+                        <PencilIcon className="w-4" />
+                        Edit
+                      </Link>
+                    </CardAction>
                   </CardHeader>
-                  <CardContent className="prose w-[65ch] text-foreground">
+                  <CardContent className="prose w-[65ch] text-foreground dark:prose-invert">
                     <Markdown>{event.descriptionEn}</Markdown>
                   </CardContent>
                 </Card>
               </div>
             </section>
+            <Outlet />
           </>
         )}
       </div>
