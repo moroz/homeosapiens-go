@@ -1,20 +1,15 @@
-import { useState } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { useCallback, useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
 import { Button } from "~/components/ui/button";
-import { Label } from "~/components/ui/label";
-import { Select } from "~/components/forms";
-import { Switch } from "~/components/ui/switch";
 import { ApiError, isValidationErrorBody } from "~/lib/api";
 import { useCreateEventMutation } from "~/hooks";
-import { InputField } from "~/components/forms/input-field";
 import { FieldError } from "~/components/forms/field-error";
 import { type EventFormValues, toEventInput } from "./interfaces";
-import { InputGroup } from "~/components/forms/input-group";
 import { FormFields } from "./form-fields";
-import { HostMultiSelect } from "./host-multi-select";
+import { slugify } from "~/lib/slugify";
 
 const defaultValues: Partial<EventFormValues> = {
   eventType: "webinar",
@@ -38,7 +33,17 @@ export default function NewEvent() {
 
   const form = useForm<EventFormValues>({ defaultValues });
 
-  const { handleSubmit, setError } = form;
+  const { handleSubmit, setError, watch, setValue, getValues } = form;
+
+  const onTitleEnBlur = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const slug = getValues("slug");
+      if (slug || !e.currentTarget.value) return;
+
+      setValue("slug", slugify(e.currentTarget.value));
+    },
+    [getValues, setValue],
+  );
 
   async function onSubmit(values: EventFormValues) {
     setFormError(null);
@@ -65,7 +70,7 @@ export default function NewEvent() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">
           <FieldError message={formError ?? undefined} />
 
-          <FormFields />
+          <FormFields onTitleEnBlur={onTitleEnBlur} />
 
           <div className="flex gap-2">
             <Button type="submit" disabled={createEvent.isPending}>

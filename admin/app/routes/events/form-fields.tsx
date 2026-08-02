@@ -7,7 +7,9 @@ import { Select } from "~/components/forms";
 import { Switch } from "~/components/ui/switch";
 import { HostMultiSelect } from "./host-multi-select";
 
-interface Props {}
+interface Props {
+  onTitleEnBlur?: React.ChangeEventHandler<HTMLInputElement>;
+}
 
 const CURRENCY_OPTIONS = [
   { value: "PLN", label: "PLN" },
@@ -19,7 +21,7 @@ const EVENT_TYPE_OPTIONS = [
   { value: "seminar", label: "Seminar" },
 ];
 
-export const FormFields: React.FC<Props> = () => {
+export const FormFields: React.FC<Props> = ({ onTitleEnBlur }) => {
   const form = useFormContext<EventFormValues>();
   const {
     register,
@@ -40,7 +42,7 @@ export const FormFields: React.FC<Props> = () => {
           <InputField
             label="Title (EN)"
             errors={errors}
-            {...register("titleEn", { required: "Required" })}
+            {...register("titleEn", { required: "Required", onBlur: onTitleEnBlur })}
           />
           <InputField
             label="Title (PL)"

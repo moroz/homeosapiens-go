@@ -9,12 +9,7 @@ import Markdown from "react-markdown";
 import { PencilIcon } from "@phosphor-icons/react/ssr";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { PageTitle } from "~/components/page-title";
-
-const dateStyle = { dateStyle: "full", timeStyle: "short" } as const;
-
-function formatInstant(iso: string) {
-  return Temporal.Instant.from(iso).toLocaleString("en-GB", dateStyle);
-}
+import { formatInstant } from "~/lib/time";
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -58,6 +53,9 @@ export default function EventDetail() {
               <Field label="Subtitle (PL)">{event.subtitlePl}</Field>
               <Field label="Title (EN)">{event.titleEn}</Field>
               <Field label="Subtitle (EN)">{event.subtitleEn}</Field>
+              <Field label="When">
+                {formatInstant(event.startsAt)}&ndash;{formatInstant(event.endsAt)}
+              </Field>
               <Field label="Slug" className="font-mono select-all">
                 {event.slug}
               </Field>
