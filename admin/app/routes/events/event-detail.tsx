@@ -7,7 +7,7 @@ import { useGetEventQuery } from "~/hooks";
 import { DetailsTable, DataTableField as Field } from "~/components/ui/details-table";
 import Markdown from "react-markdown";
 import { PencilIcon } from "@phosphor-icons/react/ssr";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { PageTitle } from "~/components/page-title";
 
 const dateStyle = { dateStyle: "full", timeStyle: "short" } as const;
@@ -79,6 +79,7 @@ export default function EventDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Polish</CardTitle>
+                    <CardAction></CardAction>
                   </CardHeader>
                   <CardContent className="prose w-[65ch] text-foreground">
                     <Markdown>{event.descriptionPl}</Markdown>

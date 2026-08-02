@@ -129,9 +129,6 @@ func (p *CreateEventInput) Validate() error {
 		validation.Field(&p.TitleEn, validation.Required),
 		validation.Field(&p.Slug, validation.Required, validation.Match(slugRegexp)),
 
-		validation.Field(&p.DescriptionEn, validation.Required),
-		validation.Field(&p.DescriptionPl, validation.Required),
-
 		// Currency is required (and constrained) only when the event carries a price.
 		validation.Field(&p.Currency,
 			validation.When(hasPrice,
