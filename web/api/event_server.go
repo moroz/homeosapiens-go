@@ -129,13 +129,24 @@ func (s *eventServer) GetEvent(ctx context.Context, request GetEventRequestObjec
 		*currency = e.Product.BasePriceCurrency
 	}
 
+	hosts := make([]Host, len(e.Hosts))
+	for i, host := range e.Hosts {
+		hosts[i] = Host{
+			Country:    host.Country,
+			FamilyName: host.FamilyName,
+			GivenName:  host.GivenName,
+			Id:         host.ID,
+			Salutation: host.Salutation,
+		}
+	}
+
 	return GetEvent200JSONResponse{
 		Currency:         currency,
 		DescriptionEn:    e.DescriptionEn,
 		DescriptionPl:    e.DescriptionPl,
 		EndsAt:           e.EndsAt,
 		EventType:        string(e.EventType),
-		Hosts:            nil,
+		Hosts:            hosts,
 		Id:               e.ID,
 		InsertedAt:       e.InsertedAt,
 		IsFree:           e.IsFree(),

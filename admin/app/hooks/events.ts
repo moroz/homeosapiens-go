@@ -2,8 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "~/lib/api";
 import type { components } from "~/lib/api-types";
+import type { UUID } from "~/lib/interfaces";
 
 type EventInput = components["schemas"]["EventInput"];
+type PatchEventInput = components["schemas"]["PatchEventInput"];
 
 /** `GET /api/admin/events` — a page of events, newest first. */
 export function useListEventsQuery(page = 1, perPage = 20) {
@@ -39,6 +41,30 @@ export function useCreateEventMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listEvents"] });
+    },
+  });
+}
+
+interface UpdateEventMutationParams {
+  id: UUID;
+  params: PatchEventInput;
+}
+
+/** `PATCH /api/admin/events/{id}` — selective update. Throws {@link ApiError} on failure (see `~/lib/api`). */
+export function useUpdateEventMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, params }: UpdateEventMutationParams) => {
+      const { data } = await api.PATCH("/events/{id}", {
+        params: { path: { id } },
+        body: params,
+      });
+      return data!;
+    },
+    onSuccess(event) {
+      queryClient.invalidateQueries({ queryKey: ["listEvents"] });
+      queryClient.invalidateQueries({ queryKey: ["getEvent", event.id] });
     },
   });
 }

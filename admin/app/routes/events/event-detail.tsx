@@ -61,6 +61,17 @@ export default function EventDetail() {
               <Field label="Slug" className="font-mono select-all">
                 {event.slug}
               </Field>
+              <Field label="Hosts">
+                {event.hosts.length ? (
+                  <ul className="list-disc pl-6">
+                    {event.hosts.map((host) => (
+                      <li key={host.id}>
+                        {host.givenName} {host.familyName}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </Field>
             </DetailsTable>
             <section className="mt-6">
               <h4 className="text-xl font-bold">Descriptions</h4>

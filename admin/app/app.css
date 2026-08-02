@@ -157,7 +157,7 @@ html.dark {
     }
 
     th {
-      @apply font-medium;
+      @apply align-top font-medium;
     }
   }
 }
