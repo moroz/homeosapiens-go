@@ -3,12 +3,13 @@ import { AdminLayout } from "~/components/admin-layout";
 import { useNavigate, useParams } from "react-router";
 import { useGetEventQuery, useUpdateEventMutation } from "~/hooks";
 import { FormProvider, type Path, useForm } from "react-hook-form";
-import type { EventFormValues } from "./interfaces";
+import { type EventFormValues, toPatchEventInput } from "./interfaces";
 import { FormFields } from "./form-fields";
 import { ISO8601ToDatetimeLocalValue } from "~/lib/time";
 import { PageTitle } from "~/components/page-title";
 import { ApiError, isValidationErrorBody } from "~/lib/api";
 import { Button } from "~/components/ui/button";
+import { BackButton } from "~/components/back-button";
 
 interface Props {}
 
@@ -46,7 +47,7 @@ export const EditEvent: React.FC<Props> = () => {
   const onSubmit = useCallback(
     async (params: EventFormValues) => {
       try {
-        const data = await mutation.mutateAsync({ id: id!, params });
+        const data = await mutation.mutateAsync({ id: id!, params: toPatchEventInput(params) });
         navigate(`/events/${data.id}`);
       } catch (err) {
         if (err instanceof ApiError && err.status === 422 && isValidationErrorBody(err.body)) {
@@ -68,7 +69,8 @@ export const EditEvent: React.FC<Props> = () => {
         <p className="text-desctructive">Event not found.</p>
       ) : (
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+            <BackButton href="/events">Back to events</BackButton>
             <PageTitle subtitle="Edit event">{event.titleEn}</PageTitle>
             <FormFields />
             <div className="flex gap-2">

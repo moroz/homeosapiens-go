@@ -4,8 +4,9 @@ import { api } from "~/lib/api";
 import type { components } from "~/lib/api-types";
 import type { UUID } from "~/lib/interfaces";
 
-type EventInput = components["schemas"]["EventInput"];
-type PatchEventInput = components["schemas"]["PatchEventInput"];
+export type EventInput = components["schemas"]["EventInput"];
+export type PatchEventInput = components["schemas"]["PatchEventInput"];
+export type EventDetails = components["schemas"]["EventDetails"];
 
 /** `GET /api/admin/events` — a page of events, newest first. */
 export function useListEventsQuery(page = 1, perPage = 20) {

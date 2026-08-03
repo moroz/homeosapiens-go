@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { Pagination } from "~/components/pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -144,53 +145,11 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} of {Math.max(table.getPageCount(), 1)}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="hidden size-8 lg:flex"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <span className="sr-only">First page</span>
-            <CaretDoubleLeft />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <span className="sr-only">Previous page</span>
-            <CaretLeft />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className="sr-only">Next page</span>
-            <CaretRight />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="hidden size-8 lg:flex"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className="sr-only">Last page</span>
-            <CaretDoubleRight />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        pageCount={table.getPageCount()}
+        pageIndex={pagination.pageIndex}
+        setPageIndex={table.setPageIndex}
+      />
     </div>
   );
 }

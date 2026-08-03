@@ -1,5 +1,6 @@
 import type { components } from "~/lib/api-types";
 import { datetimeLocalValueToISO8601 } from "~/lib/time";
+import type { PatchEventInput } from "~/hooks";
 
 export interface EventFormValues {
   titleEn: string;
@@ -54,4 +55,40 @@ export function toEventInput(values: EventFormValues): EventInput {
     currency: values.isFree ? null : values.currency,
     hostIds: values.hostIds,
   };
+}
+
+export function toPatchEventInput(values: EventFormValues): PatchEventInput {
+  let partial: PatchEventInput = {
+    titleEn: values.titleEn,
+    titlePl: values.titlePl,
+    subtitleEn: blankToNull(values.subtitleEn),
+    subtitlePl: blankToNull(values.subtitlePl),
+    slug: values.slug,
+    startsAt: datetimeLocalValueToISO8601(values.startsAt),
+    endsAt: datetimeLocalValueToISO8601(values.endsAt),
+    isVirtual: values.isVirtual,
+    isFree: values.isFree,
+    hostIds: values.hostIds,
+  };
+
+  if (!values.isVirtual) {
+    partial = {
+      ...partial,
+      venueNameEn: blankToNull(values.venueNameEn),
+      venueNamePl: blankToNull(values.venueNamePl),
+      venueStreet: blankToNull(values.venueStreet),
+      venueCityEn: blankToNull(values.venueCityEn),
+      venueCityPl: blankToNull(values.venueCityPl),
+    };
+  }
+
+  if (!values.isFree) {
+    partial = {
+      ...partial,
+      price: blankToNull(values.price),
+      currency: values.currency,
+    };
+  }
+
+  return partial;
 }

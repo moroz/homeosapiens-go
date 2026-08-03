@@ -72,7 +72,12 @@ export const FormFields: React.FC<Props> = ({ onTitleEnBlur }) => {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold">Schedule</h3>
+        <header>
+          <h3 className="text-lg font-semibold">Schedule</h3>
+          <p className="text-sm text-muted-foreground">
+            Dates and times are shown in Warsaw time zone.
+          </p>
+        </header>
         <InputGroup>
           <InputField
             label="Starts at"

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, type Path, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
@@ -10,6 +10,7 @@ import { FieldError } from "~/components/forms/field-error";
 import { type EventFormValues, toEventInput } from "./interfaces";
 import { FormFields } from "./form-fields";
 import { slugify } from "~/lib/slugify";
+import { PageTitle } from "~/components/page-title";
 
 const defaultValues: Partial<EventFormValues> = {
   eventType: "webinar",
@@ -53,9 +54,7 @@ export default function NewEvent() {
     } catch (err) {
       if (err instanceof ApiError && err.status === 422 && isValidationErrorBody(err.body)) {
         for (const [field, message] of Object.entries(err.body.errors)) {
-          if (isFormField(field)) {
-            setError(field, { message });
-          }
+          setError(field as Path<EventFormValues>, { message });
         }
         setFormError("Please fix the errors below.");
         return;
@@ -68,6 +67,7 @@ export default function NewEvent() {
     <AdminLayout title="New event">
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">
+          <PageTitle className="mb-0">Create an event</PageTitle>
           <FieldError message={formError ?? undefined} />
 
           <FormFields onTitleEnBlur={onTitleEnBlur} />

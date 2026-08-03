@@ -24,6 +24,9 @@ type PatchEventInput struct {
 	DescriptionEn Optional[string] `json:"descriptionEn"`
 	DescriptionPl Optional[string] `json:"descriptionPl"`
 
+	StartsAt Optional[time.Time] `json:"startsAt"`
+	EndsAt   Optional[time.Time] `json:"endsAt"`
+
 	// Pricing lives on the event's product, not on the event itself. A null or
 	// zero price makes the event free without discarding the product, so that
 	// order and cart line items referencing it keep resolving.
@@ -58,6 +61,9 @@ func (p *PatchEventInput) Validate() error {
 		validation.Field(&p.Currency, NotBlankWhenSet, WhenSet[string](validation.In("PLN", "EUR"))),
 
 		validation.Field(&p.HostIds, WhenSet[[]uuid.UUID](validation.By(distinctIDs))),
+
+		validation.Field(&p.StartsAt, NotBlankWhenSet),
+		validation.Field(&p.EndsAt, NotBlankWhenSet, WhenSet[time.Time](validation.Min(p.StartsAt.Value).Exclusive().Error("must be after start time"))),
 	)
 }
 

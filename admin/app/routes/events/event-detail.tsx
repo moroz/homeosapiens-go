@@ -2,7 +2,7 @@ import { CaretLeftIcon as CaretLeft } from "@phosphor-icons/react";
 import { Link, Outlet, useParams } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button";
 import { useGetEventQuery } from "~/hooks";
 import { DetailsTable, DataTableField as Field } from "~/components/ui/details-table";
 import Markdown from "react-markdown";
@@ -10,6 +10,7 @@ import { PencilIcon } from "@phosphor-icons/react/ssr";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { PageTitle } from "~/components/page-title";
 import { formatInstant } from "~/lib/time";
+import { BackButton } from "~/components/back-button";
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -18,13 +19,7 @@ export default function EventDetail() {
   return (
     <AdminLayout title={event?.titleEn ?? "Event"}>
       <div className="flex flex-col gap-3">
-        <Link
-          to="/events"
-          className={buttonVariants({ size: "sm", variant: "ghost", className: "w-fit" })}
-        >
-          <CaretLeft />
-          Back to events
-        </Link>
+        <BackButton href="/events">Back to events</BackButton>
 
         {isPending ? (
           <p className="text-muted-foreground">Loading…</p>
@@ -60,7 +55,7 @@ export default function EventDetail() {
                 {event.slug}
               </Field>
               <Field label="Hosts">
-                {event.hosts.length ? (
+                {event.hosts?.length ? (
                   <ul className="list-disc pl-6">
                     {event.hosts.map((host) => (
                       <li key={host.id}>
@@ -73,7 +68,7 @@ export default function EventDetail() {
             </DetailsTable>
             <section className="mt-6">
               <h4 className="text-xl font-bold">Descriptions</h4>
-              <div className="mt-6 flex gap-6">
+              <div className="mt-6 grid max-w-full grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
                     <CardTitle>Polish</CardTitle>

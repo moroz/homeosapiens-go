@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
@@ -372,7 +373,7 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 	}
 	defer tx.Rollback(ctx)
 
-	// Pricing may attach a brand new product to the event, in which case the
+	// Pricing may attach a brand-new product to the event, in which case the
 	// events row has to carry the resulting foreign key.
 	productId, err := s.patchEventProduct(ctx, tx, event, params)
 	if err != nil {
@@ -394,11 +395,28 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		{"description_pl", params.DescriptionPl},
 	}
 
+	timestampAssignments := []struct {
+		column string
+		value  types.Optional[time.Time]
+	}{
+		{"starts_at", params.StartsAt},
+		{"ends_at", params.EndsAt},
+	}
+
 	var query strings.Builder
 	query.WriteString("update events set ")
 
 	var queryVars []any
 	for _, assignment := range assignments {
+		if !assignment.value.Set {
+			continue
+		}
+
+		queryVars = append(queryVars, assignment.value.Ptr())
+		fmt.Fprintf(&query, "%s = $%d, ", assignment.column, len(queryVars))
+	}
+
+	for _, assignment := range timestampAssignments {
 		if !assignment.value.Set {
 			continue
 		}

@@ -540,12 +540,40 @@ components:
           type: string
           nullable: true
           description: Currency code. Null when free.
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
         hostIds:
           type: array
           description: IDs of hosts associated with the event. Replaces the existing set wholesale.
           items:
             type: string
             format: uuid
+        venueNameEn:
+          type: string
+          nullable: true
+        venueNamePl:
+          type: string
+          nullable: true
+        venueStreet:
+          type: string
+          nullable: true
+        venueCityEn:
+          type: string
+          nullable: true
+        venueCityPl:
+          type: string
+          nullable: true
+        venuePostalCode:
+          type: string
+          nullable: true
+        venueCountryCode:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code
 
     ValidationErrors:
       type: object
