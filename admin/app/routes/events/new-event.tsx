@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { FormProvider, type Path, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
@@ -11,6 +11,7 @@ import { type EventFormValues, toEventInput } from "./interfaces";
 import { FormFields } from "./form-fields";
 import { slugify } from "~/lib/slugify";
 import { PageTitle } from "~/components/page-title";
+import { Notification } from "~/components/notification";
 
 const defaultValues: Partial<EventFormValues> = {
   eventType: "webinar",
@@ -20,13 +21,6 @@ const defaultValues: Partial<EventFormValues> = {
   hostIds: [],
 };
 
-/** Server field names line up 1:1 with `FormValues` keys, so validation errors map straight onto form fields. */
-const FORM_FIELDS = new Set<string>(Object.keys(defaultValues));
-
-function isFormField(field: string): field is keyof EventFormValues {
-  return FORM_FIELDS.has(field);
-}
-
 export default function NewEvent() {
   const navigate = useNavigate();
   const createEvent = useCreateEventMutation();
@@ -34,8 +28,9 @@ export default function NewEvent() {
 
   const form = useForm<EventFormValues>({ defaultValues });
 
-  const { handleSubmit, setError, watch, setValue, getValues } = form;
+  const { handleSubmit, setError, setValue, getValues } = form;
 
+  /** Set a default slug after the English title has been set. */
   const onTitleEnBlur = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const slug = getValues("slug");
@@ -68,7 +63,14 @@ export default function NewEvent() {
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">
           <PageTitle className="mb-0">Create an event</PageTitle>
-          <FieldError message={formError ?? undefined} />
+          {formError ? (
+            <Notification
+              title="An error has prevented this error from being saved."
+              variant="destructive"
+            >
+              {formError}
+            </Notification>
+          ) : null}
 
           <FormFields onTitleEnBlur={onTitleEnBlur} />
 
