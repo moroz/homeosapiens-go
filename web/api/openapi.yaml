@@ -279,6 +279,104 @@ paths:
         "404":
           description: No event with that ID.
 
+  /video-groups:
+    get:
+      operationId: listVideoGroups
+      summary: List video groups
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: A page of video groups, newest first
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedVideoGroups"
+    post:
+      operationId: createVideoGroup
+      summary: Create a video group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoGroupInput"
+      responses:
+        "201":
+          description: The created video group
+          headers:
+            Location:
+              description: URL of the created video group.
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoGroup"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
+  /video-groups/{id}:
+    get:
+      operationId: getVideoGroup
+      summary: Get a single video group by primary key
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video group primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The requested video group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoGroup"
+        "404":
+          description: No video group with that ID.
+    patch:
+      operationId: updateVideoGroup
+      summary: Update a video group
+      description: Applies a partial update. Absent fields are left untouched.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video group primary key.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoGroupPatch"
+      responses:
+        "200":
+          description: The updated video group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoGroup"
+        "404":
+          description: No video group with that ID.
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
   /hosts:
     get:
       operationId: listHosts
@@ -385,6 +483,95 @@ components:
             $ref: "#/components/schemas/Event"
         pagination:
           $ref: "#/components/schemas/Pagination"
+
+    PaginatedVideoGroups:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/VideoGroup"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    VideoGroup:
+      type: object
+      description: A series of videos. A group with a price is only watchable by users who bought it.
+      required: [id, slug, titlePl, titleEn, isPremium, videoCount, insertedAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        isPremium:
+          type: boolean
+          description: Whether the group is behind the paywall, i.e. has a product.
+        price:
+          type: string
+          nullable: true
+          description: Decimal price string, e.g. "199.00". Null when the group is free.
+        currency:
+          type: string
+          nullable: true
+          description: Currency code. Null when the group is free.
+        videoCount:
+          type: integer
+          format: int32
+        insertedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    VideoGroupInput:
+      type: object
+      description: Editable fields of a video group, used on create.
+      required: [slug, titlePl, titleEn]
+      properties:
+        slug:
+          type: string
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        price:
+          type: string
+          nullable: true
+          description: Decimal price string. A null or zero price leaves the group free.
+        currency:
+          type: string
+          nullable: true
+          description: Required when a non-zero price is given.
+
+    VideoGroupPatch:
+      type: object
+      description: >-
+        Partial update of a video group. Absent fields are left untouched;
+        a nullable field may be cleared by passing an explicit null.
+      x-go-type: types.PatchVideoGroupInput
+      x-go-type-import:
+        path: github.com/moroz/homeosapiens-go/types
+      properties:
+        slug:
+          type: string
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        price:
+          type: string
+          nullable: true
+          description: Decimal price string. Zero or null makes the group free without discarding its product.
+        currency:
+          type: string
+          nullable: true
 
     PaginatedHosts:
       type: object

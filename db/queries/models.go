@@ -190,8 +190,9 @@ func (ns NullPriceType) Value() (driver.Value, error) {
 type ProductType string
 
 const (
-	ProductTypeEvent ProductType = "event"
-	ProductTypeBook  ProductType = "book"
+	ProductTypeEvent      ProductType = "event"
+	ProductTypeBook       ProductType = "book"
+	ProductTypeVideoGroup ProductType = "video_group"
 )
 
 func (e *ProductType) Scan(src interface{}) error {

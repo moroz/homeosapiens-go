@@ -576,49 +576,6 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 // the product ID that the events row must be pointed at, or nil when the
 // existing association already holds.
 func (s *EventService) patchEventProduct(ctx context.Context, tx pgx.Tx, event *queries.Event, params *types.PatchEventInput) (*uuid.UUID, error) {
-	if !params.Price.Set && !params.Currency.Set {
-		return nil, nil
-	}
-
-	// An event that already has a product keeps it, even when the price drops
-	// to zero: cart and order line items reference it by ID.
-	if event.ProductID != nil {
-		product, err := queries.New(tx).GetProductById(ctx, *event.ProductID)
-		if err != nil {
-			return nil, err
-		}
-
-		amount := product.BasePriceAmount
-		if params.Price.Set {
-			amount = params.Price.Value
-		}
-
-		currency := product.BasePriceCurrency
-		if params.Currency.Set {
-			currency = params.Currency.Value
-		}
-
-		_, err = queries.New(tx).UpdateProductPrice(ctx, &queries.UpdateProductPriceParams{
-			ProductID:         product.ID,
-			BasePriceAmount:   amount,
-			BasePriceCurrency: currency,
-		})
-
-		return nil, err
-	}
-
-	// A free event stays free until it is given a non-zero price; a currency on
-	// its own has nowhere to be stored.
-	if !params.Price.Set || params.Price.Value.Equal(decimal.Zero) {
-		return nil, nil
-	}
-
-	if !params.Currency.Set {
-		return nil, validation.Errors{
-			"currency": validation.NewError("required", "is required when setting a price"),
-		}
-	}
-
 	titlePl := event.TitlePl
 	if params.TitlePl.Set {
 		titlePl = params.TitlePl.Value
@@ -629,18 +586,14 @@ func (s *EventService) patchEventProduct(ctx context.Context, tx pgx.Tx, event *
 		titleEn = params.TitleEn.Value
 	}
 
-	product, err := queries.New(tx).InsertProduct(ctx, &queries.InsertProductParams{
-		ProductType:       queries.ProductTypeEvent,
-		TitlePl:           titlePl,
-		TitleEn:           titleEn,
-		BasePriceAmount:   params.Price.Value,
-		BasePriceCurrency: params.Currency.Value,
+	return patchProductPricing(ctx, tx, &patchProductPricingParams{
+		ProductID:   event.ProductID,
+		Price:       params.Price,
+		Currency:    params.Currency,
+		ProductType: queries.ProductTypeEvent,
+		TitlePl:     titlePl,
+		TitleEn:     titleEn,
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &product.ID, nil
 }
 
 // replaceEventHosts swaps the event's entire host list. Positions are unique

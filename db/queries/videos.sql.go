@@ -40,6 +40,17 @@ func (q *Queries) AddVideoToVideoGroup(ctx context.Context, arg *AddVideoToVideo
 	return &i, err
 }
 
+const countVideoGroups = `-- name: CountVideoGroups :one
+select count(*) from video_groups
+`
+
+func (q *Queries) CountVideoGroups(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countVideoGroups)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countVideos = `-- name: CountVideos :one
 select count(*) from videos
 `
@@ -128,6 +139,39 @@ func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParam
 		&i.Video.DescriptionPl,
 		&i.Video.DescriptionEn,
 		&i.HasAccess,
+	)
+	return &i, err
+}
+
+const getVideoGroupById = `-- name: GetVideoGroupById :one
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, p.base_price_amount, p.base_price_currency,
+       (select count(*) from video_groups_videos vgv where vgv.video_group_id = vg.id)::int video_count
+from video_groups vg
+left join products p on p.id = vg.product_id
+where vg.id = $1
+`
+
+type GetVideoGroupByIdRow struct {
+	VideoGroup        VideoGroup
+	BasePriceAmount   *decimal.Decimal
+	BasePriceCurrency *string
+	VideoCount        int32
+}
+
+func (q *Queries) GetVideoGroupById(ctx context.Context, id uuid.UUID) (*GetVideoGroupByIdRow, error) {
+	row := q.db.QueryRow(ctx, getVideoGroupById, id)
+	var i GetVideoGroupByIdRow
+	err := row.Scan(
+		&i.VideoGroup.ID,
+		&i.VideoGroup.TitleEn,
+		&i.VideoGroup.TitlePl,
+		&i.VideoGroup.Slug,
+		&i.VideoGroup.ProductID,
+		&i.VideoGroup.InsertedAt,
+		&i.VideoGroup.UpdatedAt,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
+		&i.VideoCount,
 	)
 	return &i, err
 }
@@ -547,6 +591,58 @@ func (q *Queries) ListYoutubeVideos(ctx context.Context) ([]*Video, error) {
 	return items, nil
 }
 
+const paginateVideoGroups = `-- name: PaginateVideoGroups :many
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, p.base_price_amount, p.base_price_currency,
+       (select count(*) from video_groups_videos vgv where vgv.video_group_id = vg.id)::int video_count
+from video_groups vg
+left join products p on p.id = vg.product_id
+order by vg.id desc
+limit ($2::int) offset ((($1::int) - 1) * $2::int)
+`
+
+type PaginateVideoGroupsParams struct {
+	Page    int32
+	PerPage int32
+}
+
+type PaginateVideoGroupsRow struct {
+	VideoGroup        VideoGroup
+	BasePriceAmount   *decimal.Decimal
+	BasePriceCurrency *string
+	VideoCount        int32
+}
+
+func (q *Queries) PaginateVideoGroups(ctx context.Context, arg *PaginateVideoGroupsParams) ([]*PaginateVideoGroupsRow, error) {
+	rows, err := q.db.Query(ctx, paginateVideoGroups, arg.Page, arg.PerPage)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PaginateVideoGroupsRow
+	for rows.Next() {
+		var i PaginateVideoGroupsRow
+		if err := rows.Scan(
+			&i.VideoGroup.ID,
+			&i.VideoGroup.TitleEn,
+			&i.VideoGroup.TitlePl,
+			&i.VideoGroup.Slug,
+			&i.VideoGroup.ProductID,
+			&i.VideoGroup.InsertedAt,
+			&i.VideoGroup.UpdatedAt,
+			&i.BasePriceAmount,
+			&i.BasePriceCurrency,
+			&i.VideoCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const paginateVideos = `-- name: PaginateVideos :many
 select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos v order by v.id desc
 limit ($2::int) offset ((($1::int) - 1) * $2::int)
@@ -592,6 +688,20 @@ func (q *Queries) PaginateVideos(ctx context.Context, arg *PaginateVideosParams)
 		return nil, err
 	}
 	return items, nil
+}
+
+const setVideoGroupProduct = `-- name: SetVideoGroupProduct :exec
+update video_groups set product_id = $2, updated_at = now() where id = $1
+`
+
+type SetVideoGroupProductParams struct {
+	ID        uuid.UUID
+	ProductID *uuid.UUID
+}
+
+func (q *Queries) SetVideoGroupProduct(ctx context.Context, arg *SetVideoGroupProductParams) error {
+	_, err := q.db.Exec(ctx, setVideoGroupProduct, arg.ID, arg.ProductID)
+	return err
 }
 
 const upsertVideoGroup = `-- name: UpsertVideoGroup :one

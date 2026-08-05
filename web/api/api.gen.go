@@ -178,6 +178,14 @@ type PaginatedUsers struct {
 	Pagination Pagination `json:"pagination"`
 }
 
+// PaginatedVideoGroups defines model for PaginatedVideoGroups.
+type PaginatedVideoGroups struct {
+	Data []VideoGroup `json:"data"`
+
+	// Pagination Pagination metadata describing the returned page.
+	Pagination Pagination `json:"pagination"`
+}
+
 // PaginatedVideos defines model for PaginatedVideos.
 type PaginatedVideos struct {
 	Data []Video `json:"data"`
@@ -234,6 +242,40 @@ type Video struct {
 	TitlePl string             `json:"titlePl"`
 }
 
+// VideoGroup A series of videos. A group with a price is only watchable by users who bought it.
+type VideoGroup struct {
+	// Currency Currency code. Null when the group is free.
+	Currency   *string            `json:"currency,omitempty"`
+	Id         openapi_types.UUID `json:"id"`
+	InsertedAt time.Time          `json:"insertedAt"`
+
+	// IsPremium Whether the group is behind the paywall, i.e. has a product.
+	IsPremium bool `json:"isPremium"`
+
+	// Price Decimal price string, e.g. "199.00". Null when the group is free.
+	Price      *string   `json:"price,omitempty"`
+	Slug       string    `json:"slug"`
+	TitleEn    string    `json:"titleEn"`
+	TitlePl    string    `json:"titlePl"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+	VideoCount int32     `json:"videoCount"`
+}
+
+// VideoGroupInput Editable fields of a video group, used on create.
+type VideoGroupInput struct {
+	// Currency Required when a non-zero price is given.
+	Currency *string `json:"currency,omitempty"`
+
+	// Price Decimal price string. A null or zero price leaves the group free.
+	Price   *string `json:"price,omitempty"`
+	Slug    string  `json:"slug"`
+	TitleEn string  `json:"titleEn"`
+	TitlePl string  `json:"titlePl"`
+}
+
+// VideoGroupPatch Partial update of a video group. Absent fields are left untouched; a nullable field may be cleared by passing an explicit null.
+type VideoGroupPatch = types.PatchVideoGroupInput
+
 // PageParam defines model for PageParam.
 type PageParam = int32
 
@@ -270,6 +312,15 @@ type ListUsersParams struct {
 	Search *string `form:"search,omitempty" json:"search,omitempty"`
 }
 
+// ListVideoGroupsParams defines parameters for ListVideoGroups.
+type ListVideoGroupsParams struct {
+	// Page 1-based page number. Values below 1 are treated as 1.
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Number of items per page. Clamped to the [1, 100] range.
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
 // ListVideosParams defines parameters for ListVideos.
 type ListVideosParams struct {
 	// Page 1-based page number. Values below 1 are treated as 1.
@@ -284,6 +335,12 @@ type CreateEventJSONRequestBody = EventInput
 
 // UpdateEventJSONRequestBody defines body for UpdateEvent for application/json ContentType.
 type UpdateEventJSONRequestBody = PatchEventInput
+
+// CreateVideoGroupJSONRequestBody defines body for CreateVideoGroup for application/json ContentType.
+type CreateVideoGroupJSONRequestBody = VideoGroupInput
+
+// UpdateVideoGroupJSONRequestBody defines body for UpdateVideoGroup for application/json ContentType.
+type UpdateVideoGroupJSONRequestBody = VideoGroupPatch
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -323,6 +380,18 @@ type ServerInterface interface {
 	// ListUsers List users
 	// (GET /users)
 	ListUsers(w http.ResponseWriter, r *http.Request, params ListUsersParams)
+	// ListVideoGroups List video groups
+	// (GET /video-groups)
+	ListVideoGroups(w http.ResponseWriter, r *http.Request, params ListVideoGroupsParams)
+	// CreateVideoGroup Create a video group
+	// (POST /video-groups)
+	CreateVideoGroup(w http.ResponseWriter, r *http.Request)
+	// GetVideoGroup Get a single video group by primary key
+	// (GET /video-groups/{id})
+	GetVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	// UpdateVideoGroup Update a video group
+	// (PATCH /video-groups/{id})
+	UpdateVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
 	// ListVideos List videos
 	// (GET /videos)
 	ListVideos(w http.ResponseWriter, r *http.Request, params ListVideosParams)
@@ -686,6 +755,118 @@ func (siw *ServerInterfaceWrapper) ListUsers(w http.ResponseWriter, r *http.Requ
 	handler.ServeHTTP(w, r)
 }
 
+// ListVideoGroups operation middleware
+func (siw *ServerInterfaceWrapper) ListVideoGroups(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListVideoGroupsParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "page", r.URL.Query(), &params.Page, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "page"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "perPage", r.URL.Query(), &params.PerPage, runtime.BindQueryParameterOptions{Type: "integer", Format: "int32"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "perPage"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "perPage", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListVideoGroups(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateVideoGroup operation middleware
+func (siw *ServerInterfaceWrapper) CreateVideoGroup(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateVideoGroup(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetVideoGroup operation middleware
+func (siw *ServerInterfaceWrapper) GetVideoGroup(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetVideoGroup(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateVideoGroup operation middleware
+func (siw *ServerInterfaceWrapper) UpdateVideoGroup(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateVideoGroup(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListVideos operation middleware
 func (siw *ServerInterfaceWrapper) ListVideos(w http.ResponseWriter, r *http.Request) {
 
@@ -864,6 +1045,10 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events/{id}/publish", wrapper.PublishEvent)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events/{id}/unpublish", wrapper.UnpublishEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events/{id}/attendants", wrapper.ListEventAttendants)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/video-groups", wrapper.ListVideoGroups)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/video-groups", wrapper.CreateVideoGroup)
+	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/video-groups/{id}", wrapper.GetVideoGroup)
+	m.HandleFunc(http.MethodPatch+" "+options.BaseURL+"/video-groups/{id}", wrapper.UpdateVideoGroup)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
 
 	return m
@@ -1230,6 +1415,149 @@ func (response ListUsers200JSONResponse) VisitListUsersResponse(w http.ResponseW
 	return err
 }
 
+type ListVideoGroupsRequestObject struct {
+	Params ListVideoGroupsParams
+}
+
+type ListVideoGroupsResponseObject interface {
+	VisitListVideoGroupsResponse(w http.ResponseWriter) error
+}
+
+type ListVideoGroups200JSONResponse PaginatedVideoGroups
+
+func (response ListVideoGroups200JSONResponse) VisitListVideoGroupsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateVideoGroupRequestObject struct {
+	Body *CreateVideoGroupJSONRequestBody
+}
+
+type CreateVideoGroupResponseObject interface {
+	VisitCreateVideoGroupResponse(w http.ResponseWriter) error
+}
+
+type CreateVideoGroup201ResponseHeaders struct {
+	Location *string
+}
+
+type CreateVideoGroup201JSONResponse struct {
+	Body    VideoGroup
+	Headers CreateVideoGroup201ResponseHeaders
+}
+
+func (response CreateVideoGroup201JSONResponse) VisitCreateVideoGroupResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response.Body); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if response.Headers.Location != nil {
+		w.Header().Set("Location", fmt.Sprint(*response.Headers.Location))
+	}
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateVideoGroup422JSONResponse ValidationErrors
+
+func (response CreateVideoGroup422JSONResponse) VisitCreateVideoGroupResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetVideoGroupRequestObject struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+type GetVideoGroupResponseObject interface {
+	VisitGetVideoGroupResponse(w http.ResponseWriter) error
+}
+
+type GetVideoGroup200JSONResponse VideoGroup
+
+func (response GetVideoGroup200JSONResponse) VisitGetVideoGroupResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetVideoGroup404Response struct {
+}
+
+func (response GetVideoGroup404Response) VisitGetVideoGroupResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type UpdateVideoGroupRequestObject struct {
+	Id   openapi_types.UUID `json:"id"`
+	Body *UpdateVideoGroupJSONRequestBody
+}
+
+type UpdateVideoGroupResponseObject interface {
+	VisitUpdateVideoGroupResponse(w http.ResponseWriter) error
+}
+
+type UpdateVideoGroup200JSONResponse VideoGroup
+
+func (response UpdateVideoGroup200JSONResponse) VisitUpdateVideoGroupResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdateVideoGroup404Response struct {
+}
+
+func (response UpdateVideoGroup404Response) VisitUpdateVideoGroupResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type UpdateVideoGroup422JSONResponse ValidationErrors
+
+func (response UpdateVideoGroup422JSONResponse) VisitUpdateVideoGroupResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type ListVideosRequestObject struct {
 	Params ListVideosParams
 }
@@ -1290,6 +1618,18 @@ type StrictServerInterface interface {
 	// ListUsers List users
 	// (GET /users)
 	ListUsers(ctx context.Context, request ListUsersRequestObject) (ListUsersResponseObject, error)
+	// ListVideoGroups List video groups
+	// (GET /video-groups)
+	ListVideoGroups(ctx context.Context, request ListVideoGroupsRequestObject) (ListVideoGroupsResponseObject, error)
+	// CreateVideoGroup Create a video group
+	// (POST /video-groups)
+	CreateVideoGroup(ctx context.Context, request CreateVideoGroupRequestObject) (CreateVideoGroupResponseObject, error)
+	// GetVideoGroup Get a single video group by primary key
+	// (GET /video-groups/{id})
+	GetVideoGroup(ctx context.Context, request GetVideoGroupRequestObject) (GetVideoGroupResponseObject, error)
+	// UpdateVideoGroup Update a video group
+	// (PATCH /video-groups/{id})
+	UpdateVideoGroup(ctx context.Context, request UpdateVideoGroupRequestObject) (UpdateVideoGroupResponseObject, error)
 	// ListVideos List videos
 	// (GET /videos)
 	ListVideos(ctx context.Context, request ListVideosRequestObject) (ListVideosResponseObject, error)
@@ -1654,6 +1994,122 @@ func (sh *strictHandler) ListUsers(w http.ResponseWriter, r *http.Request, param
 	}
 }
 
+// ListVideoGroups operation middleware
+func (sh *strictHandler) ListVideoGroups(w http.ResponseWriter, r *http.Request, params ListVideoGroupsParams) {
+	var request ListVideoGroupsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListVideoGroups(ctx, request.(ListVideoGroupsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListVideoGroups")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListVideoGroupsResponseObject); ok {
+		if err := validResponse.VisitListVideoGroupsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateVideoGroup operation middleware
+func (sh *strictHandler) CreateVideoGroup(w http.ResponseWriter, r *http.Request) {
+	var request CreateVideoGroupRequestObject
+
+	var body CreateVideoGroupJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateVideoGroup(ctx, request.(CreateVideoGroupRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateVideoGroup")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateVideoGroupResponseObject); ok {
+		if err := validResponse.VisitCreateVideoGroupResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetVideoGroup operation middleware
+func (sh *strictHandler) GetVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+	var request GetVideoGroupRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetVideoGroup(ctx, request.(GetVideoGroupRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetVideoGroup")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetVideoGroupResponseObject); ok {
+		if err := validResponse.VisitGetVideoGroupResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateVideoGroup operation middleware
+func (sh *strictHandler) UpdateVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+	var request UpdateVideoGroupRequestObject
+
+	request.Id = id
+
+	var body UpdateVideoGroupJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateVideoGroup(ctx, request.(UpdateVideoGroupRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateVideoGroup")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdateVideoGroupResponseObject); ok {
+		if err := validResponse.VisitUpdateVideoGroupResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // ListVideos operation middleware
 func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, params ListVideosParams) {
 	var request ListVideosRequestObject
@@ -1685,60 +2141,67 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, para
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

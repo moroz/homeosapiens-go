@@ -47,6 +47,27 @@ join video_groups_videos vgv on vgv.video_id = v.id
 where vgv.video_group_id = $1
 order by position;
 
+-- name: PaginateVideoGroups :many
+select sqlc.embed(vg), p.base_price_amount, p.base_price_currency,
+       (select count(*) from video_groups_videos vgv where vgv.video_group_id = vg.id)::int video_count
+from video_groups vg
+left join products p on p.id = vg.product_id
+order by vg.id desc
+limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
+
+-- name: CountVideoGroups :one
+select count(*) from video_groups;
+
+-- name: GetVideoGroupById :one
+select sqlc.embed(vg), p.base_price_amount, p.base_price_currency,
+       (select count(*) from video_groups_videos vgv where vgv.video_group_id = vg.id)::int video_count
+from video_groups vg
+left join products p on p.id = vg.product_id
+where vg.id = $1;
+
+-- name: SetVideoGroupProduct :exec
+update video_groups set product_id = $2, updated_at = now() where id = $1;
+
 -- name: InsertVideoGroup :one
 insert into video_groups (title_en, title_pl, slug, product_id) values ($1, $2, $3, $4) returning *;
 

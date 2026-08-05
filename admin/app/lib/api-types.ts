@@ -169,6 +169,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/video-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List video groups */
+        get: operations["listVideoGroups"];
+        put?: never;
+        /** Create a video group */
+        post: operations["createVideoGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/video-groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single video group by primary key */
+        get: operations["getVideoGroup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update a video group
+         * @description Applies a partial update. Absent fields are left untouched.
+         */
+        patch: operations["updateVideoGroup"];
+        trace?: never;
+    };
     "/hosts": {
         parameters: {
             query?: never;
@@ -228,6 +267,49 @@ export interface components {
         PaginatedEvents: {
             data: components["schemas"]["Event"][];
             pagination: components["schemas"]["Pagination"];
+        };
+        PaginatedVideoGroups: {
+            data: components["schemas"]["VideoGroup"][];
+            pagination: components["schemas"]["Pagination"];
+        };
+        /** @description A series of videos. A group with a price is only watchable by users who bought it. */
+        VideoGroup: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            titlePl: string;
+            titleEn: string;
+            /** @description Whether the group is behind the paywall, i.e. has a product. */
+            isPremium: boolean;
+            /** @description Decimal price string, e.g. "199.00". Null when the group is free. */
+            price?: string | null;
+            /** @description Currency code. Null when the group is free. */
+            currency?: string | null;
+            /** Format: int32 */
+            videoCount: number;
+            /** Format: date-time */
+            insertedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        /** @description Editable fields of a video group, used on create. */
+        VideoGroupInput: {
+            slug: string;
+            titlePl: string;
+            titleEn: string;
+            /** @description Decimal price string. A null or zero price leaves the group free. */
+            price?: string | null;
+            /** @description Required when a non-zero price is given. */
+            currency?: string | null;
+        };
+        /** @description Partial update of a video group. Absent fields are left untouched; a nullable field may be cleared by passing an explicit null. */
+        VideoGroupPatch: {
+            slug?: string;
+            titlePl?: string;
+            titleEn?: string;
+            /** @description Decimal price string. Zero or null makes the group free without discarding its product. */
+            price?: string | null;
+            currency?: string | null;
         };
         PaginatedHosts: {
             data: components["schemas"]["Host"][];
@@ -760,6 +842,139 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    listVideoGroups: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number. Values below 1 are treated as 1. */
+                page?: components["parameters"]["PageParam"];
+                /** @description Number of items per page. Clamped to the [1, 100] range. */
+                perPage?: components["parameters"]["PerPageParam"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of video groups, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedVideoGroups"];
+                };
+            };
+        };
+    };
+    createVideoGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VideoGroupInput"];
+            };
+        };
+        responses: {
+            /** @description The created video group */
+            201: {
+                headers: {
+                    /** @description URL of the created video group. */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoGroup"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
+            };
+        };
+    };
+    getVideoGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video group primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested video group */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoGroup"];
+                };
+            };
+            /** @description No video group with that ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateVideoGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video group primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VideoGroupPatch"];
+            };
+        };
+        responses: {
+            /** @description The updated video group */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoGroup"];
+                };
+            };
+            /** @description No video group with that ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
             };
         };
     };

@@ -19,15 +19,17 @@ import (
 // per-request authorization.
 type Server struct {
 	*eventServer
+	*videoGroupServer
 	q  *queries.Queries
 	db queries.DBTX
 }
 
 func NewServer(db queries.DBTX) *Server {
 	return &Server{
-		eventServer: NewEventServer(db),
-		q:           queries.New(db),
-		db:          db,
+		eventServer:      NewEventServer(db),
+		videoGroupServer: NewVideoGroupServer(db),
+		q:                queries.New(db),
+		db:               db,
 	}
 }
 
