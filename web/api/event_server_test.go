@@ -109,6 +109,12 @@ func TestEventServer_ListEvents(t *testing.T) {
 		assert.Len(t, out.Data, 3)
 	})
 
+	t.Run("perPage is clamped to the documented maximum", func(t *testing.T) {
+		out := list(api.ListEventsParams{PerPage: new(int32(5000))})
+
+		assert.Equal(t, int32(config.MaxPageSize), out.Pagination.PerPage)
+	})
+
 	t.Run("a page past the end is empty rather than an error", func(t *testing.T) {
 		out := list(api.ListEventsParams{Page: new(int32(99))})
 
@@ -307,7 +313,6 @@ func TestEventServer_CreateEvent(t *testing.T) {
 
 	t.Run("creates a free event without a product", func(t *testing.T) {
 		body := validEventInput("api-created-free-event")
-		body.IsFree = true
 		body.Price = nil
 		body.Currency = nil
 

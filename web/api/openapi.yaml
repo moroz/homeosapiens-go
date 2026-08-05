@@ -247,7 +247,7 @@ components:
         format: int32
         minimum: 1
         maximum: 100
-        default: 25
+        default: 20
 
   schemas:
     Health:
@@ -462,7 +462,7 @@ components:
     EventInput:
       type: object
       description: Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored.
-      required: [slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, isFree, hostIds]
+      required: [slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, hostIds]
       properties:
         slug:
           type: string
@@ -492,12 +492,10 @@ components:
         descriptionEn:
           type: string
           nullable: true
-        isFree:
-          type: boolean
         price:
           type: string
           nullable: true
-          description: Decimal price string, e.g. "19.99". Null when free.
+          description: Decimal price string, e.g. "19.99". Null when free. A null or zero price makes the event free.
         currency:
           type: string
           nullable: true

@@ -74,20 +74,14 @@ func eventDetails(e *types.EventDetailsDto) EventDetails {
 }
 
 func (s *eventServer) UpdateEvent(ctx context.Context, request UpdateEventRequestObject) (UpdateEventResponseObject, error) {
-	svc := services.NewEventService(s.db)
-
-	if _, err := svc.UpdateEvent(ctx, request.Id, request.Body); err != nil {
+	e, err := services.NewEventService(s.db).UpdateEvent(ctx, request.Id, request.Body)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return UpdateEvent404Response{}, nil
 		}
 		if verr, ok := errors.AsType[validation.Errors](err); ok {
 			return UpdateEvent422JSONResponse{Errors: validationErrorMessages(verr)}, nil
 		}
-		return nil, err
-	}
-
-	e, err := svc.GetEventDetailsById(ctx, request.Id, nil)
-	if err != nil {
 		return nil, err
 	}
 

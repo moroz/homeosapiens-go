@@ -102,7 +102,7 @@ func (s *Server) ListHosts(ctx context.Context, params ListHostsRequestObject) (
 	result := ListHosts200JSONResponse{
 		Data: out,
 		Pagination: Pagination{
-			Page:       *params.Params.Page,
+			Page:       page,
 			PerPage:    perPage,
 			Total:      count,
 			TotalPages: countPages(count, perPage),

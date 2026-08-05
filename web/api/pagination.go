@@ -19,7 +19,7 @@ func resolvePaginationParams[P AsInt32](pageParam *P, perPageParam *P) (page int
 	}
 
 	if perPageParam != nil && *perPageParam > 0 {
-		perPage = int32(*perPageParam)
+		perPage = min(int32(*perPageParam), config.MaxPageSize)
 	}
 
 	return

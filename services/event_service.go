@@ -106,7 +106,7 @@ func (s *EventService) GetEventDetailsById(ctx context.Context, eventId uuid.UUI
 		return nil, err
 	}
 
-	return s.GetEventDetailsForEvent(ctx, event, user, nil)
+	return s.eventDetailsForEvent(ctx, s.db, event, user, nil)
 }
 
 func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, user *queries.User, cartId *uuid.UUID) (*types.EventDetailsDto, error) {
@@ -115,45 +115,52 @@ func (s *EventService) GetEventDetailsBySlug(ctx context.Context, slug string, u
 		return nil, err
 	}
 
-	return s.GetEventDetailsForEvent(ctx, event, user, cartId)
+	return s.eventDetailsForEvent(ctx, s.db, event, user, cartId)
 }
 
+// GetEventDetailsForEvent loads an event's associations off the pool.
 func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queries.Event, user *queries.User, cartId *uuid.UUID) (*types.EventDetailsDto, error) {
+	return s.eventDetailsForEvent(ctx, s.db, event, user, cartId)
+}
+
+// eventDetailsForEvent reads through db, so a caller holding a transaction can
+// build the DTO from its own uncommitted writes.
+func (s *EventService) eventDetailsForEvent(ctx context.Context, db queries.DBTX, event *queries.Event, user *queries.User, cartId *uuid.UUID) (*types.EventDetailsDto, error) {
 	var dto types.EventDetailsDto
 	dto.Event = event
 
-	products, err := s.preloadProductsForEvents(ctx, s.db, []uuid.UUID{event.ID})
+	products, err := s.preloadProductsForEvents(ctx, db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Product = products[event.ID]
 
-	prices, err := s.preloadPricesForEvents(ctx, s.db, []uuid.UUID{event.ID})
+	prices, err := s.preloadPricesForEvents(ctx, db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Prices = prices[event.ID]
 
-	hosts, err := s.preloadHostsForEvents(ctx, s.db, []uuid.UUID{event.ID})
+	hosts, err := s.preloadHostsForEvents(ctx, db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Hosts = hosts[event.ID]
 
-	registrations, err := s.preloadEventRegistrationsForEvents(ctx, s.db, []uuid.UUID{event.ID}, user)
+	registrations, err := s.preloadEventRegistrationsForEvents(ctx, db, []uuid.UUID{event.ID}, user)
 	if err != nil {
 		return nil, err
 	}
 	dto.EventRegistration = registrations[event.ID]
 
-	counts, err := s.preloadRegistrationCountsForEvents(ctx, s.db, []uuid.UUID{event.ID})
+	counts, err := s.preloadRegistrationCountsForEvents(ctx, db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.RegistrationCount = counts[event.ID]
 
 	if cartId != nil {
-		cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, s.db, cartId, []uuid.UUID{event.ID})
+		cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, db, cartId, []uuid.UUID{event.ID})
 		if err != nil {
 			return nil, err
 		}
@@ -368,7 +375,7 @@ func (s *EventService) PublishEvent(ctx context.Context, eventId uuid.UUID) (*qu
 // intended to mimic the selective update behavior of Ecto.Changeset in Elixir:
 // only the fields present in the payload are written, and fields backed by a
 // nullable column can be cleared by passing an explicit null.
-func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params *types.PatchEventInput) (*queries.Event, error) {
+func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, params *types.PatchEventInput) (*types.EventDetailsDto, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -379,7 +386,7 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 	}
 
 	if params.IsEmpty() {
-		return event, nil
+		return s.eventDetailsForEvent(ctx, s.db, event, nil, nil)
 	}
 
 	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
@@ -468,11 +475,18 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		return nil, err
 	}
 
+	// Built from tx, so the caller sees the associations this update just wrote
+	// without a second round trip outside the transaction.
+	details, err := s.eventDetailsForEvent(ctx, tx, updated, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
 
-	return updated, nil
+	return details, nil
 }
 
 // patchEventProduct applies a pricing change to the event's product, returning

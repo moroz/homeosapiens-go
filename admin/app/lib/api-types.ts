@@ -270,8 +270,7 @@ export interface components {
             endsAt: string;
             descriptionPl?: string | null;
             descriptionEn?: string | null;
-            isFree: boolean;
-            /** @description Decimal price string, e.g. "19.99". Null when free. */
+            /** @description Decimal price string, e.g. "19.99". Null when free. A null or zero price makes the event free. */
             price?: string | null;
             /** @description Currency code. Null when free. */
             currency?: string | null;

@@ -50,7 +50,6 @@ export function toEventInput(values: EventFormValues): EventInput {
     venueCityPl: values.isVirtual ? null : blankToNull(values.venueCityPl),
     venuePostalCode: values.isVirtual ? null : blankToNull(values.venuePostalCode),
     venueCountryCode: values.isVirtual ? null : blankToNull(values.venueCountryCode),
-    isFree: values.isFree,
     price: values.isFree ? null : blankToNull(values.price),
     currency: values.isFree ? null : values.currency,
     hostIds: values.hostIds,
@@ -67,7 +66,6 @@ export function toPatchEventInput(values: EventFormValues): PatchEventInput {
     startsAt: datetimeLocalValueToISO8601(values.startsAt),
     endsAt: datetimeLocalValueToISO8601(values.endsAt),
     isVirtual: values.isVirtual,
-    isFree: values.isFree,
     hostIds: values.hostIds,
   };
 

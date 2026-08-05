@@ -131,3 +131,7 @@ const PasswordResetTokenValidity = 60 * 60 * time.Second
 const UserTokenContextPasswordReset = "password_reset"
 
 const DefaultPageSize = 20
+
+// MaxPageSize caps perPage on paginated API endpoints, as documented by the
+// PerPageParam schema in web/api/openapi.yaml.
+const MaxPageSize = 100
