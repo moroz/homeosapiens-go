@@ -71,6 +71,26 @@ export function useUpdateEventMutation() {
 }
 
 /**
+ * `POST /api/admin/events/{id}/publish` — put an event on the public listing.
+ * Rejected with a 422 when the event is missing a description in either
+ * language, or when it is already published. Throws {@link ApiError} on failure,
+ * whose `body` is a `ValidationErrors` on that 422 (see `~/lib/api`).
+ */
+export function usePublishEventMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: UUID) => {
+      await api.POST("/events/{id}/publish", { params: { path: { id } } });
+    },
+    onSuccess(_data, id) {
+      queryClient.invalidateQueries({ queryKey: ["listEvents"] });
+      queryClient.invalidateQueries({ queryKey: ["getEvent", id] });
+    },
+  });
+}
+
+/**
  * `POST /api/admin/events/{id}/unpublish` — take an event off the public listing.
  * Always allowed, including for an event with sign-ups: existing registrations
  * keep their record of it, it just stops being listed. Throws {@link ApiError}
