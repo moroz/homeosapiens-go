@@ -77,6 +77,8 @@ export function toPatchEventInput(values: EventFormValues): PatchEventInput {
       venueStreet: blankToNull(values.venueStreet),
       venueCityEn: blankToNull(values.venueCityEn),
       venueCityPl: blankToNull(values.venueCityPl),
+      venuePostalCode: blankToNull(values.venuePostalCode),
+      venueCountryCode: blankToNull(values.venueCountryCode),
     };
   }
 

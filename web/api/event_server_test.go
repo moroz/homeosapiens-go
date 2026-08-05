@@ -562,6 +562,49 @@ func TestEventServer_UpdateEvent(t *testing.T) {
 		assert.Equal(t, host.ID, details.Hosts[0].Id)
 	})
 
+	t.Run("patches the venue and the virtual flag", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		require.True(t, event.IsVirtual)
+
+		out, ok := update(t, event.ID, &types.PatchEventInput{
+			IsVirtual:        types.Some(false),
+			VenueNameEn:      types.Some("Main Hall"),
+			VenueNamePl:      types.Some("Sala Główna"),
+			VenueStreet:      types.Some("ul. Testowa 1"),
+			VenueCityEn:      types.Some("Warsaw"),
+			VenueCityPl:      types.Some("Warszawa"),
+			VenuePostalCode:  types.Some("00-001"),
+			VenueCountryCode: types.Some("PL"),
+		}).(api.UpdateEvent200JSONResponse)
+		require.True(t, ok)
+
+		assert.False(t, out.IsVirtual)
+		assert.Equal(t, "Main Hall", *out.VenueNameEn)
+		assert.Equal(t, "Warszawa", *out.VenueCityPl)
+		assert.Equal(t, "PL", *out.VenueCountryCode)
+
+		// Turning it back into a virtual event needs no venue in the payload.
+		out, ok = update(t, event.ID, &types.PatchEventInput{
+			IsVirtual: types.Some(true),
+		}).(api.UpdateEvent200JSONResponse)
+		require.True(t, ok)
+		assert.True(t, out.IsVirtual)
+	})
+
+	t.Run("returns 422 when a physical event would end up without a venue", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		out, ok := update(t, event.ID, &types.PatchEventInput{
+			IsVirtual: types.Some(false),
+		}).(api.UpdateEvent422JSONResponse)
+		require.True(t, ok, "expected 422")
+
+		assert.Contains(t, out.Errors, "venueNameEn")
+		assert.Contains(t, out.Errors, "venueCountryCode")
+	})
+
 	t.Run("rejects invalid payloads with 422", func(t *testing.T) {
 		event, err := mocks.Event(db, ctx)
 		require.NoError(t, err)
@@ -582,6 +625,9 @@ func TestEventServer_UpdateEvent(t *testing.T) {
 			"duplicate hostIds":  {types.PatchEventInput{HostIds: types.Some([]uuid.UUID{other.ID, other.ID})}, "hostIds"},
 			"unknown host":       {types.PatchEventInput{HostIds: types.Some([]uuid.UUID{uuid.Must(uuid.NewV7())})}, "hostIds"},
 			"price without cur.": {types.PatchEventInput{Price: types.Some(decimal.NewFromInt(250))}, "currency"},
+			"blank venue name":   {types.PatchEventInput{VenueNameEn: types.Some("  ")}, "venueNameEn"},
+			"bad country code":   {types.PatchEventInput{VenueCountryCode: types.Some("POL")}, "venueCountryCode"},
+			"cleared isVirtual":  {types.PatchEventInput{IsVirtual: types.Null[bool]()}, "isVirtual"},
 		}
 
 		for name, example := range examples {

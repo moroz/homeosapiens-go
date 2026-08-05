@@ -71,6 +71,36 @@ func WhenSet[T any](rules ...validation.Rule) validation.Rule {
 	})
 }
 
+// NotNullWhenSet validates an Optional field backed by a NOT NULL column whose
+// value is not a string: an absent key is fine, but a present key must not be
+// an explicit null.
+func NotNullWhenSet[T any]() validation.Rule {
+	return validation.By(func(value any) error {
+		opt, ok := value.(Optional[T])
+		if !ok || !opt.Set || !opt.Null {
+			return nil
+		}
+
+		return validation.ErrRequired
+	})
+}
+
+// NotBlankWhenPresent validates an Optional[string] field backed by a nullable
+// column: an explicit null is fine, because that is how the column is cleared,
+// but a key carrying a value must not carry a blank one.
+var NotBlankWhenPresent = validation.By(func(value any) error {
+	opt, ok := value.(Optional[string])
+	if !ok || !opt.Set || opt.Null {
+		return nil
+	}
+
+	if strings.TrimSpace(opt.Value) == "" {
+		return validation.ErrRequired
+	}
+
+	return nil
+})
+
 // NotBlankWhenSet validates an Optional[string] field backed by a NOT NULL
 // column: an absent key is fine, but a key that is present must carry a
 // non-blank value. Absent keys are never rejected, so the same rule works for

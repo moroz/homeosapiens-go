@@ -304,6 +304,8 @@ export interface components {
             endsAt?: string;
             /** @description IDs of hosts associated with the event. Replaces the existing set wholesale. */
             hostIds?: string[];
+            /** @description Flipping this to false requires the event to end up with a full venue, whether the address comes from this payload or is already stored on the event. */
+            isVirtual?: boolean;
             venueNameEn?: string | null;
             venueNamePl?: string | null;
             venueStreet?: string | null;

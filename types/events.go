@@ -2,6 +2,7 @@ package types
 
 import (
 	"regexp"
+	"strings"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -36,6 +37,19 @@ type PatchEventInput struct {
 	// HostIds replaces the event's hosts wholesale, in the given order. Hosts
 	// are positional, so there is no meaningful way to patch one in isolation.
 	HostIds Optional[[]uuid.UUID] `json:"hostIds"`
+
+	// IsVirtual and the venue fields are coupled: a physical event must carry a
+	// full venue, which is enforced against the state the event will have once
+	// the patch is applied (see ValidateVenue).
+	IsVirtual Optional[bool] `json:"isVirtual"`
+
+	VenueNameEn      Optional[string] `json:"venueNameEn"`
+	VenueNamePl      Optional[string] `json:"venueNamePl"`
+	VenueStreet      Optional[string] `json:"venueStreet"`
+	VenueCityEn      Optional[string] `json:"venueCityEn"`
+	VenueCityPl      Optional[string] `json:"venueCityPl"`
+	VenuePostalCode  Optional[string] `json:"venuePostalCode"`
+	VenueCountryCode Optional[string] `json:"venueCountryCode"`
 }
 
 // IsEmpty reports whether the payload carries no changes at all, in which case
@@ -44,7 +58,75 @@ func (p *PatchEventInput) IsEmpty() bool {
 	return !(p.TitleEn.Set || p.TitlePl.Set || p.Slug.Set ||
 		p.SubtitleEn.Set || p.SubtitlePl.Set ||
 		p.DescriptionEn.Set || p.DescriptionPl.Set ||
-		p.Price.Set || p.Currency.Set || p.HostIds.Set)
+		p.StartsAt.Set || p.EndsAt.Set ||
+		p.Price.Set || p.Currency.Set || p.HostIds.Set ||
+		p.IsVirtual.Set || p.venueFieldsSet())
+}
+
+func (p *PatchEventInput) venueFieldsSet() bool {
+	for _, field := range p.venueFields() {
+		if field.value.Set {
+			return true
+		}
+	}
+	return false
+}
+
+// venueFields pairs every venue field with its payload property name and with
+// the event field it is read back from, so that the emptiness check and the
+// venue validation iterate the same list.
+func (p *PatchEventInput) venueFields() []struct {
+	name   string
+	value  Optional[string]
+	stored func(event *queries.Event) *string
+} {
+	return []struct {
+		name   string
+		value  Optional[string]
+		stored func(event *queries.Event) *string
+	}{
+		{"venueNameEn", p.VenueNameEn, func(e *queries.Event) *string { return e.VenueNameEn }},
+		{"venueNamePl", p.VenueNamePl, func(e *queries.Event) *string { return e.VenueNamePl }},
+		{"venueStreet", p.VenueStreet, func(e *queries.Event) *string { return e.VenueStreet }},
+		{"venueCityEn", p.VenueCityEn, func(e *queries.Event) *string { return e.VenueCityEn }},
+		{"venueCityPl", p.VenueCityPl, func(e *queries.Event) *string { return e.VenueCityPl }},
+		{"venuePostalCode", p.VenuePostalCode, func(e *queries.Event) *string { return e.VenuePostalCode }},
+		{"venueCountryCode", p.VenueCountryCode, func(e *queries.Event) *string { return e.VenueCountryCode }},
+	}
+}
+
+// ValidateVenue checks the venue against the state the event will have once the
+// patch is applied: a physical event must carry a full venue, whether the
+// address comes from the payload or from the row being patched. The database
+// enforces a subset of this with a check constraint, but a constraint violation
+// would surface as a 500 rather than as a per-field error.
+func (p *PatchEventInput) ValidateVenue(event *queries.Event) error {
+	isVirtual := event.IsVirtual
+	if p.IsVirtual.Set {
+		isVirtual = p.IsVirtual.Value
+	}
+
+	if isVirtual {
+		return nil
+	}
+
+	errs := validation.Errors{}
+	for _, field := range p.venueFields() {
+		value := field.stored(event)
+		if field.value.Set {
+			value = field.value.Ptr()
+		}
+
+		if value == nil || strings.TrimSpace(*value) == "" {
+			errs[field.name] = validation.ErrRequired
+		}
+	}
+
+	if len(errs) == 0 {
+		return nil
+	}
+
+	return errs
 }
 
 func (p *PatchEventInput) Validate() error {
@@ -64,6 +146,21 @@ func (p *PatchEventInput) Validate() error {
 
 		validation.Field(&p.StartsAt, NotBlankWhenSet),
 		validation.Field(&p.EndsAt, NotBlankWhenSet, WhenSet[time.Time](validation.Min(p.StartsAt.Value).Exclusive().Error("must be after start time"))),
+
+		// is_virtual is NOT NULL, so it may be flipped but never cleared.
+		validation.Field(&p.IsVirtual, NotNullWhenSet[bool]()),
+
+		// The venue columns are nullable, so an explicit null is how a venue is
+		// cleared; a present value must still be a real one. Whether the
+		// resulting event is allowed to have no venue is decided by ValidateVenue.
+		validation.Field(&p.VenueNameEn, NotBlankWhenPresent),
+		validation.Field(&p.VenueNamePl, NotBlankWhenPresent),
+		validation.Field(&p.VenueStreet, NotBlankWhenPresent),
+		validation.Field(&p.VenueCityEn, NotBlankWhenPresent),
+		validation.Field(&p.VenueCityPl, NotBlankWhenPresent),
+		validation.Field(&p.VenuePostalCode, NotBlankWhenPresent),
+		validation.Field(&p.VenueCountryCode, NotBlankWhenPresent,
+			WhenSet[string](validation.Length(2, 2))),
 	)
 }
 

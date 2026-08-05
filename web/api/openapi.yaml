@@ -577,6 +577,12 @@ components:
           items:
             type: string
             format: uuid
+        isVirtual:
+          type: boolean
+          description: >-
+            Flipping this to false requires the event to end up with a full
+            venue, whether the address comes from this payload or is already
+            stored on the event.
         venueNameEn:
           type: string
           nullable: true

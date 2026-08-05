@@ -385,6 +385,12 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		return nil, err
 	}
 
+	// The venue requirement depends on the row being patched, so it can only be
+	// checked once the event is loaded.
+	if err := params.ValidateVenue(event); err != nil {
+		return nil, err
+	}
+
 	if params.IsEmpty() {
 		return s.eventDetailsForEvent(ctx, s.db, event, nil, nil)
 	}
@@ -415,6 +421,13 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		{"subtitle_pl", params.SubtitlePl},
 		{"description_en", params.DescriptionEn},
 		{"description_pl", params.DescriptionPl},
+		{"venue_name_en", params.VenueNameEn},
+		{"venue_name_pl", params.VenueNamePl},
+		{"venue_street", params.VenueStreet},
+		{"venue_city_en", params.VenueCityEn},
+		{"venue_city_pl", params.VenueCityPl},
+		{"venue_postal_code", params.VenuePostalCode},
+		{"venue_country_code", params.VenueCountryCode},
 	}
 
 	timestampAssignments := []struct {
@@ -423,6 +436,13 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 	}{
 		{"starts_at", params.StartsAt},
 		{"ends_at", params.EndsAt},
+	}
+
+	boolAssignments := []struct {
+		column string
+		value  types.Optional[bool]
+	}{
+		{"is_virtual", params.IsVirtual},
 	}
 
 	var query strings.Builder
@@ -439,6 +459,15 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 	}
 
 	for _, assignment := range timestampAssignments {
+		if !assignment.value.Set {
+			continue
+		}
+
+		queryVars = append(queryVars, assignment.value.Ptr())
+		fmt.Fprintf(&query, "%s = $%d, ", assignment.column, len(queryVars))
+	}
+
+	for _, assignment := range boolAssignments {
 		if !assignment.value.Set {
 			continue
 		}

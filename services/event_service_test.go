@@ -128,6 +128,18 @@ func TestEventService_CreateEvent(t *testing.T) {
 	})
 }
 
+// physicalVenue makes a mock event physical, with every venue column filled in.
+func physicalVenue(p *queries.UpsertEventParams) {
+	p.IsVirtual = false
+	p.VenueNameEn = new("Main Hall")
+	p.VenueNamePl = new("Sala Główna")
+	p.VenueStreet = new("ul. Testowa 1")
+	p.VenueCityEn = new("Warsaw")
+	p.VenueCityPl = new("Warszawa")
+	p.VenuePostalCode = new("00-001")
+	p.VenueCountryCode = new("PL")
+}
+
 func TestEventService_UpdateEvent(t *testing.T) {
 	ctx := t.Context()
 	db, err := initDB(ctx)
@@ -361,6 +373,144 @@ func TestEventService_UpdateEvent(t *testing.T) {
 		details, err := srv.GetEventDetailsById(ctx, paid.ID, nil)
 		require.NoError(t, err)
 		assert.True(t, details.IsFree())
+	})
+
+	t.Run("Patching the venue of a physical event", func(t *testing.T) {
+		physical, err := mocks.Event(db, ctx, physicalVenue)
+		require.NoError(t, err)
+
+		updated, err := srv.UpdateEvent(ctx, physical.ID, &types.PatchEventInput{
+			VenueNameEn:      types.Some("Side Hall"),
+			VenueNamePl:      types.Some("Sala Boczna"),
+			VenueStreet:      types.Some("ul. Inna 2"),
+			VenueCityEn:      types.Some("Cracow"),
+			VenueCityPl:      types.Some("Kraków"),
+			VenuePostalCode:  types.Some("30-001"),
+			VenueCountryCode: types.Some("PL"),
+		})
+		require.NoError(t, err)
+
+		assert.Equal(t, "Side Hall", *updated.VenueNameEn)
+		assert.Equal(t, "Sala Boczna", *updated.VenueNamePl)
+		assert.Equal(t, "ul. Inna 2", *updated.VenueStreet)
+		assert.Equal(t, "Cracow", *updated.VenueCityEn)
+		assert.Equal(t, "Kraków", *updated.VenueCityPl)
+		assert.Equal(t, "30-001", *updated.VenuePostalCode)
+		assert.Equal(t, "PL", *updated.VenueCountryCode)
+		assert.False(t, updated.IsVirtual)
+	})
+
+	t.Run("Turning a virtual event into a physical one", func(t *testing.T) {
+		virtual, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		require.True(t, virtual.IsVirtual)
+
+		updated, err := srv.UpdateEvent(ctx, virtual.ID, &types.PatchEventInput{
+			IsVirtual:        types.Some(false),
+			VenueNameEn:      types.Some("Main Hall"),
+			VenueNamePl:      types.Some("Sala Główna"),
+			VenueStreet:      types.Some("ul. Testowa 1"),
+			VenueCityEn:      types.Some("Warsaw"),
+			VenueCityPl:      types.Some("Warszawa"),
+			VenuePostalCode:  types.Some("00-001"),
+			VenueCountryCode: types.Some("PL"),
+		})
+		require.NoError(t, err)
+
+		assert.False(t, updated.IsVirtual)
+		assert.Equal(t, "Main Hall", *updated.VenueNameEn)
+	})
+
+	t.Run("Turning a physical event into a virtual one needs no venue", func(t *testing.T) {
+		physical, err := mocks.Event(db, ctx, physicalVenue)
+		require.NoError(t, err)
+
+		updated, err := srv.UpdateEvent(ctx, physical.ID, &types.PatchEventInput{
+			IsVirtual: types.Some(true),
+		})
+		require.NoError(t, err)
+
+		assert.True(t, updated.IsVirtual)
+	})
+
+	t.Run("A physical event must end up with a full venue", func(t *testing.T) {
+		virtual, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		_, err = srv.UpdateEvent(ctx, virtual.ID, &types.PatchEventInput{
+			IsVirtual:   types.Some(false),
+			VenueNameEn: types.Some("Main Hall"),
+		})
+
+		verrs, ok := errors.AsType[validation.Errors](err)
+		require.True(t, ok, "expected validation.Errors, got %v", err)
+		assert.NotContains(t, verrs, "venueNameEn")
+		for _, field := range []string{"venueNamePl", "venueStreet", "venueCityEn", "venueCityPl", "venuePostalCode", "venueCountryCode"} {
+			assert.Contains(t, verrs, field)
+		}
+
+		// The rejected patch must not have flipped the column either.
+		unchanged, err := srv.GetEventById(ctx, virtual.ID)
+		require.NoError(t, err)
+		assert.True(t, unchanged.IsVirtual)
+	})
+
+	t.Run("A stored address satisfies the venue requirement", func(t *testing.T) {
+		physical, err := mocks.Event(db, ctx, physicalVenue)
+		require.NoError(t, err)
+
+		// Nothing about the venue is in the payload, so it is read off the row.
+		updated, err := srv.UpdateEvent(ctx, physical.ID, &types.PatchEventInput{
+			TitleEn: types.Some("Still physical"),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "Still physical", updated.TitleEn)
+	})
+
+	t.Run("Clearing part of a physical event's venue is rejected", func(t *testing.T) {
+		physical, err := mocks.Event(db, ctx, physicalVenue)
+		require.NoError(t, err)
+
+		_, err = srv.UpdateEvent(ctx, physical.ID, &types.PatchEventInput{
+			VenueStreet: types.Null[string](),
+		})
+
+		verrs, ok := errors.AsType[validation.Errors](err)
+		require.True(t, ok, "expected validation.Errors, got %v", err)
+		assert.Contains(t, verrs, "venueStreet")
+
+		unchanged, err := srv.GetEventById(ctx, physical.ID)
+		require.NoError(t, err)
+		require.NotNil(t, unchanged.VenueStreet)
+	})
+
+	t.Run("Clearing a virtual event's venue is allowed", func(t *testing.T) {
+		virtual, err := mocks.Event(db, ctx, func(p *queries.UpsertEventParams) {
+			p.VenueNameEn = new("Leftover Hall")
+		})
+		require.NoError(t, err)
+
+		updated, err := srv.UpdateEvent(ctx, virtual.ID, &types.PatchEventInput{
+			VenueNameEn: types.Null[string](),
+		})
+		require.NoError(t, err)
+		assert.Nil(t, updated.VenueNameEn)
+	})
+
+	t.Run("Rejects malformed venue values and a cleared isVirtual", func(t *testing.T) {
+		for field, params := range map[string]types.PatchEventInput{
+			"venueNameEn":      {VenueNameEn: types.Some("   ")},
+			"venueCountryCode": {VenueCountryCode: types.Some("POL")},
+			"isVirtual":        {IsVirtual: types.Null[bool]()},
+		} {
+			t.Run(field, func(t *testing.T) {
+				_, err := srv.UpdateEvent(ctx, event.ID, &params)
+
+				verrs, ok := errors.AsType[validation.Errors](err)
+				require.True(t, ok, "expected validation.Errors, got %v", err)
+				assert.Contains(t, verrs, field)
+			})
+		}
 	})
 
 	t.Run("Rejects a negative price and an unsupported currency", func(t *testing.T) {
