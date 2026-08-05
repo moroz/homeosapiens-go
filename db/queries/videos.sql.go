@@ -62,6 +62,15 @@ func (q *Queries) CountVideos(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const deleteVideoGroupVideos = `-- name: DeleteVideoGroupVideos :exec
+delete from video_groups_videos where video_group_id = $1
+`
+
+func (q *Queries) DeleteVideoGroupVideos(ctx context.Context, videoGroupID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteVideoGroupVideos, videoGroupID)
+	return err
+}
+
 const getMinMaxRecordedDatesForVideoGroups = `-- name: GetMinMaxRecordedDatesForVideoGroups :many
 select vg.id, min(v.recorded_on)::date min_recorded_on, max(v.recorded_on):: date max_recorded_on
 from video_groups vg
@@ -340,6 +349,21 @@ func (q *Queries) InsertVideoGroup(ctx context.Context, arg *InsertVideoGroupPar
 	return &i, err
 }
 
+const insertVideoGroupVideo = `-- name: InsertVideoGroupVideo :exec
+insert into video_groups_videos (video_id, video_group_id, position) values ($1, $2, $3)
+`
+
+type InsertVideoGroupVideoParams struct {
+	VideoID      uuid.UUID
+	VideoGroupID uuid.UUID
+	Position     int32
+}
+
+func (q *Queries) InsertVideoGroupVideo(ctx context.Context, arg *InsertVideoGroupVideoParams) error {
+	_, err := q.db.Exec(ctx, insertVideoGroupVideo, arg.VideoID, arg.VideoGroupID, arg.Position)
+	return err
+}
+
 const listHostsForVideos = `-- name: ListHostsForVideos :many
 select vh.video_id, h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, h.country
 from video_hosts vh
@@ -471,6 +495,47 @@ order by v.id desc
 
 func (q *Queries) ListVideos(ctx context.Context) ([]*Video, error) {
 	rows, err := q.db.Query(ctx, listVideos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.Provider,
+			&i.IsPublic,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.Slug,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.DurationSeconds,
+			&i.RecordedOn,
+			&i.HostID,
+			&i.ThumbnailEnID,
+			&i.ThumbnailPlID,
+			&i.YoutubeID,
+			&i.DescriptionPl,
+			&i.DescriptionEn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listVideosByIds = `-- name: ListVideosByIds :many
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos where id = any($1::uuid[])
+`
+
+func (q *Queries) ListVideosByIds(ctx context.Context, videoIds []uuid.UUID) ([]*Video, error) {
+	rows, err := q.db.Query(ctx, listVideosByIds, videoIds)
 	if err != nil {
 		return nil, err
 	}

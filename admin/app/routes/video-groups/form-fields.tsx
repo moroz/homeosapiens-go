@@ -5,9 +5,12 @@ import { InputField, InputGroup, Select } from "~/components/forms";
 import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
 import type { VideoGroupFormValues } from "./interfaces";
+import { VideoPicker } from "./video-picker";
 
 interface Props {
   onTitleEnBlur?: React.ChangeEventHandler<HTMLInputElement>;
+  /** The video list is only offered once the group exists, so that its videos have somewhere to be saved. */
+  showVideos?: boolean;
 }
 
 const CURRENCY_OPTIONS = [
@@ -15,7 +18,7 @@ const CURRENCY_OPTIONS = [
   { value: "EUR", label: "EUR" },
 ];
 
-export const FormFields: React.FC<Props> = ({ onTitleEnBlur }) => {
+export const FormFields: React.FC<Props> = ({ onTitleEnBlur, showVideos = false }) => {
   const {
     register,
     formState: { errors },
@@ -74,6 +77,19 @@ export const FormFields: React.FC<Props> = ({ onTitleEnBlur }) => {
           </InputGroup>
         )}
       </section>
+
+      {showVideos && (
+        <section className="flex flex-col gap-4">
+          <h3 className="text-lg font-semibold">Videos</h3>
+          <Controller
+            name="videoIds"
+            control={control}
+            render={({ field }) => (
+              <VideoPicker value={field.value ?? []} onChange={field.onChange} />
+            )}
+          />
+        </section>
+      )}
     </div>
   );
 };

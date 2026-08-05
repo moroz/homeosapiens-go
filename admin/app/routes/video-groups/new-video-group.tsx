@@ -39,8 +39,10 @@ export default function NewVideoGroup() {
   async function onSubmit(values: VideoGroupFormValues) {
     setFormError(null);
     try {
-      await createVideoGroup.mutateAsync(toVideoGroupInput(values));
-      navigate("/videos");
+      const group = await createVideoGroup.mutateAsync(toVideoGroupInput(values));
+      // Videos can only be attached once the group exists, so creating one lands
+      // on its edit screen rather than back on the list.
+      navigate(`/videos/${group.id}/edit`);
     } catch (err) {
       if (err instanceof ApiError && err.status === 422 && isValidationErrorBody(err.body)) {
         for (const [field, message] of Object.entries(err.body.errors)) {

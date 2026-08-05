@@ -377,6 +377,68 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrors"
 
+  /video-groups/{id}/videos:
+    get:
+      operationId: listVideosInVideoGroup
+      summary: List the videos of a group, in playback order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video group primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The videos of the group, ordered by position
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+        "404":
+          description: No video group with that ID.
+    put:
+      operationId: replaceVideosInVideoGroup
+      summary: Replace the videos of a group
+      description: >-
+        Sets the group's videos to exactly the given list, in the given order.
+        Positions are unique per group, so membership and order are replaced
+        wholesale rather than patched one video at a time.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video group primary key.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoGroupVideosInput"
+      responses:
+        "200":
+          description: The videos of the group, ordered by position
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+        "404":
+          description: No video group with that ID.
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
   /hosts:
     get:
       operationId: listHosts
@@ -550,6 +612,17 @@ components:
           nullable: true
           description: Required when a non-zero price is given.
 
+    VideoGroupVideosInput:
+      type: object
+      required: [videoIds]
+      properties:
+        videoIds:
+          type: array
+          description: IDs of the videos in the group, in playback order. Replaces the existing set wholesale.
+          items:
+            type: string
+            format: uuid
+
     VideoGroupPatch:
       type: object
       description: >-
@@ -617,15 +690,21 @@ components:
 
     Video:
       type: object
-      required: [id, titlePl, titleEn]
+      required: [id, slug, titlePl, titleEn]
       properties:
         id:
           type: string
           format: uuid
+        slug:
+          type: string
         titlePl:
           type: string
         titleEn:
           type: string
+        recordedOn:
+          type: string
+          format: date-time
+          nullable: true
 
     Event:
       type: object

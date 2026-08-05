@@ -130,14 +130,7 @@ func (s *Server) ListVideos(ctx context.Context, params ListVideosRequestObject)
 		return nil, err
 	}
 
-	out := make([]Video, len(videos))
-	for i, v := range videos {
-		out[i] = Video{
-			Id:      v.ID,
-			TitleEn: v.TitleEn,
-			TitlePl: v.TitlePl,
-		}
-	}
+	out := videoList(videos)
 
 	return ListVideos200JSONResponse{
 		Data: out,

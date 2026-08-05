@@ -213,6 +213,76 @@ func (s *VideoGroupService) UpdateVideoGroup(ctx context.Context, id uuid.UUID, 
 	return s.GetVideoGroupById(ctx, id)
 }
 
+func (s *VideoGroupService) ListVideosInVideoGroup(ctx context.Context, groupId uuid.UUID) ([]*queries.Video, error) {
+	// The group is read first so that an unknown ID is a 404 rather than an
+	// empty list.
+	if _, err := queries.New(s.db).GetVideoGroupById(ctx, groupId); err != nil {
+		return nil, err
+	}
+
+	return queries.New(s.db).ListVideosForVideoGroup(ctx, groupId)
+}
+
+// ReplaceVideosInVideoGroup sets the group's videos to exactly videoIds, in that
+// order. Positions are unique per group, so incremental edits would have to
+// shuffle rows around a unique index; deleting and reinserting inside one
+// transaction is simpler, the same way event hosts are replaced.
+func (s *VideoGroupService) ReplaceVideosInVideoGroup(ctx context.Context, groupId uuid.UUID, videoIds []uuid.UUID) ([]*queries.Video, error) {
+	if err := validateDistinctIds(videoIds); err != nil {
+		return nil, err
+	}
+
+	if _, err := queries.New(s.db).GetVideoGroupById(ctx, groupId); err != nil {
+		return nil, err
+	}
+
+	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	if err := queries.New(tx).DeleteVideoGroupVideos(ctx, groupId); err != nil {
+		return nil, err
+	}
+
+	for i, videoId := range videoIds {
+		err := queries.New(tx).InsertVideoGroupVideo(ctx, &queries.InsertVideoGroupVideoParams{
+			VideoID:      videoId,
+			VideoGroupID: groupId,
+			Position:     int32(i),
+		})
+		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23503" {
+			return nil, validation.Errors{
+				"videoIds": validation.NewError("exists", "references a video that does not exist"),
+			}
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return queries.New(s.db).ListVideosForVideoGroup(ctx, groupId)
+}
+
+func validateDistinctIds(ids []uuid.UUID) error {
+	seen := make(map[uuid.UUID]struct{}, len(ids))
+	for _, id := range ids {
+		if _, duplicate := seen[id]; duplicate {
+			return validation.Errors{
+				"videoIds": validation.NewError("distinct", "must not contain duplicates"),
+			}
+		}
+		seen[id] = struct{}{}
+	}
+
+	return nil
+}
+
 // slugTakenError translates the unique violation on video_groups.slug into a
 // per-field validation error; uniqueness cannot be checked up front without
 // racing another writer.

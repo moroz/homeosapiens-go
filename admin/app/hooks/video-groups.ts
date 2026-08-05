@@ -4,6 +4,7 @@ import { api } from "~/lib/api";
 import type { components } from "~/lib/api-types";
 import type { UUID } from "~/lib/interfaces";
 
+export type Video = components["schemas"]["Video"];
 export type VideoGroup = components["schemas"]["VideoGroup"];
 export type VideoGroupInput = components["schemas"]["VideoGroupInput"];
 export type PatchVideoGroupInput = components["schemas"]["VideoGroupPatch"];
@@ -27,6 +28,59 @@ export function useGetVideoGroupQuery(id: string | undefined) {
     queryFn: async () => {
       const { data } = await api.GET("/video-groups/{id}", { params: { path: { id: id! } } });
       return data;
+    },
+  });
+}
+
+/** `GET /api/admin/videos` — a page of every video, for picking group members. */
+export function useListVideosQuery(page = 1, perPage = 100) {
+  return useQuery({
+    queryKey: ["listVideos", page, perPage],
+    queryFn: async () => {
+      const { data } = await api.GET("/videos", { params: { query: { page, perPage } } });
+      return data;
+    },
+  });
+}
+
+/** `GET /api/admin/video-groups/{id}/videos` — the group's videos, in playback order. */
+export function useListVideosInVideoGroupQuery(id: string | undefined) {
+  return useQuery({
+    queryKey: ["listVideosInVideoGroup", id],
+    enabled: id != null,
+    queryFn: async () => {
+      const { data } = await api.GET("/video-groups/{id}/videos", {
+        params: { path: { id: id! } },
+      });
+      return data;
+    },
+  });
+}
+
+interface ReplaceVideosMutationParams {
+  id: UUID;
+  videoIds: UUID[];
+}
+
+/**
+ * `PUT /api/admin/video-groups/{id}/videos` — set the group's videos and their
+ * order in one go. Throws {@link ApiError} on failure (see `~/lib/api`).
+ */
+export function useReplaceVideosInVideoGroupMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, videoIds }: ReplaceVideosMutationParams) => {
+      const { data } = await api.PUT("/video-groups/{id}/videos", {
+        params: { path: { id } },
+        body: { videoIds },
+      });
+      return data!;
+    },
+    onSuccess(_data, { id }) {
+      queryClient.invalidateQueries({ queryKey: ["listVideosInVideoGroup", id] });
+      queryClient.invalidateQueries({ queryKey: ["listVideoGroups"] });
+      queryClient.invalidateQueries({ queryKey: ["getVideoGroup", id] });
     },
   });
 }

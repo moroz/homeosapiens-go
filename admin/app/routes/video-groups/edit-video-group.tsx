@@ -7,7 +7,12 @@ import { BackButton } from "~/components/back-button";
 import { Notification } from "~/components/notification";
 import { PageTitle } from "~/components/page-title";
 import { Button } from "~/components/ui/button";
-import { useGetVideoGroupQuery, useUpdateVideoGroupMutation } from "~/hooks";
+import {
+  useGetVideoGroupQuery,
+  useListVideosInVideoGroupQuery,
+  useReplaceVideosInVideoGroupMutation,
+  useUpdateVideoGroupMutation,
+} from "~/hooks";
 import { ApiError, isValidationErrorBody } from "~/lib/api";
 import { FormFields } from "./form-fields";
 import { type VideoGroupFormValues, toPatchVideoGroupInput } from "./interfaces";
@@ -17,15 +22,17 @@ interface Props {}
 export const EditVideoGroup: React.FC<Props> = () => {
   const { id } = useParams();
   const { data: group, isPending, isError } = useGetVideoGroupQuery(id);
+  const { data: videos, isPending: videosPending } = useListVideosInVideoGroupQuery(id);
   const form = useForm<VideoGroupFormValues>({
-    defaultValues: { isFree: true, currency: "PLN" },
+    defaultValues: { isFree: true, currency: "PLN", videoIds: [] },
   });
   const mutation = useUpdateVideoGroupMutation();
+  const replaceVideos = useReplaceVideosInVideoGroupMutation();
   const navigate = useNavigate();
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isPending || !group) return;
+    if (isPending || videosPending || !group) return;
 
     form.reset({
       titleEn: group.titleEn,
@@ -34,14 +41,18 @@ export const EditVideoGroup: React.FC<Props> = () => {
       isFree: !group.isPremium,
       price: group.price ?? undefined,
       currency: group.currency ?? "PLN",
+      videoIds: (videos ?? []).map(({ id }) => id),
     });
-  }, [group, isPending]);
+  }, [group, videos, isPending, videosPending]);
 
   const onSubmit = useCallback(
     async (values: VideoGroupFormValues) => {
       setFormError(null);
       try {
         await mutation.mutateAsync({ id: id!, params: toPatchVideoGroupInput(values) });
+        // Membership and order live behind their own endpoint, because positions
+        // are unique per group and are replaced wholesale.
+        await replaceVideos.mutateAsync({ id: id!, videoIds: values.videoIds ?? [] });
         navigate("/videos");
       } catch (err) {
         if (err instanceof ApiError && err.status === 422 && isValidationErrorBody(err.body)) {
@@ -77,11 +88,11 @@ export const EditVideoGroup: React.FC<Props> = () => {
               </Notification>
             ) : null}
 
-            <FormFields />
+            <FormFields showVideos />
 
             <div className="flex gap-2">
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Updating…" : "Update series"}
+              <Button type="submit" disabled={mutation.isPending || replaceVideos.isPending}>
+                {mutation.isPending || replaceVideos.isPending ? "Updating…" : "Update series"}
               </Button>
             </div>
           </form>

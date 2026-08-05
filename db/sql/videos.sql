@@ -88,6 +88,15 @@ from video_groups_videos where video_group_id = $2
 on conflict (video_id, video_group_id) do nothing
 returning *;
 
+-- name: DeleteVideoGroupVideos :exec
+delete from video_groups_videos where video_group_id = $1;
+
+-- name: InsertVideoGroupVideo :exec
+insert into video_groups_videos (video_id, video_group_id, position) values ($1, $2, $3);
+
+-- name: ListVideosByIds :many
+select * from videos where id = any(@video_ids::uuid[]);
+
 -- name: GetVideoThumbnailData :one
 select sqlc.embed(v), h.given_name host_given_name, h.family_name host_family_name, a.object_key host_profile_picture_url
 from videos v

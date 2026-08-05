@@ -140,6 +140,68 @@ func TestVideoGroupServer(t *testing.T) {
 		assert.Equal(t, "0.00", *out.Price)
 	})
 
+	t.Run("replaces the videos of a series, in the given order", func(t *testing.T) {
+		group, err := mocks.VideoGroup(db, ctx)
+		require.NoError(t, err)
+
+		first, err := mocks.Video(db, ctx)
+		require.NoError(t, err)
+		second, err := mocks.Video(db, ctx)
+		require.NoError(t, err)
+
+		replace := func(ids []uuid.UUID) api.ReplaceVideosInVideoGroupResponseObject {
+			resp, err := srv.ReplaceVideosInVideoGroup(ctx, api.ReplaceVideosInVideoGroupRequestObject{
+				Id:   group.ID,
+				Body: &api.VideoGroupVideosInput{VideoIds: ids},
+			})
+			require.NoError(t, err)
+			return resp
+		}
+
+		out, ok := replace([]uuid.UUID{second.ID, first.ID}).(api.ReplaceVideosInVideoGroup200JSONResponse)
+		require.True(t, ok)
+		require.Len(t, out, 2)
+		assert.Equal(t, second.ID, out[0].Id)
+		assert.Equal(t, first.ID, out[1].Id)
+
+		// Replacing is wholesale, so a shorter list drops the missing videos and
+		// reuses the positions they held.
+		out, ok = replace([]uuid.UUID{first.ID}).(api.ReplaceVideosInVideoGroup200JSONResponse)
+		require.True(t, ok)
+		require.Len(t, out, 1)
+		assert.Equal(t, first.ID, out[0].Id)
+
+		listed, err := srv.ListVideosInVideoGroup(ctx, api.ListVideosInVideoGroupRequestObject{Id: group.ID})
+		require.NoError(t, err)
+		assert.Equal(t, api.ListVideosInVideoGroup200JSONResponse(out), listed)
+	})
+
+	t.Run("rejects duplicate and unknown videos", func(t *testing.T) {
+		group, err := mocks.VideoGroup(db, ctx)
+		require.NoError(t, err)
+
+		video, err := mocks.Video(db, ctx)
+		require.NoError(t, err)
+
+		resp, err := srv.ReplaceVideosInVideoGroup(ctx, api.ReplaceVideosInVideoGroupRequestObject{
+			Id:   group.ID,
+			Body: &api.VideoGroupVideosInput{VideoIds: []uuid.UUID{video.ID, video.ID}},
+		})
+		require.NoError(t, err)
+		out, ok := resp.(api.ReplaceVideosInVideoGroup422JSONResponse)
+		require.True(t, ok, "expected 422, got %T", resp)
+		assert.Contains(t, out.Errors, "videoIds")
+
+		resp, err = srv.ReplaceVideosInVideoGroup(ctx, api.ReplaceVideosInVideoGroupRequestObject{
+			Id:   group.ID,
+			Body: &api.VideoGroupVideosInput{VideoIds: []uuid.UUID{uuid.New()}},
+		})
+		require.NoError(t, err)
+		out, ok = resp.(api.ReplaceVideosInVideoGroup422JSONResponse)
+		require.True(t, ok, "expected 422, got %T", resp)
+		assert.Contains(t, out.Errors, "videoIds")
+	})
+
 	t.Run("404s for an unknown id", func(t *testing.T) {
 		resp, err := srv.GetVideoGroup(ctx, api.GetVideoGroupRequestObject{Id: uuid.New()})
 		require.NoError(t, err)

@@ -120,6 +120,47 @@ func (s *videoGroupServer) CreateVideoGroup(ctx context.Context, request CreateV
 	}, nil
 }
 
+func (s *videoGroupServer) ListVideosInVideoGroup(ctx context.Context, request ListVideosInVideoGroupRequestObject) (ListVideosInVideoGroupResponseObject, error) {
+	videos, err := services.NewVideoGroupService(s.db).ListVideosInVideoGroup(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ListVideosInVideoGroup404Response{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return ListVideosInVideoGroup200JSONResponse(videoList(videos)), nil
+}
+
+func (s *videoGroupServer) ReplaceVideosInVideoGroup(ctx context.Context, request ReplaceVideosInVideoGroupRequestObject) (ReplaceVideosInVideoGroupResponseObject, error) {
+	videos, err := services.NewVideoGroupService(s.db).ReplaceVideosInVideoGroup(ctx, request.Id, request.Body.VideoIds)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ReplaceVideosInVideoGroup404Response{}, nil
+		}
+		if verr, ok := errors.AsType[validation.Errors](err); ok {
+			return ReplaceVideosInVideoGroup422JSONResponse{Errors: validationErrorMessages(verr)}, nil
+		}
+		return nil, err
+	}
+
+	return ReplaceVideosInVideoGroup200JSONResponse(videoList(videos)), nil
+}
+
+func videoList(videos []*queries.Video) []Video {
+	out := make([]Video, len(videos))
+	for i, v := range videos {
+		out[i] = Video{
+			Id:         v.ID,
+			Slug:       v.Slug,
+			TitleEn:    v.TitleEn,
+			TitlePl:    v.TitlePl,
+			RecordedOn: v.RecordedOn,
+		}
+	}
+	return out
+}
+
 func (s *videoGroupServer) UpdateVideoGroup(ctx context.Context, request UpdateVideoGroupRequestObject) (UpdateVideoGroupResponseObject, error) {
 	g, err := services.NewVideoGroupService(s.db).UpdateVideoGroup(ctx, request.Id, request.Body)
 	if err != nil {

@@ -8,6 +8,8 @@ export interface VideoGroupFormValues {
   isFree: boolean;
   price: string;
   currency: string;
+  /** Video IDs in playback order. Saved through its own endpoint, not with the metadata. */
+  videoIds: string[];
 }
 
 /** Empty strings are sent as `null` for nullable fields, matching how the server treats "not provided". */

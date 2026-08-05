@@ -208,6 +208,27 @@ export interface paths {
         patch: operations["updateVideoGroup"];
         trace?: never;
     };
+    "/video-groups/{id}/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the videos of a group, in playback order */
+        get: operations["listVideosInVideoGroup"];
+        /**
+         * Replace the videos of a group
+         * @description Sets the group's videos to exactly the given list, in the given order. Positions are unique per group, so membership and order are replaced wholesale rather than patched one video at a time.
+         */
+        put: operations["replaceVideosInVideoGroup"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/hosts": {
         parameters: {
             query?: never;
@@ -302,6 +323,10 @@ export interface components {
             /** @description Required when a non-zero price is given. */
             currency?: string | null;
         };
+        VideoGroupVideosInput: {
+            /** @description IDs of the videos in the group, in playback order. Replaces the existing set wholesale. */
+            videoIds: string[];
+        };
         /** @description Partial update of a video group. Absent fields are left untouched; a nullable field may be cleared by passing an explicit null. */
         VideoGroupPatch: {
             slug?: string;
@@ -336,8 +361,11 @@ export interface components {
         Video: {
             /** Format: uuid */
             id: string;
+            slug: string;
             titlePl: string;
             titleEn: string;
+            /** Format: date-time */
+            recordedOn?: string | null;
         };
         Event: {
             /** Format: uuid */
@@ -958,6 +986,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VideoGroup"];
+                };
+            };
+            /** @description No video group with that ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
+            };
+        };
+    };
+    listVideosInVideoGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video group primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The videos of the group, ordered by position */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Video"][];
+                };
+            };
+            /** @description No video group with that ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    replaceVideosInVideoGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video group primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VideoGroupVideosInput"];
+            };
+        };
+        responses: {
+            /** @description The videos of the group, ordered by position */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Video"][];
                 };
             };
             /** @description No video group with that ID. */
