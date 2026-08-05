@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -369,6 +370,57 @@ func (s *EventService) PublishEvent(ctx context.Context, eventId uuid.UUID) (*qu
 	}
 
 	return queries.New(s.db).PublishEvent(ctx, eventId)
+}
+
+// UnpublishEvent takes an event off the public listing. Unlike deletion it is
+// always allowed: existing registrations keep their record of the event, they
+// just stop being joined by new sign-ups. Unpublishing an event that is already
+// a draft is a no-op.
+func (s *EventService) UnpublishEvent(ctx context.Context, eventId uuid.UUID) (*queries.Event, error) {
+	return queries.New(s.db).UnpublishEvent(ctx, eventId)
+}
+
+// DeleteEvent removes an event along with its host associations. It refuses to
+// delete an event anyone has signed up for, returning ErrEventHasRegistrations;
+// unpublishing is the way to retire such an event. The event's product, if any,
+// is left behind, because order line items still reference it.
+func (s *EventService) DeleteEvent(ctx context.Context, eventId uuid.UUID) error {
+	tx, err := s.db.(*pgxpool.Pool).Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Locking the row keeps a registration from landing between the count and
+	// the delete; the registration path reads the event before inserting.
+	var locked uuid.UUID
+	err = tx.QueryRow(ctx, "select id from events where id = $1 for update", eventId).Scan(&locked)
+	if err != nil {
+		return err
+	}
+
+	count, err := queries.New(tx).CountRegistrationsForEvent(ctx, eventId)
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return ErrEventHasRegistrations
+	}
+
+	// events_hosts has no cascade, so the join rows go first.
+	if err := queries.New(tx).DeleteEventHosts(ctx, eventId); err != nil {
+		return err
+	}
+
+	deleted, err := queries.New(tx).DeleteEvent(ctx, eventId)
+	if err != nil {
+		return err
+	}
+	if deleted == 0 {
+		return sql.ErrNoRows
+	}
+
+	return tx.Commit(ctx)
 }
 
 // UpdateEvent applies a selective update to an event. This bespoke logic is

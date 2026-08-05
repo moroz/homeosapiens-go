@@ -217,6 +217,35 @@ func (s *eventServer) PublishEvent(ctx context.Context, request PublishEventRequ
 	return PublishEvent204Response{}, nil
 }
 
+func (s *eventServer) UnpublishEvent(ctx context.Context, request UnpublishEventRequestObject) (UnpublishEventResponseObject, error) {
+	_, err := services.NewEventService(s.db).UnpublishEvent(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return UnpublishEvent404Response{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return UnpublishEvent204Response{}, nil
+}
+
+func (s *eventServer) DeleteEvent(ctx context.Context, request DeleteEventRequestObject) (DeleteEventResponseObject, error) {
+	err := services.NewEventService(s.db).DeleteEvent(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return DeleteEvent404Response{}, nil
+	}
+	if errors.Is(err, services.ErrEventHasRegistrations) {
+		return DeleteEvent409JSONResponse{Errors: map[string]string{
+			"registrations": "event has registrations and cannot be deleted; unpublish it instead",
+		}}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return DeleteEvent204Response{}, nil
+}
+
 func validationErrorMessages(verrs validation.Errors) map[string]string {
 	messages := make(map[string]string, len(verrs))
 	for field, ferr := range verrs {

@@ -284,6 +284,9 @@ type ServerInterface interface {
 	// CreateEvent Create an event
 	// (POST /events)
 	CreateEvent(w http.ResponseWriter, r *http.Request)
+	// DeleteEvent Delete an event
+	// (DELETE /events/{id})
+	DeleteEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
 	// GetEvent Get a single event by primary key
 	// (GET /events/{id})
 	GetEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
@@ -293,6 +296,9 @@ type ServerInterface interface {
 	// PublishEvent Mark an event as published.
 	// (POST /events/{id}/publish)
 	PublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	// UnpublishEvent Take an event off the public listing.
+	// (POST /events/{id}/unpublish)
+	UnpublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
@@ -379,6 +385,32 @@ func (siw *ServerInterfaceWrapper) CreateEvent(w http.ResponseWriter, r *http.Re
 	handler.ServeHTTP(w, r)
 }
 
+// DeleteEvent operation middleware
+func (siw *ServerInterfaceWrapper) DeleteEvent(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteEvent(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetEvent operation middleware
 func (siw *ServerInterfaceWrapper) GetEvent(w http.ResponseWriter, r *http.Request) {
 
@@ -448,6 +480,32 @@ func (siw *ServerInterfaceWrapper) PublishEvent(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PublishEvent(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UnpublishEvent operation middleware
+func (siw *ServerInterfaceWrapper) UnpublishEvent(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UnpublishEvent(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -762,9 +820,11 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/videos", wrapper.ListVideos)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events", wrapper.ListEvents)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events", wrapper.CreateEvent)
+	m.HandleFunc(http.MethodDelete+" "+options.BaseURL+"/events/{id}", wrapper.DeleteEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events/{id}", wrapper.GetEvent)
 	m.HandleFunc(http.MethodPatch+" "+options.BaseURL+"/events/{id}", wrapper.UpdateEvent)
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events/{id}/publish", wrapper.PublishEvent)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events/{id}/unpublish", wrapper.UnpublishEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
 
 	return m
@@ -834,6 +894,44 @@ func (response CreateEvent422JSONResponse) VisitCreateEventResponse(w http.Respo
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(422)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type DeleteEventRequestObject struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+type DeleteEventResponseObject interface {
+	VisitDeleteEventResponse(w http.ResponseWriter) error
+}
+
+type DeleteEvent204Response struct {
+}
+
+func (response DeleteEvent204Response) VisitDeleteEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteEvent404Response struct {
+}
+
+func (response DeleteEvent404Response) VisitDeleteEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type DeleteEvent409JSONResponse ValidationErrors
+
+func (response DeleteEvent409JSONResponse) VisitDeleteEventResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -949,6 +1047,30 @@ func (response PublishEvent422JSONResponse) VisitPublishEventResponse(w http.Res
 	w.WriteHeader(422)
 	_, err := buf.WriteTo(w)
 	return err
+}
+
+type UnpublishEventRequestObject struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+type UnpublishEventResponseObject interface {
+	VisitUnpublishEventResponse(w http.ResponseWriter) error
+}
+
+type UnpublishEvent204Response struct {
+}
+
+func (response UnpublishEvent204Response) VisitUnpublishEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type UnpublishEvent404Response struct {
+}
+
+func (response UnpublishEvent404Response) VisitUnpublishEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type GetHealthRequestObject struct {
@@ -1075,6 +1197,9 @@ type StrictServerInterface interface {
 	// CreateEvent Create an event
 	// (POST /events)
 	CreateEvent(ctx context.Context, request CreateEventRequestObject) (CreateEventResponseObject, error)
+	// DeleteEvent Delete an event
+	// (DELETE /events/{id})
+	DeleteEvent(ctx context.Context, request DeleteEventRequestObject) (DeleteEventResponseObject, error)
 	// GetEvent Get a single event by primary key
 	// (GET /events/{id})
 	GetEvent(ctx context.Context, request GetEventRequestObject) (GetEventResponseObject, error)
@@ -1084,6 +1209,9 @@ type StrictServerInterface interface {
 	// PublishEvent Mark an event as published.
 	// (POST /events/{id}/publish)
 	PublishEvent(ctx context.Context, request PublishEventRequestObject) (PublishEventResponseObject, error)
+	// UnpublishEvent Take an event off the public listing.
+	// (POST /events/{id}/unpublish)
+	UnpublishEvent(ctx context.Context, request UnpublishEventRequestObject) (UnpublishEventResponseObject, error)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(ctx context.Context, request GetHealthRequestObject) (GetHealthResponseObject, error)
@@ -1197,6 +1325,32 @@ func (sh *strictHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// DeleteEvent operation middleware
+func (sh *strictHandler) DeleteEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+	var request DeleteEventRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteEvent(ctx, request.(DeleteEventRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteEvent")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteEventResponseObject); ok {
+		if err := validResponse.VisitDeleteEventResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetEvent operation middleware
 func (sh *strictHandler) GetEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
 	var request GetEventRequestObject
@@ -1275,6 +1429,32 @@ func (sh *strictHandler) PublishEvent(w http.ResponseWriter, r *http.Request, id
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PublishEventResponseObject); ok {
 		if err := validResponse.VisitPublishEventResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UnpublishEvent operation middleware
+func (sh *strictHandler) UnpublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+	var request UnpublishEventRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UnpublishEvent(ctx, request.(UnpublishEventRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UnpublishEvent")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UnpublishEventResponseObject); ok {
+		if err := validResponse.VisitUnpublishEventResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1413,53 +1593,58 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, para
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
-	"AP//",
+	"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",
+	"+qhPo7M1YnKZk3TUOp2NstVFTXb17uq/AQAA//8=",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

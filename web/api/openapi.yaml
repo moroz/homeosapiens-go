@@ -186,6 +186,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrors"
 
+    delete:
+      operationId: deleteEvent
+      summary: Delete an event
+      description: >-
+        Permanently deletes an event and its host associations. Refused with a
+        409 once anyone has signed up: registrations are the record of who is
+        owed a seat, so a live event is retired by unpublishing it instead. Any
+        product created for the event is left behind, because order line items
+        reference it.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Confirms that the event has been deleted
+        "404":
+          description: No event with that id
+        "409":
+          description: The event has registrations and cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
   /events/{id}/publish:
     post:
       operationId: publishEvent
@@ -209,6 +238,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationErrors"
+
+  /events/{id}/unpublish:
+    post:
+      operationId: unpublishEvent
+      summary: Take an event off the public listing.
+      description: >-
+        Clears publishedAt. Always allowed, including for an event with
+        registrations: existing sign-ups keep their record of the event, it just
+        stops being listed and joinable. Unpublishing a draft is a no-op.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Confirms that the event is no longer published
+        "404":
+          description: No event with that id
 
   /hosts:
     get:

@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -712,6 +713,173 @@ func TestEventServer_PublishEvent(t *testing.T) {
 	})
 }
 
+func TestEventServer_UnpublishEvent(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
+	require.NoError(t, err)
+	defer db.Close()
+
+	srv := api.NewEventServer(db)
+
+	unpublish := func(t *testing.T, id uuid.UUID) api.UnpublishEventResponseObject {
+		t.Helper()
+		resp, err := srv.UnpublishEvent(ctx, api.UnpublishEventRequestObject{Id: id})
+		require.NoError(t, err)
+		return resp
+	}
+
+	t.Run("clears publishedAt", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		require.NotNil(t, event.PublishedAt)
+
+		assert.IsType(t, api.UnpublishEvent204Response{}, unpublish(t, event.ID))
+
+		stored, err := queries.New(db).GetEventById(ctx, event.ID)
+		require.NoError(t, err)
+		assert.Nil(t, stored.PublishedAt)
+	})
+
+	t.Run("unpublishes silently even with registrations", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		user, err := mocks.User(db, ctx)
+		require.NoError(t, err)
+		_, err = mocks.EventRegistration(db, ctx, event, user)
+		require.NoError(t, err)
+
+		assert.IsType(t, api.UnpublishEvent204Response{}, unpublish(t, event.ID))
+
+		stored, err := queries.New(db).GetEventById(ctx, event.ID)
+		require.NoError(t, err)
+		assert.Nil(t, stored.PublishedAt)
+
+		// The registration itself is untouched.
+		count, err := queries.New(db).CountRegistrationsForEvent(ctx, event.ID)
+		require.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+
+	t.Run("unpublishing a draft is a no-op", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx, func(p *queries.UpsertEventParams) {
+			p.Published = false
+		})
+		require.NoError(t, err)
+
+		assert.IsType(t, api.UnpublishEvent204Response{}, unpublish(t, event.ID))
+	})
+
+	t.Run("republishing after unpublishing", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		require.IsType(t, api.UnpublishEvent204Response{}, unpublish(t, event.ID))
+
+		resp, err := srv.PublishEvent(ctx, api.PublishEventRequestObject{Id: event.ID})
+		require.NoError(t, err)
+		assert.IsType(t, api.PublishEvent204Response{}, resp)
+	})
+
+	t.Run("returns 404 for an unknown id", func(t *testing.T) {
+		assert.IsType(t, api.UnpublishEvent404Response{}, unpublish(t, uuid.Must(uuid.NewV7())))
+	})
+}
+
+func TestEventServer_DeleteEvent(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
+	require.NoError(t, err)
+	defer db.Close()
+
+	srv := api.NewEventServer(db)
+
+	del := func(t *testing.T, id uuid.UUID) api.DeleteEventResponseObject {
+		t.Helper()
+		resp, err := srv.DeleteEvent(ctx, api.DeleteEventRequestObject{Id: id})
+		require.NoError(t, err)
+		return resp
+	}
+
+	t.Run("deletes an event nobody signed up for", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		assert.IsType(t, api.DeleteEvent204Response{}, del(t, event.ID))
+
+		_, err = queries.New(db).GetEventById(ctx, event.ID)
+		assert.ErrorIs(t, err, sql.ErrNoRows)
+	})
+
+	t.Run("deletes the host associations along with the event", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		host, err := mocks.Host(db, ctx)
+		require.NoError(t, err)
+
+		_, err = queries.New(db).InsertEventHost(ctx, &queries.InsertEventHostParams{
+			EventID:  event.ID,
+			HostID:   host.ID,
+			Position: 1,
+		})
+		require.NoError(t, err)
+
+		assert.IsType(t, api.DeleteEvent204Response{}, del(t, event.ID))
+
+		var joins int
+		require.NoError(t, db.QueryRow(ctx, "select count(*) from events_hosts where event_id = $1", event.ID).Scan(&joins))
+		assert.Zero(t, joins)
+
+		// The host outlives the event it was billed on.
+		var hosts int
+		require.NoError(t, db.QueryRow(ctx, "select count(*) from hosts where id = $1", host.ID).Scan(&hosts))
+		assert.Equal(t, 1, hosts)
+	})
+
+	t.Run("keeps the product of a deleted paid event", func(t *testing.T) {
+		event, err := mocks.PaidEvent(db, ctx)
+		require.NoError(t, err)
+		require.NotNil(t, event.ProductID)
+
+		assert.IsType(t, api.DeleteEvent204Response{}, del(t, event.ID))
+
+		// Order line items reference the product by id, so it must survive.
+		_, err = queries.New(db).GetProductById(ctx, *event.ProductID)
+		assert.NoError(t, err)
+	})
+
+	t.Run("refuses to delete an event with registrations", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		user, err := mocks.User(db, ctx)
+		require.NoError(t, err)
+		_, err = mocks.EventRegistration(db, ctx, event, user)
+		require.NoError(t, err)
+
+		out, ok := del(t, event.ID).(api.DeleteEvent409JSONResponse)
+		require.True(t, ok, "expected 409")
+		assert.Contains(t, out.Errors, "registrations")
+
+		// Both the event and the registration are still there.
+		_, err = queries.New(db).GetEventById(ctx, event.ID)
+		assert.NoError(t, err)
+		count, err := queries.New(db).CountRegistrationsForEvent(ctx, event.ID)
+		require.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+
+	t.Run("returns 404 for an unknown id", func(t *testing.T) {
+		assert.IsType(t, api.DeleteEvent404Response{}, del(t, uuid.Must(uuid.NewV7())))
+	})
+
+	t.Run("a second delete of the same event is a 404", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		require.IsType(t, api.DeleteEvent204Response{}, del(t, event.ID))
+		assert.IsType(t, api.DeleteEvent404Response{}, del(t, event.ID))
+	})
+}
+
 // TestEventServer_HTTP exercises the same operations through the generated
 // router, which is where response objects turn into status codes and JSON.
 func TestEventServer_HTTP(t *testing.T) {
@@ -815,6 +983,48 @@ func TestEventServer_HTTP(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		assert.Equal(t, "Patched over HTTP", decode(t, resp)["titleEn"])
+	})
+
+	t.Run("POST /events/{id}/unpublish", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		resp, err := http.Post(fmt.Sprintf("%s/events/%s/unpublish", server.URL, event.ID), "application/json", nil)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		assert.Equal(t, http.StatusNoContent, resp.StatusCode)
+	})
+
+	t.Run("DELETE /events/{id}", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/events/%s", server.URL, event.ID), nil)
+		require.NoError(t, err)
+
+		resp, err := http.DefaultClient.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		assert.Equal(t, http.StatusNoContent, resp.StatusCode)
+	})
+
+	t.Run("DELETE /events/{id} with registrations", func(t *testing.T) {
+		event, err := mocks.Event(db, ctx)
+		require.NoError(t, err)
+		user, err := mocks.User(db, ctx)
+		require.NoError(t, err)
+		_, err = mocks.EventRegistration(db, ctx, event, user)
+		require.NoError(t, err)
+
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/events/%s", server.URL, event.ID), nil)
+		require.NoError(t, err)
+
+		resp, err := http.DefaultClient.Do(req)
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusConflict, resp.StatusCode)
+
+		errs := decode(t, resp)["errors"].(map[string]any)
+		assert.Contains(t, errs, "registrations")
 	})
 
 	t.Run("POST /events/{id}/publish", func(t *testing.T) {

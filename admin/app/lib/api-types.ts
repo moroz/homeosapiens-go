@@ -104,7 +104,11 @@ export interface paths {
         get: operations["getEvent"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete an event
+         * @description Permanently deletes an event and its host associations. Refused with a 409 once anyone has signed up: registrations are the record of who is owed a seat, so a live event is retired by unpublishing it instead. Any product created for the event is left behind, because order line items reference it.
+         */
+        delete: operations["deleteEvent"];
         options?: never;
         head?: never;
         /** Update an event */
@@ -122,6 +126,26 @@ export interface paths {
         put?: never;
         /** Mark an event as published. */
         post: operations["publishEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Take an event off the public listing.
+         * @description Clears publishedAt. Always allowed, including for an event with registrations: existing sign-ups keep their record of the event, it just stops being listed and joinable. Unpublishing a draft is a no-op.
+         */
+        post: operations["unpublishEvent"];
         delete?: never;
         options?: never;
         head?: never;
@@ -534,6 +558,43 @@ export interface operations {
             };
         };
     };
+    deleteEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Confirms that the event has been deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No event with that id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The event has registrations and cannot be deleted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
+            };
+        };
+    };
     updateEvent: {
         parameters: {
             query?: never;
@@ -611,6 +672,34 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ValidationErrors"];
                 };
+            };
+        };
+    };
+    unpublishEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Confirms that the event is no longer published */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No event with that id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

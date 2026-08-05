@@ -24,6 +24,29 @@ func (q *Queries) CountEvents(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countRegistrationsForEvent = `-- name: CountRegistrationsForEvent :one
+select count(*) from event_registrations where event_id = $1
+`
+
+func (q *Queries) CountRegistrationsForEvent(ctx context.Context, eventID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countRegistrationsForEvent, eventID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const deleteEvent = `-- name: DeleteEvent :execrows
+delete from events where id = $1
+`
+
+func (q *Queries) DeleteEvent(ctx context.Context, id uuid.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteEvent, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteEventHosts = `-- name: DeleteEventHosts :exec
 delete from events_hosts where event_id = $1
 `
@@ -599,6 +622,42 @@ where id = $1 and published_at is null returning id, title_en, title_pl, starts_
 
 func (q *Queries) PublishEvent(ctx context.Context, id uuid.UUID) (*Event, error) {
 	row := q.db.QueryRow(ctx, publishEvent, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Slug,
+		&i.SubtitleEn,
+		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
+		&i.ProductID,
+		&i.PublishedAt,
+	)
+	return &i, err
+}
+
+const unpublishEvent = `-- name: UnpublishEvent :one
+update events set published_at = null, updated_at = now()
+where id = $1 returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
+`
+
+func (q *Queries) UnpublishEvent(ctx context.Context, id uuid.UUID) (*Event, error) {
+	row := q.db.QueryRow(ctx, unpublishEvent, id)
 	var i Event
 	err := row.Scan(
 		&i.ID,

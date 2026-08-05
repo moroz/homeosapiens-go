@@ -69,3 +69,43 @@ export function useUpdateEventMutation() {
     },
   });
 }
+
+/**
+ * `POST /api/admin/events/{id}/unpublish` — take an event off the public listing.
+ * Always allowed, including for an event with sign-ups: existing registrations
+ * keep their record of it, it just stops being listed. Throws {@link ApiError}
+ * on failure (see `~/lib/api`).
+ */
+export function useUnpublishEventMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: UUID) => {
+      await api.POST("/events/{id}/unpublish", { params: { path: { id } } });
+    },
+    onSuccess(_data, id) {
+      queryClient.invalidateQueries({ queryKey: ["listEvents"] });
+      queryClient.invalidateQueries({ queryKey: ["getEvent", id] });
+    },
+  });
+}
+
+/**
+ * `DELETE /api/admin/events/{id}` — delete an event for good.
+ * Refused with a 409 once anyone has signed up; unpublish such an event instead.
+ * Throws {@link ApiError} on failure, whose `body` is a `ValidationErrors`
+ * keyed under `registrations` on that 409 (see `~/lib/api`).
+ */
+export function useDeleteEventMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: UUID) => {
+      await api.DELETE("/events/{id}", { params: { path: { id } } });
+    },
+    onSuccess(_data, id) {
+      queryClient.invalidateQueries({ queryKey: ["listEvents"] });
+      queryClient.removeQueries({ queryKey: ["getEvent", id] });
+    },
+  });
+}

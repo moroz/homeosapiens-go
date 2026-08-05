@@ -70,3 +70,13 @@ delete from events_hosts where event_id = $1;
 -- name: PublishEvent :one
 update events set published_at = now(), updated_at = now()
 where id = $1 and published_at is null returning *;
+
+-- name: UnpublishEvent :one
+update events set published_at = null, updated_at = now()
+where id = $1 returning *;
+
+-- name: DeleteEvent :execrows
+delete from events where id = $1;
+
+-- name: CountRegistrationsForEvent :one
+select count(*) from event_registrations where event_id = $1;
