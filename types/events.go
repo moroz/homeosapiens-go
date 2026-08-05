@@ -172,3 +172,17 @@ type EventDetailsDto struct {
 func (d *EventDetailsDto) IsFree() bool {
 	return d.ProductID == nil || d.Product.BasePriceAmount.Equal(decimal.Zero)
 }
+
+type PublishEventValidation struct {
+	DescriptionPl *string
+	DescriptionEn *string
+	PublishedAt   *time.Time
+}
+
+func (p *PublishEventValidation) Validate() error {
+	return validation.ValidateStruct(p,
+		validation.Field(&p.DescriptionEn, validation.Required),
+		validation.Field(&p.DescriptionPl, validation.Required),
+		validation.Field(&p.PublishedAt, validation.Nil.Error("event in already published")),
+	)
+}

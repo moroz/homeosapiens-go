@@ -92,6 +92,8 @@ func Event(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 		EndsAt:        time.Now().Add(2 * time.Hour),
 		IsVirtual:     true,
 		DescriptionEn: new("Some description"),
+		DescriptionPl: new("Opis"),
+		Published:     true,
 	}
 
 	for _, f := range overrides {

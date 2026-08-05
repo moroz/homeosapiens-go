@@ -22,7 +22,7 @@ func PageController(db queries.DBTX) *pageController {
 
 func (cc *pageController) Index(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-	allEvents, err := cc.eventService.ListEvents(c.Request().Context(), ctx.User, ctx.CartId)
+	allEvents, err := cc.eventService.ListPublishedEventsForUser(c.Request().Context(), ctx.User, ctx.CartId)
 	if err != nil {
 		return err
 	}

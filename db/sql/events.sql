@@ -4,12 +4,13 @@ select * from events where id = $1;
 -- name: GetEventBySlug :one
 select * from events where slug = $1;
 
--- name: ListEvents :many
+-- name: ListPublishedEvents :many
 select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, p.base_price_amount, p.base_price_currency,
        e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
        e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_country_code
 from events e
 left join products p on e.product_id = p.id
+where published_at is not null
 order by e.starts_at desc;
 
 -- name: PaginateEvents :many
@@ -65,3 +66,7 @@ insert into events_hosts (event_id, host_id, position) values ($1, $2, $3) retur
 
 -- name: DeleteEventHosts :exec
 delete from events_hosts where event_id = $1;
+
+-- name: PublishEvent :one
+update events set published_at = now(), updated_at = now()
+where id = $1 and published_at is null returning *;

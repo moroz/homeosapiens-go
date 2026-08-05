@@ -35,6 +35,14 @@ const columns: ColumnDef<Event>[] = [
     accessorKey: "insertedAt",
     cell: ({ row }) => formatInstant(row.original.insertedAt),
   },
+  {
+    id: "publishedAt",
+    header: "Published at",
+    cell: ({ row }) => {
+      const ts = row.original.publishedAt;
+      return ts ? formatInstant(ts) : "–";
+    },
+  },
 ];
 
 export default function Events() {

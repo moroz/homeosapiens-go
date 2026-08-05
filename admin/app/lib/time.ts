@@ -1,6 +1,8 @@
 export const DEFAULT_TIME_ZONE = "Europe/Warsaw";
 
 export function formatInstant(iso: string) {
+  if (!iso) return "N/A";
+
   return Temporal.Instant.from(iso).toLocaleString("en-GB", {
     day: "2-digit",
     month: "2-digit",

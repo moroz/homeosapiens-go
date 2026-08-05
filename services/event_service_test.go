@@ -7,6 +7,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"
@@ -392,4 +393,56 @@ func TestEventService_UpdateEvent(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestEventService_PublishEvent(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
+	require.NoError(t, err)
+	defer db.Close()
+
+	srv := services.NewEventService(db)
+
+	examples := []struct {
+		overrides func(params *queries.UpsertEventParams)
+		errorKey  string
+		valid     bool
+	}{
+		{
+			overrides: func(params *queries.UpsertEventParams) {
+				params.Published = false
+			},
+			valid: true,
+		},
+		{
+			overrides: func(params *queries.UpsertEventParams) {
+				params.Published = false
+				params.DescriptionEn = nil
+			},
+			errorKey: "DescriptionEn",
+		},
+		{
+			overrides: func(params *queries.UpsertEventParams) {
+				params.Published = false
+				params.DescriptionPl = nil
+			},
+			errorKey: "DescriptionPl",
+		},
+	}
+
+	for _, example := range examples {
+		event, err := mocks.Event(db, ctx, example.overrides)
+		require.NoError(t, err)
+		require.NotNil(t, event)
+
+		actual, err := srv.PublishEvent(ctx, event.ID)
+		if example.valid {
+			assert.NoError(t, err)
+			assert.NotNil(t, actual.PublishedAt)
+		} else {
+			validationErrors, ok := errors.AsType[validation.Errors](err)
+			assert.True(t, ok)
+			assert.Error(t, validationErrors[example.errorKey])
+		}
+	}
 }

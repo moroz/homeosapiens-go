@@ -328,71 +328,6 @@ func (q *Queries) ListEventRegistrationsForUserForEvents(ctx context.Context, ar
 	return items, nil
 }
 
-const listEvents = `-- name: ListEvents :many
-select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, p.base_price_amount, p.base_price_currency,
-       e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
-       e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_country_code
-from events e
-left join products p on e.product_id = p.id
-order by e.starts_at desc
-`
-
-type ListEventsRow struct {
-	ID                uuid.UUID
-	Slug              string
-	TitleEn           string
-	TitlePl           string
-	IsVirtual         bool
-	BasePriceAmount   *decimal.Decimal
-	BasePriceCurrency *string
-	EventType         EventType
-	StartsAt          time.Time
-	EndsAt            time.Time
-	SubtitlePl        *string
-	SubtitleEn        *string
-	VenueStreet       *string
-	VenueCityEn       *string
-	VenueCityPl       *string
-	VenueCountryCode  *string
-}
-
-func (q *Queries) ListEvents(ctx context.Context) ([]*ListEventsRow, error) {
-	rows, err := q.db.Query(ctx, listEvents)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*ListEventsRow
-	for rows.Next() {
-		var i ListEventsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Slug,
-			&i.TitleEn,
-			&i.TitlePl,
-			&i.IsVirtual,
-			&i.BasePriceAmount,
-			&i.BasePriceCurrency,
-			&i.EventType,
-			&i.StartsAt,
-			&i.EndsAt,
-			&i.SubtitlePl,
-			&i.SubtitleEn,
-			&i.VenueStreet,
-			&i.VenueCityEn,
-			&i.VenueCityPl,
-			&i.VenueCountryCode,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listHostsForEvents = `-- name: ListHostsForEvents :many
 select eh.event_id, h.id, h.salutation, h.given_name, h.family_name, h.profile_picture_id, h.inserted_at, h.updated_at, h.country, a.object_key profile_picture_url
 from hosts h
@@ -536,6 +471,72 @@ func (q *Queries) ListProductsForEvents(ctx context.Context, eventids []uuid.UUI
 	return items, nil
 }
 
+const listPublishedEvents = `-- name: ListPublishedEvents :many
+select e.id, e.slug, e.title_en, e.title_pl, e.is_virtual, p.base_price_amount, p.base_price_currency,
+       e.event_type, e.starts_at, e.ends_at, e.subtitle_pl, e.subtitle_en,
+       e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_country_code
+from events e
+left join products p on e.product_id = p.id
+where published_at is not null
+order by e.starts_at desc
+`
+
+type ListPublishedEventsRow struct {
+	ID                uuid.UUID
+	Slug              string
+	TitleEn           string
+	TitlePl           string
+	IsVirtual         bool
+	BasePriceAmount   *decimal.Decimal
+	BasePriceCurrency *string
+	EventType         EventType
+	StartsAt          time.Time
+	EndsAt            time.Time
+	SubtitlePl        *string
+	SubtitleEn        *string
+	VenueStreet       *string
+	VenueCityEn       *string
+	VenueCityPl       *string
+	VenueCountryCode  *string
+}
+
+func (q *Queries) ListPublishedEvents(ctx context.Context) ([]*ListPublishedEventsRow, error) {
+	rows, err := q.db.Query(ctx, listPublishedEvents)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListPublishedEventsRow
+	for rows.Next() {
+		var i ListPublishedEventsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Slug,
+			&i.TitleEn,
+			&i.TitlePl,
+			&i.IsVirtual,
+			&i.BasePriceAmount,
+			&i.BasePriceCurrency,
+			&i.EventType,
+			&i.StartsAt,
+			&i.EndsAt,
+			&i.SubtitlePl,
+			&i.SubtitleEn,
+			&i.VenueStreet,
+			&i.VenueCityEn,
+			&i.VenueCityPl,
+			&i.VenueCountryCode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const paginateEvents = `-- name: PaginateEvents :many
 select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events
 order by starts_at desc
@@ -589,4 +590,40 @@ func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams)
 		return nil, err
 	}
 	return items, nil
+}
+
+const publishEvent = `-- name: PublishEvent :one
+update events set published_at = now(), updated_at = now()
+where id = $1 and published_at is null returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
+`
+
+func (q *Queries) PublishEvent(ctx context.Context, id uuid.UUID) (*Event, error) {
+	row := q.db.QueryRow(ctx, publishEvent, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Slug,
+		&i.SubtitleEn,
+		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
+		&i.ProductID,
+		&i.PublishedAt,
+	)
+	return &i, err
 }

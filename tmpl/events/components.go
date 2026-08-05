@@ -156,7 +156,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 					})),
 				)),
 				If(isFuture && !isFree && e.EventRegistration == nil,
-					components.AddToCartButton(localizer, e.ListEventsRow.ID, e.CountInCart),
+					components.AddToCartButton(localizer, e.ListPublishedEventsRow.ID, e.CountInCart),
 				),
 
 				A(

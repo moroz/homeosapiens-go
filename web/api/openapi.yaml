@@ -186,6 +186,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrors"
 
+  /events/{id}/publish:
+    post:
+      operationId: publishEvent
+      summary: Mark an event as published.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Confirms that the event has been successfully published
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
   /hosts:
     get:
       operationId: listHosts
@@ -380,6 +402,9 @@ components:
           type: string
           format: date-time
         updatedAt:
+          type: string
+          format: date-time
+        publishedAt:
           type: string
           format: date-time
 

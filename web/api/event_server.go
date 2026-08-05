@@ -87,18 +87,19 @@ func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestOb
 	out := make([]Event, len(events))
 	for i, e := range events {
 		out[i] = Event{
-			Id:         e.ID,
-			Slug:       e.Slug,
-			TitleEn:    e.TitleEn,
-			TitlePl:    e.TitlePl,
-			SubtitleEn: e.SubtitleEn,
-			SubtitlePl: e.SubtitlePl,
-			EventType:  string(e.EventType),
-			IsVirtual:  e.IsVirtual,
-			StartsAt:   e.StartsAt,
-			EndsAt:     e.EndsAt,
-			InsertedAt: e.InsertedAt,
-			UpdatedAt:  e.UpdatedAt,
+			Id:          e.ID,
+			Slug:        e.Slug,
+			TitleEn:     e.TitleEn,
+			TitlePl:     e.TitlePl,
+			SubtitleEn:  e.SubtitleEn,
+			SubtitlePl:  e.SubtitlePl,
+			EventType:   string(e.EventType),
+			IsVirtual:   e.IsVirtual,
+			StartsAt:    e.StartsAt,
+			EndsAt:      e.EndsAt,
+			InsertedAt:  e.InsertedAt,
+			UpdatedAt:   e.UpdatedAt,
+			PublishedAt: e.PublishedAt,
 		}
 	}
 
@@ -166,6 +167,7 @@ func (s *eventServer) GetEvent(ctx context.Context, request GetEventRequestObjec
 		VenueNamePl:      e.VenueNamePl,
 		VenuePostalCode:  e.VenuePostalCode,
 		VenueStreet:      e.VenueStreet,
+		PublishedAt:      e.PublishedAt,
 	}, nil
 }
 
@@ -247,6 +249,18 @@ func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventReques
 			UpdatedAt:     e.UpdatedAt,
 		},
 	}, nil
+}
+
+func (s *eventServer) PublishEvent(ctx context.Context, request PublishEventRequestObject) (PublishEventResponseObject, error) {
+	_, err := services.NewEventService(s.db).PublishEvent(ctx, request.Id)
+	if err, ok := errors.AsType[validation.Errors](err); ok {
+		return PublishEvent422JSONResponse{Errors: validationErrorMessages(err)}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return PublishEvent204Response{}, nil
 }
 
 func validationErrorMessages(verrs validation.Errors) map[string]string {

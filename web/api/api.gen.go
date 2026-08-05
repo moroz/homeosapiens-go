@@ -45,18 +45,19 @@ func (e UserRole) Valid() bool {
 
 // Event defines model for Event.
 type Event struct {
-	EndsAt     time.Time          `json:"endsAt"`
-	EventType  string             `json:"eventType"`
-	Id         openapi_types.UUID `json:"id"`
-	InsertedAt time.Time          `json:"insertedAt"`
-	IsVirtual  bool               `json:"isVirtual"`
-	Slug       string             `json:"slug"`
-	StartsAt   time.Time          `json:"startsAt"`
-	SubtitleEn *string            `json:"subtitleEn,omitempty"`
-	SubtitlePl *string            `json:"subtitlePl,omitempty"`
-	TitleEn    string             `json:"titleEn"`
-	TitlePl    string             `json:"titlePl"`
-	UpdatedAt  time.Time          `json:"updatedAt"`
+	EndsAt      time.Time          `json:"endsAt"`
+	EventType   string             `json:"eventType"`
+	Id          openapi_types.UUID `json:"id"`
+	InsertedAt  time.Time          `json:"insertedAt"`
+	IsVirtual   bool               `json:"isVirtual"`
+	PublishedAt *time.Time         `json:"publishedAt,omitempty"`
+	Slug        string             `json:"slug"`
+	StartsAt    time.Time          `json:"startsAt"`
+	SubtitleEn  *string            `json:"subtitleEn,omitempty"`
+	SubtitlePl  *string            `json:"subtitlePl,omitempty"`
+	TitleEn     string             `json:"titleEn"`
+	TitlePl     string             `json:"titlePl"`
+	UpdatedAt   time.Time          `json:"updatedAt"`
 }
 
 // EventDetails defines model for EventDetails.
@@ -74,16 +75,17 @@ type EventDetails struct {
 	IsVirtual     bool               `json:"isVirtual"`
 
 	// Price Decimal price string, e.g. "19.99". Null when free.
-	Price       *string   `json:"price,omitempty"`
-	Slug        string    `json:"slug"`
-	StartsAt    time.Time `json:"startsAt"`
-	SubtitleEn  *string   `json:"subtitleEn,omitempty"`
-	SubtitlePl  *string   `json:"subtitlePl,omitempty"`
-	TitleEn     string    `json:"titleEn"`
-	TitlePl     string    `json:"titlePl"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	VenueCityEn *string   `json:"venueCityEn,omitempty"`
-	VenueCityPl *string   `json:"venueCityPl,omitempty"`
+	Price       *string    `json:"price,omitempty"`
+	PublishedAt *time.Time `json:"publishedAt,omitempty"`
+	Slug        string     `json:"slug"`
+	StartsAt    time.Time  `json:"startsAt"`
+	SubtitleEn  *string    `json:"subtitleEn,omitempty"`
+	SubtitlePl  *string    `json:"subtitlePl,omitempty"`
+	TitleEn     string     `json:"titleEn"`
+	TitlePl     string     `json:"titlePl"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
+	VenueCityEn *string    `json:"venueCityEn,omitempty"`
+	VenueCityPl *string    `json:"venueCityPl,omitempty"`
 
 	// VenueCountryCode ISO 3166-1 alpha-2 country code
 	VenueCountryCode *string `json:"venueCountryCode,omitempty"`
@@ -289,6 +291,9 @@ type ServerInterface interface {
 	// UpdateEvent Update an event
 	// (PATCH /events/{id})
 	UpdateEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	// PublishEvent Mark an event as published.
+	// (POST /events/{id}/publish)
+	PublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
@@ -418,6 +423,32 @@ func (siw *ServerInterfaceWrapper) UpdateEvent(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateEvent(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PublishEvent operation middleware
+func (siw *ServerInterfaceWrapper) PublishEvent(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PublishEvent(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -734,6 +765,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events", wrapper.CreateEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/events/{id}", wrapper.GetEvent)
 	m.HandleFunc(http.MethodPatch+" "+options.BaseURL+"/events/{id}", wrapper.UpdateEvent)
+	m.HandleFunc(http.MethodPost+" "+options.BaseURL+"/events/{id}/publish", wrapper.PublishEvent)
 	m.HandleFunc(http.MethodGet+" "+options.BaseURL+"/hosts", wrapper.ListHosts)
 
 	return m
@@ -882,6 +914,36 @@ func (response UpdateEvent422JSONResponse) VisitUpdateEventResponse(w http.Respo
 	return err
 }
 
+type PublishEventRequestObject struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+type PublishEventResponseObject interface {
+	VisitPublishEventResponse(w http.ResponseWriter) error
+}
+
+type PublishEvent204Response struct {
+}
+
+func (response PublishEvent204Response) VisitPublishEventResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type PublishEvent422JSONResponse ValidationErrors
+
+func (response PublishEvent422JSONResponse) VisitPublishEventResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(422)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type GetHealthRequestObject struct {
 }
 
@@ -1012,6 +1074,9 @@ type StrictServerInterface interface {
 	// UpdateEvent Update an event
 	// (PATCH /events/{id})
 	UpdateEvent(ctx context.Context, request UpdateEventRequestObject) (UpdateEventResponseObject, error)
+	// PublishEvent Mark an event as published.
+	// (POST /events/{id}/publish)
+	PublishEvent(ctx context.Context, request PublishEventRequestObject) (PublishEventResponseObject, error)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(ctx context.Context, request GetHealthRequestObject) (GetHealthResponseObject, error)
@@ -1184,6 +1249,32 @@ func (sh *strictHandler) UpdateEvent(w http.ResponseWriter, r *http.Request, id 
 	}
 }
 
+// PublishEvent operation middleware
+func (sh *strictHandler) PublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+	var request PublishEventRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PublishEvent(ctx, request.(PublishEventRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PublishEvent")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PublishEventResponseObject); ok {
+		if err := validResponse.VisitPublishEventResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetHealth operation middleware
 func (sh *strictHandler) GetHealth(w http.ResponseWriter, r *http.Request) {
 	var request GetHealthRequestObject
@@ -1315,50 +1406,51 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, para
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
-	"+jS62CLG06Soo8bIZJxsJkXJ6t3qvwEAAP//",
+	"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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

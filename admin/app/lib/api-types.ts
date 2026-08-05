@@ -111,6 +111,23 @@ export interface paths {
         patch: operations["updateEvent"];
         trace?: never;
     };
+    "/events/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark an event as published. */
+        post: operations["publishEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/hosts": {
         parameters: {
             query?: never;
@@ -217,6 +234,8 @@ export interface components {
             insertedAt: string;
             /** Format: date-time */
             updatedAt: string;
+            /** Format: date-time */
+            publishedAt?: string;
         };
         EventDetails: components["schemas"]["Event"] & {
             descriptionPl?: string | null;
@@ -541,6 +560,36 @@ export interface operations {
             };
             /** @description No event with that id */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
+            };
+        };
+    };
+    publishEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Confirms that the event has been successfully published */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };

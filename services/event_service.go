@@ -38,7 +38,7 @@ func (s *EventService) GetPaidEventById(ctx context.Context, id uuid.UUID) (*que
 }
 
 type EventListDto struct {
-	*queries.ListEventsRow
+	*queries.ListPublishedEventsRow
 	Product           *queries.Product
 	Hosts             []*queries.ListHostsForEventsRow
 	Prices            []*queries.ProductPrice
@@ -47,8 +47,8 @@ type EventListDto struct {
 	CountInCart       int
 }
 
-func (s *EventService) ListEvents(ctx context.Context, user *queries.User, cartId *uuid.UUID) ([]*EventListDto, error) {
-	events, err := queries.New(s.db).ListEvents(ctx)
+func (s *EventService) ListPublishedEventsForUser(ctx context.Context, user *queries.User, cartId *uuid.UUID) ([]*EventListDto, error) {
+	events, err := queries.New(s.db).ListPublishedEvents(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -91,13 +91,13 @@ func (s *EventService) ListEvents(ctx context.Context, user *queries.User, cartI
 	var result []*EventListDto
 	for _, event := range events {
 		result = append(result, &EventListDto{
-			ListEventsRow:     event,
-			Product:           products[event.ID],
-			Hosts:             hosts[event.ID],
-			Prices:            prices[event.ID],
-			EventRegistration: registrations[event.ID],
-			RegistrationCount: regCounts[event.ID],
-			CountInCart:       cartCounts[event.ID],
+			ListPublishedEventsRow: event,
+			Product:                products[event.ID],
+			Hosts:                  hosts[event.ID],
+			Prices:                 prices[event.ID],
+			EventRegistration:      registrations[event.ID],
+			RegistrationCount:      regCounts[event.ID],
+			CountInCart:            cartCounts[event.ID],
 		})
 	}
 
@@ -165,7 +165,6 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 	}
 
 	return &dto, nil
-
 }
 
 func (s *EventService) preloadProductsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID]*queries.Product, error) {
@@ -347,6 +346,24 @@ func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEven
 		Prices:  nil,
 		Hosts:   hosts[event.ID],
 	}, nil
+}
+
+func (s *EventService) PublishEvent(ctx context.Context, eventId uuid.UUID) (*queries.Event, error) {
+	event, err := queries.New(s.db).GetEventById(ctx, eventId)
+	if err != nil {
+		return nil, err
+	}
+
+	params := &types.PublishEventValidation{
+		DescriptionPl: event.DescriptionPl,
+		DescriptionEn: event.DescriptionEn,
+		PublishedAt:   event.PublishedAt,
+	}
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
+	return queries.New(s.db).PublishEvent(ctx, eventId)
 }
 
 // UpdateEvent applies a selective update to an event. This bespoke logic is
