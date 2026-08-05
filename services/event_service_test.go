@@ -419,14 +419,14 @@ func TestEventService_PublishEvent(t *testing.T) {
 				params.Published = false
 				params.DescriptionEn = nil
 			},
-			errorKey: "DescriptionEn",
+			errorKey: "descriptionEn",
 		},
 		{
 			overrides: func(params *queries.UpsertEventParams) {
 				params.Published = false
 				params.DescriptionPl = nil
 			},
-			errorKey: "DescriptionPl",
+			errorKey: "descriptionPl",
 		},
 	}
 

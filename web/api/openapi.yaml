@@ -201,6 +201,8 @@ paths:
       responses:
         "204":
           description: Confirms that the event has been successfully published
+        "404":
+          description: No event with that id
         "422":
           description: Validation failed
           content:

@@ -21,6 +21,58 @@ func NewEventServer(db queries.DBTX) *eventServer {
 	return &eventServer{db: db}
 }
 
+// eventDetails maps an event and its associations onto the EventDetails schema.
+// Every operation returning event details goes through it, so that a client can
+// treat the payloads of GET, POST and PATCH interchangeably.
+func eventDetails(e *types.EventDetailsDto) EventDetails {
+	// price and currency stay null for a free event, as documented in the schema.
+	var price, currency *string
+	if !e.IsFree() {
+		price = new(e.Product.BasePriceAmount.StringFixedBank(2))
+		currency = new(e.Product.BasePriceCurrency)
+	}
+
+	hosts := make([]Host, len(e.Hosts))
+	for i, host := range e.Hosts {
+		hosts[i] = Host{
+			Country:    host.Country,
+			FamilyName: host.FamilyName,
+			GivenName:  host.GivenName,
+			Id:         host.ID,
+			Salutation: host.Salutation,
+		}
+	}
+
+	return EventDetails{
+		Currency:         currency,
+		DescriptionEn:    e.DescriptionEn,
+		DescriptionPl:    e.DescriptionPl,
+		EndsAt:           e.EndsAt,
+		EventType:        string(e.EventType),
+		Hosts:            hosts,
+		Id:               e.ID,
+		InsertedAt:       e.InsertedAt,
+		IsFree:           e.IsFree(),
+		IsVirtual:        e.IsVirtual,
+		Price:            price,
+		PublishedAt:      e.PublishedAt,
+		Slug:             e.Slug,
+		StartsAt:         e.StartsAt,
+		SubtitleEn:       e.SubtitleEn,
+		SubtitlePl:       e.SubtitlePl,
+		TitleEn:          e.TitleEn,
+		TitlePl:          e.TitlePl,
+		UpdatedAt:        e.UpdatedAt,
+		VenueCityEn:      e.VenueCityEn,
+		VenueCityPl:      e.VenueCityPl,
+		VenueCountryCode: e.VenueCountryCode,
+		VenueNameEn:      e.VenueNameEn,
+		VenueNamePl:      e.VenueNamePl,
+		VenuePostalCode:  e.VenuePostalCode,
+		VenueStreet:      e.VenueStreet,
+	}
+}
+
 func (s *eventServer) UpdateEvent(ctx context.Context, request UpdateEventRequestObject) (UpdateEventResponseObject, error) {
 	svc := services.NewEventService(s.db)
 
@@ -39,33 +91,7 @@ func (s *eventServer) UpdateEvent(ctx context.Context, request UpdateEventReques
 		return nil, err
 	}
 
-	price := new(string)
-	currency := new(string)
-	if !e.IsFree() {
-		*price = e.Product.BasePriceAmount.StringFixedBank(2)
-		*currency = e.Product.BasePriceCurrency
-	}
-
-	return UpdateEvent200JSONResponse{
-		Currency:      currency,
-		DescriptionEn: e.DescriptionEn,
-		DescriptionPl: e.DescriptionPl,
-		EndsAt:        e.EndsAt,
-		EventType:     string(e.EventType),
-		Hosts:         nil,
-		Id:            e.ID,
-		InsertedAt:    e.InsertedAt,
-		IsFree:        e.IsFree(),
-		IsVirtual:     e.IsVirtual,
-		Price:         price,
-		Slug:          e.Slug,
-		StartsAt:      e.StartsAt,
-		SubtitleEn:    e.SubtitleEn,
-		SubtitlePl:    e.SubtitlePl,
-		TitleEn:       e.TitleEn,
-		TitlePl:       e.TitlePl,
-		UpdatedAt:     e.UpdatedAt,
-	}, nil
+	return UpdateEvent200JSONResponse(eventDetails(e)), nil
 }
 
 func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestObject) (ListEventsResponseObject, error) {
@@ -123,52 +149,7 @@ func (s *eventServer) GetEvent(ctx context.Context, request GetEventRequestObjec
 		return nil, err
 	}
 
-	price := new(string)
-	currency := new(string)
-	if !e.IsFree() {
-		*price = e.Product.BasePriceAmount.StringFixedBank(2)
-		*currency = e.Product.BasePriceCurrency
-	}
-
-	hosts := make([]Host, len(e.Hosts))
-	for i, host := range e.Hosts {
-		hosts[i] = Host{
-			Country:    host.Country,
-			FamilyName: host.FamilyName,
-			GivenName:  host.GivenName,
-			Id:         host.ID,
-			Salutation: host.Salutation,
-		}
-	}
-
-	return GetEvent200JSONResponse{
-		Currency:         currency,
-		DescriptionEn:    e.DescriptionEn,
-		DescriptionPl:    e.DescriptionPl,
-		EndsAt:           e.EndsAt,
-		EventType:        string(e.EventType),
-		Hosts:            hosts,
-		Id:               e.ID,
-		InsertedAt:       e.InsertedAt,
-		IsFree:           e.IsFree(),
-		IsVirtual:        e.IsVirtual,
-		Price:            price,
-		Slug:             e.Slug,
-		StartsAt:         e.StartsAt,
-		SubtitleEn:       e.SubtitleEn,
-		SubtitlePl:       e.SubtitlePl,
-		TitleEn:          e.TitleEn,
-		TitlePl:          e.TitlePl,
-		UpdatedAt:        e.UpdatedAt,
-		VenueCityEn:      e.VenueCityEn,
-		VenueCityPl:      e.VenueCityPl,
-		VenueCountryCode: e.VenueCountryCode,
-		VenueNameEn:      e.VenueNameEn,
-		VenueNamePl:      e.VenueNamePl,
-		VenuePostalCode:  e.VenuePostalCode,
-		VenueStreet:      e.VenueStreet,
-		PublishedAt:      e.PublishedAt,
-	}, nil
+	return GetEvent200JSONResponse(eventDetails(e)), nil
 }
 
 func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventRequestObject) (CreateEventResponseObject, error) {
@@ -178,7 +159,9 @@ func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventReques
 	if p.Price != nil {
 		parsed, err := decimal.NewFromString(*p.Price)
 		if err != nil {
-			return nil, err
+			return CreateEvent422JSONResponse{Errors: map[string]string{
+				"price": "must be a decimal number",
+			}}, nil
 		}
 		price = &parsed
 	}
@@ -215,44 +198,21 @@ func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventReques
 		return nil, err
 	}
 
-	eventPrice := new(string)
-	currency := new(string)
-	if !e.IsFree() {
-		*eventPrice = e.Product.BasePriceAmount.StringFixedBank(2)
-		*currency = e.Product.BasePriceCurrency
-	}
-
 	location := fmt.Sprintf("/events/%s", e.ID)
 
 	return CreateEvent201JSONResponse{
 		Headers: CreateEvent201ResponseHeaders{
 			Location: &location,
 		},
-		Body: EventDetails{
-			Currency:      currency,
-			DescriptionEn: e.DescriptionEn,
-			DescriptionPl: e.DescriptionPl,
-			EndsAt:        e.EndsAt,
-			EventType:     string(e.EventType),
-			Hosts:         nil,
-			Id:            e.ID,
-			InsertedAt:    e.InsertedAt,
-			IsFree:        e.IsFree(),
-			IsVirtual:     e.IsVirtual,
-			Price:         eventPrice,
-			Slug:          e.Slug,
-			StartsAt:      e.StartsAt,
-			SubtitleEn:    e.SubtitleEn,
-			SubtitlePl:    e.SubtitlePl,
-			TitleEn:       e.TitleEn,
-			TitlePl:       e.TitlePl,
-			UpdatedAt:     e.UpdatedAt,
-		},
+		Body: eventDetails(e),
 	}, nil
 }
 
 func (s *eventServer) PublishEvent(ctx context.Context, request PublishEventRequestObject) (PublishEventResponseObject, error) {
 	_, err := services.NewEventService(s.db).PublishEvent(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return PublishEvent404Response{}, nil
+	}
 	if err, ok := errors.AsType[validation.Errors](err); ok {
 		return PublishEvent422JSONResponse{Errors: validationErrorMessages(err)}, nil
 	}

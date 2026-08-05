@@ -181,7 +181,10 @@ func TestEventServer_GetEvent(t *testing.T) {
 		assert.Equal(t, "seminar", out.EventType)
 		assert.Equal(t, "Some description", *out.DescriptionEn)
 		assert.Equal(t, "Opis", *out.DescriptionPl)
+		assert.NotNil(t, out.PublishedAt)
 		assert.True(t, out.IsFree)
+		assert.Nil(t, out.Price)
+		assert.Nil(t, out.Currency)
 		assert.False(t, out.IsVirtual)
 		assert.NotNil(t, out.PublishedAt)
 
@@ -312,6 +315,8 @@ func TestEventServer_CreateEvent(t *testing.T) {
 		require.True(t, ok)
 
 		assert.True(t, out.Body.IsFree)
+		assert.Nil(t, out.Body.Price)
+		assert.Nil(t, out.Body.Currency)
 
 		event, err := queries.New(db).GetEventById(ctx, out.Body.Id)
 		require.NoError(t, err)
@@ -370,8 +375,9 @@ func TestEventServer_CreateEvent(t *testing.T) {
 		out, ok := create(t, body).(api.CreateEvent201JSONResponse)
 		require.True(t, ok)
 
-		// The 201 payload never carries hosts; they are readable via GetEvent.
-		assert.Nil(t, out.Body.Hosts)
+		require.Len(t, out.Body.Hosts, 2)
+		assert.Equal(t, second.ID, out.Body.Hosts[0].Id)
+		assert.Equal(t, first.ID, out.Body.Hosts[1].Id)
 
 		fetched, err := srv.GetEvent(ctx, api.GetEventRequestObject{Id: out.Body.Id})
 		require.NoError(t, err)
@@ -388,18 +394,18 @@ func TestEventServer_CreateEvent(t *testing.T) {
 			mutate func(body *api.EventInput)
 			field  string
 		}{
-			"missing English title": {func(b *api.EventInput) { b.TitleEn = "" }, "TitleEn"},
-			"missing Polish title":  {func(b *api.EventInput) { b.TitlePl = "" }, "TitlePl"},
-			"malformed slug":        {func(b *api.EventInput) { b.Slug = "Not A Slug" }, "Slug"},
-			"unknown event type":    {func(b *api.EventInput) { b.EventType = "workshop" }, "EventType"},
+			"missing English title": {func(b *api.EventInput) { b.TitleEn = "" }, "titleEn"},
+			"missing Polish title":  {func(b *api.EventInput) { b.TitlePl = "" }, "titlePl"},
+			"malformed slug":        {func(b *api.EventInput) { b.Slug = "Not A Slug" }, "slug"},
+			"unknown event type":    {func(b *api.EventInput) { b.EventType = "workshop" }, "eventType"},
 			"price without currency": {func(b *api.EventInput) {
 				b.Currency = nil
-			}, "Currency"},
-			"unsupported currency": {func(b *api.EventInput) { b.Currency = new("USD") }, "Currency"},
+			}, "currency"},
+			"unsupported currency": {func(b *api.EventInput) { b.Currency = new("USD") }, "currency"},
 			"end before start": {func(b *api.EventInput) {
 				b.EndsAt = b.StartsAt.Add(-time.Hour)
-			}, "EndsAt"},
-			"physical event without a venue": {func(b *api.EventInput) { b.IsVirtual = false }, "VenueNameEn"},
+			}, "endsAt"},
+			"physical event without a venue": {func(b *api.EventInput) { b.IsVirtual = false }, "venueNameEn"},
 		}
 
 		i := 0
@@ -425,12 +431,13 @@ func TestEventServer_CreateEvent(t *testing.T) {
 		assert.Contains(t, out.Errors, "slug")
 	})
 
-	t.Run("a malformed price string is a hard error, not a 422", func(t *testing.T) {
+	t.Run("rejects a malformed price string with 422", func(t *testing.T) {
 		body := validEventInput("api-malformed-price-event")
 		body.Price = new("not a number")
 
-		_, err := srv.CreateEvent(ctx, api.CreateEventRequestObject{Body: body})
-		assert.Error(t, err)
+		out, ok := create(t, body).(api.CreateEvent422JSONResponse)
+		require.True(t, ok, "expected 422")
+		assert.Contains(t, out.Errors, "price")
 	})
 }
 
@@ -469,6 +476,7 @@ func TestEventServer_UpdateEvent(t *testing.T) {
 		assert.Equal(t, "Updated description", *out.DescriptionEn)
 		assert.Equal(t, "api-updated-slug", out.Slug)
 		assert.Equal(t, "Opis", *out.DescriptionPl)
+		assert.NotNil(t, out.PublishedAt)
 		// updated_at is a timestamp(0), so a same-second update reads back equal.
 		assert.False(t, out.UpdatedAt.Before(event.UpdatedAt))
 	})
@@ -523,6 +531,8 @@ func TestEventServer_UpdateEvent(t *testing.T) {
 		require.True(t, ok)
 
 		assert.True(t, out.IsFree)
+		assert.Nil(t, out.Price)
+		assert.Nil(t, out.Currency)
 	})
 
 	t.Run("replacing the host list", func(t *testing.T) {
@@ -536,8 +546,8 @@ func TestEventServer_UpdateEvent(t *testing.T) {
 		}).(api.UpdateEvent200JSONResponse)
 		require.True(t, ok)
 
-		// The 200 payload never carries hosts; they are readable via GetEvent.
-		assert.Nil(t, out.Hosts)
+		require.Len(t, out.Hosts, 1)
+		assert.Equal(t, host.ID, out.Hosts[0].Id)
 
 		fetched, err := srv.GetEvent(ctx, api.GetEventRequestObject{Id: event.ID})
 		require.NoError(t, err)
@@ -616,8 +626,8 @@ func TestEventServer_PublishEvent(t *testing.T) {
 
 	t.Run("rejects a draft with missing descriptions", func(t *testing.T) {
 		for field, override := range map[string]func(p *queries.UpsertEventParams){
-			"DescriptionEn": func(p *queries.UpsertEventParams) { p.DescriptionEn = nil },
-			"DescriptionPl": func(p *queries.UpsertEventParams) { p.DescriptionPl = nil },
+			"descriptionEn": func(p *queries.UpsertEventParams) { p.DescriptionEn = nil },
+			"descriptionPl": func(p *queries.UpsertEventParams) { p.DescriptionPl = nil },
 		} {
 			t.Run(field, func(t *testing.T) {
 				event, err := mocks.Event(db, ctx, func(p *queries.UpsertEventParams) {
@@ -643,12 +653,11 @@ func TestEventServer_PublishEvent(t *testing.T) {
 
 		out, ok := publish(t, event.ID).(api.PublishEvent422JSONResponse)
 		require.True(t, ok, "expected 422")
-		assert.Contains(t, out.Errors, "PublishedAt")
+		assert.Contains(t, out.Errors, "publishedAt")
 	})
 
-	t.Run("an unknown id is a hard error, not a 404", func(t *testing.T) {
-		_, err := srv.PublishEvent(ctx, api.PublishEventRequestObject{Id: uuid.Must(uuid.NewV7())})
-		assert.Error(t, err)
+	t.Run("returns 404 for an unknown id", func(t *testing.T) {
+		assert.IsType(t, api.PublishEvent404Response{}, publish(t, uuid.Must(uuid.NewV7())))
 	})
 }
 
@@ -695,10 +704,8 @@ func TestEventServer_HTTP(t *testing.T) {
 		body := decode(t, resp)
 		assert.Equal(t, event.ID.String(), body["id"])
 		assert.Equal(t, true, body["isFree"])
-		// A free event serialises its price and currency as empty strings rather
-		// than null, because the handler allocates non-nil pointers.
-		assert.Equal(t, "", body["price"])
-		assert.Equal(t, "", body["currency"])
+		assert.Nil(t, body["price"])
+		assert.Nil(t, body["currency"])
 	})
 
 	t.Run("GET /events/{id} with an unknown id", func(t *testing.T) {
@@ -738,10 +745,8 @@ func TestEventServer_HTTP(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusUnprocessableEntity, resp.StatusCode)
 
-		// Create-side validation reports Go field names, not the camelCase
-		// property names from the OpenAPI schema.
 		errs := decode(t, resp)["errors"].(map[string]any)
-		assert.Contains(t, errs, "Slug")
+		assert.Contains(t, errs, "slug")
 	})
 
 	t.Run("PATCH /events/{id}", func(t *testing.T) {

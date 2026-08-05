@@ -595,6 +595,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description No event with that id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation failed */
             422: {
                 headers: {

@@ -93,36 +93,39 @@ func distinctIDs(value any) error {
 	return nil
 }
 
+// CreateEventInput describes a new event. The json tags are what ozzo reports
+// validation errors under, so they must match the property names of the
+// EventInput schema in web/api/openapi.yaml.
 type CreateEventInput struct {
-	EventType string
+	EventType string `json:"eventType"`
 
-	TitleEn    string
-	TitlePl    string
-	SubtitleEn *string
-	SubtitlePl *string
-	Slug       string
+	TitleEn    string  `json:"titleEn"`
+	TitlePl    string  `json:"titlePl"`
+	SubtitleEn *string `json:"subtitleEn"`
+	SubtitlePl *string `json:"subtitlePl"`
+	Slug       string  `json:"slug"`
 
-	DescriptionEn *string
-	DescriptionPl *string
+	DescriptionEn *string `json:"descriptionEn"`
+	DescriptionPl *string `json:"descriptionPl"`
 
 	// Pricing
-	Price    *decimal.Decimal
-	Currency *string
+	Price    *decimal.Decimal `json:"price"`
+	Currency *string          `json:"currency"`
 
 	// HostIds IDs of hosts associated with the event.
-	HostIds []uuid.UUID
+	HostIds []uuid.UUID `json:"hostIds"`
 
-	StartsAt time.Time
-	EndsAt   time.Time
+	StartsAt time.Time `json:"startsAt"`
+	EndsAt   time.Time `json:"endsAt"`
 
-	IsVirtual        bool
-	VenueNameEn      *string
-	VenueNamePl      *string
-	VenueStreet      *string
-	VenueCityEn      *string
-	VenueCityPl      *string
-	VenuePostalCode  *string
-	VenueCountryCode *string
+	IsVirtual        bool    `json:"isVirtual"`
+	VenueNameEn      *string `json:"venueNameEn"`
+	VenueNamePl      *string `json:"venueNamePl"`
+	VenueStreet      *string `json:"venueStreet"`
+	VenueCityEn      *string `json:"venueCityEn"`
+	VenueCityPl      *string `json:"venueCityPl"`
+	VenuePostalCode  *string `json:"venuePostalCode"`
+	VenueCountryCode *string `json:"venueCountryCode"`
 }
 
 func (p *CreateEventInput) Validate() error {
@@ -174,15 +177,15 @@ func (d *EventDetailsDto) IsFree() bool {
 }
 
 type PublishEventValidation struct {
-	DescriptionPl *string
-	DescriptionEn *string
-	PublishedAt   *time.Time
+	DescriptionPl *string    `json:"descriptionPl"`
+	DescriptionEn *string    `json:"descriptionEn"`
+	PublishedAt   *time.Time `json:"publishedAt"`
 }
 
 func (p *PublishEventValidation) Validate() error {
 	return validation.ValidateStruct(p,
 		validation.Field(&p.DescriptionEn, validation.Required),
 		validation.Field(&p.DescriptionPl, validation.Required),
-		validation.Field(&p.PublishedAt, validation.Nil.Error("event in already published")),
+		validation.Field(&p.PublishedAt, validation.Nil.Error("event is already published")),
 	)
 }

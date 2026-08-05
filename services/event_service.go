@@ -33,10 +33,6 @@ func (s *EventService) GetRegisterableEventById(ctx context.Context, id uuid.UUI
 	return queries.New(s.db).GetFreeEventById(ctx, id)
 }
 
-func (s *EventService) GetPaidEventById(ctx context.Context, id uuid.UUID) (*queries.GetPaidEventByIdRow, error) {
-	return queries.New(s.db).GetPaidEventById(ctx, id)
-}
-
 type EventListDto struct {
 	*queries.ListPublishedEventsRow
 	Product           *queries.Product
@@ -58,32 +54,32 @@ func (s *EventService) ListPublishedEventsForUser(ctx context.Context, user *que
 		ids = append(ids, event.ID)
 	}
 
-	products, err := s.preloadProductsForEvents(ctx, ids)
+	products, err := s.preloadProductsForEvents(ctx, s.db, ids)
 	if err != nil {
 		return nil, err
 	}
 
-	hosts, err := s.preloadHostsForEvents(ctx, ids)
+	hosts, err := s.preloadHostsForEvents(ctx, s.db, ids)
 	if err != nil {
 		return nil, err
 	}
 
-	prices, err := s.preloadPricesForEvents(ctx, ids)
+	prices, err := s.preloadPricesForEvents(ctx, s.db, ids)
 	if err != nil {
 		return nil, err
 	}
 
-	registrations, err := s.preloadEventRegistrationsForEvents(ctx, ids, user)
+	registrations, err := s.preloadEventRegistrationsForEvents(ctx, s.db, ids, user)
 	if err != nil {
 		return nil, err
 	}
 
-	regCounts, err := s.preloadRegistrationCountsForEvents(ctx, ids)
+	regCounts, err := s.preloadRegistrationCountsForEvents(ctx, s.db, ids)
 	if err != nil {
 		return nil, err
 	}
 
-	cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, cartId, ids)
+	cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, s.db, cartId, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -126,38 +122,38 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 	var dto types.EventDetailsDto
 	dto.Event = event
 
-	products, err := s.preloadProductsForEvents(ctx, []uuid.UUID{event.ID})
+	products, err := s.preloadProductsForEvents(ctx, s.db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Product = products[event.ID]
 
-	prices, err := s.preloadPricesForEvents(ctx, []uuid.UUID{event.ID})
+	prices, err := s.preloadPricesForEvents(ctx, s.db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Prices = prices[event.ID]
 
-	hosts, err := s.preloadHostsForEvents(ctx, []uuid.UUID{event.ID})
+	hosts, err := s.preloadHostsForEvents(ctx, s.db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.Hosts = hosts[event.ID]
 
-	registrations, err := s.preloadEventRegistrationsForEvents(ctx, []uuid.UUID{event.ID}, user)
+	registrations, err := s.preloadEventRegistrationsForEvents(ctx, s.db, []uuid.UUID{event.ID}, user)
 	if err != nil {
 		return nil, err
 	}
 	dto.EventRegistration = registrations[event.ID]
 
-	counts, err := s.preloadRegistrationCountsForEvents(ctx, []uuid.UUID{event.ID})
+	counts, err := s.preloadRegistrationCountsForEvents(ctx, s.db, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
 	dto.RegistrationCount = counts[event.ID]
 
 	if cartId != nil {
-		cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, cartId, []uuid.UUID{event.ID})
+		cartCounts, err := s.preloadCartLineItemPresenceForEvents(ctx, s.db, cartId, []uuid.UUID{event.ID})
 		if err != nil {
 			return nil, err
 		}
@@ -167,8 +163,8 @@ func (s *EventService) GetEventDetailsForEvent(ctx context.Context, event *queri
 	return &dto, nil
 }
 
-func (s *EventService) preloadProductsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID]*queries.Product, error) {
-	products, err := queries.New(s.db).ListProductsForEvents(ctx, eventIds)
+func (s *EventService) preloadProductsForEvents(ctx context.Context, db queries.DBTX, eventIds []uuid.UUID) (map[uuid.UUID]*queries.Product, error) {
+	products, err := queries.New(db).ListProductsForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +177,8 @@ func (s *EventService) preloadProductsForEvents(ctx context.Context, eventIds []
 	return productMap, nil
 }
 
-func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.ListHostsForEventsRow, error) {
-	hosts, err := queries.New(s.db).ListHostsForEvents(ctx, eventIds)
+func (s *EventService) preloadHostsForEvents(ctx context.Context, db queries.DBTX, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.ListHostsForEventsRow, error) {
+	hosts, err := queries.New(db).ListHostsForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
@@ -195,8 +191,8 @@ func (s *EventService) preloadHostsForEvents(ctx context.Context, eventIds []uui
 	return hostMap, nil
 }
 
-func (s *EventService) preloadPricesForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.ProductPrice, error) {
-	prices, err := queries.New(s.db).ListPricesForEvents(ctx, eventIds)
+func (s *EventService) preloadPricesForEvents(ctx context.Context, db queries.DBTX, eventIds []uuid.UUID) (map[uuid.UUID][]*queries.ProductPrice, error) {
+	prices, err := queries.New(db).ListPricesForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
@@ -209,14 +205,14 @@ func (s *EventService) preloadPricesForEvents(ctx context.Context, eventIds []uu
 	return priceMap, nil
 }
 
-func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, eventIds []uuid.UUID, user *queries.User) (map[uuid.UUID]*queries.EventRegistration, error) {
+func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, db queries.DBTX, eventIds []uuid.UUID, user *queries.User) (map[uuid.UUID]*queries.EventRegistration, error) {
 	resultMap := make(map[uuid.UUID]*queries.EventRegistration)
 
 	if user == nil {
 		return resultMap, nil
 	}
 
-	registrations, err := queries.New(s.db).ListEventRegistrationsForUserForEvents(ctx, &queries.ListEventRegistrationsForUserForEventsParams{
+	registrations, err := queries.New(db).ListEventRegistrationsForUserForEvents(ctx, &queries.ListEventRegistrationsForUserForEventsParams{
 		Eventids: eventIds,
 		Userid:   user.ID,
 	})
@@ -229,8 +225,8 @@ func (s *EventService) preloadEventRegistrationsForEvents(ctx context.Context, e
 	return resultMap, nil
 }
 
-func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, eventIds []uuid.UUID) (map[uuid.UUID]int, error) {
-	counts, err := queries.New(s.db).CountRegistrationsForEvents(ctx, eventIds)
+func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, db queries.DBTX, eventIds []uuid.UUID) (map[uuid.UUID]int, error) {
+	counts, err := queries.New(db).CountRegistrationsForEvents(ctx, eventIds)
 	if err != nil {
 		return nil, err
 	}
@@ -242,13 +238,13 @@ func (s *EventService) preloadRegistrationCountsForEvents(ctx context.Context, e
 	return result, nil
 }
 
-func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, cartID *uuid.UUID, eventIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+func (s *EventService) preloadCartLineItemPresenceForEvents(ctx context.Context, db queries.DBTX, cartID *uuid.UUID, eventIDs []uuid.UUID) (map[uuid.UUID]int, error) {
 	result := make(map[uuid.UUID]int)
 	if cartID == nil {
 		return result, nil
 	}
 
-	counts, err := queries.New(s.db).CountCartLineItemQuantitiesForProducts(ctx, &queries.CountCartLineItemQuantitiesForProductsParams{
+	counts, err := queries.New(db).CountCartLineItemQuantitiesForProducts(ctx, &queries.CountCartLineItemQuantitiesForProductsParams{
 		EventIds: eventIDs,
 		CartID:   *cartID,
 	})
@@ -331,7 +327,9 @@ func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEven
 		}
 	}
 
-	hosts, err := s.preloadHostsForEvents(ctx, []uuid.UUID{event.ID})
+	// Read the hosts back through tx: the inserts above are not visible on the
+	// pool until the transaction commits.
+	hosts, err := s.preloadHostsForEvents(ctx, tx, []uuid.UUID{event.ID})
 	if err != nil {
 		return nil, err
 	}
