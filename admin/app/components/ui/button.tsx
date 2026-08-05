@@ -1,9 +1,10 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { ClassValue } from "clsx";
 
 import { cn } from "~/lib/utils";
 
-const buttonVariants = cva(
+const buttonStyles = cva(
   // The base intentionally sets no border colour: every variant brings its own,
   // so that `buttonVariants(...)` is usable verbatim on a Link (as shadcn
   // recommends) without relying on tailwind-merge to resolve a conflict. A base
@@ -45,16 +46,31 @@ const buttonVariants = cva(
   },
 );
 
+/**
+ * Button classes for the given variant and size, already run through
+ * tailwind-merge. Non-default sizes and variants override base utilities
+ * (`rounded-md`, `text-sm`, the icon size, the focus ring), so the raw cva
+ * output carries conflicting classes that only merging resolves — which is why
+ * this must be used, rather than the cva function, wherever a Link is styled as
+ * a button.
+ */
+function buttonVariants({
+  className,
+  ...variants
+}: VariantProps<typeof buttonStyles> & { className?: ClassValue } = {}) {
+  return cn(buttonStyles(variants), className);
+}
+
 function Button({
   className,
   variant = "default",
   size = "default",
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonStyles>) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={buttonVariants({ variant, size, className })}
       {...props}
     />
   );

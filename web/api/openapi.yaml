@@ -259,7 +259,25 @@ paths:
         "204":
           description: Confirms that the event is no longer published
         "404":
-          description: No event with that id
+          description: No event with that ID.
+
+  /events/{id}/attendants:
+    get:
+      operationId: listEventAttendants
+      summary: List users signed up for the event.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event primary key
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lists all users signed up for the event.
+        "404":
+          description: No event with that ID.
 
   /hosts:
     get:

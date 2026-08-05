@@ -93,7 +93,7 @@
       },
       "total": "Total"
     },
-    "order_opening_html": "<p>Dear {{.BillingGivenName}} {{.BillingFamilyName}},</p>",
+    "order_opening_html": "<p>Dear {{.BillingGivenName.Plaintext}} {{.BillingFamilyName.Plaintext}},</p>",
     "password_reset": {
       "subject": "Password recovery — Homeo sapiens",
       "body_html": "<p>You are receiving this message because you (or someone pretending to be you) have requested to reset your <strong>Homeo sapiens</strong> password. You can reset your password by clicking on the link below.</p><p>If you did not request this change, please ignore this message.</p>",

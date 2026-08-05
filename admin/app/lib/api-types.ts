@@ -152,6 +152,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/{id}/attendants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List users signed up for the event. */
+        get: operations["listEventAttendants"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/hosts": {
         parameters: {
             query?: never;
@@ -694,7 +711,35 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description No event with that id */
+            /** @description No event with that ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listEventAttendants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event primary key */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lists all users signed up for the event. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No event with that ID. */
             404: {
                 headers: {
                     [name: string]: unknown;
