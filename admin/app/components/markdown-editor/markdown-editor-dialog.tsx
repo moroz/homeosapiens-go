@@ -17,7 +17,6 @@ import type { DialogRoot } from "@base-ui/react";
 
 /** `:locale` route param to the event field it edits. */
 const FIELD_BY_LOCALE = { en: "descriptionEn", pl: "descriptionPl" } as const;
-const LABEL_BY_LOCALE = { en: "English", pl: "Polish" } as const;
 
 type Locale = keyof typeof FIELD_BY_LOCALE;
 
@@ -131,7 +130,7 @@ const Editor: React.FC<EditorProps> = ({ id, locale, initialValue, event, isPend
         <DialogHeader>
           <DialogTitle>
             Edit description for event &ldquo;{event.titleEn}&rdquo; &mdash;{" "}
-            {LABEL_BY_LOCALE[locale]}
+            {new Intl.DisplayNames("en", { type: "language" }).of(locale)}
           </DialogTitle>
           <DialogDescription>
             You can use{" "}

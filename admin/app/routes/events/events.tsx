@@ -8,6 +8,7 @@ import { buttonVariants } from "~/components/ui/button";
 import { useListEventsQuery, useTableSearchParams } from "~/hooks";
 import type { components } from "~/lib/api-types";
 import { formatInstant } from "~/lib/time";
+import { Badge } from "~/components/ui/badge";
 
 type Event = components["schemas"]["Event"];
 
@@ -19,9 +20,15 @@ const columns: ColumnDef<Event>[] = [
   },
   { accessorKey: "titlePl", header: "Title (PL)" },
   {
-    accessorKey: "eventType",
-    header: "Type",
+    id: "publishedAt",
+    header: "Published at",
+    accessorKey: "publishedAt",
+    cell: ({ row }) => {
+      const ts = row.original.publishedAt;
+      return ts ? formatInstant(ts) : <Badge variant="secondary">draft</Badge>;
+    },
   },
+  { accessorKey: "eventType", header: "Type" },
   {
     id: "when",
     header: "When",
@@ -34,14 +41,6 @@ const columns: ColumnDef<Event>[] = [
     header: "Created at",
     accessorKey: "insertedAt",
     cell: ({ row }) => formatInstant(row.original.insertedAt),
-  },
-  {
-    id: "publishedAt",
-    header: "Published at",
-    cell: ({ row }) => {
-      const ts = row.original.publishedAt;
-      return ts ? formatInstant(ts) : "–";
-    },
   },
 ];
 
