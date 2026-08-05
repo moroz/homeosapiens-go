@@ -1,0 +1,14 @@
+{{define "content"}}
+{{- /*gotype: github.com/moroz/homeosapiens-go/tmpl/email.EventReminderEmailProps*/ -}}
+
+    <h2 style="margin: 0 0 16px; text-align: center">{{.T (printf "emails.event_reminder.heading_%s" .Data.LeadKey)}}</h2>
+
+    {{.Translate "emails.user_opening_html" .Data.User}}
+
+    <p>{{.Translate (printf "emails.event_reminder.body_%s" .Data.LeadKey) .Data}}</p>
+
+    {{template "event_card" .}}
+
+    {{template "event_buttons" .}}
+
+{{end}}

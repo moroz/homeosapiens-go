@@ -32,6 +32,14 @@ func workerConfig(db *pgxpool.Pool, mailer mailers.Mailer, bundle *i18n.Bundle) 
 		mailer: mailer,
 		bundle: bundle,
 	})
+	river.AddWorker(workers, &SendEventReminderEmailWorker{
+		db:     db,
+		mailer: mailer,
+		bundle: bundle,
+	})
+	river.AddWorker(workers, &EnqueueEventRemindersWorker{
+		db: db,
+	})
 	river.AddWorker(workers, &VacuumUserTokensWorker{
 		db: db,
 	})
@@ -45,6 +53,13 @@ func periodicJobConfig() ([]*river.PeriodicJob, error) {
 		return nil, err
 	}
 
+	// Reminders are scanned for more often than tokens are vacuumed, so that the
+	// one-hour reminder is not delayed by a quarter of its own lead time.
+	reminderSchedule, err := cron.ParseStandard("*/5 * * * *")
+	if err != nil {
+		return nil, err
+	}
+
 	return []*river.PeriodicJob{
 		river.NewPeriodicJob(
 			schedule,
@@ -52,6 +67,13 @@ func periodicJobConfig() ([]*river.PeriodicJob, error) {
 				return jobs.VacuumUserTokensArgs{}, nil
 			},
 			&river.PeriodicJobOpts{RunOnStart: true},
+		),
+		river.NewPeriodicJob(
+			reminderSchedule,
+			func() (river.JobArgs, *river.InsertOpts) {
+				return jobs.EnqueueEventRemindersArgs{}, nil
+			},
+			nil,
 		),
 	}, nil
 }

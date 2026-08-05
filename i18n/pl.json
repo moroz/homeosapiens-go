@@ -24,6 +24,7 @@
       "add_to_cart": "Do koszyka",
       "added_to_cart": "W koszyku",
       "attendance_badge": "Wezmę udział",
+      "ended": "Wydarzenie zakończone",
       "attendance_count": {
         "few": "{{ .Count }} osoby wezmą udział.",
         "many": "{{ .Count }} osób weźmie udział.",
@@ -112,14 +113,25 @@
       },
       "total": "Łącznie"
     },
-    "event_registration_confirmation": {
-      "subject": "Rejestracja potwierdzona: {{.Title}} — Homeo sapiens",
-      "heading": "Rejestracja potwierdzona",
-      "body": "Dziękujemy za rejestrację na to wydarzenie. Będzie nam miło Cię gościć!",
+    "event_details": {
       "date": "Data:",
+      "join_meeting": "Dołącz do spotkania",
       "location": "Miejsce:",
       "online": "Wydarzenie online",
       "view_event": "Zobacz szczegóły wydarzenia"
+    },
+    "event_registration_confirmation": {
+      "subject": "Rejestracja potwierdzona: {{.Title}} — Homeo sapiens",
+      "heading": "Rejestracja potwierdzona",
+      "body": "Dziękujemy za rejestrację na to wydarzenie. Będzie nam miło Cię gościć!"
+    },
+    "event_reminder": {
+      "subject_24h": "Już jutro: {{.Title}} — Homeo sapiens",
+      "subject_1h": "Wkrótce start: {{.Title}} — Homeo sapiens",
+      "heading_24h": "Twoje wydarzenie odbędzie się jutro",
+      "heading_1h": "Twoje wydarzenie rozpocznie się w ciągu godziny",
+      "body_24h": "Przypominamy, że wydarzenie, na które się zarejestrowałeś, odbędzie się już jutro.",
+      "body_1h": "Przypominamy, że wydarzenie, na które się zarejestrowałeś, rozpocznie się w ciągu godziny."
     },
     "user_email_verification": {
       "body_html": "<p>Aby zakończyć procedurę rejestracji lub zmiany adresu e-mail, musimy potwierdzić, że jesteś właścicielem adresu e-mail, który został użyty do utworzenia konta. Aby potwierdzić adres e-mail, kliknij w link widoczny poniżej:</p>",
@@ -135,6 +147,7 @@
   },
   "events": {
     "ends_at": "Data i godzina zakończenia:",
+    "join_meeting": "Dołącz do spotkania",
     "starts_at": "Data i godzina rozpoczęcia:"
   },
   "header": {
@@ -263,6 +276,12 @@
     "validation_required": "pole nie może być puste"
   },
   "videos": {
+    "paywall": {
+      "badge": "Płatne",
+      "body": "Ta seria jest dostępna wyłącznie dla osób, które wykupiły do niej dostęp. Kup dostęp, aby obejrzeć wszystkie wideo z tej serii.",
+      "price": "Cena:",
+      "title": "Treść płatna"
+    },
     "show": {
       "back_to_group": "Seria: {{ .GroupName }}",
       "video_group_name_html": "<p>Wideo nr {{ .CurrentIndex }} z {{ .TotalCount }} z serii: <a href=\"{{.GroupURL}}\">{{ .GroupName }}</a></p>"

@@ -37,11 +37,15 @@ join order_line_items oli on oli.order_id = o.id
 where o.id = $1
 on conflict (user_id, product_id) do nothing;
 
--- name: RegisterBuyerForPaidEvents :exec
+-- name: RegisterBuyerForPaidEvents :many
+-- Returns the events the buyer was newly registered for. Registrations that
+-- already existed are swallowed by the conflict clause and therefore left out,
+-- so the caller can enqueue exactly one confirmation email per new registration.
 insert into event_registrations (event_id, user_id)
 select e.id, o.user_id
 from orders o
 join order_line_items oli on oli.order_id = o.id
 join events e on e.product_id = oli.product_id
 where o.id = $1 and e.ends_at > now()
-on conflict (event_id, user_id) do nothing;
+on conflict (event_id, user_id) do nothing
+returning event_id;

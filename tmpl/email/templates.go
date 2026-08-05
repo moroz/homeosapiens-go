@@ -75,6 +75,11 @@ type EventRegistrationEmailProps struct {
 	Data *types.EventRegistrationEmailDTO
 }
 
+type EventReminderEmailProps struct {
+	*LayoutProps
+	Data *types.EventReminderEmailDTO
+}
+
 var OrderConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "order_confirmation.html.tmpl"))
 
 var PaymentConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_order_summary.html.tmpl", "payment_confirmation.html.tmpl"))
@@ -83,4 +88,6 @@ var UserEmailVerificationTemplate = template.Must(template.ParseFS(templateFS, "
 
 var UserPasswordResetTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "password_reset.html.tmpl"))
 
-var EventRegistrationConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "event_registration_confirmation.html.tmpl"))
+var EventRegistrationConfirmationTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_event_card.html.tmpl", "event_registration_confirmation.html.tmpl"))
+
+var EventReminderTemplate = template.Must(template.ParseFS(templateFS, "layout.html.tmpl", "_header.html.tmpl", "_footer.html.tmpl", "_event_card.html.tmpl", "event_reminder.html.tmpl"))

@@ -106,6 +106,18 @@ export const FormFields: React.FC<Props> = ({ onTitleEnBlur }) => {
           <Label htmlFor="isVirtual">This is a virtual event</Label>
         </div>
 
+        {isVirtual && (
+          <InputGroup className="rounded-md border border-input p-4">
+            <InputField
+              label="Meeting link (Zoom)"
+              containerClassName="col-span-2"
+              placeholder="https://zoom.us/j/…"
+              errors={errors}
+              {...register("meetingUrl")}
+            />
+          </InputGroup>
+        )}
+
         {!isVirtual && (
           <InputGroup className="rounded-md border border-input p-4">
             <InputField

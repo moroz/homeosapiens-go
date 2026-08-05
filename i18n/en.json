@@ -24,6 +24,7 @@
       "add_to_cart": "Add to cart",
       "added_to_cart": "Added to cart",
       "attendance_badge": "Going",
+      "ended": "Event has ended",
       "attendance_count": {
         "one": "One person is going.",
         "other": "{{ .Count }} people are going."
@@ -109,14 +110,25 @@
       },
       "total": "Total"
     },
-    "event_registration_confirmation": {
-      "subject": "You are registered: {{.Title}} — Homeo sapiens",
-      "heading": "Registration Confirmed",
-      "body": "You have successfully registered for this event. We look forward to seeing you!",
+    "event_details": {
       "date": "Date:",
+      "join_meeting": "Join the meeting",
       "location": "Location:",
       "online": "Online event",
       "view_event": "View event details"
+    },
+    "event_registration_confirmation": {
+      "subject": "You are registered: {{.Title}} — Homeo sapiens",
+      "heading": "Registration Confirmed",
+      "body": "You have successfully registered for this event. We look forward to seeing you!"
+    },
+    "event_reminder": {
+      "subject_24h": "Tomorrow: {{.Title}} — Homeo sapiens",
+      "subject_1h": "Starting soon: {{.Title}} — Homeo sapiens",
+      "heading_24h": "Your event is tomorrow",
+      "heading_1h": "Your event starts within the hour",
+      "body_24h": "This is a reminder that the event you registered for takes place tomorrow.",
+      "body_1h": "This is a reminder that the event you registered for starts within the hour."
     },
     "user_email_verification": {
       "body_html": "<p>You have created a new Homeo sapiens account, or you have changed your email address. To log in, please activate your account by clicking the link below:</p>",
@@ -132,6 +144,7 @@
   },
   "events": {
     "ends_at": "Ends at:",
+    "join_meeting": "Join the meeting",
     "starts_at": "Starts at:"
   },
   "header": {
@@ -260,6 +273,12 @@
     "validation_required": "cannot be blank"
   },
   "videos": {
+    "paywall": {
+      "badge": "Paid",
+      "body": "This series is available to buyers only. Buy access to watch every video in it.",
+      "price": "Price:",
+      "title": "Paid content"
+    },
     "show": {
       "back_to_group": "Series: {{ .GroupName }}",
       "video_group_name_html": "<p>Video #{{ .CurrentIndex }} out of {{ .TotalCount }} from series: <a href=\"{{ .GroupURL }}\">{{ .GroupName }}</a></p>"

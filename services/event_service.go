@@ -31,7 +31,7 @@ func (s *EventService) GetEventById(ctx context.Context, id uuid.UUID) (*queries
 }
 
 func (s *EventService) GetRegisterableEventById(ctx context.Context, id uuid.UUID) (*queries.Event, error) {
-	return queries.New(s.db).GetFreeEventById(ctx, id)
+	return queries.New(s.db).GetRegisterableFreeEventById(ctx, id)
 }
 
 type EventListDto struct {
@@ -314,6 +314,7 @@ func (s *EventService) CreateEvent(ctx context.Context, params *types.CreateEven
 		VenuePostalCode:  params.VenuePostalCode,
 		VenueCountryCode: params.VenueCountryCode,
 		ProductID:        productId,
+		MeetingUrl:       params.MeetingUrl,
 	})
 	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" && pgErr.ConstraintName == "events_slug_idx" {
 		return nil, validation.Errors{
@@ -480,6 +481,7 @@ func (s *EventService) UpdateEvent(ctx context.Context, eventId uuid.UUID, param
 		{"venue_city_pl", params.VenueCityPl},
 		{"venue_postal_code", params.VenuePostalCode},
 		{"venue_country_code", params.VenueCountryCode},
+		{"meeting_url", params.MeetingUrl},
 	}
 
 	timestampAssignments := []struct {

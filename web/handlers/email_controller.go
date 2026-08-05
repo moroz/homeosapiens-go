@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"
+	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/email"
 	"github.com/moroz/homeosapiens-go/types"
@@ -172,4 +174,43 @@ func (cc *emailController) EventRegistrationConfirmation(c *echo.Context) error 
 	}
 
 	return email.EventRegistrationConfirmationTemplate.Execute(c.Response(), props)
+}
+
+// EventReminder previews either reminder, chosen with ?lead=24h|1h.
+func (cc *emailController) EventReminder(c *echo.Context) error {
+	row, err := queries.New(cc.db).GetLastEventRegistrationWithDetails(c.Request().Context())
+	if err != nil {
+		return err
+	}
+
+	ctx := helpers.GetRequestContext(c)
+
+	lead := c.QueryParam("lead")
+	if lead != string(jobs.ReminderLead1h) {
+		lead = string(jobs.ReminderLead24h)
+	}
+
+	data := &types.EventReminderEmailDTO{
+		EventRegistrationEmailDTO: &types.EventRegistrationEmailDTO{
+			Event: &row.Event,
+			User:  &row.User,
+		},
+		LeadKey: lead,
+	}
+
+	subject := ctx.Localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    fmt.Sprintf("emails.event_reminder.subject_%s", lead),
+		TemplateData: data,
+	})
+
+	props := &email.EventReminderEmailProps{
+		LayoutProps: &email.LayoutProps{
+			Title:     subject,
+			Language:  ctx.Language,
+			Localizer: ctx.Localizer,
+		},
+		Data: data,
+	}
+
+	return email.EventReminderTemplate.Execute(c.Response(), props)
 }

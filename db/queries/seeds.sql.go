@@ -42,7 +42,7 @@ func (q *Queries) UpsertAsset(ctx context.Context, arg *UpsertAssetParams) (*Ass
 const upsertEvent = `-- name: UpsertEvent :one
 INSERT INTO events (id, product_id, event_type, title_en, title_pl, slug, starts_at, ends_at, is_virtual, description_en, description_pl, subtitle_en, subtitle_pl, venue_street, venue_city_en, venue_city_pl, venue_name_en, venue_name_pl, venue_country_code, venue_postal_code, published_at)
 select $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, case when $21::boolean then now() end
-returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at
 `
 
 type UpsertEventParams struct {
@@ -118,6 +118,9 @@ func (q *Queries) UpsertEvent(ctx context.Context, arg *UpsertEventParams) (*Eve
 		&i.VenueCountryCode,
 		&i.ProductID,
 		&i.PublishedAt,
+		&i.MeetingUrl,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
 }

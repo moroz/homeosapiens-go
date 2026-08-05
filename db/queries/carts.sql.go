@@ -50,6 +50,43 @@ func (q *Queries) CountCartLineItemQuantitiesForProducts(ctx context.Context, ar
 	return items, nil
 }
 
+const countCartLineItemQuantitiesForVideoGroups = `-- name: CountCartLineItemQuantitiesForVideoGroups :many
+select vg.id video_group_id, c.quantity
+from cart_line_items c
+join video_groups vg on c.product_id = vg.product_id
+where vg.id = any($1::uuid[]) and c.cart_id = $2::uuid
+`
+
+type CountCartLineItemQuantitiesForVideoGroupsParams struct {
+	VideoGroupIds []uuid.UUID
+	CartID        uuid.UUID
+}
+
+type CountCartLineItemQuantitiesForVideoGroupsRow struct {
+	VideoGroupID uuid.UUID
+	Quantity     int32
+}
+
+func (q *Queries) CountCartLineItemQuantitiesForVideoGroups(ctx context.Context, arg *CountCartLineItemQuantitiesForVideoGroupsParams) ([]*CountCartLineItemQuantitiesForVideoGroupsRow, error) {
+	rows, err := q.db.Query(ctx, countCartLineItemQuantitiesForVideoGroups, arg.VideoGroupIds, arg.CartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*CountCartLineItemQuantitiesForVideoGroupsRow
+	for rows.Next() {
+		var i CountCartLineItemQuantitiesForVideoGroupsRow
+		if err := rows.Scan(&i.VideoGroupID, &i.Quantity); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const deleteCart = `-- name: DeleteCart :exec
 delete from cart_line_items where cart_id = $1::uuid
 `
@@ -97,11 +134,11 @@ func (q *Queries) GetCart(ctx context.Context, cartID uuid.UUID) (*GetCartRow, e
 }
 
 const getCartItemsByCartId = `-- name: GetCartItemsByCartId :many
-select c.id, c.cart_id, c.quantity, c.inserted_at, c.updated_at, c.product_id, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, e.slug::text slug
+select c.id, c.cart_id, c.quantity, c.inserted_at, c.updated_at, c.product_id, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, coalesce(e.slug, '')::text slug
 from cart_line_items c
 join products p on c.product_id = p.id
 left join events e on e.product_id = p.id
-where c.cart_id = $1::uuid and (e.id is not null)
+where c.cart_id = $1::uuid
 `
 
 type GetCartItemsByCartIdRow struct {
@@ -118,6 +155,8 @@ type GetCartItemsByCartIdRow struct {
 	Slug            string
 }
 
+// Line items may point at a product that is not an event (a video group, say),
+// in which case there is no event page to link to and slug comes back empty.
 func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([]*GetCartItemsByCartIdRow, error) {
 	rows, err := q.db.Query(ctx, getCartItemsByCartId, cartID)
 	if err != nil {

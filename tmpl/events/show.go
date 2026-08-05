@@ -36,7 +36,41 @@ type freeEventCTAProps struct {
 	Localizer *i18n.Localizer
 }
 
+// endedEventBadge replaces the registration CTA once the event is over: the
+// sign-up endpoint rejects such events, so offering the button would only lead
+// to a 404.
+func endedEventBadge(l *i18n.Localizer) Node {
+	return Span(
+		Class("inline-flex items-center justify-center gap-1 rounded-sm border border-slate-300 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-500"),
+		Text(l.MustLocalizeMessage(&i18n.Message{
+			ID: "common.events.ended",
+		})),
+	)
+}
+
+// joinMeetingButton links to the virtual meeting. It is only rendered for users
+// who are registered for the event, so the link is not handed out publicly.
+func joinMeetingButton(l *i18n.Localizer, event *types.EventDetailsDto) Node {
+	if event.EventRegistration == nil || event.MeetingUrl == nil || event.HasEnded() {
+		return nil
+	}
+
+	return A(
+		Href(*event.MeetingUrl),
+		Target("_blank"),
+		Rel("noopener noreferrer"),
+		Class("button"),
+		Text(l.MustLocalizeMessage(&i18n.Message{
+			ID: "events.join_meeting",
+		})),
+	)
+}
+
 func freeEventCTA(props *freeEventCTAProps) Node {
+	if props.Event.HasEnded() {
+		return endedEventBadge(props.Localizer)
+	}
+
 	if props.User == nil {
 		return ananymousEventRegistrationButtonLink(props.Localizer, props.Event)
 	}
@@ -118,6 +152,7 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 				})
 			}),
 			If(!event.IsFree(), components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
+			joinMeetingButton(l, event),
 			If(!event.IsFree() && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
 			If(
 				event.IsFree() && event.RegistrationCount > 0,

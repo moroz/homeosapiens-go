@@ -25,6 +25,25 @@ func AddToCartButton(l *i18n.Localizer, eventId uuid.UUID, inCart int) Node {
 	)
 }
 
+// AddProductToCartButton adds a product that is not an event — a video group, for
+// instance — straight by product id.
+func AddProductToCartButton(l *i18n.Localizer, productId uuid.UUID, inCart int) Node {
+	if inCart > 0 {
+		return InCartButton(l)
+	}
+
+	return Form(
+		Action("/cart_items"),
+		Method("POST"),
+		Input(Type("hidden"), Name("product_id"), Value(productId.String())),
+		Button(
+			Class("button"),
+			icons.Icon(&icons.IconProps{Name: "cart-arrow-down"}),
+			Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.add_to_cart"})),
+		),
+	)
+}
+
 func InCartButton(l *i18n.Localizer) Node {
 	return A(
 		Href("/cart"),

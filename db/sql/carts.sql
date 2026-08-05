@@ -15,12 +15,20 @@ from cart_line_items c
 join events e on c.product_id = e.product_id
 where e.id = any(@event_ids::uuid[]) and c.cart_id = @cart_id::uuid;
 
+-- name: CountCartLineItemQuantitiesForVideoGroups :many
+select vg.id video_group_id, c.quantity
+from cart_line_items c
+join video_groups vg on c.product_id = vg.product_id
+where vg.id = any(@video_group_ids::uuid[]) and c.cart_id = @cart_id::uuid;
+
 -- name: GetCartItemsByCartId :many
-select c.*, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, e.slug::text slug
+-- Line items may point at a product that is not an event (a video group, say),
+-- in which case there is no event page to link to and slug comes back empty.
+select c.*, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, coalesce(e.slug, '')::text slug
 from cart_line_items c
 join products p on c.product_id = p.id
 left join events e on e.product_id = p.id
-where c.cart_id = @cart_id::uuid and (e.id is not null);
+where c.cart_id = @cart_id::uuid;
 
 -- name: DeleteCartItem :one
 delete from cart_line_items cli where cart_id = @cart_id::uuid and product_id = @product_id::uuid returning id;

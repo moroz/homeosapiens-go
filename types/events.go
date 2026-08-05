@@ -6,6 +6,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/shopspring/decimal"
@@ -43,6 +44,11 @@ type PatchEventInput struct {
 	// the patch is applied (see ValidateVenue).
 	IsVirtual Optional[bool] `json:"isVirtual"`
 
+	// MeetingUrl is the join link (Zoom or similar) sent out with registration
+	// confirmations and reminders. It is optional even for virtual events, which
+	// may be scheduled before the meeting has been created.
+	MeetingUrl Optional[string] `json:"meetingUrl"`
+
 	VenueNameEn      Optional[string] `json:"venueNameEn"`
 	VenueNamePl      Optional[string] `json:"venueNamePl"`
 	VenueStreet      Optional[string] `json:"venueStreet"`
@@ -60,7 +66,7 @@ func (p *PatchEventInput) IsEmpty() bool {
 		p.DescriptionEn.Set || p.DescriptionPl.Set ||
 		p.StartsAt.Set || p.EndsAt.Set ||
 		p.Price.Set || p.Currency.Set || p.HostIds.Set ||
-		p.IsVirtual.Set || p.venueFieldsSet())
+		p.IsVirtual.Set || p.MeetingUrl.Set || p.venueFieldsSet())
 }
 
 func (p *PatchEventInput) venueFieldsSet() bool {
@@ -150,6 +156,9 @@ func (p *PatchEventInput) Validate() error {
 		// is_virtual is NOT NULL, so it may be flipped but never cleared.
 		validation.Field(&p.IsVirtual, NotNullWhenSet[bool]()),
 
+		// meeting_url is nullable, so an explicit null clears the join link.
+		validation.Field(&p.MeetingUrl, NotBlankWhenPresent, WhenSet[string](is.URL)),
+
 		// The venue columns are nullable, so an explicit null is how a venue is
 		// cleared; a present value must still be a real one. Whether the
 		// resulting event is allowed to have no venue is decided by ValidateVenue.
@@ -216,6 +225,7 @@ type CreateEventInput struct {
 	EndsAt   time.Time `json:"endsAt"`
 
 	IsVirtual        bool    `json:"isVirtual"`
+	MeetingUrl       *string `json:"meetingUrl"`
 	VenueNameEn      *string `json:"venueNameEn"`
 	VenueNamePl      *string `json:"venueNamePl"`
 	VenueStreet      *string `json:"venueStreet"`
@@ -245,6 +255,8 @@ func (p *CreateEventInput) Validate() error {
 		validation.Field(&p.EndsAt, validation.Required, validation.Min(p.StartsAt).Exclusive().
 			Error("must be after the start time")),
 
+		validation.Field(&p.MeetingUrl, is.URL),
+
 		// Physical events must carry a venue; virtual events need none.
 		validation.Field(&p.VenueNameEn, validation.Required.When(!p.IsVirtual)),
 		validation.Field(&p.VenueNamePl, validation.Required.When(!p.IsVirtual)),
@@ -271,6 +283,12 @@ type EventDetailsDto struct {
 
 func (d *EventDetailsDto) IsFree() bool {
 	return d.ProductID == nil || d.Product.BasePriceAmount.Equal(decimal.Zero)
+}
+
+// HasEnded reports whether the event is over, in which case there is nothing
+// left to register for. Recordings of paid events remain on sale.
+func (d *EventDetailsDto) HasEnded() bool {
+	return d.EndsAt.Before(time.Now().UTC())
 }
 
 type PublishEventValidation struct {

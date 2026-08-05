@@ -54,6 +54,7 @@ func eventDetails(e *types.EventDetailsDto) EventDetails {
 		InsertedAt:       e.InsertedAt,
 		IsFree:           e.IsFree(),
 		IsVirtual:        e.IsVirtual,
+		MeetingUrl:       e.MeetingUrl,
 		Price:            price,
 		PublishedAt:      e.PublishedAt,
 		Slug:             e.Slug,
@@ -115,6 +116,7 @@ func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestOb
 			SubtitlePl:  e.SubtitlePl,
 			EventType:   string(e.EventType),
 			IsVirtual:   e.IsVirtual,
+			MeetingUrl:  e.MeetingUrl,
 			StartsAt:    e.StartsAt,
 			EndsAt:      e.EndsAt,
 			InsertedAt:  e.InsertedAt,
@@ -175,6 +177,7 @@ func (s *eventServer) CreateEvent(ctx context.Context, request CreateEventReques
 		StartsAt:         p.StartsAt,
 		EndsAt:           p.EndsAt,
 		IsVirtual:        p.IsVirtual,
+		MeetingUrl:       p.MeetingUrl,
 		VenueNameEn:      p.VenueNameEn,
 		VenueNamePl:      p.VenueNamePl,
 		VenueStreet:      p.VenueStreet,
@@ -244,6 +247,21 @@ func (s *eventServer) DeleteEvent(ctx context.Context, request DeleteEventReques
 	}
 
 	return DeleteEvent204Response{}, nil
+}
+
+// ListEventAttendants answers the attendants endpoint as currently specified: the
+// operation declares no response body yet, so this only distinguishes a known
+// event from an unknown one. The payload is still to be defined in openapi.yaml.
+func (s *eventServer) ListEventAttendants(ctx context.Context, request ListEventAttendantsRequestObject) (ListEventAttendantsResponseObject, error) {
+	_, err := queries.New(s.db).GetEventById(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ListEventAttendants404Response{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return ListEventAttendants200Response{}, nil
 }
 
 func validationErrorMessages(verrs validation.Errors) map[string]string {

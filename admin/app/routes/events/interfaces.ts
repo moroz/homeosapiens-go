@@ -12,6 +12,7 @@ export interface EventFormValues {
   startsAt: string;
   endsAt: string;
   isVirtual: boolean;
+  meetingUrl: string;
   venueNameEn: string;
   venueNamePl: string;
   venueStreet: string;
@@ -43,6 +44,7 @@ export function toEventInput(values: EventFormValues): EventInput {
     startsAt: datetimeLocalValueToISO8601(values.startsAt),
     endsAt: datetimeLocalValueToISO8601(values.endsAt),
     isVirtual: values.isVirtual,
+    meetingUrl: values.isVirtual ? blankToNull(values.meetingUrl) : null,
     venueNameEn: values.isVirtual ? null : blankToNull(values.venueNameEn),
     venueNamePl: values.isVirtual ? null : blankToNull(values.venueNamePl),
     venueStreet: values.isVirtual ? null : blankToNull(values.venueStreet),
@@ -66,6 +68,9 @@ export function toPatchEventInput(values: EventFormValues): PatchEventInput {
     startsAt: datetimeLocalValueToISO8601(values.startsAt),
     endsAt: datetimeLocalValueToISO8601(values.endsAt),
     isVirtual: values.isVirtual,
+    // A meeting link only makes sense for a virtual event, so switching an event
+    // to in-person clears it.
+    meetingUrl: values.isVirtual ? blankToNull(values.meetingUrl) : null,
     hostIds: values.hostIds,
   };
 

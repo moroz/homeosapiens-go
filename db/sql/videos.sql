@@ -10,8 +10,10 @@ limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
 select count(*) from videos;
 
 -- name: ListVideoGroupsForUser :many
-select sqlc.embed(vg), a.has_access from video_groups vg
+select sqlc.embed(vg), a.has_access, p.base_price_amount, p.base_price_currency
+from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = @user_id::uuid
+left join products p on p.id = vg.product_id
 order by vg.id desc;
 
 -- name: GetMinMaxRecordedDatesForVideoGroups :many
@@ -24,8 +26,10 @@ group by 1
 order by 1;
 
 -- name: GetVideoGroupForUserBySlug :one
-select sqlc.embed(vg), a.has_access from video_groups vg
+select sqlc.embed(vg), a.has_access, p.base_price_amount, p.base_price_currency
+from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = @user_id::uuid
+left join products p on p.id = vg.product_id
 where (sqlc.narg(slug)::text is null or vg.slug = sqlc.narg(slug))
 limit 1;
 

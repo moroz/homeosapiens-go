@@ -267,6 +267,11 @@ export interface components {
             subtitleEn?: string | null;
             eventType: string;
             isVirtual: boolean;
+            /**
+             * Format: uri
+             * @description Join link for a virtual meeting, sent out with registration confirmations and reminders.
+             */
+            meetingUrl?: string | null;
             /** Format: date-time */
             startsAt: string;
             /** Format: date-time */
@@ -305,6 +310,11 @@ export interface components {
             subtitleEn?: string | null;
             eventType: string;
             isVirtual: boolean;
+            /**
+             * Format: uri
+             * @description Join link for a virtual meeting, sent out with registration confirmations and reminders.
+             */
+            meetingUrl?: string | null;
             /** Format: date-time */
             startsAt: string;
             /** Format: date-time */
@@ -347,6 +357,11 @@ export interface components {
             hostIds?: string[];
             /** @description Flipping this to false requires the event to end up with a full venue, whether the address comes from this payload or is already stored on the event. */
             isVirtual?: boolean;
+            /**
+             * Format: uri
+             * @description Join link for a virtual meeting. Null clears the stored link.
+             */
+            meetingUrl?: string | null;
             venueNameEn?: string | null;
             venueNamePl?: string | null;
             venueStreet?: string | null;

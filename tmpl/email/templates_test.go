@@ -286,6 +286,99 @@ func TestEventRegistrationConfirmationTemplate_VirtualEvent(t *testing.T) {
 	assert.Contains(t, html, "Online event")
 }
 
+func TestEventRegistrationConfirmationTemplate_MeetingLink(t *testing.T) {
+	bundle := mustInitBundle(t)
+	data := testEventRegistrationEmailDTO("en")
+	data.Event.IsVirtual = true
+	data.Event.MeetingUrl = new("https://zoom.us/j/123456789")
+
+	props := &emailtmpl.EventRegistrationEmailProps{
+		LayoutProps: &emailtmpl.LayoutProps{
+			Title:     "Registration Confirmed",
+			Language:  "en",
+			Localizer: goi18n.NewLocalizer(bundle, "en"),
+		},
+		Data: data,
+	}
+
+	var buf bytes.Buffer
+	err := emailtmpl.EventRegistrationConfirmationTemplate.Execute(&buf, props)
+	require.NoError(t, err)
+
+	html := buf.String()
+	assert.Contains(t, html, "https://zoom.us/j/123456789")
+	assert.Contains(t, html, "Join the meeting")
+}
+
+func TestEventReminderTemplate(t *testing.T) {
+	bundle := mustInitBundle(t)
+
+	examples := []struct {
+		lang    string
+		lead    string
+		heading string
+	}{
+		{"en", "24h", "Your event is tomorrow"},
+		{"en", "1h", "Your event starts within the hour"},
+		{"pl", "24h", "Twoje wydarzenie odbędzie się jutro"},
+		{"pl", "1h", "Twoje wydarzenie rozpocznie się w ciągu godziny"},
+	}
+
+	for _, example := range examples {
+		t.Run(example.lang+"/"+example.lead, func(t *testing.T) {
+			data := &types.EventReminderEmailDTO{
+				EventRegistrationEmailDTO: testEventRegistrationEmailDTO(example.lang),
+				LeadKey:                   example.lead,
+			}
+			data.Event.IsVirtual = true
+			data.Event.MeetingUrl = new("https://zoom.us/j/123456789")
+
+			props := &emailtmpl.EventReminderEmailProps{
+				LayoutProps: &emailtmpl.LayoutProps{
+					Title:     example.heading,
+					Language:  example.lang,
+					Localizer: goi18n.NewLocalizer(bundle, example.lang),
+				},
+				Data: data,
+			}
+
+			var buf bytes.Buffer
+			err := emailtmpl.EventReminderTemplate.Execute(&buf, props)
+			require.NoError(t, err)
+
+			html := buf.String()
+			assert.True(t, strings.HasPrefix(html, "<!DOCTYPE html>"))
+			assert.Contains(t, html, example.heading)
+			assert.Contains(t, html, "https://zoom.us/j/123456789")
+			assert.Contains(t, html, data.EventURL())
+		})
+	}
+}
+
+func TestEventRegistrationEmailDTO_ICS(t *testing.T) {
+	t.Run("physical event keeps the venue as its location", func(t *testing.T) {
+		data := testEventRegistrationEmailDTO("en")
+
+		ics := string(data.ICS())
+
+		assert.Contains(t, ics, "LOCATION:Centrum Konferencyjne\\, ul. Marszałkowska 1\\, 00-001 Warszawa")
+		assert.Contains(t, ics, "DESCRIPTION:"+data.EventURL())
+		assert.NotContains(t, ics, "URL:")
+	})
+
+	t.Run("virtual event carries the meeting link", func(t *testing.T) {
+		data := testEventRegistrationEmailDTO("en")
+		data.Event.IsVirtual = true
+		data.Event.MeetingUrl = new("https://zoom.us/j/123456789")
+
+		ics := string(data.ICS())
+
+		assert.Contains(t, ics, "URL:https://zoom.us/j/123456789")
+		assert.Contains(t, ics, "LOCATION:https://zoom.us/j/123456789")
+		assert.Contains(t, ics, "DESCRIPTION:https://zoom.us/j/123456789\\n"+data.EventURL())
+	})
+}
+
 func TestPaymentConfirmationTemplate(t *testing.T) {
 	bundle := mustInitBundle(t)
 

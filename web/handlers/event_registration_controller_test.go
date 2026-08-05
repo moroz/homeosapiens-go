@@ -6,8 +6,10 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/moroz/homeosapiens-go/config"
+	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/web/router"
 	"github.com/moroz/homeosapiens-go/web/sessions"
@@ -164,6 +166,26 @@ func TestEventRegistrationController(t *testing.T) {
 			resp, err := client.Post(url, "application/x-www-form-urlencoded", nil)
 			assert.NoError(t, err)
 			assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+		})
+
+		t.Run("POST /event_registrations/:event_id returns 404 for an event that has ended", func(t *testing.T) {
+			event, err := mocks.Event(db, ctx, func(p *queries.UpsertEventParams) {
+				p.StartsAt = time.Now().UTC().Add(-26 * time.Hour)
+				p.EndsAt = time.Now().UTC().Add(-24 * time.Hour)
+			})
+			require.NoError(t, err)
+
+			countBefore, err := countRegistrations()
+			require.NoError(t, err)
+
+			url := fmt.Sprintf("%s/event_registrations/%s", server.URL, event.ID)
+			resp, err := client.Post(url, "application/x-www-form-urlencoded", nil)
+			assert.NoError(t, err)
+			assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+
+			countAfter, err := countRegistrations()
+			require.NoError(t, err)
+			assert.Equal(t, countBefore, countAfter)
 		})
 
 		t.Run("POST /event_registrations/:event_id returns 400 for invalid event_id", func(t *testing.T) {

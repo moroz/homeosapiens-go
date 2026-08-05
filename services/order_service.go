@@ -189,7 +189,7 @@ func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, ses
 		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
 	}
 
-	err = queries.New(tx).RegisterBuyerForPaidEvents(ctx, order.ID)
+	registeredEventIds, err := queries.New(tx).RegisterBuyerForPaidEvents(ctx, order.ID)
 	if err != nil {
 		return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: %w", err)
 	}
@@ -205,6 +205,20 @@ func (s *OrderService) MarkOrderPaidByCheckoutSessionID(ctx context.Context, ses
 	}, nil)
 	if err != nil {
 		return nil, err
+	}
+
+	// Paying for an event registers the buyer for it, so they get the same
+	// confirmation (with date, venue and calendar invite) as someone signing up
+	// for a free event. Only registrations created just now are in the slice, so
+	// a repeated webhook cannot mail the same confirmation twice.
+	for _, eventId := range registeredEventIds {
+		_, err = river.InsertTx(ctx, tx, &jobs.SendEventRegistrationEmailArgs{
+			UserID:  order.UserID,
+			EventID: eventId,
+		}, nil)
+		if err != nil {
+			return nil, fmt.Errorf("MarkOrderPaidByCheckoutSessionID: failed to enqueue event registration email: %w", err)
+		}
 	}
 
 	if err := tx.Commit(ctx); err != nil {

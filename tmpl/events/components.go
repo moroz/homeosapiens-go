@@ -105,6 +105,9 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 	isFuture := e.StartsAt.After(time.Now())
 	isFree := e.BasePriceAmount == nil
+	// Registration stays open until the event is over, which is what the sign-up
+	// query enforces (GetRegisterableFreeEventById).
+	hasEnded := e.EndsAt.Before(time.Now())
 
 	return Article(
 		Class("card flex justify-between gap-6"),
@@ -148,7 +151,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 			Div(
 				Class("mt-auto flex w-full items-center gap-4 mobile:grid"),
-				If(isFuture && isFree && e.EventRegistration == nil, A(
+				If(!hasEnded && isFree && e.EventRegistration == nil, A(
 					Href(eventUrl+"/register"),
 					Class("button px-6 mobile:w-full"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 const addVideoToVideoGroup = `-- name: AddVideoToVideoGroup :one
@@ -132,8 +133,10 @@ func (q *Queries) GetVideoForUser(ctx context.Context, arg *GetVideoForUserParam
 }
 
 const getVideoGroupForUserBySlug = `-- name: GetVideoGroupForUserBySlug :one
-select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access from video_groups vg
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access, p.base_price_amount, p.base_price_currency
+from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
+left join products p on p.id = vg.product_id
 where ($2::text is null or vg.slug = $2)
 limit 1
 `
@@ -144,8 +147,10 @@ type GetVideoGroupForUserBySlugParams struct {
 }
 
 type GetVideoGroupForUserBySlugRow struct {
-	VideoGroup VideoGroup
-	HasAccess  bool
+	VideoGroup        VideoGroup
+	HasAccess         bool
+	BasePriceAmount   *decimal.Decimal
+	BasePriceCurrency *string
 }
 
 func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoGroupForUserBySlugParams) (*GetVideoGroupForUserBySlugRow, error) {
@@ -160,6 +165,8 @@ func (q *Queries) GetVideoGroupForUserBySlug(ctx context.Context, arg *GetVideoG
 		&i.VideoGroup.InsertedAt,
 		&i.VideoGroup.UpdatedAt,
 		&i.HasAccess,
+		&i.BasePriceAmount,
+		&i.BasePriceCurrency,
 	)
 	return &i, err
 }
@@ -333,14 +340,18 @@ func (q *Queries) ListHostsForVideos(ctx context.Context, videoIds []uuid.UUID) 
 }
 
 const listVideoGroupsForUser = `-- name: ListVideoGroupsForUser :many
-select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access from video_groups vg
+select vg.id, vg.title_en, vg.title_pl, vg.slug, vg.product_id, vg.inserted_at, vg.updated_at, a.has_access, p.base_price_amount, p.base_price_currency
+from video_groups vg
 join user_video_group_access a on vg.id = a.video_group_id and a.user_id = $1::uuid
+left join products p on p.id = vg.product_id
 order by vg.id desc
 `
 
 type ListVideoGroupsForUserRow struct {
-	VideoGroup VideoGroup
-	HasAccess  bool
+	VideoGroup        VideoGroup
+	HasAccess         bool
+	BasePriceAmount   *decimal.Decimal
+	BasePriceCurrency *string
 }
 
 func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID) ([]*ListVideoGroupsForUserRow, error) {
@@ -361,6 +372,8 @@ func (q *Queries) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID) 
 			&i.VideoGroup.InsertedAt,
 			&i.VideoGroup.UpdatedAt,
 			&i.HasAccess,
+			&i.BasePriceAmount,
+			&i.BasePriceCurrency,
 		); err != nil {
 			return nil, err
 		}

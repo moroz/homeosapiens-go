@@ -84,6 +84,7 @@ func VideoGroupList(ctx *types.CustomContext, videoGroups []*types.VideoGroupLis
 							Class(class),
 							Href(fmt.Sprintf("/videos/%s", vg.Slug)),
 							Text(title),
+							If(vg.IsPremium() && !vg.HasAccess, PaidBadge(ctx.Localizer)),
 							If(dateRange != "", Span(Class("text-sm font-normal"), Text(dateRange))),
 						),
 					)
@@ -107,12 +108,17 @@ func Index(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, act
 
 					return Group{
 						H3(Class("mb-6 inline-block border-b-2 border-primary/30 pb-2 text-2xl font-bold text-primary"), Text(title)),
-						Div(
-							Class("video-grid"),
-							Map(activeGroup.Videos, func(video *queries.Video) Node {
-								return VideoCard(ctx, activeGroup, video)
-							}),
-						),
+						// Without access the grid would only lead to paywalled
+						// video pages, so the offer takes its place.
+						If(!activeGroup.HasAccess, LockedPanel(ctx, activeGroup)),
+						Iff(activeGroup.HasAccess, func() Node {
+							return Div(
+								Class("video-grid"),
+								Map(activeGroup.Videos, func(video *queries.Video) Node {
+									return VideoCard(ctx, activeGroup, video)
+								}),
+							)
+						}),
 					}
 				}),
 			),

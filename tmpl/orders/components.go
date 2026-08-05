@@ -49,10 +49,13 @@ func CartTable(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 						Class("py-0 text-left"),
 						Div(
 							Class("flex items-center gap-2"),
-							A(
+							// Only event products have a page to link to; a video
+							// group in the cart is shown by title alone.
+							If(item.Slug == "", Text(title)),
+							If(item.Slug != "", A(
 								Href(fmt.Sprintf("/events/%s", item.Slug)),
 								Text(title),
-							),
+							)),
 							deleteItemButton(ctx, item.ProductID),
 						),
 					),

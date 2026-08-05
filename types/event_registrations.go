@@ -14,6 +14,15 @@ type EventRegistrationEmailDTO struct {
 	User  *queries.User
 }
 
+// EventReminderEmailDTO is the registration payload plus which of the two
+// reminders is being sent, so that the subject and the opening line can differ
+// between the day-ahead and the last-hour mail.
+type EventReminderEmailDTO struct {
+	*EventRegistrationEmailDTO
+	// LeadKey is the suffix of the i18n keys for this reminder, "24h" or "1h".
+	LeadKey string
+}
+
 func (d *EventRegistrationEmailDTO) EmailRecipient() string {
 	return fmt.Sprintf("%s %s <%s>", d.User.GivenName.Plaintext(), d.User.FamilyName.Plaintext(), d.User.Email.Plaintext())
 }
@@ -109,6 +118,17 @@ func (d *EventRegistrationEmailDTO) EventURL() string {
 	return config.PublicUrl + "/events/" + d.Event.Slug
 }
 
+func (d *EventRegistrationEmailDTO) MeetingURL() string {
+	if d.Event.MeetingUrl == nil {
+		return ""
+	}
+	return *d.Event.MeetingUrl
+}
+
+func (d *EventRegistrationEmailDTO) HasMeetingURL() bool {
+	return d.MeetingURL() != ""
+}
+
 // ICS generates an iCalendar (RFC 5545) payload for the event.
 func (d *EventRegistrationEmailDTO) ICS() []byte {
 	fmtTime := func(t time.Time) string {
@@ -116,7 +136,18 @@ func (d *EventRegistrationEmailDTO) ICS() []byte {
 	}
 	uid := fmt.Sprintf("%s@homeosapiens.eu", d.Event.ID.String())
 	title := escapeICSText(d.Title())
+
+	// A virtual event has no address, so the join link doubles as its location:
+	// that is where calendar clients show a clickable "join" affordance.
 	location := escapeICSText(d.VenueAddress())
+	if location == "" {
+		location = escapeICSText(d.MeetingURL())
+	}
+
+	description := d.EventURL()
+	if d.HasMeetingURL() {
+		description = d.MeetingURL() + "\n" + description
+	}
 
 	var sb strings.Builder
 	sb.WriteString("BEGIN:VCALENDAR\r\n")
@@ -131,6 +162,10 @@ func (d *EventRegistrationEmailDTO) ICS() []byte {
 	fmt.Fprintf(&sb, "SUMMARY:%s\r\n", title)
 	if location != "" {
 		fmt.Fprintf(&sb, "LOCATION:%s\r\n", location)
+	}
+	fmt.Fprintf(&sb, "DESCRIPTION:%s\r\n", escapeICSText(description))
+	if url := d.MeetingURL(); url != "" {
+		fmt.Fprintf(&sb, "URL:%s\r\n", escapeICSText(url))
 	}
 	sb.WriteString("END:VEVENT\r\n")
 	sb.WriteString("END:VCALENDAR\r\n")

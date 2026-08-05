@@ -32,7 +32,31 @@ func (s *VideoService) CreateVideoGroup(ctx context.Context, params *types.Creat
 	})
 }
 
-func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID) ([]*types.VideoGroupListDTO, error) {
+// countVideoGroupsInCart maps video group id to how many times its product is in
+// the given cart, so that a locked group can show an "in cart" state instead of
+// offering to add it again. An empty map is returned when there is no cart.
+func (s *VideoService) countVideoGroupsInCart(ctx context.Context, cartId *uuid.UUID, groupIds []uuid.UUID) (map[uuid.UUID]int, error) {
+	counts := map[uuid.UUID]int{}
+	if cartId == nil || len(groupIds) == 0 {
+		return counts, nil
+	}
+
+	rows, err := queries.New(s.db).CountCartLineItemQuantitiesForVideoGroups(ctx, &queries.CountCartLineItemQuantitiesForVideoGroupsParams{
+		CartID:        *cartId,
+		VideoGroupIds: groupIds,
+	})
+	if err != nil {
+		return counts, err
+	}
+
+	for _, row := range rows {
+		counts[row.VideoGroupID] = int(row.Quantity)
+	}
+
+	return counts, nil
+}
+
+func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, userID uuid.UUID, cartId *uuid.UUID) ([]*types.VideoGroupListDTO, error) {
 	videos, err := queries.New(s.db).ListVideoGroupsForUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -53,12 +77,20 @@ func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, userID uuid.U
 		dateRangeMap[row.ID] = row
 	}
 
+	inCart, err := s.countVideoGroupsInCart(ctx, cartId, ids)
+	if err != nil {
+		return nil, err
+	}
+
 	var result []*types.VideoGroupListDTO
 	for _, vg := range videos {
 
 		dto := &types.VideoGroupListDTO{
-			VideoGroup: &vg.VideoGroup,
-			HasAccess:  vg.HasAccess,
+			VideoGroup:  &vg.VideoGroup,
+			HasAccess:   vg.HasAccess,
+			Price:       vg.BasePriceAmount,
+			Currency:    vg.BasePriceCurrency,
+			CountInCart: inCart[vg.VideoGroup.ID],
 		}
 
 		if dateRange, ok := dateRangeMap[vg.VideoGroup.ID]; ok {
@@ -87,7 +119,7 @@ func (s *VideoService) ListVideoGroupsForUser(ctx context.Context, userID uuid.U
 	return result, nil
 }
 
-func (s *VideoService) GetVideoGroupDetails(ctx context.Context, userID uuid.UUID, slug *string) (*types.VideoGroupDetailsDTO, error) {
+func (s *VideoService) GetVideoGroupDetails(ctx context.Context, userID uuid.UUID, slug *string, cartId *uuid.UUID) (*types.VideoGroupDetailsDTO, error) {
 	group, err := queries.New(s.db).GetVideoGroupForUserBySlug(ctx, &queries.GetVideoGroupForUserBySlugParams{
 		Slug:   slug,
 		UserID: userID,
@@ -101,10 +133,18 @@ func (s *VideoService) GetVideoGroupDetails(ctx context.Context, userID uuid.UUI
 		return nil, err
 	}
 
+	inCart, err := s.countVideoGroupsInCart(ctx, cartId, []uuid.UUID{group.VideoGroup.ID})
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.VideoGroupDetailsDTO{
-		HasAccess:  group.HasAccess,
-		VideoGroup: &group.VideoGroup,
-		Videos:     videos,
+		HasAccess:   group.HasAccess,
+		VideoGroup:  &group.VideoGroup,
+		Videos:      videos,
+		Price:       group.BasePriceAmount,
+		Currency:    group.BasePriceCurrency,
+		CountInCart: inCart[group.VideoGroup.ID],
 	}, nil
 }
 

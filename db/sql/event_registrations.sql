@@ -19,6 +19,11 @@ join events e on e.id = er.event_id
 order by er.inserted_at desc
 limit 1;
 
+-- name: ListUserIDsForEventRegistrations :many
+select er.event_id, er.user_id from event_registrations er
+where er.event_id = any(@EventIDs::uuid[])
+order by er.event_id;
+
 -- name: CountRegistrationsForEvents :many
 select er.event_id, count(er.id) from event_registrations er
 where er.event_id = any(@EventIDs::uuid[])

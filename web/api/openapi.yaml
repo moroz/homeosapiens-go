@@ -463,6 +463,11 @@ components:
           type: string
         isVirtual:
           type: boolean
+        meetingUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: Join link for a virtual meeting, sent out with registration confirmations and reminders.
         startsAt:
           type: string
           format: date-time
@@ -549,6 +554,11 @@ components:
           type: string
         isVirtual:
           type: boolean
+        meetingUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: Join link for a virtual meeting, sent out with registration confirmations and reminders.
         startsAt:
           type: string
           format: date-time
@@ -652,6 +662,11 @@ components:
             Flipping this to false requires the event to end up with a full
             venue, whether the address comes from this payload or is already
             stored on the event.
+        meetingUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: Join link for a virtual meeting. Null clears the stored link.
         venueNameEn:
           type: string
           nullable: true

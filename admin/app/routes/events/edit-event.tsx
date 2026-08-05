@@ -33,6 +33,7 @@ export const EditEvent: React.FC<Props> = () => {
       currency: event.currency ?? undefined,
       startsAt: ISO8601ToDatetimeLocalValue(event.startsAt),
       endsAt: ISO8601ToDatetimeLocalValue(event.endsAt),
+      meetingUrl: event.meetingUrl ?? undefined,
       venueNameEn: event.venueNameEn ?? undefined,
       venueNamePl: event.venueNamePl ?? undefined,
       venueStreet: event.venueStreet ?? undefined,

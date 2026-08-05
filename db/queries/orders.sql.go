@@ -355,7 +355,7 @@ func (q *Queries) MarkOrderAsPaid(ctx context.Context, id uuid.UUID) (*Order, er
 	return &i, err
 }
 
-const registerBuyerForPaidEvents = `-- name: RegisterBuyerForPaidEvents :exec
+const registerBuyerForPaidEvents = `-- name: RegisterBuyerForPaidEvents :many
 insert into event_registrations (event_id, user_id)
 select e.id, o.user_id
 from orders o
@@ -363,11 +363,30 @@ join order_line_items oli on oli.order_id = o.id
 join events e on e.product_id = oli.product_id
 where o.id = $1 and e.ends_at > now()
 on conflict (event_id, user_id) do nothing
+returning event_id
 `
 
-func (q *Queries) RegisterBuyerForPaidEvents(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, registerBuyerForPaidEvents, id)
-	return err
+// Returns the events the buyer was newly registered for. Registrations that
+// already existed are swallowed by the conflict clause and therefore left out,
+// so the caller can enqueue exactly one confirmation email per new registration.
+func (q *Queries) RegisterBuyerForPaidEvents(ctx context.Context, id uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, registerBuyerForPaidEvents, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var event_id uuid.UUID
+		if err := rows.Scan(&event_id); err != nil {
+			return nil, err
+		}
+		items = append(items, event_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const storeCheckoutSessionIDOnOrder = `-- name: StoreCheckoutSessionIDOnOrder :one

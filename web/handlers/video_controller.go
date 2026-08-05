@@ -126,7 +126,7 @@ func (cc *videoController) Thumbnail(c *echo.Context) error {
 func (cc *videoController) Index(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	data, err := cc.videoService.ListVideoGroupsForUser(c.Request().Context(), ctx.User.ID)
+	data, err := cc.videoService.ListVideoGroupsForUser(c.Request().Context(), ctx.User.ID, ctx.CartId)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (cc *videoController) Index(c *echo.Context) error {
 	if param := c.Param("group_slug"); param != "" {
 		groupSlug = &param
 	}
-	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User.ID, groupSlug)
+	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User.ID, groupSlug, ctx.CartId)
 	return videos.Index(ctx, data, group).Render(c.Response())
 }
 
@@ -147,7 +147,7 @@ func (cc *videoController) Show(c *echo.Context) error {
 		return err
 	}
 
-	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User.ID, new(c.Param("group_slug")))
+	group, err := cc.videoService.GetVideoGroupDetails(c.Request().Context(), ctx.User.ID, new(c.Param("group_slug")), ctx.CartId)
 	if err != nil {
 		return err
 	}

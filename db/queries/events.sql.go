@@ -13,6 +13,77 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const claimEventsForReminder1h = `-- name: ClaimEventsForReminder1h :many
+update events set reminder_1h_sent_at = now()
+where id in (
+  select id from events
+  where published_at is not null
+    and reminder_1h_sent_at is null
+    and starts_at > now()
+    and starts_at <= now() + interval '1 hour'
+  for update skip locked
+)
+returning id
+`
+
+// The one-hour counterpart of ClaimEventsForReminder24h.
+func (q *Queries) ClaimEventsForReminder1h(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, claimEventsForReminder1h)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const claimEventsForReminder24h = `-- name: ClaimEventsForReminder24h :many
+update events set reminder_24h_sent_at = now()
+where id in (
+  select id from events
+  where published_at is not null
+    and reminder_24h_sent_at is null
+    and starts_at > now() + interval '1 hour'
+    and starts_at <= now() + interval '24 hours'
+  for update skip locked
+)
+returning id
+`
+
+// Stamps and returns the events whose day-ahead reminder is due, so that a
+// second worker running concurrently cannot pick the same event up. Events
+// starting within the hour are left to the one-hour reminder, which keeps an
+// event published at the last minute from firing both reminders at once.
+func (q *Queries) ClaimEventsForReminder24h(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, claimEventsForReminder24h)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const countEvents = `-- name: CountEvents :one
 select count(*) from events
 `
@@ -57,7 +128,7 @@ func (q *Queries) DeleteEventHosts(ctx context.Context, eventID uuid.UUID) error
 }
 
 const getEventById = `-- name: GetEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events where id = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at from events where id = $1
 `
 
 func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -87,12 +158,15 @@ func (q *Queries) GetEventById(ctx context.Context, id uuid.UUID) (*Event, error
 		&i.VenueCountryCode,
 		&i.ProductID,
 		&i.PublishedAt,
+		&i.MeetingUrl,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
 }
 
 const getEventBySlug = `-- name: GetEventBySlug :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events where slug = $1
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at from events where slug = $1
 `
 
 func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, error) {
@@ -122,47 +196,15 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug string) (*Event, erro
 		&i.VenueCountryCode,
 		&i.ProductID,
 		&i.PublishedAt,
-	)
-	return &i, err
-}
-
-const getFreeEventById = `-- name: GetFreeEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events where product_id is null and id = $1
-`
-
-func (q *Queries) GetFreeEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
-	row := q.db.QueryRow(ctx, getFreeEventById, id)
-	var i Event
-	err := row.Scan(
-		&i.ID,
-		&i.TitleEn,
-		&i.TitlePl,
-		&i.StartsAt,
-		&i.EndsAt,
-		&i.IsVirtual,
-		&i.DescriptionEn,
-		&i.DescriptionPl,
-		&i.EventType,
-		&i.InsertedAt,
-		&i.UpdatedAt,
-		&i.Slug,
-		&i.SubtitleEn,
-		&i.SubtitlePl,
-		&i.VenueNameEn,
-		&i.VenueNamePl,
-		&i.VenueStreet,
-		&i.VenueCityEn,
-		&i.VenueCityPl,
-		&i.VenuePostalCode,
-		&i.VenueCountryCode,
-		&i.ProductID,
-		&i.PublishedAt,
+		&i.MeetingUrl,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
 }
 
 const getPaidEventById = `-- name: GetPaidEventById :one
-select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, e.reminder_24h_sent_at, e.reminder_1h_sent_at, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
 from events e
 join products p on e.product_id = p.id
 where e.id = $1
@@ -200,6 +242,9 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidE
 		&i.Event.VenueCountryCode,
 		&i.Event.ProductID,
 		&i.Event.PublishedAt,
+		&i.Event.MeetingUrl,
+		&i.Event.Reminder24hSentAt,
+		&i.Event.Reminder1hSentAt,
 		&i.Product.ID,
 		&i.Product.ProductType,
 		&i.Product.TitlePl,
@@ -212,10 +257,50 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidE
 	return &i, err
 }
 
+const getRegisterableFreeEventById = `-- name: GetRegisterableFreeEventById :one
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at from events where product_id is null and id = $1 and ends_at > now()
+`
+
+// Registration is only possible while the event is still running: once it has
+// ended, there is nothing left to sign up for.
+func (q *Queries) GetRegisterableFreeEventById(ctx context.Context, id uuid.UUID) (*Event, error) {
+	row := q.db.QueryRow(ctx, getRegisterableFreeEventById, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.IsVirtual,
+		&i.DescriptionEn,
+		&i.DescriptionPl,
+		&i.EventType,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Slug,
+		&i.SubtitleEn,
+		&i.SubtitlePl,
+		&i.VenueNameEn,
+		&i.VenueNamePl,
+		&i.VenueStreet,
+		&i.VenueCityEn,
+		&i.VenueCityPl,
+		&i.VenuePostalCode,
+		&i.VenueCountryCode,
+		&i.ProductID,
+		&i.PublishedAt,
+		&i.MeetingUrl,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
+	)
+	return &i, err
+}
+
 const insertEvent = `-- name: InsertEvent :one
-insert into events (title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14, $15, $16, $17, $18, $19)
-returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
+insert into events (title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, meeting_url)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14, $15, $16, $17, $18, $19, $20)
+returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at
 `
 
 type InsertEventParams struct {
@@ -238,6 +323,7 @@ type InsertEventParams struct {
 	VenuePostalCode  *string
 	VenueCountryCode *string
 	ProductID        *uuid.UUID
+	MeetingUrl       *string
 }
 
 func (q *Queries) InsertEvent(ctx context.Context, arg *InsertEventParams) (*Event, error) {
@@ -261,6 +347,7 @@ func (q *Queries) InsertEvent(ctx context.Context, arg *InsertEventParams) (*Eve
 		arg.VenuePostalCode,
 		arg.VenueCountryCode,
 		arg.ProductID,
+		arg.MeetingUrl,
 	)
 	var i Event
 	err := row.Scan(
@@ -287,6 +374,9 @@ func (q *Queries) InsertEvent(ctx context.Context, arg *InsertEventParams) (*Eve
 		&i.VenueCountryCode,
 		&i.ProductID,
 		&i.PublishedAt,
+		&i.MeetingUrl,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
 }
@@ -561,7 +651,7 @@ func (q *Queries) ListPublishedEvents(ctx context.Context) ([]*ListPublishedEven
 }
 
 const paginateEvents = `-- name: PaginateEvents :many
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at from events
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at from events
 order by starts_at desc
 limit ($2::int) offset ((($1::int) - 1) * $2::int)
 `
@@ -604,6 +694,9 @@ func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams)
 			&i.VenueCountryCode,
 			&i.ProductID,
 			&i.PublishedAt,
+			&i.MeetingUrl,
+			&i.Reminder24hSentAt,
+			&i.Reminder1hSentAt,
 		); err != nil {
 			return nil, err
 		}
@@ -617,7 +710,7 @@ func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams)
 
 const publishEvent = `-- name: PublishEvent :one
 update events set published_at = now(), updated_at = now()
-where id = $1 and published_at is null returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
+where id = $1 and published_at is null returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at
 `
 
 func (q *Queries) PublishEvent(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -647,13 +740,16 @@ func (q *Queries) PublishEvent(ctx context.Context, id uuid.UUID) (*Event, error
 		&i.VenueCountryCode,
 		&i.ProductID,
 		&i.PublishedAt,
+		&i.MeetingUrl,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
 }
 
 const unpublishEvent = `-- name: UnpublishEvent :one
 update events set published_at = null, updated_at = now()
-where id = $1 returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at
+where id = $1 returning id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url, reminder_24h_sent_at, reminder_1h_sent_at
 `
 
 func (q *Queries) UnpublishEvent(ctx context.Context, id uuid.UUID) (*Event, error) {
@@ -683,6 +779,9 @@ func (q *Queries) UnpublishEvent(ctx context.Context, id uuid.UUID) (*Event, err
 		&i.VenueCountryCode,
 		&i.ProductID,
 		&i.PublishedAt,
+		&i.MeetingUrl,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
 }

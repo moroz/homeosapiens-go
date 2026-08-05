@@ -31,6 +31,9 @@ func CartItemController(db queries.DBTX) *cartItemController {
 
 type lineItemParams struct {
 	EventId uuid.UUID `form:"event_id"`
+	// ProductId is how products without an event of their own (video groups) are
+	// added. Exactly one of the two fields is expected.
+	ProductId uuid.UUID `form:"product_id"`
 }
 
 func (cc *cartItemController) Create(c *echo.Context) error {
@@ -40,12 +43,24 @@ func (cc *cartItemController) Create(c *echo.Context) error {
 		return err
 	}
 
-	event, err := queries.New(cc.db).GetPaidEventById(c.Request().Context(), params.EventId)
-	if err != nil {
+	productId := params.ProductId
+	var eventSlug string
+
+	if productId == (uuid.UUID{}) {
+		event, err := queries.New(cc.db).GetPaidEventById(c.Request().Context(), params.EventId)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		productId = event.Product.ID
+		eventSlug = event.Event.Slug
+	} else if _, err := queries.New(cc.db).GetProductById(c.Request().Context(), productId); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return echo.ErrNotFound
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	cartItem, err := cc.cartService.AddProductToCart(c.Request().Context(), ctx.CartId, event.Product.ID)
+	cartItem, err := cc.cartService.AddProductToCart(c.Request().Context(), ctx.CartId, productId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -59,7 +74,10 @@ func (cc *cartItemController) Create(c *echo.Context) error {
 
 	redirectTo := c.Request().Referer()
 	if redirectTo == "" {
-		redirectTo = fmt.Sprintf("/events/%s", event.Event.Slug)
+		redirectTo = "/cart"
+		if eventSlug != "" {
+			redirectTo = fmt.Sprintf("/events/%s", eventSlug)
+		}
 	}
 
 	return c.Redirect(http.StatusFound, redirectTo)

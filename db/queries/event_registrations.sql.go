@@ -76,7 +76,7 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 }
 
 const getLastEventRegistrationWithDetails = `-- name: GetLastEventRegistrationWithDetails :one
-select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted, u.preferred_timezone_locked, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted, u.preferred_timezone_locked, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, e.reminder_24h_sent_at, e.reminder_1h_sent_at
 from event_registrations er
 join users u on u.id = er.user_id
 join events e on e.id = er.event_id
@@ -140,6 +140,9 @@ func (q *Queries) GetLastEventRegistrationWithDetails(ctx context.Context) (*Get
 		&i.Event.VenueCountryCode,
 		&i.Event.ProductID,
 		&i.Event.PublishedAt,
+		&i.Event.MeetingUrl,
+		&i.Event.Reminder24hSentAt,
+		&i.Event.Reminder1hSentAt,
 	)
 	return &i, err
 }
@@ -165,4 +168,35 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 		&i.InsertedAt,
 	)
 	return &i, err
+}
+
+const listUserIDsForEventRegistrations = `-- name: ListUserIDsForEventRegistrations :many
+select er.event_id, er.user_id from event_registrations er
+where er.event_id = any($1::uuid[])
+order by er.event_id
+`
+
+type ListUserIDsForEventRegistrationsRow struct {
+	EventID uuid.UUID
+	UserID  uuid.UUID
+}
+
+func (q *Queries) ListUserIDsForEventRegistrations(ctx context.Context, eventids []uuid.UUID) ([]*ListUserIDsForEventRegistrationsRow, error) {
+	rows, err := q.db.Query(ctx, listUserIDsForEventRegistrations, eventids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListUserIDsForEventRegistrationsRow
+	for rows.Next() {
+		var i ListUserIDsForEventRegistrationsRow
+		if err := rows.Scan(&i.EventID, &i.UserID); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

@@ -53,18 +53,23 @@ func Show(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, video *ty
 					"GroupName":    groupTitle,
 				},
 			})),
-			Video(
-				Controls(),
-				Class("video-js vjs-theme-fantasy aspect-video w-full bg-gray-100"),
-				Map(video.Sources, func(source *queries.VideoSource) Node {
-					t := source.ContentType
-					if source.Codec != nil {
-						t = fmt.Sprintf(`%s; codecs="%s"`, t, *source.Codec)
-					}
+			// The service withholds the video sources without access, so the
+			// player is replaced by the paywall rather than rendered empty.
+			If(!video.HasAccess, LockedPanel(ctx, group)),
+			Iff(video.HasAccess, func() Node {
+				return Video(
+					Controls(),
+					Class("video-js vjs-theme-fantasy aspect-video w-full bg-gray-100"),
+					Map(video.Sources, func(source *queries.VideoSource) Node {
+						t := source.ContentType
+						if source.Codec != nil {
+							t = fmt.Sprintf(`%s; codecs="%s"`, t, *source.Codec)
+						}
 
-					return Source(Src(config.AssetCdnBaseUrl+source.ObjectKey), Type(t))
-				}),
-			),
+						return Source(Src(config.AssetCdnBaseUrl+source.ObjectKey), Type(t))
+					}),
+				)
+			}),
 		),
 	)
 }
