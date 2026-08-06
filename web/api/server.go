@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -24,7 +25,7 @@ type Server struct {
 	db queries.DBTX
 }
 
-func NewServer(db queries.DBTX) *Server {
+func NewServer(db *pgxpool.Pool) *Server {
 	return &Server{
 		eventServer:      NewEventServer(db),
 		videoGroupServer: NewVideoGroupServer(db),

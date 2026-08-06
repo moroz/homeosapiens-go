@@ -4,7 +4,7 @@ import { AdminLayout } from "~/components/admin-layout";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { useGetEventQuery, usePublishEventMutation, useUnpublishEventMutation } from "~/hooks";
 import { DataTableField as Field, DetailsTable } from "~/components/ui/details-table";
-import { PencilIcon } from "@phosphor-icons/react/ssr";
+import { GlobeIcon, PencilIcon, UserListIcon } from "@phosphor-icons/react/ssr";
 import { PageTitle } from "~/components/page-title";
 import { formatInstant } from "~/lib/time";
 import { BackButton } from "~/components/back-button";
@@ -51,6 +51,13 @@ export default function EventDetail() {
               <PageTitle subtitle="Event details">{event.titleEn}</PageTitle>
               <div className="grid justify-end gap-1">
                 <div className="flex items-center justify-end gap-3">
+                  <Link
+                    to={`/events/${event.id}/attendants`}
+                    className={buttonVariants({ variant: "outline" })}
+                  >
+                    <UserListIcon className="w-5" />
+                    Enrolled students
+                  </Link>
                   {event.publishedAt ? (
                     <>
                       <a
@@ -58,6 +65,7 @@ export default function EventDetail() {
                         target="_blank"
                         className={buttonVariants({ variant: "outline" })}
                       >
+                        <GlobeIcon className="w-5" />
                         View on website
                       </a>
                       <Button variant="destructive" onClick={onClickUnpublish} type="button">

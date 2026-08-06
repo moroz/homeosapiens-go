@@ -10,6 +10,7 @@ import NewVideoGroup from "./routes/video-groups/new-video-group";
 import { EditVideoGroup } from "./routes/video-groups/edit-video-group";
 import { MarkdownEditorDialog } from "~/components/markdown-editor";
 import { EditEvent } from "~/routes/events/edit-event";
+import { EventAttendants } from "./routes/events/event-attendants";
 
 export const routes: RouteObject[] = [
   {
@@ -29,6 +30,7 @@ export const routes: RouteObject[] = [
         children: [{ path: "description/:locale", element: <MarkdownEditorDialog /> }],
       },
       { path: "events/:id/edit", element: <EditEvent /> },
+      { path: "events/:id/attendants", element: <EventAttendants /> },
     ],
   },
 ];
