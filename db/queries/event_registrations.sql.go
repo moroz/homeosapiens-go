@@ -11,6 +11,91 @@ import (
 	"github.com/google/uuid"
 )
 
+const claimEventRegistrationsForReminder1h = `-- name: ClaimEventRegistrationsForReminder1h :many
+update event_registrations set reminder_1h_sent_at = now()
+where id in (
+  select er.id from event_registrations er
+  join events e on e.id = er.event_id
+  where e.published_at is not null
+    and er.reminder_1h_sent_at is null
+    and e.starts_at > now()
+    and e.starts_at <= now() + interval '1 hour'
+  for update of er skip locked
+)
+returning event_id, user_id
+`
+
+type ClaimEventRegistrationsForReminder1hRow struct {
+	EventID uuid.UUID
+	UserID  uuid.UUID
+}
+
+// The one-hour counterpart of ClaimEventRegistrationsForReminder24h.
+func (q *Queries) ClaimEventRegistrationsForReminder1h(ctx context.Context) ([]*ClaimEventRegistrationsForReminder1hRow, error) {
+	rows, err := q.db.Query(ctx, claimEventRegistrationsForReminder1h)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ClaimEventRegistrationsForReminder1hRow
+	for rows.Next() {
+		var i ClaimEventRegistrationsForReminder1hRow
+		if err := rows.Scan(&i.EventID, &i.UserID); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const claimEventRegistrationsForReminder24h = `-- name: ClaimEventRegistrationsForReminder24h :many
+update event_registrations set reminder_24h_sent_at = now()
+where id in (
+  select er.id from event_registrations er
+  join events e on e.id = er.event_id
+  where e.published_at is not null
+    and er.reminder_24h_sent_at is null
+    and e.starts_at > now() + interval '1 hour'
+    and e.starts_at <= now() + interval '24 hours'
+  for update of er skip locked
+)
+returning event_id, user_id
+`
+
+type ClaimEventRegistrationsForReminder24hRow struct {
+	EventID uuid.UUID
+	UserID  uuid.UUID
+}
+
+// Stamps and returns the registrations whose day-ahead reminder is due, so that
+// a second worker running concurrently cannot pick the same one up. The stamps
+// live on the registration rather than on the event, so that somebody
+// registering after the scan has run still gets whatever reminders are left.
+// Events starting within the hour are left to the one-hour reminder, which keeps
+// a late registration from firing both reminders at once.
+func (q *Queries) ClaimEventRegistrationsForReminder24h(ctx context.Context) ([]*ClaimEventRegistrationsForReminder24hRow, error) {
+	rows, err := q.db.Query(ctx, claimEventRegistrationsForReminder24h)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ClaimEventRegistrationsForReminder24hRow
+	for rows.Next() {
+		var i ClaimEventRegistrationsForReminder24hRow
+		if err := rows.Scan(&i.EventID, &i.UserID); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const countRegistrationsForEvents = `-- name: CountRegistrationsForEvents :many
 select er.event_id, count(er.id) from event_registrations er
 where er.event_id = any($1::uuid[])
@@ -59,7 +144,7 @@ func (q *Queries) DeleteEventRegistration(ctx context.Context, arg *DeleteEventR
 }
 
 const getLastEventRegistration = `-- name: GetLastEventRegistration :one
-select id, event_id, user_id, inserted_at from event_registrations order by id desc limit 1
+select id, event_id, user_id, inserted_at, reminder_24h_sent_at, reminder_1h_sent_at from event_registrations order by id desc limit 1
 `
 
 // Only for testing
@@ -71,12 +156,14 @@ func (q *Queries) GetLastEventRegistration(ctx context.Context) (*EventRegistrat
 		&i.EventID,
 		&i.UserID,
 		&i.InsertedAt,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
 }
 
 const getLastEventRegistrationWithDetails = `-- name: GetLastEventRegistrationWithDetails :one
-select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted, u.preferred_timezone_locked, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, e.reminder_24h_sent_at, e.reminder_1h_sent_at
+select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted, u.preferred_timezone_locked, e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url
 from event_registrations er
 join users u on u.id = er.user_id
 join events e on e.id = er.event_id
@@ -141,8 +228,6 @@ func (q *Queries) GetLastEventRegistrationWithDetails(ctx context.Context) (*Get
 		&i.Event.ProductID,
 		&i.Event.PublishedAt,
 		&i.Event.MeetingUrl,
-		&i.Event.Reminder24hSentAt,
-		&i.Event.Reminder1hSentAt,
 	)
 	return &i, err
 }
@@ -150,7 +235,7 @@ func (q *Queries) GetLastEventRegistrationWithDetails(ctx context.Context) (*Get
 const insertEventRegistration = `-- name: InsertEventRegistration :one
 insert into event_registrations (event_id, user_id) values ($1, $2)
 on conflict (event_id, user_id) do nothing
-returning id, event_id, user_id, inserted_at
+returning id, event_id, user_id, inserted_at, reminder_24h_sent_at, reminder_1h_sent_at
 `
 
 type InsertEventRegistrationParams struct {
@@ -166,37 +251,8 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 		&i.EventID,
 		&i.UserID,
 		&i.InsertedAt,
+		&i.Reminder24hSentAt,
+		&i.Reminder1hSentAt,
 	)
 	return &i, err
-}
-
-const listUserIDsForEventRegistrations = `-- name: ListUserIDsForEventRegistrations :many
-select er.event_id, er.user_id from event_registrations er
-where er.event_id = any($1::uuid[])
-order by er.event_id
-`
-
-type ListUserIDsForEventRegistrationsRow struct {
-	EventID uuid.UUID
-	UserID  uuid.UUID
-}
-
-func (q *Queries) ListUserIDsForEventRegistrations(ctx context.Context, eventids []uuid.UUID) ([]*ListUserIDsForEventRegistrationsRow, error) {
-	rows, err := q.db.Query(ctx, listUserIDsForEventRegistrations, eventids)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*ListUserIDsForEventRegistrationsRow
-	for rows.Next() {
-		var i ListUserIDsForEventRegistrationsRow
-		if err := rows.Scan(&i.EventID, &i.UserID); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }

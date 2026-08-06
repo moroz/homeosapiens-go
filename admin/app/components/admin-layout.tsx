@@ -62,7 +62,7 @@ export function AdminLayout({ title, children }: Props) {
   }
 
   return (
-    <SidebarProvider defaultOpen={sidebarDefaultOpen()}>
+    <SidebarProvider defaultOpen={sidebarDefaultOpen()} className="overflow-x-hidden">
       <title>{title ? `${title} | Homeo sapiens` : "Homeo sapiens"}</title>
       <Sidebar>
         <SidebarHeader>
@@ -96,7 +96,7 @@ export function AdminLayout({ title, children }: Props) {
         </SidebarContent>
         <SidebarFooter>{session && <NavUser user={session} />}</SidebarFooter>
       </Sidebar>
-      <SidebarInset>
+      <SidebarInset className="overflow-x-hidden">
         <header className="flex h-14 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="mx-2" />

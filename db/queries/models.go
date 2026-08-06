@@ -381,39 +381,39 @@ type CartLineItem struct {
 }
 
 type Event struct {
-	ID                uuid.UUID
-	TitleEn           string
-	TitlePl           string
-	StartsAt          time.Time
-	EndsAt            time.Time
-	IsVirtual         bool
-	DescriptionEn     *string
-	DescriptionPl     *string
-	EventType         EventType
-	InsertedAt        time.Time
-	UpdatedAt         time.Time
-	Slug              string
-	SubtitleEn        *string
-	SubtitlePl        *string
-	VenueNameEn       *string
-	VenueNamePl       *string
-	VenueStreet       *string
-	VenueCityEn       *string
-	VenueCityPl       *string
-	VenuePostalCode   *string
-	VenueCountryCode  *string
-	ProductID         *uuid.UUID
-	PublishedAt       *time.Time
-	MeetingUrl        *string
-	Reminder24hSentAt *time.Time
-	Reminder1hSentAt  *time.Time
+	ID               uuid.UUID
+	TitleEn          string
+	TitlePl          string
+	StartsAt         time.Time
+	EndsAt           time.Time
+	IsVirtual        bool
+	DescriptionEn    *string
+	DescriptionPl    *string
+	EventType        EventType
+	InsertedAt       time.Time
+	UpdatedAt        time.Time
+	Slug             string
+	SubtitleEn       *string
+	SubtitlePl       *string
+	VenueNameEn      *string
+	VenueNamePl      *string
+	VenueStreet      *string
+	VenueCityEn      *string
+	VenueCityPl      *string
+	VenuePostalCode  *string
+	VenueCountryCode *string
+	ProductID        *uuid.UUID
+	PublishedAt      *time.Time
+	MeetingUrl       *string
 }
 
 type EventRegistration struct {
-	ID         uuid.UUID
-	EventID    uuid.UUID
-	UserID     uuid.UUID
-	InsertedAt time.Time
+	ID                uuid.UUID
+	EventID           uuid.UUID
+	UserID            uuid.UUID
+	InsertedAt        time.Time
+	Reminder24hSentAt *time.Time
+	Reminder1hSentAt  *time.Time
 }
 
 type EventsHost struct {

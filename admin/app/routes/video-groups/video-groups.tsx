@@ -15,7 +15,11 @@ const columns: ColumnDef<VideoGroup>[] = [
     header: "Title (EN)",
     cell: ({ row }) => <span className="font-medium">{row.original.titleEn}</span>,
   },
-  { accessorKey: "titlePl", header: "Title (PL)" },
+  {
+    accessorKey: "titlePl",
+    header: "Title (PL)",
+    cell: ({ row }) => <span className="truncate">{row.original.titlePl}</span>,
+  },
   { accessorKey: "slug", header: "Slug" },
   {
     id: "access",
@@ -56,18 +60,20 @@ export default function VideoGroups() {
           </Link>
         </div>
 
-        <DataTable
-          columns={columns}
-          data={data?.data ?? []}
-          pageCount={data?.pagination.totalPages ?? 0}
-          pagination={pagination}
-          onPaginationChange={onPaginationChange}
-          sorting={sorting}
-          onSortingChange={onSortingChange}
-          isPending={isPending}
-          isError={isError}
-          onRowClick={(group) => navigate(`/videos/${group.id}/edit`)}
-        />
+        <div className="w-full overflow-hidden">
+          <DataTable
+            columns={columns}
+            data={data?.data ?? []}
+            pageCount={data?.pagination.totalPages ?? 0}
+            pagination={pagination}
+            onPaginationChange={onPaginationChange}
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+            isPending={isPending}
+            isError={isError}
+            onRowClick={(group) => navigate(`/videos/${group.id}/edit`)}
+          />
+        </div>
       </div>
     </AdminLayout>
   );

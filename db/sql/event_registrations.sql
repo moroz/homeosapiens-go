@@ -19,10 +19,38 @@ join events e on e.id = er.event_id
 order by er.inserted_at desc
 limit 1;
 
--- name: ListUserIDsForEventRegistrations :many
-select er.event_id, er.user_id from event_registrations er
-where er.event_id = any(@EventIDs::uuid[])
-order by er.event_id;
+-- name: ClaimEventRegistrationsForReminder24h :many
+-- Stamps and returns the registrations whose day-ahead reminder is due, so that
+-- a second worker running concurrently cannot pick the same one up. The stamps
+-- live on the registration rather than on the event, so that somebody
+-- registering after the scan has run still gets whatever reminders are left.
+-- Events starting within the hour are left to the one-hour reminder, which keeps
+-- a late registration from firing both reminders at once.
+update event_registrations set reminder_24h_sent_at = now()
+where id in (
+  select er.id from event_registrations er
+  join events e on e.id = er.event_id
+  where e.published_at is not null
+    and er.reminder_24h_sent_at is null
+    and e.starts_at > now() + interval '1 hour'
+    and e.starts_at <= now() + interval '24 hours'
+  for update of er skip locked
+)
+returning event_id, user_id;
+
+-- name: ClaimEventRegistrationsForReminder1h :many
+-- The one-hour counterpart of ClaimEventRegistrationsForReminder24h.
+update event_registrations set reminder_1h_sent_at = now()
+where id in (
+  select er.id from event_registrations er
+  join events e on e.id = er.event_id
+  where e.published_at is not null
+    and er.reminder_1h_sent_at is null
+    and e.starts_at > now()
+    and e.starts_at <= now() + interval '1 hour'
+  for update of er skip locked
+)
+returning event_id, user_id;
 
 -- name: CountRegistrationsForEvents :many
 select er.event_id, count(er.id) from event_registrations er
