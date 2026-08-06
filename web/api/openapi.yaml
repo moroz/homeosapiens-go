@@ -273,9 +273,15 @@ paths:
           schema:
             type: string
             format: uuid
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
       responses:
         "200":
           description: Lists all users signed up for the event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedEventAttendants"
         "404":
           description: No event with that ID.
 
@@ -546,6 +552,17 @@ components:
         pagination:
           $ref: "#/components/schemas/Pagination"
 
+    PaginatedEventAttendants:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items: 
+            $ref: "#/components/schemas/EventAttendant"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      
     PaginatedVideoGroups:
       type: object
       required: [data, pagination]
@@ -798,6 +815,25 @@ components:
               type: string
               nullable: true
               description: ISO 3166-1 alpha-2 country code
+
+    EventAttendant:
+      type: object
+      description: A subset of User fields used in the context of event attendance.
+      required: [id, givenName, familyName, email, insertedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        givenName:
+          type: string
+        familyName:
+          type: string
+        email:
+          type: string
+          format: email
+        insertedAt:
+          type: string
+          format: date-time
 
     EventInput:
       type: object

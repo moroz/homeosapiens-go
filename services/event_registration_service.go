@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
+	"github.com/moroz/homeosapiens-go/types"
 )
 
 type EventRegistrationService struct {
@@ -73,4 +75,38 @@ func (s *EventRegistrationService) DeleteEventRegistration(ctx context.Context, 
 	}
 
 	return true, nil
+}
+
+func countPages(count int64, perPage int32) int {
+	return int(
+		math.Ceil(
+			float64(count) / float64(perPage),
+		),
+	)
+}
+
+func (s *EventRegistrationService) PaginateEventAttendants(ctx context.Context, params *queries.PaginateEventRegistrationsParams) (*types.PaginationPage[*queries.PaginateEventRegistrationsRow], error) {
+	_, err := queries.New(s.db).GetEventById(ctx, params.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := queries.New(s.db).PaginateEventRegistrations(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	count, err := queries.New(s.db).CountEventRegistrations(ctx, params.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.PaginationPage[*queries.PaginateEventRegistrationsRow]{
+		Pagination: types.Pagination{
+			Page:       int(params.Page),
+			PerPage:    int(params.PerPage),
+			TotalPages: countPages(count, params.PerPage),
+		},
+		Data: rows,
+	}, nil
 }

@@ -13,18 +13,33 @@ const columns: ColumnDef<VideoGroup>[] = [
   {
     accessorKey: "titleEn",
     header: "Title (EN)",
-    cell: ({ row }) => <span className="font-medium">{row.original.titleEn}</span>,
+    cell: ({ row }) => (
+      <span className="block w-full truncate font-medium text-ellipsis">
+        {row.original.titleEn}
+      </span>
+    ),
   },
   {
     accessorKey: "titlePl",
     header: "Title (PL)",
-    cell: ({ row }) => <span className="truncate">{row.original.titlePl}</span>,
+    cell: ({ row }) => (
+      <span className="block w-full truncate text-ellipsis">{row.original.titlePl}</span>
+    ),
   },
-  { accessorKey: "slug", header: "Slug" },
+  {
+    accessorKey: "slug",
+    header: "Slug",
+    cell: ({ row }) => (
+      <span className="block w-full truncate font-mono text-sm text-ellipsis">
+        {row.original.slug}
+      </span>
+    ),
+  },
   {
     id: "access",
     header: "Access",
     accessorKey: "isPremium",
+    size: 60,
     cell: ({ row }) =>
       row.original.isPremium ? (
         <Badge>{`${row.original.price} ${row.original.currency}`}</Badge>
@@ -32,11 +47,12 @@ const columns: ColumnDef<VideoGroup>[] = [
         <Badge variant="secondary">free</Badge>
       ),
   },
-  { accessorKey: "videoCount", header: "Videos" },
+  { accessorKey: "videoCount", header: "Videos", size: 50 },
   {
     id: "insertedAt",
     header: "Created at",
     accessorKey: "insertedAt",
+    size: 80,
     cell: ({ row }) => formatInstant(row.original.insertedAt),
   },
 ];
@@ -62,6 +78,7 @@ export default function VideoGroups() {
 
         <div className="w-full overflow-hidden">
           <DataTable
+            className="table-fixed"
             columns={columns}
             data={data?.data ?? []}
             pageCount={data?.pagination.totalPages ?? 0}

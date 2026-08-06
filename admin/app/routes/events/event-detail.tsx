@@ -12,6 +12,7 @@ import { Badge } from "~/components/ui/badge";
 import { EventDescriptionCard } from "~/routes/events/event-description-card";
 import { useCallback, useMemo } from "react";
 import { EyeSlashIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react";
+import { formatPrice } from "~/lib/money";
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -51,10 +52,19 @@ export default function EventDetail() {
               <div className="grid justify-end gap-1">
                 <div className="flex items-center justify-end gap-3">
                   {event.publishedAt ? (
-                    <Button variant="outline" onClick={onClickUnpublish} type="button">
-                      <EyeSlashIcon className="w-5" />
-                      Unpublish
-                    </Button>
+                    <>
+                      <a
+                        href={`/events/${event.slug}`}
+                        target="_blank"
+                        className={buttonVariants({ variant: "outline" })}
+                      >
+                        View on website
+                      </a>
+                      <Button variant="destructive" onClick={onClickUnpublish} type="button">
+                        <EyeSlashIcon className="w-5" />
+                        Unpublish
+                      </Button>
+                    </>
                   ) : (
                     <Button onClick={onClickPublish} type="button" disabled={!canBePublished}>
                       <PaperPlaneTiltIcon className="w-5" />
@@ -109,11 +119,17 @@ export default function EventDetail() {
               <Field label="Subtitle (PL)">{event.subtitlePl}</Field>
               <Field label="Title (EN)">{event.titleEn}</Field>
               <Field label="Subtitle (EN)">{event.subtitleEn}</Field>
+              <Field label="Price">
+                {event.isFree ? "Free" : formatPrice(event.price!, event.currency!)}
+              </Field>
               <Field label="When">
                 {formatInstant(event.startsAt)}&ndash;{formatInstant(event.endsAt)}
               </Field>
               <Field label="Slug" className="font-mono select-all" copy>
                 {event.slug}
+              </Field>
+              <Field label="Zoom link" copy className="font-mono select-all">
+                {event.meetingUrl}
               </Field>
               <Field label="Hosts">
                 {event.hosts?.length ? (

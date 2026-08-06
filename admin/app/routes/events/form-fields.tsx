@@ -103,7 +103,7 @@ export const FormFields: React.FC<Props> = ({ onTitleEnBlur }) => {
               <Switch id="isVirtual" checked={field.value} onCheckedChange={field.onChange} />
             )}
           />
-          <Label htmlFor="isVirtual">This is a virtual event</Label>
+          <Label htmlFor="isVirtual">This is a virtual-only event</Label>
         </div>
 
         {isVirtual && (

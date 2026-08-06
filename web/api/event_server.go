@@ -7,17 +7,19 @@ import (
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/shopspring/decimal"
 )
 
 type eventServer struct {
-	db queries.DBTX
+	db *pgxpool.Pool
 }
 
-func NewEventServer(db queries.DBTX) *eventServer {
+func NewEventServer(db *pgxpool.Pool) *eventServer {
 	return &eventServer{db: db}
 }
 
@@ -253,7 +255,13 @@ func (s *eventServer) DeleteEvent(ctx context.Context, request DeleteEventReques
 // operation declares no response body yet, so this only distinguishes a known
 // event from an unknown one. The payload is still to be defined in openapi.yaml.
 func (s *eventServer) ListEventAttendants(ctx context.Context, request ListEventAttendantsRequestObject) (ListEventAttendantsResponseObject, error) {
-	_, err := queries.New(s.db).GetEventById(ctx, request.Id)
+	page, perPage := resolvePaginationParams(request.Params.Page, request.Params.PerPage)
+
+	list, err := services.NewEventRegistrationService(s.db).PaginateEventAttendants(ctx, &queries.PaginateEventRegistrationsParams{
+		EventID: request.Id,
+		Page:    page,
+		PerPage: perPage,
+	})
 	if errors.Is(err, sql.ErrNoRows) {
 		return ListEventAttendants404Response{}, nil
 	}
@@ -261,7 +269,25 @@ func (s *eventServer) ListEventAttendants(ctx context.Context, request ListEvent
 		return nil, err
 	}
 
-	return ListEventAttendants200Response{}, nil
+	result := make([]EventAttendant, len(list.Data))
+	for i, row := range list.Data {
+		result[i] = EventAttendant{
+			Id:         row.ID,
+			Email:      openapi_types.Email(row.Email.Plaintext()),
+			FamilyName: row.FamilyName.Plaintext(),
+			GivenName:  row.GivenName.Plaintext(),
+			InsertedAt: row.InsertedAt,
+		}
+	}
+
+	return ListEventAttendants200JSONResponse{
+		Data: result,
+		Pagination: Pagination{
+			Page:       int32(list.Pagination.Page),
+			PerPage:    int32(list.Pagination.PerPage),
+			TotalPages: int32(list.Pagination.TotalPages),
+		},
+	}, nil
 }
 
 func validationErrorMessages(verrs validation.Errors) map[string]string {

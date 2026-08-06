@@ -7,7 +7,9 @@ package queries
 
 import (
 	"context"
+	"time"
 
+	sqlcrypter "github.com/bincyber/go-sqlcrypter"
 	"github.com/google/uuid"
 )
 
@@ -94,6 +96,18 @@ func (q *Queries) ClaimEventRegistrationsForReminder24h(ctx context.Context) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const countEventRegistrations = `-- name: CountEventRegistrations :one
+select count(er.id) from event_registrations er
+where er.event_id = $1::uuid
+`
+
+func (q *Queries) CountEventRegistrations(ctx context.Context, eventID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countEventRegistrations, eventID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const countRegistrationsForEvents = `-- name: CountRegistrationsForEvents :many
@@ -255,4 +269,53 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 		&i.Reminder1hSentAt,
 	)
 	return &i, err
+}
+
+const paginateEventRegistrations = `-- name: PaginateEventRegistrations :many
+select u.id, u.given_name_encrypted, u.family_name_encrypted, u.email_encrypted, er.inserted_at
+from event_registrations er
+join users u on er.user_id = u.id
+where er.event_id = $1::uuid
+order by 1 desc
+limit ($3::int) offset ((($2::int) - 1) * $3::int)
+`
+
+type PaginateEventRegistrationsParams struct {
+	EventID uuid.UUID
+	Page    int32
+	PerPage int32
+}
+
+type PaginateEventRegistrationsRow struct {
+	ID         uuid.UUID
+	GivenName  sqlcrypter.EncryptedBytes
+	FamilyName sqlcrypter.EncryptedBytes
+	Email      sqlcrypter.EncryptedBytes
+	InsertedAt time.Time
+}
+
+func (q *Queries) PaginateEventRegistrations(ctx context.Context, arg *PaginateEventRegistrationsParams) ([]*PaginateEventRegistrationsRow, error) {
+	rows, err := q.db.Query(ctx, paginateEventRegistrations, arg.EventID, arg.Page, arg.PerPage)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*PaginateEventRegistrationsRow
+	for rows.Next() {
+		var i PaginateEventRegistrationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GivenName,
+			&i.FamilyName,
+			&i.Email,
+			&i.InsertedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

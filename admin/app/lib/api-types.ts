@@ -289,6 +289,10 @@ export interface components {
             data: components["schemas"]["Event"][];
             pagination: components["schemas"]["Pagination"];
         };
+        PaginatedEventAttendants: {
+            data: components["schemas"]["EventAttendant"][];
+            pagination: components["schemas"]["Pagination"];
+        };
         PaginatedVideoGroups: {
             data: components["schemas"]["VideoGroup"][];
             pagination: components["schemas"]["Pagination"];
@@ -410,6 +414,17 @@ export interface components {
             venuePostalCode?: string | null;
             /** @description ISO 3166-1 alpha-2 country code */
             venueCountryCode?: string | null;
+        };
+        /** @description A subset of User fields used in the context of event attendance. */
+        EventAttendant: {
+            /** Format: uuid */
+            id: string;
+            givenName: string;
+            familyName: string;
+            /** Format: email */
+            email: string;
+            /** Format: date-time */
+            insertedAt: string;
         };
         /** @description Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored. */
         EventInput: {
@@ -847,7 +862,12 @@ export interface operations {
     };
     listEventAttendants: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 1-based page number. Values below 1 are treated as 1. */
+                page?: components["parameters"]["PageParam"];
+                /** @description Number of items per page. Clamped to the [1, 100] range. */
+                perPage?: components["parameters"]["PerPageParam"];
+            };
             header?: never;
             path: {
                 /** @description Event primary key */
@@ -862,7 +882,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PaginatedEventAttendants"];
+                };
             };
             /** @description No event with that ID. */
             404: {

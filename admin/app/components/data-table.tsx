@@ -42,6 +42,7 @@ interface DataTableProps<TData, TValue> {
   isError?: boolean;
   onRowClick?: (row: TData) => void;
   title?: React.ReactNode;
+  className?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -56,6 +57,7 @@ export function DataTable<TData, TValue>({
   isError,
   onRowClick,
   title,
+  className,
 }: DataTableProps<TData, TValue>) {
   const [sortingState, setSortingState] = useState<SortingState>([]);
 
@@ -80,14 +82,21 @@ export function DataTable<TData, TValue>({
       {title && <h2 className="mr-auto text-2xl font-bold">{title}</h2>}
 
       <div className="overflow-hidden rounded-lg border">
-        <Table>
+        <Table className={className}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   const canSort = header.column.getCanSort();
+                  const size = header.getSize();
+                  const styles = header.getSize()
+                    ? {
+                        width: size,
+                      }
+                    : undefined;
+
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} style={styles}>
                       {header.isPlaceholder ? null : canSort ? (
                         <button
                           type="button"

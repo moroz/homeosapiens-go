@@ -56,3 +56,15 @@ returning event_id, user_id;
 select er.event_id, count(er.id) from event_registrations er
 where er.event_id = any(@EventIDs::uuid[])
 group by 1;
+
+-- name: PaginateEventRegistrations :many
+select u.id, u.given_name_encrypted, u.family_name_encrypted, u.email_encrypted, er.inserted_at
+from event_registrations er
+join users u on er.user_id = u.id
+where er.event_id = @event_id::uuid
+order by 1 desc
+limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
+
+-- name: CountEventRegistrations :one
+select count(er.id) from event_registrations er
+where er.event_id = @event_id::uuid;
