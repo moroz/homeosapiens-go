@@ -60,6 +60,15 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		return nil, fmt.Errorf("CreateOrder: %w", err)
 	}
 
+	// An event may well have ended between being put in the cart and checkout,
+	// and attendance to a past event is worthless. Recordings are sold as video
+	// series, which never expire.
+	for _, item := range items {
+		if item.EventHasEnded {
+			return nil, ErrCartContainsEndedEvent
+		}
+	}
+
 	if user == nil {
 		user, err = s.findOrCreateUserForOrder(ctx, tx, params)
 		if err != nil {
@@ -233,3 +242,7 @@ func (s *OrderService) GetOrderByCheckoutSessionID(ctx context.Context, sessionI
 }
 
 var ErrOrderAlreadyPaid = fmt.Errorf("MarkOrderPaidByCheckoutSessionID: order has already been marked as paid")
+
+// ErrCartContainsEndedEvent is returned when checkout is attempted with an event
+// in the cart that has since ended. The buyer has to take it out first.
+var ErrCartContainsEndedEvent = fmt.Errorf("CreateOrder: cart contains an event that has already ended")

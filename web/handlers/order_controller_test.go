@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/google/uuid"
@@ -187,4 +188,84 @@ func TestCartFlow(t *testing.T) {
 
 		rivertest.RequireInserted(t.Context(), t, riverpgxv5.New(db), &jobs.SendOrderEmailArgs{}, nil)
 	})
+}
+
+// Attendance to a past event is worthless, so an ended event can neither be put
+// in the cart nor paid for if it ended while sitting there.
+func TestCartRejectsEndedEvents(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
+	require.NoError(t, err)
+	defer db.Close()
+
+	store, err := sessions.NewStore(config.SessionKey)
+	require.NoError(t, err)
+
+	srv := httptest.NewServer(router.Router(db, store, mocks.NewMockStripeService(t)))
+	defer srv.Close()
+
+	origin, err := url.Parse(srv.URL)
+	require.NoError(t, err)
+
+	endedEvent, err := mocks.PaidEvent(db, ctx, func(p *queries.UpsertEventParams) {
+		p.StartsAt = time.Now().UTC().Add(-26 * time.Hour)
+		p.EndsAt = time.Now().UTC().Add(-24 * time.Hour)
+	})
+	require.NoError(t, err)
+
+	t.Run("POST /cart_items refuses an event that has ended", func(t *testing.T) {
+		client, err := mocks.ClientWithSession(store, origin, nil)
+		require.NoError(t, err)
+
+		body := bytes.NewBufferString(url.Values{"event_id": {endedEvent.ID.String()}}.Encode())
+		req, _ := http.NewRequest("POST", srv.URL+"/cart_items", body)
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	})
+
+	t.Run("POST /orders refuses a cart holding an event that has ended", func(t *testing.T) {
+		cartId := uuid.Must(uuid.NewV7())
+		_, err = db.Exec(ctx, "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, endedEvent.ID)
+		require.NoError(t, err)
+
+		client, err := mocks.ClientWithSession(store, origin, sessions.Payload{
+			config.CartIdSessionKey: cartId,
+		})
+		require.NoError(t, err)
+
+		params := url.Values{
+			"locale":                {"en"},
+			"email":                 {"user@example.com"},
+			"billing_address_line1": {"Example Street 42"},
+			"billing_given_name":    {"John"},
+			"billing_family_name":   {"Smith"},
+			"billing_country":       {"DE"},
+			"billing_city":          {"Berlin"},
+			"billing_postal_code":   {"12345"},
+			"billing_phone":         {phone.ExamplePhoneNumber("DE")},
+		}
+		req, _ := http.NewRequest("POST", srv.URL+"/orders", bytes.NewBufferString(params.Encode()))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		countBefore, err := countRows(ctx, db, "orders")
+		require.NoError(t, err)
+
+		resp, err := client.Do(req)
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusFound, resp.StatusCode)
+		assert.Equal(t, "/cart", resp.Header.Get("Location"))
+
+		countAfter, err := countRows(ctx, db, "orders")
+		require.NoError(t, err)
+		assert.Equal(t, countBefore, countAfter)
+	})
+}
+
+func countRows(ctx context.Context, db *pgxpool.Pool, table string) (int, error) {
+	var val int
+	err := db.QueryRow(ctx, "select count(*) from "+table).Scan(&val)
+	return val, err
 }

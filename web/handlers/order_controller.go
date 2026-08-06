@@ -15,6 +15,7 @@ import (
 	"github.com/moroz/homeosapiens-go/tmpl/orders"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/moroz/homeosapiens-go/web/helpers"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type orderController struct {
@@ -83,6 +84,20 @@ func (cc *orderController) Create(c *echo.Context) error {
 	order, err := cc.orderService.CreateOrder(c.Request().Context(), *ctx.CartId, ctx.User, &params)
 	if validationError, ok := errors.AsType[validation.Errors](err); ok {
 		return orders.New(ctx, cart, &params, helpers.LocalizeValidationErrors(ctx.Localizer, validationError)).Render(c.Response())
+	}
+
+	// An event in the cart may have ended while the buyer was filling the form
+	// in, in which case they are sent back to the cart to take it out.
+	if errors.Is(err, services.ErrCartContainsEndedEvent) {
+		ctx.PutFlash("error", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
+			ID: "cart_items.ended_event",
+		}))
+		_ = ctx.SaveSession(c.Response())
+		return c.Redirect(http.StatusFound, "/cart")
+	}
+
+	if err != nil {
+		return err
 	}
 
 	return c.Redirect(http.StatusFound, order.CheckoutSession.URL)

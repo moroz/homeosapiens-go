@@ -56,6 +56,12 @@ func CartTable(ctx *types.CustomContext, cart *services.CartViewDto) Node {
 								Href(fmt.Sprintf("/events/%s", item.Slug)),
 								Text(title),
 							)),
+							// Checkout refuses a cart holding a past event, so the
+							// row says why it has to go.
+							If(item.EventHasEnded, Span(
+								Class("inline-flex items-center rounded-sm border border-slate-300 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-500"),
+								Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.ended"})),
+							)),
 							deleteItemButton(ctx, item.ProductID),
 						),
 					),

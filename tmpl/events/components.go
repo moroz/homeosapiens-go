@@ -103,7 +103,6 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 	eventUrl := fmt.Sprintf("/events/%s", e.Slug)
 	tz := ctx.Timezone
 
-	isFuture := e.StartsAt.After(time.Now())
 	isFree := e.BasePriceAmount == nil
 	// Registration stays open until the event is over, which is what the sign-up
 	// query enforces (GetRegisterableFreeEventById).
@@ -158,7 +157,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 						ID: "common.events.sign_up",
 					})),
 				)),
-				If(isFuture && !isFree && e.EventRegistration == nil,
+				If(!hasEnded && !isFree && e.EventRegistration == nil,
 					components.AddToCartButton(localizer, e.ListPublishedEventsRow.ID, e.CountInCart),
 				),
 

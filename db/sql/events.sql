@@ -58,6 +58,14 @@ from events e
 join products p on e.product_id = p.id
 where e.id = $1;
 
+-- name: GetPurchasableEventById :one
+-- Attendance can only be bought while the event is still running, the same
+-- window in which a free event can be registered for.
+select sqlc.embed(e), sqlc.embed(p)
+from events e
+join products p on e.product_id = p.id
+where e.id = $1 and e.ends_at > now();
+
 -- name: InsertEvent :one
 insert into events (title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, meeting_url)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14, $15, $16, $17, $18, $19, $20)

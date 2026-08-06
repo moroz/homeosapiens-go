@@ -47,7 +47,11 @@ func (cc *cartItemController) Create(c *echo.Context) error {
 	var eventSlug string
 
 	if productId == (uuid.UUID{}) {
-		event, err := queries.New(cc.db).GetPaidEventById(c.Request().Context(), params.EventId)
+		// An event that is over cannot be attended, so it cannot be bought either.
+		event, err := queries.New(cc.db).GetPurchasableEventById(c.Request().Context(), params.EventId)
+		if errors.Is(err, sql.ErrNoRows) {
+			return echo.ErrNotFound
+		}
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}

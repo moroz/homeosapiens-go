@@ -62,6 +62,13 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 
 			CartTable(ctx, cart),
 
+			// Checkout is refused while the cart holds a past event, so the
+			// buyer is told to take it out rather than left to hit the error.
+			If(cart.HasEndedEvent(), P(
+				Class("my-4 font-semibold text-red-700"),
+				Text(l.MustLocalizeMessage(&i18n.Message{ID: "cart_items.ended_event"})),
+			)),
+
 			Form(
 				Action("/orders"),
 				Method("POST"),
@@ -204,6 +211,7 @@ func New(ctx *types.CustomContext, cart *services.CartViewDto, params *types.Ord
 					Footer(
 						Button(
 							Class("button primary desktop:px-8 mobile:w-full"), Type("submit"),
+							If(cart.HasEndedEvent(), Disabled()),
 							Text(l.MustLocalizeMessage(&i18n.Message{ID: "orders.form.submit"})),
 						),
 					),

@@ -71,3 +71,14 @@ func (s *CartService) GetCartItemsByCartId(ctx context.Context, cartId *uuid.UUI
 func (c *CartViewDto) IsEmpty() bool {
 	return len(c.CartItems) == 0
 }
+
+// HasEndedEvent reports whether the cart holds attendance to an event that is
+// already over, which checkout refuses (see ErrCartContainsEndedEvent).
+func (c *CartViewDto) HasEndedEvent() bool {
+	for _, item := range c.CartItems {
+		if item.EventHasEnded {
+			return true
+		}
+	}
+	return false
+}

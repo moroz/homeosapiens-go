@@ -17,7 +17,8 @@
     "delete": {
       "confirmation": "Do you really want to remove this event from your cart?",
       "success": "The event has been successfully removed from your cart."
-    }
+    },
+    "ended_event": "Your cart contains an event that has already ended. Please remove it to continue."
   },
   "common": {
     "events": {

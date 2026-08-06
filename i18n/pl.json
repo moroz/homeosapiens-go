@@ -17,7 +17,8 @@
     "delete": {
       "confirmation": "Czy na pewno chcesz usunąć to wydarzenie z koszyka?",
       "success": "Wydarzenie zostało usunięte z koszyka."
-    }
+    },
+    "ended_event": "W Twoim koszyku znajduje się wydarzenie, które już się zakończyło. Usuń je, aby kontynuować."
   },
   "common": {
     "events": {

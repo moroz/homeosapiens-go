@@ -24,7 +24,8 @@ where vg.id = any(@video_group_ids::uuid[]) and c.cart_id = @cart_id::uuid;
 -- name: GetCartItemsByCartId :many
 -- Line items may point at a product that is not an event (a video group, say),
 -- in which case there is no event page to link to and slug comes back empty.
-select c.*, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, coalesce(e.slug, '')::text slug
+select c.*, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, coalesce(e.slug, '')::text slug,
+       coalesce(e.ends_at <= now(), false)::bool event_has_ended
 from cart_line_items c
 join products p on c.product_id = p.id
 left join events e on e.product_id = p.id

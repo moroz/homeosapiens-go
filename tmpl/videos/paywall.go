@@ -1,13 +1,26 @@
 package videos
 
 import (
+	"strings"
+
+	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
+	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
+
+// LockIcon marks content the visitor has not bought.
+func LockIcon(classes ...string) Node {
+	return icons.Icon(&icons.IconProps{
+		Name:    "lock",
+		ViewBox: "0 0 448 512",
+		Classes: twmerge.Merge("h-8 w-8", strings.Join(classes, " ")),
+	})
+}
 
 // PaidBadge marks a group the visitor has not bought yet in the series menu.
 func PaidBadge(l *i18n.Localizer) Node {
@@ -25,6 +38,7 @@ func LockedPanel(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO) No
 
 	return Div(
 		Class("flex flex-col items-center gap-3 rounded-sm border border-slate-300 bg-slate-50 px-6 py-12 text-center"),
+		LockIcon("text-slate-400"),
 		H4(
 			Class("text-xl font-bold text-primary"),
 			Text(l.MustLocalizeMessage(&i18n.Message{ID: "videos.paywall.title"})),

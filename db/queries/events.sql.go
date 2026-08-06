@@ -180,6 +180,60 @@ func (q *Queries) GetPaidEventById(ctx context.Context, id uuid.UUID) (*GetPaidE
 	return &i, err
 }
 
+const getPurchasableEventById = `-- name: GetPurchasableEventById :one
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
+from events e
+join products p on e.product_id = p.id
+where e.id = $1 and e.ends_at > now()
+`
+
+type GetPurchasableEventByIdRow struct {
+	Event   Event
+	Product Product
+}
+
+// Attendance can only be bought while the event is still running, the same
+// window in which a free event can be registered for.
+func (q *Queries) GetPurchasableEventById(ctx context.Context, id uuid.UUID) (*GetPurchasableEventByIdRow, error) {
+	row := q.db.QueryRow(ctx, getPurchasableEventById, id)
+	var i GetPurchasableEventByIdRow
+	err := row.Scan(
+		&i.Event.ID,
+		&i.Event.TitleEn,
+		&i.Event.TitlePl,
+		&i.Event.StartsAt,
+		&i.Event.EndsAt,
+		&i.Event.IsVirtual,
+		&i.Event.DescriptionEn,
+		&i.Event.DescriptionPl,
+		&i.Event.EventType,
+		&i.Event.InsertedAt,
+		&i.Event.UpdatedAt,
+		&i.Event.Slug,
+		&i.Event.SubtitleEn,
+		&i.Event.SubtitlePl,
+		&i.Event.VenueNameEn,
+		&i.Event.VenueNamePl,
+		&i.Event.VenueStreet,
+		&i.Event.VenueCityEn,
+		&i.Event.VenueCityPl,
+		&i.Event.VenuePostalCode,
+		&i.Event.VenueCountryCode,
+		&i.Event.ProductID,
+		&i.Event.PublishedAt,
+		&i.Event.MeetingUrl,
+		&i.Product.ID,
+		&i.Product.ProductType,
+		&i.Product.TitlePl,
+		&i.Product.TitleEn,
+		&i.Product.BasePriceAmount,
+		&i.Product.BasePriceCurrency,
+		&i.Product.InsertedAt,
+		&i.Product.UpdatedAt,
+	)
+	return &i, err
+}
+
 const getRegisterableFreeEventById = `-- name: GetRegisterableFreeEventById :one
 select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url from events where product_id is null and id = $1 and ends_at > now()
 `

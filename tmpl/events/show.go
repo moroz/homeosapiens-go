@@ -151,7 +151,10 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 					Localizer: ctx.Localizer,
 				})
 			}),
-			If(!event.IsFree(), components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
+			// Attendance to a past event is worthless, so it is neither
+			// registrable nor purchasable once the event is over.
+			If(!event.IsFree() && !event.HasEnded(), components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
+			If(!event.IsFree() && event.HasEnded(), endedEventBadge(l)),
 			joinMeetingButton(l, event),
 			If(!event.IsFree() && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
 			If(

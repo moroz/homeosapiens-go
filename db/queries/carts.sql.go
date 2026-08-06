@@ -134,7 +134,8 @@ func (q *Queries) GetCart(ctx context.Context, cartID uuid.UUID) (*GetCartRow, e
 }
 
 const getCartItemsByCartId = `-- name: GetCartItemsByCartId :many
-select c.id, c.cart_id, c.quantity, c.inserted_at, c.updated_at, c.product_id, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, coalesce(e.slug, '')::text slug
+select c.id, c.cart_id, c.quantity, c.inserted_at, c.updated_at, c.product_id, (p.base_price_amount * c.quantity)::decimal as subtotal, p.base_price_amount, p.title_en, p.title_pl, coalesce(e.slug, '')::text slug,
+       coalesce(e.ends_at <= now(), false)::bool event_has_ended
 from cart_line_items c
 join products p on c.product_id = p.id
 left join events e on e.product_id = p.id
@@ -153,6 +154,7 @@ type GetCartItemsByCartIdRow struct {
 	TitleEn         string
 	TitlePl         string
 	Slug            string
+	EventHasEnded   bool
 }
 
 // Line items may point at a product that is not an event (a video group, say),
@@ -178,6 +180,7 @@ func (q *Queries) GetCartItemsByCartId(ctx context.Context, cartID uuid.UUID) ([
 			&i.TitleEn,
 			&i.TitlePl,
 			&i.Slug,
+			&i.EventHasEnded,
 		); err != nil {
 			return nil, err
 		}

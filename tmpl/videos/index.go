@@ -36,23 +36,36 @@ func VideoCard(ctx *types.CustomContext, group *types.VideoGroupDetailsDTO, vide
 		title = video.TitlePl
 	}
 
+	card := Article(
+		Class("video-card"),
+		Header(
+			Class("video-card-thumb"),
+			Img(Src(fmt.Sprintf("/videos/%s/thumbnail/%s", video.ID, ctx.Language))),
+			DurationBadge(video.DurationSeconds),
+			If(!group.HasAccess, Span(
+				Class("absolute inset-0 flex items-center justify-center bg-slate-900/40 text-white"),
+				LockIcon(),
+			)),
+		),
+		Footer(
+			Class("video-card-body"),
+			H4(
+				Class("video-card-title"),
+				Text(title)),
+		),
+	)
+
+	// Without access the video page has nothing to show but the paywall, so the
+	// card advertises the series rather than linking into it. The page itself
+	// still checks access, so the link is a convenience, not the guard.
+	if !group.HasAccess {
+		return Div(Class("video-card-link cursor-not-allowed opacity-75"), card)
+	}
+
 	return A(
 		Class("video-card-link no-underline"),
 		Href(fmt.Sprintf("/videos/%s/%s", group.Slug, video.Slug)),
-		Article(
-			Class("video-card"),
-			Header(
-				Class("video-card-thumb"),
-				Img(Src(fmt.Sprintf("/videos/%s/thumbnail/%s", video.ID, ctx.Language))),
-				DurationBadge(video.DurationSeconds),
-			),
-			Footer(
-				Class("video-card-body"),
-				H4(
-					Class("video-card-title"),
-					Text(title)),
-			),
-		),
+		card,
 	)
 }
 
@@ -106,19 +119,23 @@ func Index(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, act
 						title = activeGroup.TitlePl
 					}
 
+					gridClasses := "video-grid"
+					if !activeGroup.HasAccess {
+						gridClasses += " mt-6"
+					}
+
 					return Group{
 						H3(Class("mb-6 inline-block border-b-2 border-primary/30 pb-2 text-2xl font-bold text-primary"), Text(title)),
-						// Without access the grid would only lead to paywalled
-						// video pages, so the offer takes its place.
+						// Without access the offer comes first, but the thumbnails
+						// stay: they are what the series is being sold on. The
+						// cards themselves stop linking anywhere.
 						If(!activeGroup.HasAccess, LockedPanel(ctx, activeGroup)),
-						Iff(activeGroup.HasAccess, func() Node {
-							return Div(
-								Class("video-grid"),
-								Map(activeGroup.Videos, func(video *queries.Video) Node {
-									return VideoCard(ctx, activeGroup, video)
-								}),
-							)
-						}),
+						Div(
+							Class(gridClasses),
+							Map(activeGroup.Videos, func(video *queries.Video) Node {
+								return VideoCard(ctx, activeGroup, video)
+							}),
+						),
 					}
 				}),
 			),
