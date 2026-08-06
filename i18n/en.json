@@ -29,6 +29,10 @@
         "one": "One person is going.",
         "other": "{{ .Count }} people are going."
       },
+      "past_event_attendance_count": {
+        "one": "One person has attended.",
+        "other": "{{ .Count }} people have attended."
+      },
       "event_type": {
         "seminar": "Seminar",
         "webinar": "Webinar"

@@ -30,6 +30,11 @@
         "many": "{{ .Count }} osób weźmie udział.",
         "one": "Jedna osoba weźmie udział."
       },
+      "past_event_attendance_count": {
+        "few": "{{ .Count }} osoby wzięły udział.",
+        "many": "{{ .Count }} osób wzięło udział.",
+        "one": "Jedna osoba wzięła udział."
+      },
       "event_type": {
         "seminar": "Seminarium",
         "webinar": "Webinar"

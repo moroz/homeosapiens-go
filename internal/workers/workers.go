@@ -53,9 +53,7 @@ func periodicJobConfig() ([]*river.PeriodicJob, error) {
 		return nil, err
 	}
 
-	// Reminders are scanned for more often than tokens are vacuumed, so that the
-	// one-hour reminder is not delayed by a quarter of its own lead time.
-	reminderSchedule, err := cron.ParseStandard("*/5 * * * *")
+	reminderSchedule, err := cron.ParseStandard("* * * * *")
 	if err != nil {
 		return nil, err
 	}

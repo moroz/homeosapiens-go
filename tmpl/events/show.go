@@ -155,7 +155,7 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 			joinMeetingButton(l, event),
 			If(!event.IsFree() && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
 			If(
-				event.IsFree() && event.RegistrationCount > 0,
+				event.IsFree() && !event.HasEnded() && event.RegistrationCount > 0,
 				Text(l.MustLocalize(&i18n.LocalizeConfig{
 					DefaultMessage: &i18n.Message{
 						ID: "common.events.attendance_count",
@@ -166,7 +166,18 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 					PluralCount: event.RegistrationCount,
 				})),
 			),
-			If(event.IsFree() && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
+			If(event.IsFree() && event.HasEnded() && event.RegistrationCount > 0,
+				Text(l.MustLocalize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID: "common.events.past_event_attendance_count",
+					},
+					TemplateData: map[string]any{
+						"Count": event.RegistrationCount,
+					},
+					PluralCount: event.RegistrationCount,
+				})),
+			),
+			If(event.IsFree() && !event.HasEnded() && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 		),
 		Div(
 			Class("prose lg:prose-lg mt-4 w-full"),
