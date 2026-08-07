@@ -425,6 +425,9 @@ export interface components {
             email: string;
             /** Format: date-time */
             insertedAt: string;
+            /** Format: uuid */
+            orderId?: string | null;
+            orderNumber?: string;
         };
         /** @description Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored. */
         EventInput: {

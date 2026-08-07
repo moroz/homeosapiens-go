@@ -7,6 +7,7 @@ import (
 	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
@@ -26,7 +27,7 @@ func EventLocationBadge(e *services.EventListDto, l *i18n.Localizer, lang string
 			}
 
 			return Text(
-				fmt.Sprintf("%s, %s", city, helpers.TranslateCountry(l, *e.VenueCountryCode)),
+				fmt.Sprintf("%s, %s", city, countries.CountryDisplayName(*e.VenueCountryCode, lang)),
 			)
 		}),
 		If(e.IsVirtual && e.VenueCityEn != nil, Text(" + ")),
@@ -145,7 +146,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 				Class("text-gray-600 desktop:mb-4"),
 				Text(helpers.TranslateEventType(localizer, e.EventType)),
 				Text(", "),
-				Text(helpers.FormatHosts(localizer, e.Hosts)),
+				Text(helpers.FormatHosts(localizer, ctx.Language, e.Hosts)),
 			),
 
 			Div(

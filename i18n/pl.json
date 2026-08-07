@@ -73,7 +73,8 @@
   "countries": {
     "IN": "Indie",
     "PL": "Polska",
-    "ZA": "RPA"
+    "ZA": "RPA",
+    "AT": "Austria"
   },
   "email_verifications": {
     "create": {

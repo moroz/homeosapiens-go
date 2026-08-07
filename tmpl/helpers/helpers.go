@@ -10,19 +10,11 @@ import (
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
 	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/shopspring/decimal"
 	. "maragu.dev/gomponents"
 )
-
-func TranslateCountry(localizer *i18n.Localizer, countryCode string) string {
-	return localizer.MustLocalize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "countries." + countryCode,
-			Other: countryCode,
-		},
-	})
-}
 
 func TranslateSalutation(localizer *i18n.Localizer, salutation *string) string {
 	if salutation == nil {
@@ -117,19 +109,19 @@ func FormatPrice(amount decimal.Decimal, currencyCode string, locale string) str
 	return fmt.Sprintf("%s %s", currencyCode, amount)
 }
 
-func FormatHostName(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) string {
+func FormatHostName(localizer *i18n.Localizer, localeCode string, host *queries.ListHostsForEventsRow) string {
 	salutation := TranslateSalutation(localizer, host.Salutation)
 	country := ""
 	if host.Country != nil && *host.Country != "" {
-		country = " (" + TranslateCountry(localizer, *host.Country) + ")"
+		country = " (" + countries.CountryDisplayName(*host.Country, localeCode) + ")"
 	}
 	return fmt.Sprintf("%s%s %s%s", salutation, host.GivenName, host.FamilyName, country)
 }
 
-func FormatHosts(localizer *i18n.Localizer, hosts []*queries.ListHostsForEventsRow) string {
+func FormatHosts(localizer *i18n.Localizer, localeCode string, hosts []*queries.ListHostsForEventsRow) string {
 	names := make([]string, len(hosts))
 	for i, host := range hosts {
-		names[i] = FormatHostName(localizer, host)
+		names[i] = FormatHostName(localizer, localeCode, host)
 	}
 	return strings.Join(names, ", ")
 }

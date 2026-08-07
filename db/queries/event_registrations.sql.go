@@ -272,11 +272,16 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 }
 
 const paginateEventRegistrations = `-- name: PaginateEventRegistrations :many
-select u.id, u.given_name_encrypted, u.family_name_encrypted, u.email_encrypted, er.inserted_at
+select distinct on (er.id)
+  u.id, o.id order_id, o.order_number, u.given_name_encrypted, u.family_name_encrypted,
+  u.email_encrypted, er.inserted_at
 from event_registrations er
 join users u on er.user_id = u.id
+join events e on er.event_id = e.id
+left join order_line_items oli on oli.product_id = e.product_id
+left join orders o on o.id = oli.order_id and o.user_id = er.user_id and o.paid_at is not null and o.cancelled_at is null
 where er.event_id = $1::uuid
-order by 1 desc
+order by er.id desc, o.paid_at desc
 limit ($3::int) offset ((($2::int) - 1) * $3::int)
 `
 
@@ -287,11 +292,13 @@ type PaginateEventRegistrationsParams struct {
 }
 
 type PaginateEventRegistrationsRow struct {
-	ID         uuid.UUID
-	GivenName  sqlcrypter.EncryptedBytes
-	FamilyName sqlcrypter.EncryptedBytes
-	Email      sqlcrypter.EncryptedBytes
-	InsertedAt time.Time
+	ID          uuid.UUID
+	OrderID     *uuid.UUID
+	OrderNumber *int64
+	GivenName   sqlcrypter.EncryptedBytes
+	FamilyName  sqlcrypter.EncryptedBytes
+	Email       sqlcrypter.EncryptedBytes
+	InsertedAt  time.Time
 }
 
 func (q *Queries) PaginateEventRegistrations(ctx context.Context, arg *PaginateEventRegistrationsParams) ([]*PaginateEventRegistrationsRow, error) {
@@ -305,6 +312,8 @@ func (q *Queries) PaginateEventRegistrations(ctx context.Context, arg *PaginateE
 		var i PaginateEventRegistrationsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.OrderID,
+			&i.OrderNumber,
 			&i.GivenName,
 			&i.FamilyName,
 			&i.Email,

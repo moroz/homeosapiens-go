@@ -150,7 +150,7 @@ func featuredTicket(ctx *types.CustomContext, e *services.EventListDto) Node {
 		H3(Class("mt-4 text-2xl font-bold text-primary"), Text(title)),
 		Ul(
 			Class("mt-5 grid gap-2 text-slate-700"),
-			ticketRow(tr(ctx, "Host", "Prowadzący"), helpers.FormatHosts(l, e.Hosts)),
+			ticketRow(tr(ctx, "Host", "Prowadzący"), helpers.FormatHosts(l, ctx.Language, e.Hosts)),
 			ticketRow(tr(ctx, "When", "Termin"), helpers.FormatDateRange(e.StartsAt, e.EndsAt, ctx.Timezone, ctx.Language)),
 		),
 		Div(
@@ -275,7 +275,7 @@ func homeEventRow(ctx *types.CustomContext, e *services.EventListDto) Node {
 				Class("mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600"),
 				eventTypeChip(ctx, e),
 				events.EventLocationBadge(e, l, ctx.Language),
-				Span(Text(helpers.FormatHosts(l, e.Hosts))),
+				Span(Text(helpers.FormatHosts(l, ctx.Language, e.Hosts))),
 				Span(Class("font-semibold text-slate-900"), Text(price)),
 			),
 		),

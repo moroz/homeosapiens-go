@@ -62,6 +62,20 @@ func OptionsFromISOCodeList(codes []string) []CountryOption {
 	return result
 }
 
+func CountryDisplayName(code, locale string) string {
+	country, ok := mapped[code]
+	if !ok {
+		return code
+	}
+
+	switch locale {
+	case "pl":
+		return country.LabelPl
+	default:
+		return country.LabelEn
+	}
+}
+
 func All() []CountryOption {
 	return append([]CountryOption(nil), all...)
 }

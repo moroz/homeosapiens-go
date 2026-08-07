@@ -271,12 +271,19 @@ func (s *eventServer) ListEventAttendants(ctx context.Context, request ListEvent
 
 	result := make([]EventAttendant, len(list.Data))
 	for i, row := range list.Data {
+		var orderNumber *string
+		if row.OrderNumber != nil {
+			orderNumber = new(fmt.Sprintf("%d", *row.OrderNumber))
+		}
+
 		result[i] = EventAttendant{
-			Id:         row.ID,
-			Email:      openapi_types.Email(row.Email.Plaintext()),
-			FamilyName: row.FamilyName.Plaintext(),
-			GivenName:  row.GivenName.Plaintext(),
-			InsertedAt: row.InsertedAt,
+			Id:          row.ID,
+			Email:       openapi_types.Email(row.Email.Plaintext()),
+			FamilyName:  row.FamilyName.Plaintext(),
+			GivenName:   row.GivenName.Plaintext(),
+			OrderId:     row.OrderID,
+			OrderNumber: orderNumber,
+			InsertedAt:  row.InsertedAt,
 		}
 	}
 

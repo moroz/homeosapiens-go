@@ -7,6 +7,7 @@ import { DataTable } from "~/components/data-table";
 import { PageTitle } from "~/components/page-title";
 import { useGetEventQuery, useTableSearchParams } from "~/hooks";
 import { useListEventAttendantsQuery, type EventAttendant } from "~/hooks/event-registrations";
+import { formatInstant } from "~/lib/time";
 
 interface Props {}
 
@@ -23,6 +24,20 @@ const columns: ColumnDef<EventAttendant>[] = [
     accessorKey: "email",
     header: "Email",
   },
+  {
+    header: "Order #",
+    cell: ({ row }) => {
+      if (!row.original.orderId) {
+        return "Manually enrolled";
+      }
+      return row.original.orderNumber;
+    },
+  },
+  {
+    accessorKey: "insertedAt",
+    header: "Enrolled at",
+    cell: ({ row }) => formatInstant(row.original.insertedAt),
+  },
 ];
 
 export const EventAttendants: React.FC<Props> = () => {
@@ -38,20 +53,22 @@ export const EventAttendants: React.FC<Props> = () => {
 
   return (
     <AdminLayout title="Enrolled students">
-      <BackButton href={`/events/${id}`}>Back to event</BackButton>
-      <div className="grid gap-4">
-        {!eventPending && <PageTitle subtitle="Enrolled students">{event?.titleEn}</PageTitle>}
+      <div className="grid gap-3">
+        <BackButton href={`/events/${id}`}>Back to event</BackButton>
+        <div className="grid gap-4">
+          {!eventPending && <PageTitle subtitle="Enrolled students">{event?.titleEn}</PageTitle>}
 
-        <DataTable
-          columns={columns}
-          data={attendants?.data ?? []}
-          pageCount={attendants?.pagination.totalPages ?? 0}
-          onPaginationChange={onPaginationChange}
-          sorting={sorting}
-          onSortingChange={onSortingChange}
-          pagination={pagination}
-          isPending={attendantsPending}
-        />
+          <DataTable
+            columns={columns}
+            data={attendants?.data ?? []}
+            pageCount={attendants?.pagination.totalPages ?? 0}
+            onPaginationChange={onPaginationChange}
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+            pagination={pagination}
+            isPending={attendantsPending}
+          />
+        </div>
       </div>
     </AdminLayout>
   );

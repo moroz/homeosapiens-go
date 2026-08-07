@@ -834,6 +834,12 @@ components:
         insertedAt:
           type: string
           format: date-time
+        orderId:
+          type: string
+          format: uuid
+          nullable: true
+        orderNumber:
+          type: string
 
     EventInput:
       type: object
