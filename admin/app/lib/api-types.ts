@@ -169,6 +169,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/{id}/eligible-users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List users matching the given query, and provides a boolean flag indicating whether a user is already enrolled for the given event. */
+        get: operations["listEligibleUsersForEvent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/video-groups": {
         parameters: {
             query?: never;
@@ -428,6 +445,16 @@ export interface components {
             /** Format: uuid */
             orderId?: string | null;
             orderNumber?: string;
+        };
+        /** @description A subset of User fields used in the listEligibleUsersForEvent action. */
+        ListEligibleUsersForEventRow: {
+            /** Format: uuid */
+            id: string;
+            givenName: string;
+            familyName: string;
+            /** Format: email */
+            email: string;
+            enrolled: boolean;
         };
         /** @description Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored. */
         EventInput: {
@@ -895,6 +922,32 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    listEligibleUsersForEvent: {
+        parameters: {
+            query?: {
+                /** @description Search term */
+                q?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Event primary key */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lists users matching the query with enrollment status. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListEligibleUsersForEventRow"][];
+                };
             };
         };
     };

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 )
@@ -12,6 +13,11 @@ import (
 type EventRegistrationEmailDTO struct {
 	Event *queries.Event
 	User  *queries.User
+}
+
+type ListEligibleUsersForEventParams struct {
+	EventID    uuid.UUID
+	SearchTerm string
 }
 
 // EventReminderEmailDTO is the registration payload plus which of the two

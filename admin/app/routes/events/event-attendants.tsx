@@ -1,10 +1,12 @@
+import { UserPlusIcon } from "@phosphor-icons/react/dist/ssr";
 import type { ColumnDef } from "@tanstack/react-table";
 import React from "react";
-import { useParams } from "react-router";
+import { Link, Outlet, useParams } from "react-router";
 import { AdminLayout } from "~/components/admin-layout";
 import { BackButton } from "~/components/back-button";
 import { DataTable } from "~/components/data-table";
 import { PageTitle } from "~/components/page-title";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { useGetEventQuery, useTableSearchParams } from "~/hooks";
 import { useListEventAttendantsQuery, type EventAttendant } from "~/hooks/event-registrations";
 import { formatInstant } from "~/lib/time";
@@ -56,7 +58,15 @@ export const EventAttendants: React.FC<Props> = () => {
       <div className="grid gap-3">
         <BackButton href={`/events/${id}`}>Back to event</BackButton>
         <div className="grid gap-4">
-          {!eventPending && <PageTitle subtitle="Enrolled students">{event?.titleEn}</PageTitle>}
+          <header className="flex justify-between">
+            {!eventPending && <PageTitle subtitle="Enrolled students">{event?.titleEn}</PageTitle>}
+            <div className="flex items-center">
+              <Link to="add" className={buttonVariants({ variant: "outline" })}>
+                <UserPlusIcon className="w-5" />
+                Add an attendant
+              </Link>
+            </div>
+          </header>
 
           <DataTable
             columns={columns}
@@ -70,6 +80,7 @@ export const EventAttendants: React.FC<Props> = () => {
           />
         </div>
       </div>
+      <Outlet />
     </AdminLayout>
   );
 };

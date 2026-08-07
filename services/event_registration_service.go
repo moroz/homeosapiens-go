@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -77,8 +78,8 @@ func (s *EventRegistrationService) DeleteEventRegistration(ctx context.Context, 
 	return true, nil
 }
 
-func countPages(count int64, perPage int32) int {
-	return int(
+func countPages(count int64, perPage int32) int32 {
+	return int32(
 		math.Ceil(
 			float64(count) / float64(perPage),
 		),
@@ -103,10 +104,40 @@ func (s *EventRegistrationService) PaginateEventAttendants(ctx context.Context, 
 
 	return &types.PaginationPage[*queries.PaginateEventRegistrationsRow]{
 		Pagination: types.Pagination{
-			Page:       int(params.Page),
-			PerPage:    int(params.PerPage),
+			Page:       params.Page,
+			PerPage:    params.PerPage,
 			TotalPages: countPages(count, params.PerPage),
 		},
 		Data: rows,
 	}, nil
+}
+
+func (s *EventRegistrationService) ListEligibleUsersForEvent(ctx context.Context, params *types.ListEligibleUsersForEventParams) ([]*queries.ListEligibleUsersForEventRow, error) {
+	allUsers, err := queries.New(s.db).ListEligibleUsersForEvent(ctx, params.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	q := strings.TrimSpace(params.SearchTerm)
+
+	if q == "" {
+		if len(allUsers) < 20 {
+			return allUsers, nil
+		}
+
+		return allUsers[0:20], nil
+	}
+
+	var filtered []*queries.ListEligibleUsersForEventRow
+	for _, user := range allUsers {
+		fullName := fmt.Sprintf("%s %s", user.GivenName.Plaintext(), user.FamilyName.Plaintext())
+		if strings.Contains(strings.ToLower(fullName), q) || strings.Contains(user.Email.Plaintext(), q) {
+			filtered = append(filtered, user)
+		}
+		if len(filtered) == 20 {
+			break
+		}
+	}
+
+	return filtered, nil
 }

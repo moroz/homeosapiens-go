@@ -271,6 +271,47 @@ func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventR
 	return &i, err
 }
 
+const listEligibleUsersForEvent = `-- name: ListEligibleUsersForEvent :many
+select u.id, u.given_name_encrypted, u.family_name_encrypted, u.email_encrypted,
+  (er.id is null)::boolean as can_register
+from users u
+left join event_registrations er on er.user_id = u.id and er.event_id = $1::uuid
+`
+
+type ListEligibleUsersForEventRow struct {
+	ID          uuid.UUID
+	GivenName   sqlcrypter.EncryptedBytes
+	FamilyName  sqlcrypter.EncryptedBytes
+	Email       sqlcrypter.EncryptedBytes
+	CanRegister bool
+}
+
+func (q *Queries) ListEligibleUsersForEvent(ctx context.Context, eventID uuid.UUID) ([]*ListEligibleUsersForEventRow, error) {
+	rows, err := q.db.Query(ctx, listEligibleUsersForEvent, eventID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListEligibleUsersForEventRow
+	for rows.Next() {
+		var i ListEligibleUsersForEventRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GivenName,
+			&i.FamilyName,
+			&i.Email,
+			&i.CanRegister,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const paginateEventRegistrations = `-- name: PaginateEventRegistrations :many
 select distinct on (er.id)
   u.id, o.id order_id, o.order_number, u.given_name_encrypted, u.family_name_encrypted,

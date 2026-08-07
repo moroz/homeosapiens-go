@@ -73,3 +73,9 @@ limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
 -- name: CountEventRegistrations :one
 select count(er.id) from event_registrations er
 where er.event_id = @event_id::uuid;
+
+-- name: ListEligibleUsersForEvent :many
+select u.id, u.given_name_encrypted, u.family_name_encrypted, u.email_encrypted,
+  (er.id is null)::boolean as can_register
+from users u
+left join event_registrations er on er.user_id = u.id and er.event_id = @event_id::uuid;

@@ -131,7 +131,7 @@ func (s *UserService) UpdateUserProfile(ctx context.Context, user *queries.User,
 	})
 }
 
-func (s *UserService) ListUsers(ctx context.Context, params *types.ListUsersParams) (*types.ListUsersResponse, error) {
+func (s *UserService) ListUsers(ctx context.Context, params *types.ListUsersParams) (*types.PaginationPage[*queries.User], error) {
 	q := strings.ToLower(strings.TrimSpace(params.SearchParam))
 
 	if types.EmailValidationRegexp.MatchString(q) {
@@ -139,9 +139,14 @@ func (s *UserService) ListUsers(ctx context.Context, params *types.ListUsersPara
 		if err != nil {
 			return nil, err
 		}
-		return &types.ListUsersResponse{
-			Users:      []*queries.User{user},
-			TotalCount: 1,
+		return &types.PaginationPage[*queries.User]{
+			Data: []*queries.User{user},
+			Pagination: types.Pagination{
+				Page:       1,
+				PerPage:    params.PerPage,
+				TotalPages: 1,
+				TotalCount: 1,
+			},
 		}, nil
 	}
 
@@ -159,9 +164,14 @@ func (s *UserService) ListUsers(ctx context.Context, params *types.ListUsersPara
 			return nil, err
 		}
 
-		return &types.ListUsersResponse{
-			Users:      users,
-			TotalCount: count,
+		return &types.PaginationPage[*queries.User]{
+			Data: users,
+			Pagination: types.Pagination{
+				Page:       params.Page,
+				PerPage:    params.PerPage,
+				TotalPages: countPages(count, params.PerPage),
+				TotalCount: count,
+			},
 		}, nil
 	}
 
@@ -187,9 +197,14 @@ func (s *UserService) ListUsers(ctx context.Context, params *types.ListUsersPara
 		endIndex = int32(count)
 	}
 
-	return &types.ListUsersResponse{
-		Users:      filtered[startIndex:endIndex],
-		TotalCount: count,
+	return &types.PaginationPage[*queries.User]{
+		Data: filtered[startIndex:endIndex],
+		Pagination: types.Pagination{
+			Page:       params.Page,
+			PerPage:    params.PerPage,
+			TotalPages: countPages(count, params.PerPage),
+			TotalCount: count,
+		},
 	}, nil
 }
 

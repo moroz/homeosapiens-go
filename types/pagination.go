@@ -1,10 +1,10 @@
 package types
 
 type Pagination struct {
-	Page       int
-	PerPage    int
-	TotalPages int
-	TotalCount int
+	Page       int32
+	PerPage    int32
+	TotalPages int32
+	TotalCount int64
 }
 
 type PaginationPage[T any] struct {

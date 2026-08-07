@@ -161,8 +161,8 @@ func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (
 		return nil, err
 	}
 
-	out := make([]User, len(result.Users))
-	for i, e := range result.Users {
+	out := make([]User, len(result.Data))
+	for i, e := range result.Data {
 		out[i] = User{
 			Id:               e.ID,
 			Email:            openapi_types.Email(e.Email.Plaintext()),
@@ -181,8 +181,8 @@ func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (
 		Pagination: Pagination{
 			Page:       page,
 			PerPage:    perPage,
-			Total:      result.TotalCount,
-			TotalPages: countPages(result.TotalCount, perPage),
+			Total:      int64(result.Pagination.TotalCount),
+			TotalPages: result.Pagination.TotalPages,
 		},
 	}, nil
 }

@@ -290,11 +290,40 @@ func (s *eventServer) ListEventAttendants(ctx context.Context, request ListEvent
 	return ListEventAttendants200JSONResponse{
 		Data: result,
 		Pagination: Pagination{
-			Page:       int32(list.Pagination.Page),
-			PerPage:    int32(list.Pagination.PerPage),
-			TotalPages: int32(list.Pagination.TotalPages),
+			Page:       list.Pagination.Page,
+			PerPage:    list.Pagination.PerPage,
+			TotalPages: list.Pagination.TotalPages,
 		},
 	}, nil
+}
+
+func (s *eventServer) ListEligibleUsersForEvent(ctx context.Context, request ListEligibleUsersForEventRequestObject) (ListEligibleUsersForEventResponseObject, error) {
+	searchTerm := ""
+	if request.Params.Q != nil {
+		searchTerm = *request.Params.Q
+	}
+
+	list, err := services.NewEventRegistrationService(s.db).ListEligibleUsersForEvent(ctx, &types.ListEligibleUsersForEventParams{
+		EventID:    request.Id,
+		SearchTerm: searchTerm,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]ListEligibleUsersForEventRow, len(list))
+	for i, row := range list {
+		result[i] = ListEligibleUsersForEventRow{
+			Email:      openapi_types.Email(row.Email.Plaintext()),
+			Enrolled:   !row.CanRegister,
+			FamilyName: row.FamilyName.Plaintext(),
+			GivenName:  row.GivenName.Plaintext(),
+			Id:         row.ID,
+		}
+	}
+
+	return ListEligibleUsersForEvent200JSONResponse(result), nil
+
 }
 
 func validationErrorMessages(verrs validation.Errors) map[string]string {

@@ -70,7 +70,7 @@ const Editor: React.FC<EditorProps> = ({ id, locale, initialValue, event, isPend
   const [dirty, setDirty] = useState(false);
 
   /** `..` resolves against the route hierarchy, i.e. back to the detail view. */
-  const close = () => navigate("..");
+  const close = useCallback(() => navigate(".."), [navigate]);
 
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (e) => {

@@ -285,6 +285,33 @@ paths:
         "404":
           description: No event with that ID.
 
+  /events/{id}/eligible-users:
+    get:
+      operationId: listEligibleUsersForEvent
+      summary: List users matching the given query, and provides a boolean flag indicating whether a user is already enrolled for the given event.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event primary key
+          schema:
+            type: string
+            format: uuid
+        - name: q
+          in: query
+          description: Search term
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lists users matching the query with enrollment status.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ListEligibleUsersForEventRow"
+
   /video-groups:
     get:
       operationId: listVideoGroups
@@ -840,6 +867,24 @@ components:
           nullable: true
         orderNumber:
           type: string
+
+    ListEligibleUsersForEventRow:
+      type: object
+      description: A subset of User fields used in the listEligibleUsersForEvent action.
+      required: [id, givenName, familyName, email, enrolled]
+      properties:
+        id:
+          type: string
+          format: uuid
+        givenName:
+          type: string
+        familyName:
+          type: string
+        email:
+          type: string
+          format: email
+        enrolled:
+          type: boolean
 
     EventInput:
       type: object
