@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "~/lib/api";
 import type { components } from "~/lib/api-types";
 import type { UUID } from "~/lib/interfaces";
@@ -20,10 +20,31 @@ export function useListEventAttendantsQuery({
   return useQuery({
     queryKey: ["listEventAttendants", eventId],
     queryFn: async () => {
-      const result = await api.GET("/events/{id}/attendants", {
+      const { data } = await api.GET("/events/{id}/attendants", {
         params: { path: { id: eventId }, query: { page, perPage } },
       });
-      return result.data;
+      return data;
     },
+  });
+}
+
+interface UseListEligibleUsersForEventQueryParams {
+  eventId: UUID;
+  searchTerm: string;
+}
+
+export function useListEligibleUsersForEventQuery({
+  eventId,
+  searchTerm,
+}: UseListEligibleUsersForEventQueryParams) {
+  return useQuery({
+    queryKey: ["listEligibleUsersForEvent", eventId, searchTerm],
+    queryFn: async () => {
+      const { data } = await api.GET("/events/{id}/eligible-users", {
+        params: { path: { id: eventId }, query: { q: searchTerm } },
+      });
+      return data;
+    },
+    placeholderData: keepPreviousData,
   });
 }

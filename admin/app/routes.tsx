@@ -11,7 +11,7 @@ import { EditVideoGroup } from "./routes/video-groups/edit-video-group";
 import { MarkdownEditorDialog } from "~/components/markdown-editor";
 import { EditEvent } from "~/routes/events/edit-event";
 import { EventAttendants } from "./routes/events/event-attendants";
-import { AddAttendantDialog } from "./routes/events/add-attendant-dialog";
+import { EnrollStudentDialog } from "./routes/events/enroll-student-dialog";
 
 export const routes: RouteObject[] = [
   {
@@ -34,7 +34,7 @@ export const routes: RouteObject[] = [
       {
         path: "events/:id/attendants",
         element: <EventAttendants />,
-        children: [{ path: "add", element: <AddAttendantDialog /> }],
+        children: [{ path: "add", element: <EnrollStudentDialog /> }],
       },
     ],
   },
