@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc",
-    "gen:api": "pnpm --package=openapi-typescript@7.13.0 --package=typescript@5.9.3 dlx openapi-typescript ../web/api/openapi.yaml -o app/lib/api-types.ts"
+    "gen:api": "cd ../scripts/gen-api && pnpm exec openapi-typescript ../../web/api/openapi.yaml -o ../../admin/app/lib/api-types.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

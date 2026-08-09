@@ -6,13 +6,14 @@ import {
   DialogHeader,
   DialogFooter,
 } from "~/components/ui/dialog";
-import React, { use, useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useGetEventQuery } from "~/hooks";
-import { useListEligibleUsersForEventQuery } from "~/hooks/event-registrations";
-import { Input } from "~/components/ui/input";
+import {
+  useEnrollStudentForEventMutation,
+  useListEligibleUsersForEventQuery,
+} from "~/hooks/event-registrations";
 import { InputField } from "~/components/forms";
-import { Checkbox } from "~/components/ui/checkbox";
 import { useDebounce } from "~/hooks/use-debounce";
 import { Button } from "~/components/ui/button";
 
@@ -33,6 +34,8 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
     eventId: id!,
     searchTerm: debouncedSearch,
   });
+
+  const mutation = useEnrollStudentForEventMutation();
 
   const collectionRef = useRef<typeof eligibleUsers>([]);
   collectionRef.current = eligibleUsers;

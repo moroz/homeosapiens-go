@@ -7,7 +7,10 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
@@ -22,43 +25,44 @@ func NewEventRegistrationService(db *pgxpool.Pool) *EventRegistrationService {
 	return &EventRegistrationService{db: db}
 }
 
-func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (bool, error) {
+func (s *EventRegistrationService) CreateEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (*queries.InsertEventRegistrationRow, error) {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
-		return false, fmt.Errorf("CreateEventRegistration: %w", err)
+		return nil, fmt.Errorf("CreateEventRegistration: %w", err)
 	}
 	defer tx.Rollback(ctx)
 
-	result, err := queries.New(tx).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
+	queryResult, err := queries.New(tx).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
 		EventID: event.ID,
 		UserID:  user.ID,
 	})
-
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return false, err
+	if err != nil {
+		return nil, fmt.Errorf("CreateEventRegistration: %w", err)
 	}
 
-	newRegistration := result != nil
-
-	if newRegistration {
-		river, err := jobs.NewClient(s.db)
-		if err != nil {
-			return false, fmt.Errorf("CreateEventRegistration: %w", err)
-		}
-		_, err = river.InsertTx(ctx, tx, &jobs.SendEventRegistrationEmailArgs{
-			UserID:  user.ID,
-			EventID: event.ID,
-		}, nil)
-		if err != nil {
-			return false, fmt.Errorf("CreateEventRegistration: failed to enqueue confirmation email: %w", err)
+	if queryResult.NewRecord {
+		if err := s.sendEventRegistrationEmail(ctx, tx, queryResult); err != nil {
+			return nil, fmt.Errorf("CreateEventRegistration: failed to enqueue confirmation email: %w", err)
 		}
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return false, fmt.Errorf("CreateEventRegistration: %w", err)
+		return nil, fmt.Errorf("CreateEventRegistration: %w", err)
 	}
 
-	return newRegistration, nil
+	return queryResult, nil
+}
+
+func (s *EventRegistrationService) sendEventRegistrationEmail(ctx context.Context, tx pgx.Tx, registration *queries.InsertEventRegistrationRow) error {
+	river, err := jobs.NewClient(s.db)
+	if err != nil {
+		return err
+	}
+	_, err = river.InsertTx(ctx, tx, &jobs.SendEventRegistrationEmailArgs{
+		UserID:  registration.EventRegistration.UserID,
+		EventID: registration.EventRegistration.EventID,
+	}, nil)
+	return err
 }
 
 func (s *EventRegistrationService) DeleteEventRegistration(ctx context.Context, user *queries.User, event *queries.Event) (bool, error) {
@@ -140,4 +144,30 @@ func (s *EventRegistrationService) ListEligibleUsersForEvent(ctx context.Context
 	}
 
 	return filtered, nil
+}
+
+// AdminCreateEventRegistration allows an administrator to enroll any user for any event, paid or free. It differs from CreatEventRegistration in that CreateEventRegistration is called with a user fetched from the request context, and an administrator can simply specify a user by primary key.
+func (s *EventRegistrationService) AdminCreateEventRegistration(ctx context.Context, params *types.EnrollStudentForEventInput) (*queries.InsertEventRegistrationRow, error) {
+	event, err := queries.New(s.db).GetEventById(ctx, params.EventID)
+	if err != nil {
+		return nil, fmt.Errorf("AdminCreateEventRegistration: %w", err)
+	}
+
+	if event.PublishedAt == nil {
+		return nil, validation.Errors{
+			"eventId": validation.NewError("unpublished", "event must be published"),
+		}
+	}
+	if event.EndsAt.Before(time.Now()) {
+		return nil, validation.Errors{
+			"eventId": validation.NewError("expired", "event has already ended"),
+		}
+	}
+
+	user, err := queries.New(s.db).GetUserByID(ctx, params.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("AdminCreateEventRegistration: %w", err)
+	}
+
+	return s.CreateEventRegistration(ctx, user, event)
 }

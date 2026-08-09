@@ -50,7 +50,7 @@ and er.user_id = @UserID::uuid;
 -- name: GetRegisterableFreeEventById :one
 -- Registration is only possible while the event is still running: once it has
 -- ended, there is nothing left to sign up for.
-select * from events where product_id is null and id = $1 and ends_at > now();
+select * from events where product_id is null and id = $1 and ends_at > now() and published_at is not null;
 
 -- name: GetPaidEventById :one
 select sqlc.embed(e), sqlc.embed(p)
@@ -64,7 +64,7 @@ where e.id = $1;
 select sqlc.embed(e), sqlc.embed(p)
 from events e
 join products p on e.product_id = p.id
-where e.id = $1 and e.ends_at > now();
+where e.id = $1 and e.ends_at > now() and e.published_at is not null;
 
 -- name: InsertEvent :one
 insert into events (title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, meeting_url)
@@ -90,4 +90,3 @@ delete from events where id = $1;
 
 -- name: CountRegistrationsForEvent :one
 select count(*) from event_registrations where event_id = $1;
-

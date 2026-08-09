@@ -1,9 +1,10 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "~/lib/api";
 import type { components } from "~/lib/api-types";
 import type { UUID } from "~/lib/interfaces";
 
 export type EventAttendant = components["schemas"]["EventAttendant"];
+export type EnrollStudentForEventInput = components["schemas"]["EnrollStudentForEventInput"];
 
 interface UseListEventAttendantsQueryParams {
   eventId: UUID;
@@ -18,7 +19,7 @@ export function useListEventAttendantsQuery({
   perPage = 20,
 }: UseListEventAttendantsQueryParams) {
   return useQuery({
-    queryKey: ["listEventAttendants", eventId],
+    queryKey: ["listEventAttendants", { eventId, page, perPage }],
     queryFn: async () => {
       const { data } = await api.GET("/events/{id}/attendants", {
         params: { path: { id: eventId }, query: { page, perPage } },
@@ -46,5 +47,22 @@ export function useListEligibleUsersForEventQuery({
       return data;
     },
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useEnrollStudentForEventMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: EnrollStudentForEventInput) => {
+      const { data } = await api.POST("/event-registrations", { body: params });
+      return data;
+    },
+    onSuccess(_, { eventId }) {
+      queryClient.invalidateQueries({
+        queryKey: ["listEventAttendants", { eventId }],
+        exact: false,
+      });
+    },
   });
 }

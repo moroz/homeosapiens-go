@@ -288,7 +288,7 @@ paths:
   /events/{id}/eligible-users:
     get:
       operationId: listEligibleUsersForEvent
-      summary: List users matching the given query, and provides a boolean flag indicating whether a user is already enrolled for the given event.
+      summary: List users alongside enrolment status for an event
       parameters:
         - name: id
           in: path
@@ -311,6 +311,35 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ListEligibleUsersForEventRow"
+
+  /event-registrations:
+    post:
+      operationId: enrollStudentForEvent
+      summary: Registers a user for an event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollStudentForEventInput"
+
+      responses:
+        "200":
+          description: The created EventRegistration object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistration"
+
+        "404":
+          description: No event with that ID
+
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
 
   /video-groups:
     get:
@@ -1042,6 +1071,40 @@ components:
           type: string
           nullable: true
           description: ISO 3166-1 alpha-2 country code
+
+    EnrollStudentForEventInput:
+      type: object
+      required: [eventId, userId]
+      x-go-type: types.EnrollStudentForEventInput
+      x-go-type-import:
+        path: github.com/moroz/homeosapiens-go/types
+      properties:
+        eventId:
+          description: The primary key of a published, future event
+          type: string
+          format: uuid
+        userId:
+          description: The primary key of a user
+          type: string
+          format: uuid
+
+    EventRegistration:
+      type: object
+      description: An EventRegistration represents an enrolment of a user for an event.
+      required: [id, eventId, userId, insertedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        eventId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        insertedAt:
+          type: string
+          format: date-time
 
     ValidationErrors:
       type: object

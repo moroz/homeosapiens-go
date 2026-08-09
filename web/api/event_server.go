@@ -323,7 +323,28 @@ func (s *eventServer) ListEligibleUsersForEvent(ctx context.Context, request Lis
 	}
 
 	return ListEligibleUsersForEvent200JSONResponse(result), nil
+}
 
+func (s *eventServer) EnrollStudentForEvent(ctx context.Context, request EnrollStudentForEventRequestObject) (EnrollStudentForEventResponseObject, error) {
+	registration, err := services.NewEventRegistrationService(s.db).AdminCreateEventRegistration(ctx, request.Body)
+	if errors.Is(err, sql.ErrNoRows) {
+		return EnrollStudentForEvent404Response{}, nil
+	}
+	if err, ok := errors.AsType[validation.Errors](err); ok {
+		return EnrollStudentForEvent422JSONResponse{
+			Errors: validationErrorMessages(err),
+		}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return EnrollStudentForEvent200JSONResponse{
+		Id:         registration.EventRegistration.ID,
+		EventId:    registration.EventRegistration.EventID,
+		UserId:     registration.EventRegistration.UserID,
+		InsertedAt: registration.EventRegistration.InsertedAt,
+	}, nil
 }
 
 func validationErrorMessages(verrs validation.Errors) map[string]string {

@@ -247,9 +247,9 @@ func (q *Queries) GetLastEventRegistrationWithDetails(ctx context.Context) (*Get
 }
 
 const insertEventRegistration = `-- name: InsertEventRegistration :one
-insert into event_registrations (event_id, user_id) values ($1, $2)
-on conflict (event_id, user_id) do nothing
-returning id, event_id, user_id, inserted_at, reminder_24h_sent_at, reminder_1h_sent_at
+insert into event_registrations as er (event_id, user_id) values ($1, $2)
+on conflict (event_id, user_id) do update set event_id = excluded.event_id
+returning er.id, er.event_id, er.user_id, er.inserted_at, er.reminder_24h_sent_at, er.reminder_1h_sent_at, (xmax = 0)::boolean new_record
 `
 
 type InsertEventRegistrationParams struct {
@@ -257,16 +257,24 @@ type InsertEventRegistrationParams struct {
 	UserID  uuid.UUID
 }
 
-func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventRegistrationParams) (*EventRegistration, error) {
+type InsertEventRegistrationRow struct {
+	EventRegistration EventRegistration
+	NewRecord         bool
+}
+
+// The ON CONFLICT DO UPDATE clause is required to force Postgres to return the existing row.
+// Since the event_id column is the same for all insert of the same conflicting event,
+func (q *Queries) InsertEventRegistration(ctx context.Context, arg *InsertEventRegistrationParams) (*InsertEventRegistrationRow, error) {
 	row := q.db.QueryRow(ctx, insertEventRegistration, arg.EventID, arg.UserID)
-	var i EventRegistration
+	var i InsertEventRegistrationRow
 	err := row.Scan(
-		&i.ID,
-		&i.EventID,
-		&i.UserID,
-		&i.InsertedAt,
-		&i.Reminder24hSentAt,
-		&i.Reminder1hSentAt,
+		&i.EventRegistration.ID,
+		&i.EventRegistration.EventID,
+		&i.EventRegistration.UserID,
+		&i.EventRegistration.InsertedAt,
+		&i.EventRegistration.Reminder24hSentAt,
+		&i.EventRegistration.Reminder1hSentAt,
+		&i.NewRecord,
 	)
 	return &i, err
 }

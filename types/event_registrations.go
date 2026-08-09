@@ -20,6 +20,11 @@ type ListEligibleUsersForEventParams struct {
 	SearchTerm string
 }
 
+type EnrollStudentForEventInput struct {
+	EventID uuid.UUID `json:"eventId"`
+	UserID  uuid.UUID `json:"userId"`
+}
+
 // EventReminderEmailDTO is the registration payload plus which of the two
 // reminders is being sent, so that the subject and the opening line can differ
 // between the day-ahead and the last-hour mail.

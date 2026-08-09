@@ -176,10 +176,27 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List users matching the given query, and provides a boolean flag indicating whether a user is already enrolled for the given event. */
+        /** List users alongside enrolment status for an event */
         get: operations["listEligibleUsersForEvent"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/event-registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registers a user for an event */
+        post: operations["enrollStudentForEvent"];
         delete?: never;
         options?: never;
         head?: never;
@@ -525,6 +542,29 @@ export interface components {
             venuePostalCode?: string | null;
             /** @description ISO 3166-1 alpha-2 country code */
             venueCountryCode?: string | null;
+        };
+        EnrollStudentForEventInput: {
+            /**
+             * Format: uuid
+             * @description The primary key of a published, future event
+             */
+            eventId: string;
+            /**
+             * Format: uuid
+             * @description The primary key of a user
+             */
+            userId: string;
+        };
+        /** @description An EventRegistration represents an enrolment of a user for an event. */
+        EventRegistration: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            eventId: string;
+            /** Format: uuid */
+            userId: string;
+            /** Format: date-time */
+            insertedAt: string;
         };
         /** @description Map of field name to validation error message(s) for that field. */
         ValidationErrors: {
@@ -947,6 +987,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ListEligibleUsersForEventRow"][];
+                };
+            };
+        };
+    };
+    enrollStudentForEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnrollStudentForEventInput"];
+            };
+        };
+        responses: {
+            /** @description The created EventRegistration object */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventRegistration"];
+                };
+            };
+            /** @description No event with that ID */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
                 };
             };
         };

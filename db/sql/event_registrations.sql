@@ -1,7 +1,9 @@
 -- name: InsertEventRegistration :one
-insert into event_registrations (event_id, user_id) values ($1, $2)
-on conflict (event_id, user_id) do nothing
-returning *;
+-- The ON CONFLICT DO UPDATE clause is required to force Postgres to return the existing row.
+-- Since the event_id column is the same for all insert of the same conflicting event, 
+insert into event_registrations as er (event_id, user_id) values ($1, $2)
+on conflict (event_id, user_id) do update set event_id = excluded.event_id
+returning sqlc.embed(er), (xmax = 0)::boolean new_record;
 
 -- name: DeleteEventRegistration :one
 delete from event_registrations where event_id = $1 and user_id = $2 returning id;

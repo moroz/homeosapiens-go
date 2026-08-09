@@ -47,8 +47,7 @@ func (cc *eventRegistrationController) Create(c *echo.Context) error {
 		return err
 	}
 
-	registered, err := cc.eventRegistrationService.CreateEventRegistration(c.Request().Context(), ctx.User, event)
-	if registered {
+	if _, err := cc.eventRegistrationService.CreateEventRegistration(c.Request().Context(), ctx.User, event); err == nil {
 		ctx.PutFlash("success", ctx.Localizer.MustLocalizeMessage(&i18n.Message{
 			ID: "event_registrations.create.success",
 		}))

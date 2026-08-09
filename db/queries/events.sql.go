@@ -184,7 +184,7 @@ const getPurchasableEventById = `-- name: GetPurchasableEventById :one
 select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, p.id, p.product_type, p.title_pl, p.title_en, p.base_price_amount, p.base_price_currency, p.inserted_at, p.updated_at
 from events e
 join products p on e.product_id = p.id
-where e.id = $1 and e.ends_at > now()
+where e.id = $1 and e.ends_at > now() and e.published_at is not null
 `
 
 type GetPurchasableEventByIdRow struct {
@@ -235,7 +235,7 @@ func (q *Queries) GetPurchasableEventById(ctx context.Context, id uuid.UUID) (*G
 }
 
 const getRegisterableFreeEventById = `-- name: GetRegisterableFreeEventById :one
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url from events where product_id is null and id = $1 and ends_at > now()
+select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url from events where product_id is null and id = $1 and ends_at > now() and published_at is not null
 `
 
 // Registration is only possible while the event is still running: once it has
