@@ -22,16 +22,16 @@ interface Props {}
 export const EnrollStudentDialog: React.FC<Props> = () => {
   const navigate = useNavigate();
 
-  const { id } = useParams();
+  const { id: eventId } = useParams();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const debouncedSearch = useDebounce(searchTerm, 100);
   const listRef = useRef(null);
 
-  const { data: event, isPending } = useGetEventQuery(id!);
+  const { data: event, isPending } = useGetEventQuery(eventId!);
   const { data: eligibleUsers } = useListEligibleUsersForEventQuery({
-    eventId: id!,
+    eventId: eventId!,
     searchTerm: debouncedSearch,
   });
 
@@ -65,7 +65,7 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
 
   const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = useCallback(
     (event) => {
-      if (!["Down", "Up"].includes(event.key)) return;
+      if (!["ArrowDown", "ArrowUp"].includes(event.key)) return;
 
       setSelectedUser((userId) => {
         if (!collectionRef.current) return userId;
@@ -74,7 +74,7 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
 
         const newIndex = (() => {
           switch (event.key) {
-            case "Down":
+            case "ArrowDown":
               if (activeIndex === collectionRef.current.length - 1) return null;
 
               if (activeIndex === null) {
@@ -83,7 +83,7 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
 
               return activeIndex + 1;
 
-            case "Up":
+            case "ArrowUp":
               if (activeIndex === 0 || activeIndex === null) return null;
               return activeIndex - 1;
 
@@ -99,14 +99,29 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
     [listRef, collectionRef],
   );
 
+  const onSubmit: React.SubmitEventHandler<HTMLFormElement> = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (!selectedUser) return;
+
+      await mutation.mutateAsync({ eventId: eventId!, userId: selectedUser });
+      close();
+    },
+    [mutation, selectedUser, eventId, close],
+  );
+
   if (isPending) return null;
 
   return (
     <Dialog open onOpenChange={onOpenChange}>
-      <form>
-        <DialogContent>
+      <DialogContent>
+        <form onSubmit={onSubmit} className="space-y-3">
           <DialogHeader>
-            <DialogTitle>Enroll student for event &ldquo;{event?.titleEn}&rdquo;</DialogTitle>
+            <DialogTitle className="leading-normal">
+              Enroll a student for event:
+              <br />
+              {event?.titleEn}
+            </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-2">
             <InputField
@@ -137,6 +152,7 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
                       onChange={onSelectedUserChange}
                     />
                     {user.givenName} {user.familyName} ({user.email})
+                    {user.enrolled && <span>(already enrolled)</span>}
                   </label>
                 );
               })}
@@ -147,8 +163,8 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
               Enroll student
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 };

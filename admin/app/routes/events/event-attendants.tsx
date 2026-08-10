@@ -6,10 +6,11 @@ import { AdminLayout } from "~/components/admin-layout";
 import { BackButton } from "~/components/back-button";
 import { DataTable } from "~/components/data-table";
 import { PageTitle } from "~/components/page-title";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button";
 import { useGetEventQuery, useTableSearchParams } from "~/hooks";
 import { useListEventAttendantsQuery, type EventAttendant } from "~/hooks/event-registrations";
 import { formatInstant } from "~/lib/time";
+import { cn } from "~/lib/utils";
 
 interface Props {}
 
@@ -52,6 +53,7 @@ export const EventAttendants: React.FC<Props> = () => {
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
   });
+  const unpublished = event?.publishedAt === undefined;
 
   return (
     <AdminLayout title="Enrolled students">
@@ -61,7 +63,13 @@ export const EventAttendants: React.FC<Props> = () => {
           <header className="flex justify-between">
             {!eventPending && <PageTitle subtitle="Enrolled students">{event?.titleEn}</PageTitle>}
             <div className="flex items-center">
-              <Link to="add" className={buttonVariants({ variant: "outline" })}>
+              <Link
+                to="add"
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  unpublished && "pointer-events-none opacity-50",
+                )}
+              >
                 <UserPlusIcon className="w-5" />
                 Add an attendant
               </Link>
