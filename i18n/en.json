@@ -140,7 +140,7 @@
       "cta_text": "Verify email address",
       "subject": "Please confirm your email address"
     },
-    "user_opening_html": "<p>Dear {{.GivenName}} {{.FamilyName}},</p>"
+    "user_opening_html": "<p>Dear {{.GivenName.Plaintext}} {{.FamilyName.Plaintext}},</p>"
   },
   "event_registrations": {
     "create": {

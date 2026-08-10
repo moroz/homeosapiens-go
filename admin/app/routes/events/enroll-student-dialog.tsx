@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "~/components/ui/dialog";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useGetEventQuery } from "~/hooks";
 import {
@@ -16,6 +16,7 @@ import {
 import { InputField } from "~/components/forms";
 import { useDebounce } from "~/hooks/use-debounce";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
 interface Props {}
 
@@ -27,13 +28,13 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const debouncedSearch = useDebounce(searchTerm, 100);
-  const listRef = useRef(null);
 
   const { data: event, isPending } = useGetEventQuery(eventId!);
   const { data: eligibleUsers } = useListEligibleUsersForEventQuery({
     eventId: eventId!,
     searchTerm: debouncedSearch,
   });
+  const listRef = useRef<typeof eligibleUsers>(null);
 
   const mutation = useEnrollStudentForEventMutation();
 
@@ -110,6 +111,11 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
     [mutation, selectedUser, eventId, close],
   );
 
+  const validUserSelected = useMemo(() => {
+    const user = eligibleUsers?.find?.(({ id }) => id === selectedUser);
+    return !user?.enrolled;
+  }, [selectedUser, eligibleUsers]);
+
   if (isPending) return null;
 
   return (
@@ -141,7 +147,11 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
                 return (
                   <label
                     key={user.id}
-                    className="flex cursor-pointer items-center gap-2 px-2 py-1 has-checked:bg-primary has-checked:text-white has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+                    className={cn(
+                      "flex cursor-pointer items-center gap-2 px-2 py-1 has-checked:bg-primary has-checked:text-white has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
+                      user.enrolled &&
+                        "text-muted-foreground has-checked:bg-slate-200 has-checked:text-muted-foreground",
+                    )}
                   >
                     <input
                       type="radio"
@@ -152,14 +162,14 @@ export const EnrollStudentDialog: React.FC<Props> = () => {
                       onChange={onSelectedUserChange}
                     />
                     {user.givenName} {user.familyName} ({user.email})
-                    {user.enrolled && <span>(already enrolled)</span>}
+                    {user.enrolled && " (enrolled)"}
                   </label>
                 );
               })}
             </fieldset>
           </div>
           <DialogFooter>
-            <Button variant="default" type="submit">
+            <Button variant="default" type="submit" disabled={!validUserSelected}>
               Enroll student
             </Button>
           </DialogFooter>

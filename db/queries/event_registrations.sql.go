@@ -284,6 +284,7 @@ select u.id, u.given_name_encrypted, u.family_name_encrypted, u.email_encrypted,
   (er.id is null)::boolean as can_register
 from users u
 left join event_registrations er on er.user_id = u.id and er.event_id = $1::uuid
+order by er.id desc
 `
 
 type ListEligibleUsersForEventRow struct {

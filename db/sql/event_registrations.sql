@@ -80,4 +80,5 @@ where er.event_id = @event_id::uuid;
 select u.id, u.given_name_encrypted, u.family_name_encrypted, u.email_encrypted,
   (er.id is null)::boolean as can_register
 from users u
-left join event_registrations er on er.user_id = u.id and er.event_id = @event_id::uuid;
+left join event_registrations er on er.user_id = u.id and er.event_id = @event_id::uuid
+order by er.id desc;

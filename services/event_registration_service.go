@@ -1,11 +1,13 @@
 package services
 
 import (
+	"cmp"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"math"
+	"slices"
 	"strings"
 	"time"
 
@@ -15,6 +17,8 @@ import (
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/types"
+	"golang.org/x/text/collate"
+	"golang.org/x/text/language"
 )
 
 type EventRegistrationService struct {
@@ -121,6 +125,21 @@ func (s *EventRegistrationService) ListEligibleUsersForEvent(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
+
+	collation := collate.New(language.Polish)
+
+	boolToInt := func(b bool) int {
+		if b {
+			return 0
+		}
+		return 1
+	}
+
+	allUsers = slices.SortedFunc(slices.Values(allUsers), func(a, b *queries.ListEligibleUsersForEventRow) int {
+		aName := fmt.Sprintf("%s %s", a.GivenName.Plaintext(), a.FamilyName.Plaintext())
+		bName := fmt.Sprintf("%s %s", b.GivenName.Plaintext(), b.FamilyName.Plaintext())
+		return cmp.Or(cmp.Compare(boolToInt(a.CanRegister), boolToInt(b.CanRegister)), collation.CompareString(aName, bName))
+	})
 
 	q := strings.TrimSpace(params.SearchTerm)
 
