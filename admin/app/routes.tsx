@@ -12,6 +12,7 @@ import { MarkdownEditorDialog } from "~/components/markdown-editor";
 import { EditEvent } from "~/routes/events/edit-event";
 import { EventAttendants } from "./routes/events/event-attendants";
 import { EnrollStudentDialog } from "./routes/events/enroll-student-dialog";
+import { UserDetails } from "./routes/users/user-details";
 
 export const routes: RouteObject[] = [
   {
@@ -23,6 +24,7 @@ export const routes: RouteObject[] = [
       { path: "videos/new", element: <NewVideoGroup /> },
       { path: "videos/:id/edit", element: <EditVideoGroup /> },
       { path: "users", element: <Users /> },
+      { path: "users/:id", element: <UserDetails /> },
       { path: "events", element: <Events /> },
       { path: "events/new", element: <NewEvent /> },
       {

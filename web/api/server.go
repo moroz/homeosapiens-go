@@ -8,7 +8,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
-	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/swaggest/swgui/v5emb"
@@ -21,6 +20,7 @@ import (
 type Server struct {
 	*eventServer
 	*videoGroupServer
+	*userServer
 	q  *queries.Queries
 	db queries.DBTX
 }
@@ -29,6 +29,7 @@ func NewServer(db *pgxpool.Pool) *Server {
 	return &Server{
 		eventServer:      NewEventServer(db),
 		videoGroupServer: NewVideoGroupServer(db),
+		userServer:       NewUserServer(db),
 		q:                queries.New(db),
 		db:               db,
 	}
@@ -140,49 +141,6 @@ func (s *Server) ListVideos(ctx context.Context, params ListVideosRequestObject)
 			PerPage:    perPage,
 			Total:      count,
 			TotalPages: countPages(count, perPage),
-		},
-	}, nil
-}
-
-func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (ListUsersResponseObject, error) {
-	page, perPage := resolvePaginationParams(params.Params.Page, params.Params.PerPage)
-
-	search := ""
-	if params.Params.Search != nil {
-		search = *params.Params.Search
-	}
-
-	result, err := services.NewUserService(s.db).ListUsers(ctx, &types.ListUsersParams{
-		SearchParam: search,
-		PerPage:     perPage,
-		Page:        page,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]User, len(result.Data))
-	for i, e := range result.Data {
-		out[i] = User{
-			Id:               e.ID,
-			Email:            openapi_types.Email(e.Email.Plaintext()),
-			EmailConfirmedAt: e.EmailConfirmedAt,
-			FamilyName:       e.FamilyName.Plaintext(),
-			GivenName:        e.GivenName.Plaintext(),
-			InsertedAt:       e.InsertedAt,
-			PreferredLocale:  string(e.PreferredLocale),
-			Role:             UserRole(e.UserRole),
-			ProfilePicture:   e.ProfilePicture,
-		}
-	}
-
-	return ListUsers200JSONResponse{
-		Data: out,
-		Pagination: Pagination{
-			Page:       page,
-			PerPage:    perPage,
-			Total:      result.Pagination.TotalCount,
-			TotalPages: result.Pagination.TotalPages,
 		},
 	}, nil
 }
