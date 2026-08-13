@@ -2,7 +2,7 @@ import React from "react";
 import type { FieldErrors } from "react-hook-form";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
-import { FieldError } from "~/components/forms/field-error";
+import { Field, FieldLabel, FieldError } from "~/components/ui/field";
 import { cn } from "~/lib/utils";
 
 interface Props extends React.HTMLProps<HTMLInputElement> {
@@ -17,11 +17,11 @@ export const InputField: React.FC<Props> = React.forwardRef(
     const error = errors?.[id]?.message;
 
     return (
-      <div className={cn("flex flex-col gap-1.5", containerClassName)}>
-        <Label htmlFor={id}>{label}</Label>
+      <Field className={containerClassName}>
+        <FieldLabel htmlFor={id}>{label}</FieldLabel>
         <Input id={id} name={name} {...rest} ref={ref} />
-        <FieldError message={error as string} />
-      </div>
+        {error ? <FieldError>{String(error)}</FieldError> : null}
+      </Field>
     );
   },
 );

@@ -16,14 +16,14 @@ export function DetailsTable({ children, className }: DataTableProps) {
   );
 }
 
-interface DataTableFieldProps {
+interface DetailsTableFieldProps {
   label: string;
   children: React.ReactNode;
   className?: string;
   copy?: boolean;
 }
 
-export function DataTableField({ label, children, className, copy }: DataTableFieldProps) {
+export function DetailsTableField({ label, children, className, copy }: DetailsTableFieldProps) {
   const onCopy = useCallback(() => {
     navigator.clipboard.writeText(String(children));
   }, [children]);

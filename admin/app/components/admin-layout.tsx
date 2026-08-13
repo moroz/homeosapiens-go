@@ -1,3 +1,4 @@
+import { Input } from "~/components/ui/input";
 import {
   CalendarDotsIcon as CalendarDots,
   UsersIcon as Users,
@@ -45,9 +46,10 @@ function sidebarDefaultOpen() {
 interface Props {
   title?: ReactNode;
   children?: ReactNode;
+  searchFormAction?: string;
 }
 
-export function AdminLayout({ title, children }: Props) {
+export function AdminLayout({ title, children, searchFormAction }: Props) {
   const { pathname } = useLocation();
   const { data: session, isLoading } = useGetSessionQuery();
 
@@ -100,6 +102,11 @@ export function AdminLayout({ title, children }: Props) {
         <header className="flex h-14 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="mx-2" />
+          {searchFormAction ? (
+            <form>
+              <Input name="q" placeholder="Search..." />
+            </form>
+          ) : null}
           <ThemeToggle className="ml-auto" />
         </header>
         <main className="flex-1 p-4">{children}</main>

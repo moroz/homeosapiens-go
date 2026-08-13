@@ -11,6 +11,7 @@ import { ApiError, isValidationErrorBody } from "~/lib/api";
 import { slugify } from "~/lib/slugify";
 import { FormFields } from "./form-fields";
 import { type VideoGroupFormValues, toVideoGroupInput } from "./interfaces";
+import { BackButton } from "~/components/back-button";
 
 const defaultValues: Partial<VideoGroupFormValues> = {
   isFree: true,
@@ -58,7 +59,8 @@ export default function NewVideoGroup() {
   return (
     <AdminLayout title="New video series">
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-4">
+          <BackButton href="/videos">Back to list</BackButton>
           <PageTitle className="mb-0">Create a video series</PageTitle>
           {formError ? (
             <Notification

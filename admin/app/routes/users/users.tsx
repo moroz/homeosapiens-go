@@ -44,7 +44,7 @@ export const Users: React.FC<Props> = () => {
   const onRowClick = useCallback((row: User) => navigate(row.id), [navigate]);
 
   return (
-    <AdminLayout title="Users">
+    <AdminLayout title="Users" searchFormAction="/users">
       <div className="grid gap-4">
         <PageTitle>Users</PageTitle>
         <DataTable

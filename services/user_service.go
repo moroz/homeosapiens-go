@@ -67,7 +67,7 @@ func (s *UserService) CreateUser(ctx context.Context, params *types.SeedUserPara
 
 	var emailConfirmedAt *time.Time
 	if params.EmailConfirmed {
-		emailConfirmedAt = new(time.Now())
+		emailConfirmedAt = new(time.Now().UTC())
 	}
 
 	if params.Role == "" {

@@ -3,7 +3,7 @@ import { Link, Outlet, useParams } from "react-router";
 import { AdminLayout } from "~/components/admin-layout";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { useGetEventQuery, usePublishEventMutation, useUnpublishEventMutation } from "~/hooks";
-import { DataTableField as Field, DetailsTable } from "~/components/ui/details-table";
+import { DetailsTableField as Field, DetailsTable } from "~/components/ui/details-table";
 import { GlobeIcon, PencilIcon, UserListIcon } from "@phosphor-icons/react/ssr";
 import { PageTitle } from "~/components/page-title";
 import { formatInstant } from "~/lib/time";
