@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useListUsersQuery, type User, useTableSearchParams } from "~/hooks";
 import { AdminLayout } from "~/components/admin-layout";
 import { DataTable } from "~/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
 import { formatInstant } from "~/lib/time";
 import { PageTitle } from "~/components/page-title";
+import { useNavigate } from "react-router";
 
 interface Props {}
 
@@ -33,10 +34,14 @@ const columns: ColumnDef<User>[] = [
 export const Users: React.FC<Props> = () => {
   const { pagination, onPaginationChange, sorting, onSortingChange } = useTableSearchParams(20);
 
+  const navigate = useNavigate();
+
   const { data } = useListUsersQuery({
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
   });
+
+  const onRowClick = useCallback((row: User) => navigate(row.id), [navigate]);
 
   return (
     <AdminLayout title="Users">
@@ -48,6 +53,7 @@ export const Users: React.FC<Props> = () => {
           pageCount={data?.pagination.totalPages ?? 1}
           pagination={pagination}
           onPaginationChange={onPaginationChange}
+          onRowClick={onRowClick}
         />
       </div>
     </AdminLayout>

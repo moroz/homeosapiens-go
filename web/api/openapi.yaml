@@ -74,6 +74,29 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedUsers"
 
+  /users/{id}:
+    get:
+      operationId: getUser
+      summary: Get user data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The data of the requested User.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+        "404":
+          description: No user found with this ID.
+
   /videos:
     get:
       operationId: listVideos
