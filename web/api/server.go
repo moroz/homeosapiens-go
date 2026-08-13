@@ -181,7 +181,7 @@ func (s *Server) ListUsers(ctx context.Context, params ListUsersRequestObject) (
 		Pagination: Pagination{
 			Page:       page,
 			PerPage:    perPage,
-			Total:      int64(result.Pagination.TotalCount),
+			Total:      result.Pagination.TotalCount,
 			TotalPages: result.Pagination.TotalPages,
 		},
 	}, nil

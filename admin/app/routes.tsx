@@ -4,7 +4,7 @@ import { RootErrorBoundary } from "./root";
 import EventDetail from "./routes/events/event-detail";
 import Events from "./routes/events/events";
 import NewEvent from "./routes/events/new-event";
-import Users from "./routes/users";
+import { Users } from "./routes/users";
 import VideoGroups from "./routes/video-groups/video-groups";
 import NewVideoGroup from "./routes/video-groups/new-video-group";
 import { EditVideoGroup } from "./routes/video-groups/edit-video-group";
