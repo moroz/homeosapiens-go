@@ -6,7 +6,7 @@ require (
 	github.com/1Password/connect-sdk-go v1.5.4-0.20250417152128-c154b387248b // indirect
 	github.com/1password/onepassword-sdk-go v0.4.1 // indirect
 	github.com/EikaGruppen/go-macos-keychain v0.1.0 // indirect
-	github.com/byteness/go-keychain v0.0.0-20260108220220-c96c38f7f906 // indirect
+	github.com/byteness/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/byteness/go-libsecret v0.0.0-20260108215642-107379d3dee0 // indirect
 	github.com/byteness/keyring v1.12.3 // indirect
 	github.com/byteness/percent v0.2.2 // indirect

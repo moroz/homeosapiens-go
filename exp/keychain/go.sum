@@ -4,6 +4,8 @@ github.com/1password/onepassword-sdk-go v0.4.1 h1:My/Q2QXemep0I0qHgGrOs7EEzpPh2Q
 github.com/1password/onepassword-sdk-go v0.4.1/go.mod h1:j/CbzhucTywjlYrd6SE6k0LcQaFZ2l8OLBsAsOYtvD0=
 github.com/EikaGruppen/go-macos-keychain v0.1.0 h1:Ucd28lMWB4tBaZghWt6Ae4oWkT//SD3302wH0qumSgc=
 github.com/EikaGruppen/go-macos-keychain v0.1.0/go.mod h1:SNPUGBgzVstRwzR7Xz/F8aK5JNcs7N1zFzk23zd60Io=
+github.com/byteness/go-keychain v0.0.0-20191008050251-8e49817e8af4 h1:HFl8GFmwK19hYuXB8OQ0rTO9WOCgZY9JUy964zaYawY=
+github.com/byteness/go-keychain v0.0.0-20191008050251-8e49817e8af4/go.mod h1:9HlL8SWBRtCZE7sCNq+c3//H/oHywgSwtocmPTdOij8=
 github.com/byteness/go-keychain v0.0.0-20260108220220-c96c38f7f906 h1:6I69EsMJulw9bfwwsOIoOVzN27/UJgHKHPRqsACeloQ=
 github.com/byteness/go-keychain v0.0.0-20260108220220-c96c38f7f906/go.mod h1:jgADfGMmAo24Ct+IHSywQ1qOpeXZtjk8WY6LZQftZ5w=
 github.com/byteness/go-libsecret v0.0.0-20260108215642-107379d3dee0 h1:j59wGsxaBk6aFBuuYofk2oznMGZYyzFovjDqavlJHM8=
