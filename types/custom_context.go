@@ -25,6 +25,7 @@ type CustomContext struct {
 	Timezone    *time.Location
 	TimezoneSet bool
 	User        *queries.User
+	IsApiToken  bool
 }
 
 func NewContext(store *sessions.Store) *CustomContext {

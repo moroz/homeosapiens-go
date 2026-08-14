@@ -5,7 +5,7 @@ select * from users where email_hash = $1;
 select u.* from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > now()
-and ut.token = @token and ut.context = 'access';
+and ut.token = @token and ut.context = @context;
 
 -- name: InsertUser :one
 insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *;

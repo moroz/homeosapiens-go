@@ -77,6 +77,7 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	r.Use(middleware.FetchSessionFromCookies(store, config.SessionCookieName))
 	r.Use(middleware.FetchFlashMessages(store))
 	r.Use(middleware.FetchUserFromSession(db))
+	r.Use(middleware.FetchUserFromBearerToken(db))
 	r.Use(middleware.FetchCartFromSession(db))
 	r.Use(middleware.ResolveTimezone)
 	r.Use(middleware.ResolveRequestLocale(bundle))

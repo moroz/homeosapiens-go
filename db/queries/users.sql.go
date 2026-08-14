@@ -84,11 +84,16 @@ const getUserByAccessToken = `-- name: GetUserByAccessToken :one
 select u.id, u.salutation, u.country, u.profession, u.organization, u.company, u.password_hash, u.last_login_at, u.last_login_ip, u.inserted_at, u.updated_at, u.profile_picture, u.user_role, u.email_encrypted, u.email_hash, u.given_name_encrypted, u.family_name_encrypted, u.email_confirmed_at, u.licence_number_encrypted, u.preferred_locale, u.google_oauth_last_used_at, u.preferred_timezone_encrypted, u.preferred_timezone_locked from user_tokens ut
 join users u on ut.user_id = u.id
 where ut.valid_until > now()
-and ut.token = $1 and ut.context = 'access'
+and ut.token = $1 and ut.context = $2
 `
 
-func (q *Queries) GetUserByAccessToken(ctx context.Context, token []byte) (*User, error) {
-	row := q.db.QueryRow(ctx, getUserByAccessToken, token)
+type GetUserByAccessTokenParams struct {
+	Token   []byte
+	Context string
+}
+
+func (q *Queries) GetUserByAccessToken(ctx context.Context, arg *GetUserByAccessTokenParams) (*User, error) {
+	row := q.db.QueryRow(ctx, getUserByAccessToken, arg.Token, arg.Context)
 	var i User
 	err := row.Scan(
 		&i.ID,
