@@ -1,0 +1,4 @@
+github.com/EikaGruppen/go-macos-keychain v0.1.0 h1:Ucd28lMWB4tBaZghWt6Ae4oWkT//SD3302wH0qumSgc=
+github.com/EikaGruppen/go-macos-keychain v0.1.0/go.mod h1:SNPUGBgzVstRwzR7Xz/F8aK5JNcs7N1zFzk23zd60Io=
+github.com/keybase/go-keychain v0.0.1 h1:way+bWYa6lDppZoZcgMbYsvC7GxljxrskdNInRtuthU=
+github.com/keybase/go-keychain v0.0.1/go.mod h1:PdEILRW3i9D8JcdM+FmY6RwkHGnhHxXwkPPMeUgOK1k=
