@@ -2,22 +2,52 @@ package main
 
 import (
 	"fmt"
+	"keychain/auth"
+	"keychain/config"
 	"log"
+	"os"
 
-	keychain "github.com/EikaGruppen/go-macos-keychain"
+	"golang.org/x/term"
 )
 
-func main() {
-	client := keychain.NewKeychainClient("homeosapiens")
-	name, value := "example", "test_value"
-	if err := client.Update(name, value); err != nil {
-		log.Fatal(err)
-	}
+func readApiTokenFromStdin(prompt string) (string, error) {
+	fmt.Print(prompt)
 
-	val, err := client.Get(name)
+	bytes, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
+}
+
+func main() {
+	client, err := auth.NewClient(config.KeychainName, config.ServiceName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(val)
+	token, err := client.FetchAPIToken(config.ApiTokenKeyringKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if token != "" {
+		fmt.Println(token)
+		return
+	}
+
+	var newToken string
+	for {
+		newToken, err = readApiTokenFromStdin("Please paste your API token (will not show in terminal): ")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if newToken != "" {
+			break
+		}
+	}
+	if err := client.SetAPIToken(config.ApiTokenKeyringKey, newToken); err != nil {
+		log.Fatal(err)
+	}
 }
