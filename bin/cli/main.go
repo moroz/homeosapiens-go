@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"keychain/auth"
-	"keychain/config"
 	"log"
 	"os"
 
+	"github.com/moroz/homeosapiens-go/bin/cli/auth"
+	"github.com/moroz/homeosapiens-go/bin/cli/config"
 	"golang.org/x/term"
 )
 

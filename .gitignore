@@ -5,6 +5,7 @@ assets/dist
 rel/
 /tmp/
 .idea/data_source_mapping.xml
+.idea/deno.xml
 homeosapiens-go
 age.txt
 .claude

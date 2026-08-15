@@ -1,4 +1,4 @@
-module keychain
+module github.com/moroz/homeosapiens-go/bin/cli
 
 go 1.26.5
 
