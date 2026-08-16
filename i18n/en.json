@@ -1,4 +1,10 @@
 {
+  "blog": {
+    "index": {
+      "title": "Blog",
+      "no_posts": "No posts."
+    }
+  },
   "cart": {
     "cart_empty": "Your cart is currently empty.",
     "continue_shopping": "Continue shopping",
@@ -159,7 +165,8 @@
       "home": "Home",
       "my_products": "My products",
       "sign_in": "Sign in",
-      "videos": "Watch"
+      "videos": "Watch",
+      "blog": "Blog"
     },
     "user_dropdown": {
       "profile": "Profile",

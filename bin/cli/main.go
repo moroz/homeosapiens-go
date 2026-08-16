@@ -60,7 +60,7 @@ func EnsureSignedIn() (string, error) {
 	}
 	if token == "" {
 		fmt.Fprintf(os.Stderr, "You are not signed in. Press Enter to open the browser.")
-	
+
 	}
 }
 

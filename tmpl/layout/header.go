@@ -30,6 +30,9 @@ func desktopNav(ctx *types.CustomContext) Node {
 				NavLink("/events", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.events",
 				})),
+				NavLink("/blog", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.blog",
+				})),
 				NavLink("/watch", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.videos",
 				})),

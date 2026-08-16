@@ -47,5 +47,5 @@ func (cc *pageController) Index(c *echo.Context) error {
 		upcoming = upcoming[:3]
 	}
 
-	return pages.Home(ctx, featured, upcoming).Render(c.Response())
+	return wrapRender(pages.Home(ctx, featured, upcoming), c.Response())
 }

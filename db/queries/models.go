@@ -371,6 +371,17 @@ type Asset struct {
 	Scaled           bool
 }
 
+type BlogPost struct {
+	ID          uuid.UUID
+	Title       string
+	Slug        string
+	Language    Locale
+	Body        string
+	PublishedAt *time.Time
+	InsertedAt  time.Time
+	UpdatedAt   time.Time
+}
+
 type CartLineItem struct {
 	ID         uuid.UUID
 	CartID     uuid.UUID
