@@ -103,14 +103,14 @@ func (s *videoGroupServer) CreateVideoGroup(ctx context.Context, request CreateV
 		Price:    price,
 		Currency: p.Currency,
 	})
+	if verr, ok := errors.AsType[validation.Errors](err); ok {
+		return CreateVideoGroup422JSONResponse{Errors: validationErrorMessages(verr)}, nil
+	}
 	if err != nil {
-		if verr, ok := errors.AsType[validation.Errors](err); ok {
-			return CreateVideoGroup422JSONResponse{Errors: validationErrorMessages(verr)}, nil
-		}
 		return nil, err
 	}
 
-	location := fmt.Sprintf("/video-groups/%s", g.ID)
+	location := fmt.Sprintf("/api/admin/video-groups/%s", g.ID)
 
 	return CreateVideoGroup201JSONResponse{
 		Headers: CreateVideoGroup201ResponseHeaders{

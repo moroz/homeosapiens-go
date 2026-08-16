@@ -307,7 +307,8 @@ export interface paths {
         /** List blog posts */
         get: operations["listBlogPosts"];
         put?: never;
-        post?: never;
+        /** Create a blog post */
+        post: operations["createBlogPost"];
         delete?: never;
         options?: never;
         head?: never;
@@ -623,13 +624,19 @@ export interface components {
             slug: string;
             /** @description Locale code, e.g. pl or en */
             language: string;
-            body: string;
+            body?: string | null;
             /** Format: date-time */
             publishedAt?: string | null;
             /** Format: date-time */
             insertedAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        CreateBlogPostInput: {
+            title: string;
+            slug: string;
+            language: string;
+            body?: string | null;
         };
     };
     responses: never;
@@ -1357,6 +1364,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BlogPost"][];
+                };
+            };
+        };
+    };
+    createBlogPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBlogPostInput"];
+            };
+        };
+        responses: {
+            /** @description The created blog post */
+            201: {
+                headers: {
+                    /** @description URL of the created blog post */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlogPost"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
                 };
             };
         };

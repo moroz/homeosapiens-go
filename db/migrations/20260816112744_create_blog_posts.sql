@@ -4,10 +4,11 @@ create table blog_posts (
   title text not null,
   slug citext not null unique,
   language locale not null default 'en',
-  body text not null,
+  body text,
   published_at timestamp(0),
   inserted_at timestamp(0) not null default now(),
-  updated_at timestamp(0) not null default now()
+  updated_at timestamp(0) not null default now(),
+  check (published_at is null or (body is not null and trim(body) != ''))
 );
 
 -- +goose Down

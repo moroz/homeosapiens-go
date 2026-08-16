@@ -376,7 +376,7 @@ type BlogPost struct {
 	Title       string
 	Slug        string
 	Language    Locale
-	Body        string
+	Body        *string
 	PublishedAt *time.Time
 	InsertedAt  time.Time
 	UpdatedAt   time.Time

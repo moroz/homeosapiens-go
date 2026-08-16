@@ -12,6 +12,7 @@ import { FormFields } from "./form-fields";
 import { slugify } from "~/lib/slugify";
 import { PageTitle } from "~/components/page-title";
 import { Notification } from "~/components/notification";
+import { BackButton } from "~/components/back-button";
 
 const defaultValues: Partial<EventFormValues> = {
   eventType: "webinar",
@@ -62,10 +63,12 @@ export default function NewEvent() {
     <AdminLayout title="New event">
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">
+          <BackButton href="/events">Back to list</BackButton>
+
           <PageTitle className="mb-0">Create an event</PageTitle>
           {formError ? (
             <Notification
-              title="An error has prevented this error from being saved."
+              title="An error has prevented this event from being saved."
               variant="destructive"
             >
               {formError}

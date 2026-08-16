@@ -51,6 +51,39 @@ func (q *Queries) GetBlogPostBySlug(ctx context.Context, slug string) (*BlogPost
 	return &i, err
 }
 
+const insertBlogPost = `-- name: InsertBlogPost :one
+insert into blog_posts (title, slug, body, language) values ($1, $2, $3, $4)
+returning id, title, slug, language, body, published_at, inserted_at, updated_at
+`
+
+type InsertBlogPostParams struct {
+	Title    string
+	Slug     string
+	Body     *string
+	Language Locale
+}
+
+func (q *Queries) InsertBlogPost(ctx context.Context, arg *InsertBlogPostParams) (*BlogPost, error) {
+	row := q.db.QueryRow(ctx, insertBlogPost,
+		arg.Title,
+		arg.Slug,
+		arg.Body,
+		arg.Language,
+	)
+	var i BlogPost
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Slug,
+		&i.Language,
+		&i.Body,
+		&i.PublishedAt,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
 const listAllBlogPosts = `-- name: ListAllBlogPosts :many
 select id, title, slug, language, body, published_at, inserted_at, updated_at from blog_posts p order by id desc
 `

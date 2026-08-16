@@ -14,6 +14,7 @@ import { EventAttendants } from "./routes/events/event-attendants";
 import { EnrollStudentDialog } from "./routes/events/enroll-student-dialog";
 import { UserDetails } from "./routes/users/user-details";
 import { BlogPosts } from "./routes/blog-posts/blog-posts";
+import { NewBlogPost } from "~/routes/blog-posts/new-blog-post";
 
 export const routes: RouteObject[] = [
   {
@@ -28,6 +29,7 @@ export const routes: RouteObject[] = [
       { path: "users/:id", element: <UserDetails /> },
       { path: "events", element: <Events /> },
       { path: "blog-posts", element: <BlogPosts /> },
+      { path: "blog-posts/new", element: <NewBlogPost /> },
       { path: "events/new", element: <NewEvent /> },
       {
         path: "events/:id",

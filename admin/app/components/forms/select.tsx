@@ -15,6 +15,7 @@ import {
   SelectItem,
   SelectContent,
 } from "~/components/ui/select";
+import { NativeSelect, NativeSelectOption } from "~/components/ui/native-select";
 
 interface SelectOption {
   value: string;
@@ -41,24 +42,26 @@ export function Select<T extends FieldValues>({
   const error = errors?.[id]?.message as string;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
+    <div className="flex flex-col gap-3">
+      <Label htmlFor={id} className="leading-snug">
+        {label}
+      </Label>
       <Controller
         name={name}
         control={control}
         render={({ field }) => (
-          <BaseSelect value={field.value}>
-            <SelectTrigger id={id} className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </BaseSelect>
+          <NativeSelect
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            className="w-full"
+          >
+            {options.map((option) => (
+              <NativeSelectOption key={option.value} value={option.value}>
+                {option.label}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
         )}
       />
       <FieldError message={error} />

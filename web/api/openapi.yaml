@@ -553,6 +553,35 @@ paths:
                 items:
                   $ref: "#/components/schemas/BlogPost"
 
+    post:
+      operationId: createBlogPost
+      summary: Create a blog post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBlogPostInput"
+      responses:
+        "201":
+          description: The created blog post
+          headers:
+            Location:
+              description: URL of the created blog post
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPost"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
 components:
   parameters:
     PageParam:
@@ -1175,7 +1204,7 @@ components:
 
     BlogPost:
       type: object
-      required: [id, title, slug, language, body, insertedAt, updatedAt]
+      required: [id, title, slug, language, insertedAt, updatedAt]
       properties:
         id:
           type: string
@@ -1189,6 +1218,7 @@ components:
           description: Locale code, e.g. pl or en
         body:
           type: string
+          nullable: true
         publishedAt:
           type: string
           format: date-time
@@ -1199,3 +1229,17 @@ components:
         updatedAt:
           type: string
           format: date-time
+
+    CreateBlogPostInput:
+      type: object
+      required: [title, slug, language]
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        language:
+          type: string
+        body:
+          type: string
+          nullable: true
