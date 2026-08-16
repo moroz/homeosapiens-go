@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
-	"github.com/moroz/homeosapiens-go/bin/cli/auth"
+	"github.com/moroz/homeosapiens-go/bin/cli/client"
 	"github.com/moroz/homeosapiens-go/bin/cli/config"
 	"golang.org/x/term"
 )
@@ -21,33 +20,50 @@ func readApiTokenFromStdin(prompt string) (string, error) {
 	return string(bytes), nil
 }
 
-func main() {
-	client, err := auth.NewClient(config.KeychainName, config.ServiceName)
+func GetExistingToken() (string, error) {
+	keyringClient, err := client.NewDefaultKeyringClient()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	token, err := client.FetchAPIToken(config.ApiTokenKeyringKey)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return keyringClient.FetchAPIToken(config.ApiTokenKeyringKey)
+}
 
-	if token != "" {
-		fmt.Println(token)
-		return
+func SignIn() (string, error) {
+	keyringClient, err := client.NewDefaultKeyringClient()
+	if err != nil {
+		return "", err
 	}
 
 	var newToken string
 	for {
 		newToken, err = readApiTokenFromStdin("Please paste your API token (will not show in terminal): ")
 		if err != nil {
-			log.Fatal(err)
+			fmt.Fprintf(os.Stderr, "Error reading token: %v. Please try again.", err)
 		}
 		if newToken != "" {
 			break
 		}
 	}
-	if err := client.SetAPIToken(config.ApiTokenKeyringKey, newToken); err != nil {
-		log.Fatal(err)
+
+	if err := keyringClient.SetAPIToken(config.ApiTokenKeyringKey, newToken); err != nil {
+		return "", err
 	}
+
+	return newToken, nil
+}
+
+func EnsureSignedIn() (string, error) {
+	token, err := GetExistingToken()
+	if err != nil {
+		return "", err
+	}
+	if token == "" {
+		fmt.Fprintf(os.Stderr, "You are not signed in. Press Enter to open the browser.")
+	
+	}
+}
+
+func main() {
+
 }

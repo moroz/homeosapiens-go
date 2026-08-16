@@ -1,16 +1,21 @@
-package auth
+package client
 
 import (
 	"errors"
 
 	"github.com/byteness/keyring"
+	"github.com/moroz/homeosapiens-go/bin/cli/config"
 )
 
 type KeyringClient struct {
 	ring keyring.Keyring
 }
 
-func NewClient(keychain, service string) (*KeyringClient, error) {
+func NewDefaultKeyringClient() (*KeyringClient, error) {
+	return NewKeyringClient(config.KeychainName, config.ServiceName)
+}
+
+func NewKeyringClient(keychain, service string) (*KeyringClient, error) {
 	ring, err := keyring.Open(keyring.Config{
 		KeychainName: keychain,
 		ServiceName:  service,
