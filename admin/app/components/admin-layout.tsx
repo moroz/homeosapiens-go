@@ -3,6 +3,7 @@ import {
   CalendarDotsIcon as CalendarDots,
   UsersIcon as Users,
   VideoCameraIcon as VideoCamera,
+  ArticleIcon,
 } from "@phosphor-icons/react";
 import { useEffect, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router";
@@ -29,6 +30,7 @@ import { useGetSessionQuery } from "~/hooks";
 
 const NAV_ITEMS = [
   { title: "Videos", to: "/videos", icon: VideoCamera },
+  { title: "Blog", to: "/blog-posts", icon: ArticleIcon },
   { title: "Users", to: "/users", icon: Users },
   { title: "Events", to: "/events", icon: CalendarDots },
 ];

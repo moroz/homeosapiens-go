@@ -21,6 +21,7 @@ type Server struct {
 	*eventServer
 	*videoGroupServer
 	*userServer
+	*blogPostServer
 	q  *queries.Queries
 	db queries.DBTX
 }
@@ -30,6 +31,7 @@ func NewServer(db *pgxpool.Pool) *Server {
 		eventServer:      NewEventServer(db),
 		videoGroupServer: NewVideoGroupServer(db),
 		userServer:       NewUserServer(db),
+		blogPostServer:   NewBlogPostServer(db),
 		q:                queries.New(db),
 		db:               db,
 	}

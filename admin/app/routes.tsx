@@ -13,6 +13,7 @@ import { EditEvent } from "~/routes/events/edit-event";
 import { EventAttendants } from "./routes/events/event-attendants";
 import { EnrollStudentDialog } from "./routes/events/enroll-student-dialog";
 import { UserDetails } from "./routes/users/user-details";
+import { BlogPosts } from "./routes/blog-posts/blog-posts";
 
 export const routes: RouteObject[] = [
   {
@@ -26,6 +27,7 @@ export const routes: RouteObject[] = [
       { path: "users", element: <Users /> },
       { path: "users/:id", element: <UserDetails /> },
       { path: "events", element: <Events /> },
+      { path: "blog-posts", element: <BlogPosts /> },
       { path: "events/new", element: <NewEvent /> },
       {
         path: "events/:id",

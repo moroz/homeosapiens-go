@@ -539,6 +539,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedHosts"
 
+  /blog-posts:
+    get:
+      operationId: listBlogPosts
+      summary: List blog posts
+      responses:
+        "200":
+          description: List of all blog posts, ordered by ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BlogPost"
+
 components:
   parameters:
     PageParam:
@@ -1158,3 +1172,30 @@ components:
           type: string
           nullable: true
           description: ISO 3166-1 alpha-2 country code
+
+    BlogPost:
+      type: object
+      required: [id, title, slug, language, body, insertedAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        slug:
+          type: string
+        language:
+          type: string
+          description: Locale code, e.g. pl or en
+        body:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        insertedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
