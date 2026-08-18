@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -73,4 +74,55 @@ func (s *blogPostServer) CreateBlogPost(ctx context.Context, request CreateBlogP
 			Location: new(fmt.Sprintf("/api/admin/blog-posts/%s", post.ID)),
 		},
 	}, nil
+}
+
+func (s *blogPostServer) GetBlogPost(ctx context.Context, request GetBlogPostRequestObject) (GetBlogPostResponseObject, error) {
+	post, err := queries.New(s.db).GetBlogPostById(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return GetBlogPost404Response{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return GetBlogPost200JSONResponse{
+		Body:        post.Body,
+		Id:          post.ID,
+		InsertedAt:  post.InsertedAt,
+		Language:    string(post.Language),
+		PublishedAt: post.PublishedAt,
+		Slug:        post.Slug,
+		Title:       post.Title,
+		UpdatedAt:   post.UpdatedAt,
+	}, nil
+}
+
+func (s *blogPostServer) PublishBlogPost(ctx context.Context, request PublishBlogPostRequestObject) (PublishBlogPostResponseObject, error) {
+	_, err := services.NewBlogService(s.db).PublishBlogPost(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return PublishBlogPost404Response{}, nil
+	}
+	if verr, ok := errors.AsType[validation.Errors](err); ok {
+		return PublishBlogPost422JSONResponse{Errors: validationErrorMessages(verr)}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return PublishBlogPost204Response{}, nil
+}
+
+func (s *blogPostServer) UnpublishBlogPost(ctx context.Context, request UnpublishBlogPostRequestObject) (UnpublishBlogPostResponseObject, error) {
+	_, err := services.NewBlogService(s.db).UnpublishBlogPost(ctx, request.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return UnpublishBlogPost404Response{}, nil
+	}
+	if verr, ok := errors.AsType[validation.Errors](err); ok {
+		return UnpublishBlogPost422JSONResponse{Errors: validationErrorMessages(verr)}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return UnpublishBlogPost204Response{}, nil
 }

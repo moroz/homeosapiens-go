@@ -38,8 +38,8 @@ func TestEventRegistrationService_AdminCreateEventRegistration(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, registration)
-		assert.Equal(t, event.ID, registration.EventID)
-		assert.Equal(t, user.ID, registration.UserID)
+		assert.Equal(t, event.ID, registration.EventRegistration.EventID)
+		assert.Equal(t, user.ID, registration.EventRegistration.UserID)
 	})
 
 	t.Run("rejects an unpublished event", func(t *testing.T) {
@@ -101,7 +101,7 @@ func TestEventRegistrationService_AdminCreateEventRegistration(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("rejects a user who is already registered", func(t *testing.T) {
+	t.Run("is a no-op when the user is already registered", func(t *testing.T) {
 		event, err := mocks.Event(db, ctx)
 		require.NoError(t, err)
 		user, err := mocks.User(db, ctx)
@@ -110,13 +110,12 @@ func TestEventRegistrationService_AdminCreateEventRegistration(t *testing.T) {
 		_, err = mocks.EventRegistration(db, ctx, event, user)
 		require.NoError(t, err)
 
-		_, err = srv.AdminCreateEventRegistration(ctx, &types.EnrollStudentForEventInput{
+		registration, err := srv.AdminCreateEventRegistration(ctx, &types.EnrollStudentForEventInput{
 			EventID: event.ID,
 			UserID:  user.ID,
 		})
-
-		verrs, ok := errors.AsType[validation.Errors](err)
-		require.True(t, ok, "expected validation.Errors, got %v", err)
-		assert.Contains(t, verrs, "userId")
+		assert.NoError(t, err)
+		require.NotNil(t, registration)
+		assert.False(t, registration.NewRecord)
 	})
 }

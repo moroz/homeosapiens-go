@@ -103,6 +103,24 @@ func Event(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 	return queries.New(db).UpsertEvent(ctx, params)
 }
 
+func BlogPost(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.InsertBlogPostParams)) (*queries.BlogPost, error) {
+	unique := make([]byte, 4)
+	_, _ = rand.Read(unique)
+
+	params := &queries.InsertBlogPostParams{
+		Title:    "Some post",
+		Slug:     "post-" + hex.EncodeToString(unique),
+		Body:     new("Some body"),
+		Language: queries.LocaleEn,
+	}
+
+	for _, f := range overrides {
+		f(params)
+	}
+
+	return queries.New(db).InsertBlogPost(ctx, params)
+}
+
 func PaidEvent(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.UpsertEventParams)) (*queries.Event, error) {
 	product, err := Product(db, ctx, func(p *queries.InsertProductParams) {
 		p.BasePriceAmount = decimal.NewFromInt(560)
@@ -156,10 +174,14 @@ func Video(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 }
 
 func EventRegistration(db queries.DBTX, ctx context.Context, event *queries.Event, user *queries.User) (*queries.EventRegistration, error) {
-	return queries.New(db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
+	row, err := queries.New(db).InsertEventRegistration(ctx, &queries.InsertEventRegistrationParams{
 		EventID: event.ID,
 		UserID:  user.ID,
 	})
+	if err != nil {
+		return nil, err
+	}
+	return &row.EventRegistration, nil
 }
 
 // Cart creates cart line items for a fresh cart and returns its id. Pass the

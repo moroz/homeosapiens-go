@@ -15,3 +15,11 @@ select * from blog_posts where id = $1;
 -- name: InsertBlogPost :one
 insert into blog_posts (title, slug, body, language) values ($1, $2, $3, $4)
 returning *;
+
+-- name: PublishBlogPost :one
+update blog_posts set published_at = now() where id = $1
+returning *;
+
+-- name: UnpublishBlogPost :one
+update blog_posts set published_at = null where id = $1
+returning *;

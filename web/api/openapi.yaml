@@ -582,6 +582,76 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrors"
 
+  /blog-posts/{id}:
+    get:
+      operationId: getBlogPost
+      description: Get blog post data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Blog post primary key
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The data of the requested blog post.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPost"
+        "404":
+          description: No blog post found with this ID.
+
+  /blog-posts/{id}/publish:
+    post:
+      operationId: publishBlogPost
+      description: Publishes a blog post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Blog post primary key
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Confirms that the post has been successfully published.
+        "404":
+          description: No post with that ID.
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
+  /blog-posts/{id}/unpublish:
+    post:
+      operationId: unpublishBlogPost
+      description: Converts a published blog post back to a draft.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Blog post primary key
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Confirms that the post is no longer published.
+        "404":
+          description: No post with that ID.
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
 components:
   parameters:
     PageParam:

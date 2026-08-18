@@ -22,7 +22,7 @@ const defaultValues: Partial<EventFormValues> = {
   hostIds: [],
 };
 
-export default function NewEvent() {
+export function NewEvent() {
   const navigate = useNavigate();
   const createEvent = useCreateEventMutation();
   const [formError, setFormError] = useState<string | null>(null);

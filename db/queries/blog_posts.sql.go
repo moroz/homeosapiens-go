@@ -151,3 +151,45 @@ func (q *Queries) ListPublishedBlogPostsByLanguage(ctx context.Context, language
 	}
 	return items, nil
 }
+
+const publishBlogPost = `-- name: PublishBlogPost :one
+update blog_posts set published_at = now() where id = $1
+returning id, title, slug, language, body, published_at, inserted_at, updated_at
+`
+
+func (q *Queries) PublishBlogPost(ctx context.Context, id uuid.UUID) (*BlogPost, error) {
+	row := q.db.QueryRow(ctx, publishBlogPost, id)
+	var i BlogPost
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Slug,
+		&i.Language,
+		&i.Body,
+		&i.PublishedAt,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const unpublishBlogPost = `-- name: UnpublishBlogPost :one
+update blog_posts set published_at = null where id = $1
+returning id, title, slug, language, body, published_at, inserted_at, updated_at
+`
+
+func (q *Queries) UnpublishBlogPost(ctx context.Context, id uuid.UUID) (*BlogPost, error) {
+	row := q.db.QueryRow(ctx, unpublishBlogPost, id)
+	var i BlogPost
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Slug,
+		&i.Language,
+		&i.Body,
+		&i.PublishedAt,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}

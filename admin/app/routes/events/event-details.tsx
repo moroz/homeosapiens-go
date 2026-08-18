@@ -14,7 +14,7 @@ import { useCallback, useMemo } from "react";
 import { EyeSlashIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react";
 import { formatPrice } from "~/lib/money";
 
-export default function EventDetail() {
+export function EventDetails() {
   const { id } = useParams();
   const { data: event, isPending, isError } = useGetEventQuery(id);
   const publish = usePublishEventMutation();

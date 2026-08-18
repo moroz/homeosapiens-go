@@ -9,22 +9,35 @@ import { Button } from "~/components/ui/button";
 import { InputField, InputGroup } from "~/components/forms";
 import { slugify } from "~/lib/slugify";
 import { useNavigate } from "react-router";
+import { Select } from "~/components/forms/select";
+import { Textarea } from "~/components/ui/textarea";
+import Markdown from "react-markdown";
+import { Field } from "~/components/ui/field";
+import { Label } from "~/components/ui/label";
+import { BackButton } from "~/components/back-button";
 
 interface Props {}
 
+const LanguageOptions = [
+  { value: "en", label: "English" },
+  { value: "pl", label: "Polish" },
+];
+
 export const NewBlogPost: React.FC<Props> = () => {
-  const form = useForm<CreateBlogPostInput>();
+  const form = useForm<CreateBlogPostInput>({ defaultValues: { language: "en" } });
   const mutation = useCreateBlogPostMutation();
   const [formError, setFormError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const {
     formState: { errors },
+    watch,
     register,
     handleSubmit,
     setError,
     setValue,
     getValues,
+    control,
   } = form;
 
   const onSubmit = useCallback(
@@ -55,7 +68,8 @@ export const NewBlogPost: React.FC<Props> = () => {
 
   return (
     <AdminLayout title="New blog post">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">
+      <BackButton href="/blog-posts">Back to list</BackButton>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <PageTitle>Create a blog post</PageTitle>
         {formError ? (
           <Notification
@@ -66,7 +80,7 @@ export const NewBlogPost: React.FC<Props> = () => {
           </Notification>
         ) : null}
 
-        <InputGroup>
+        <InputGroup className="max-w-2xl">
           <InputField
             label="Title"
             autoFocus
@@ -80,6 +94,23 @@ export const NewBlogPost: React.FC<Props> = () => {
             {...register("slug", { required: "Required" })}
           />
         </InputGroup>
+
+        <InputGroup className="max-w-2xl">
+          <Select label="Language" options={LanguageOptions} control={control} name="language" />
+        </InputGroup>
+
+        <div className="flex max-w-4xl grid-cols-2 gap-6">
+          <Field className="flex-1 ">
+            <Label htmlFor="body">Body</Label>
+            <Textarea id="body" {...register("body")} className="h-80 font-mono" />
+          </Field>
+          <Field className="flex h-full flex-1 flex-col">
+            <Label>Preview</Label>
+            <div className="prose h-80 overflow-y-auto border p-4 outline dark:prose-invert">
+              <Markdown>{watch("body")}</Markdown>
+            </div>
+          </Field>
+        </div>
 
         <div className="flex gap-2">
           <Button type="submit" disabled={mutation.isPending}>
