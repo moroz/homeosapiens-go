@@ -193,3 +193,38 @@ func (q *Queries) UnpublishBlogPost(ctx context.Context, id uuid.UUID) (*BlogPos
 	)
 	return &i, err
 }
+
+const updateBlogPost = `-- name: UpdateBlogPost :one
+update blog_posts set title = $2, slug = $3, language = $4, body = $5 where id = $1
+returning id, title, slug, language, body, published_at, inserted_at, updated_at
+`
+
+type UpdateBlogPostParams struct {
+	ID       uuid.UUID
+	Title    string
+	Slug     string
+	Language Locale
+	Body     *string
+}
+
+func (q *Queries) UpdateBlogPost(ctx context.Context, arg *UpdateBlogPostParams) (*BlogPost, error) {
+	row := q.db.QueryRow(ctx, updateBlogPost,
+		arg.ID,
+		arg.Title,
+		arg.Slug,
+		arg.Language,
+		arg.Body,
+	)
+	var i BlogPost
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Slug,
+		&i.Language,
+		&i.Body,
+		&i.PublishedAt,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}

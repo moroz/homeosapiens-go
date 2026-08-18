@@ -329,7 +329,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** @description Updates a blog post */
+        patch: operations["updateBlogPost"];
         trace?: never;
     };
     "/blog-posts/{id}/publish": {
@@ -684,6 +685,12 @@ export interface components {
             updatedAt: string;
         };
         CreateBlogPostInput: {
+            title: string;
+            slug: string;
+            language: string;
+            body?: string | null;
+        };
+        UpdateBlogPostInput: {
             title: string;
             slug: string;
             language: string;
@@ -1484,6 +1491,49 @@ export interface operations {
             };
         };
     };
+    updateBlogPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Blog post primary key */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBlogPostInput"];
+            };
+        };
+        responses: {
+            /** @description The updated blog post. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlogPost"];
+                };
+            };
+            /** @description No blog post found with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
+            };
+        };
+    };
     publishBlogPost: {
         parameters: {
             query?: never;
@@ -1546,6 +1596,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
             };
         };
     };

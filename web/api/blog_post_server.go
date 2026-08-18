@@ -97,6 +97,37 @@ func (s *blogPostServer) GetBlogPost(ctx context.Context, request GetBlogPostReq
 	}, nil
 }
 
+func (s *blogPostServer) UpdateBlogPost(ctx context.Context, request UpdateBlogPostRequestObject) (UpdateBlogPostResponseObject, error) {
+	p := request.Body
+
+	post, err := services.NewBlogService(s.db).UpdateBlogPost(ctx, request.Id, &types.UpdateBlogPostInput{
+		Title:    p.Title,
+		Slug:     p.Slug,
+		Language: p.Language,
+		Body:     p.Body,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return UpdateBlogPost404Response{}, nil
+	}
+	if verr, ok := errors.AsType[validation.Errors](err); ok {
+		return UpdateBlogPost422JSONResponse{Errors: validationErrorMessages(verr)}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return UpdateBlogPost200JSONResponse{
+		Body:        post.Body,
+		Id:          post.ID,
+		InsertedAt:  post.InsertedAt,
+		Language:    string(post.Language),
+		PublishedAt: post.PublishedAt,
+		Slug:        post.Slug,
+		Title:       post.Title,
+		UpdatedAt:   post.UpdatedAt,
+	}, nil
+}
+
 func (s *blogPostServer) PublishBlogPost(ctx context.Context, request PublishBlogPostRequestObject) (PublishBlogPostResponseObject, error) {
 	_, err := services.NewBlogService(s.db).PublishBlogPost(ctx, request.Id)
 	if errors.Is(err, sql.ErrNoRows) {

@@ -603,6 +603,38 @@ paths:
                 $ref: "#/components/schemas/BlogPost"
         "404":
           description: No blog post found with this ID.
+    patch:
+      operationId: updateBlogPost
+      description: Updates a blog post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Blog post primary key
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBlogPostInput"
+      responses:
+        "200":
+          description: The updated blog post.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPost"
+        "404":
+          description: No blog post found with this ID.
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
 
   /blog-posts/{id}/publish:
     post:
@@ -1301,6 +1333,20 @@ components:
           format: date-time
 
     CreateBlogPostInput:
+      type: object
+      required: [title, slug, language]
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        language:
+          type: string
+        body:
+          type: string
+          nullable: true
+
+    UpdateBlogPostInput:
       type: object
       required: [title, slug, language]
       properties:

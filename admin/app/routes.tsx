@@ -8,7 +8,7 @@ import NewVideoGroup from "./routes/video-groups/new-video-group";
 import { EditVideoGroup } from "./routes/video-groups/edit-video-group";
 import { MarkdownEditorDialog } from "~/components/markdown-editor";
 import { UserDetails } from "./routes/users/user-details";
-import { NewBlogPost, BlogPostDetails, BlogPosts } from "~/routes/blog-posts";
+import { NewBlogPost, BlogPostDetails, BlogPosts, EditBlogPost } from "~/routes/blog-posts";
 import {
   EditEvent,
   EventAttendants,
@@ -32,6 +32,7 @@ export const routes: RouteObject[] = [
       { path: "blog-posts", element: <BlogPosts /> },
       { path: "blog-posts/new", element: <NewBlogPost /> },
       { path: "blog-posts/:id", element: <BlogPostDetails /> },
+      { path: "blog-posts/:id/edit", element: <EditBlogPost /> },
       { path: "events/new", element: <NewEvent /> },
       {
         path: "events/:id",

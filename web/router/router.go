@@ -92,6 +92,7 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 
 	blog := handlers.BlogController(db)
 	r.GET("/blog", blog.Index)
+	r.GET("/blog/:slug", blog.Show)
 
 	prefs := handlers.PreferencesController(db)
 	r.POST("/api/v1/prefs/timezone", prefs.SaveTimezone)

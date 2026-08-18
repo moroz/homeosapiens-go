@@ -3,6 +3,9 @@
     "index": {
       "title": "Blog",
       "no_posts": "Brak postów."
+    },
+    "show": {
+      "published_at": "Opublikowano:"
     }
   },
   "cart": {

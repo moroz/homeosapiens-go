@@ -38,6 +38,26 @@ func (s *BlogService) CreateBlogPost(ctx context.Context, params *types.CreateBl
 	return post, err
 }
 
+func (s *BlogService) UpdateBlogPost(ctx context.Context, id uuid.UUID, params *types.UpdateBlogPostInput) (*queries.BlogPost, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
+	post, err := queries.New(s.db).UpdateBlogPost(ctx, &queries.UpdateBlogPostParams{
+		ID:       id,
+		Title:    params.Title,
+		Slug:     params.Slug,
+		Body:     params.Body,
+		Language: queries.Locale(params.Language),
+	})
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" && pgErr.ConstraintName == "blog_posts_slug_key" {
+		return nil, validation.Errors{
+			"slug": validation.NewError("unique", "has already been taken"),
+		}
+	}
+	return post, err
+}
+
 func (s *BlogService) PublishBlogPost(ctx context.Context, id uuid.UUID) (*queries.BlogPost, error) {
 	post, err := queries.New(s.db).GetBlogPostById(ctx, id)
 	if err != nil {

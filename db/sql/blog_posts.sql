@@ -23,3 +23,7 @@ returning *;
 -- name: UnpublishBlogPost :one
 update blog_posts set published_at = null where id = $1
 returning *;
+
+-- name: UpdateBlogPost :one
+update blog_posts set title = $2, slug = $3, language = $4, body = $5 where id = $1
+returning *;
