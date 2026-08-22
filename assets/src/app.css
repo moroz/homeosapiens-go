@@ -6,15 +6,46 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-secondary: var(--color-purple-800);
-  --color-secondary-hover: var(--color-purple-700);
+  /* Brand ramp, sampled from the Homeo sapiens key visuals: the sun logo sits
+     on a pink→orange gradient running #FF2465 → #FF5D2D → #FF8A04. Steps 400-600
+     are those source colors; 700 and up are darkened for text contrast, since
+     nothing lighter than 700 reaches 4.5:1 on white. */
+  --color-brand-50: #fff4ed;
+  --color-brand-100: #ffe7d6;
+  --color-brand-200: #ffccad;
+  --color-brand-300: #ffa678;
+  --color-brand-400: #ff8a04;
+  --color-brand-500: #ff5d2d;
+  --color-brand-600: #f03d0b;
+  --color-brand-700: #c72e07;
+  --color-brand-800: #9e2712;
+  --color-brand-900: #7f2612;
+  --color-brand-950: #451106;
+
+  /* Magenta end of the gradient, used as the secondary accent. */
+  --color-accent-400: #ff5c8d;
+  --color-accent-500: #ff2465;
+  --color-accent-600: #e50b4e;
+  --color-accent-700: #c7104a;
+  --color-accent-800: #a80b3e;
+
+  /* Raw gradient stops, for decorative surfaces that should read as the logo. */
+  --color-flame: #ff8a04;
+  --color-ember: #ff5d2d;
+  --color-magenta: #ff2465;
 
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
-  --color-primary: var(--color-blue-800);
-  --color-primary-hover: var(--color-blue-700);
 
-  --color-focus: var(--color-blue-600);
+  /* 7.6:1 on white — safe for body-size links and headings. */
+  --color-primary: var(--color-brand-800);
+  --color-primary-hover: var(--color-brand-600);
 
+  --color-secondary: var(--color-accent-800);
+  --color-secondary-hover: var(--color-accent-700);
+
+  --color-focus: var(--color-brand-600);
+
+  /* Kept cool-ish red so error states don't read as brand chrome. */
   --color-danger: var(--color-red-800);
 
   --spacing-header: calc(70 / 4 * var(--spacing));
@@ -33,6 +64,22 @@
 @variant mobile (@media screen and (max-width: 30rem));
 @variant lang-pl (&:lang(pl));
 
+/* The signature gradient from the logo lockup and event banners. Decorative
+   only — put white text on it at heading size, never at body size. */
+@utility bg-brand-gradient {
+  background-image: linear-gradient(
+    105deg,
+    var(--color-magenta) 0%,
+    var(--color-ember) 45%,
+    var(--color-flame) 100%
+  );
+}
+
+/* Thin gradient rule, for section dividers and eyebrow marks. */
+@utility brand-rule {
+  background-image: linear-gradient(90deg, var(--color-magenta), var(--color-flame));
+}
+
 @layer base {
   body {
     font-variant-numeric: tabular-nums;
@@ -45,18 +92,20 @@
 
 @layer components {
   .button {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-blue-700 px-4 py-2 text-center font-bold text-white transition-colors hover:bg-blue-600;
+    /* brand-700 hover brand-800: darkens on hover because anything lighter
+       than 700 drops white text below 4.5:1. */
+    @apply bg-brand-700 hover:bg-brand-800 inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
 
     &.secondary {
-      @apply text-primary border border-slate-300 bg-slate-100 hover:bg-slate-200;
+      @apply text-primary border-brand-200 bg-brand-50 hover:bg-brand-100 border;
     }
 
     &.tertiary {
-      @apply text-primary bg-white hover:bg-slate-100;
+      @apply text-primary hover:bg-brand-50 bg-white;
     }
 
     &.outline {
-      @apply border-primary text-primary border bg-white shadow hover:bg-slate-100;
+      @apply border-primary text-primary hover:bg-brand-50 border bg-white shadow;
     }
 
     :is(&).success {
@@ -186,7 +235,7 @@
       }
 
       &:not(.is-active):hover {
-        @apply text-primary bg-slate-100;
+        @apply text-primary bg-brand-50;
       }
     }
   }

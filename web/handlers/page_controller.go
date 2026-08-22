@@ -38,14 +38,9 @@ func (cc *pageController) Index(c *echo.Context) error {
 		return upcoming[i].StartsAt.Before(upcoming[j].StartsAt)
 	})
 
-	var featured *services.EventListDto
-	if len(upcoming) > 0 {
-		featured = upcoming[0]
-		upcoming = upcoming[1:]
-	}
-	if len(upcoming) > 3 {
-		upcoming = upcoming[:3]
+	if len(upcoming) > 4 {
+		upcoming = upcoming[:4]
 	}
 
-	return wrapRender(pages.Home(ctx, featured, upcoming), c.Response())
+	return wrapRender(pages.Home(ctx, upcoming), c.Response())
 }

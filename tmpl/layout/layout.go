@@ -88,7 +88,8 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 }
 
 func AppFooter() Node {
-	return Footer(Class("h-30 border-t border-primary/50 text-sm text-slate-600 shadow lg:text-base"),
+	return Footer(Class("relative h-30 bg-white text-sm text-slate-600 shadow lg:text-base"),
+		Div(Class("brand-rule absolute inset-x-0 top-0 h-0.5")),
 		Div(
 			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(

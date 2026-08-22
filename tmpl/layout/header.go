@@ -14,7 +14,7 @@ func NavLink(href string, text string) Node {
 	return Li(
 		Class("h-full"),
 		A(
-			Class("no-underline inline-block p-3 hover:bg-slate-100 transition-colors text-base rounded-sm"),
+			Class("no-underline inline-block p-3 hover:bg-brand-50 transition-colors text-base rounded-sm"),
 			Href(href), Text(text),
 		),
 	)
@@ -71,7 +71,7 @@ func HamburgerItem(href string, text string) Node {
 	return Li(
 		A(
 			Href(href),
-			Class("flex h-12 w-full items-center justify-center text-center text-lg font-semibold text-primary hover:bg-slate-100"),
+			Class("flex h-12 w-full items-center justify-center text-center text-lg font-semibold text-primary hover:bg-brand-50"),
 			Text(text),
 		),
 	)
@@ -112,7 +112,7 @@ func mobileNav(ctx *types.CustomContext) Node {
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("fixed inset-0 z-20 h-20 border-b border-primary/15 bg-white shadow-sm backdrop-blur-md"),
+		Class("fixed inset-0 z-20 h-20 bg-white shadow-sm backdrop-blur-md"),
 		Div(Class("container mx-auto flex h-full items-center mobile:px-2"),
 			H1(
 				Class("z-20"),
@@ -125,5 +125,8 @@ func AppHeader(ctx *types.CustomContext) Node {
 			mobileNav(ctx),
 			desktopNav(ctx),
 		),
+		// Brand gradient replaces the bottom border, so the logo colour is
+		// echoed on every page without tinting the header itself.
+		Div(Class("brand-rule absolute inset-x-0 bottom-0 h-0.5")),
 	)
 }
