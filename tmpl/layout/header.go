@@ -96,6 +96,9 @@ func mobileNav(ctx *types.CustomContext) Node {
 				HamburgerItem("/events", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.events",
 				})),
+				HamburgerItem("/blog", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.blog",
+				})),
 				HamburgerItem("/videos", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.videos",
 				})),

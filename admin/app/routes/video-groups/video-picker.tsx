@@ -48,7 +48,7 @@ export function VideoPicker({ value, onChange }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium">In this series ({value.length})</p>
+        <p className="text-sm font-medium">In this playlist ({value.length})</p>
         {selected.length === 0 ? (
           <p className="rounded-md border border-input p-3 text-sm text-muted-foreground">
             No videos yet. Add them from the list below.

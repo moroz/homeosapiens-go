@@ -66,10 +66,10 @@ export default function VideoGroups() {
   );
 
   return (
-    <AdminLayout title="Videos">
+    <AdminLayout title="Playlists">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Video series</h2>
+          <h2 className="text-2xl font-bold">Playlists</h2>
           <Link to="/videos/new" className={buttonVariants()}>
             <PlusIcon />
             New series

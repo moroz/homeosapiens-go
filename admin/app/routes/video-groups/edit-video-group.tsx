@@ -69,7 +69,7 @@ export const EditVideoGroup: React.FC<Props> = () => {
   );
 
   return (
-    <AdminLayout title="Edit video series">
+    <AdminLayout title="Edit playlist">
       {isPending ? (
         <p className="text-muted-foreground">Loading&hellip;</p>
       ) : isError || !group ? (
@@ -77,11 +77,11 @@ export const EditVideoGroup: React.FC<Props> = () => {
       ) : (
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
-            <BackButton href="/videos">Back to video series</BackButton>
-            <PageTitle subtitle="Edit video series">{group.titleEn}</PageTitle>
+            <BackButton href="/videos">Back to playlists</BackButton>
+            <PageTitle subtitle="Edit playlist">{group.titleEn}</PageTitle>
             {formError ? (
               <Notification
-                title="An error has prevented this series from being saved."
+                title="An error has prevented this record from being saved."
                 variant="destructive"
               >
                 {formError}
@@ -92,7 +92,7 @@ export const EditVideoGroup: React.FC<Props> = () => {
 
             <div className="flex gap-2">
               <Button type="submit" disabled={mutation.isPending || replaceVideos.isPending}>
-                {mutation.isPending || replaceVideos.isPending ? "Updating…" : "Update series"}
+                {mutation.isPending || replaceVideos.isPending ? "Updating…" : "Update playlist"}
               </Button>
             </div>
           </form>
