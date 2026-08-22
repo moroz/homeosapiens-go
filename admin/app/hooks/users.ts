@@ -8,17 +8,20 @@ export type User = components["schemas"]["User"];
 interface ListUsersQueryParams {
   page?: number;
   perPage?: number;
+  searchTerm?: string;
 }
 
 export function useListUsersQuery(params: ListUsersQueryParams = {}) {
-  const { page, perPage } = params;
+  const { page, perPage, searchTerm } = params;
 
   return useQuery({
     queryFn: async () => {
-      const { data } = await api.GET("/users", { params: { query: { page, perPage } } });
+      const { data } = await api.GET("/users", {
+        params: { query: { page, perPage, search: searchTerm } },
+      });
       return data;
     },
-    queryKey: ["listUsers", { page, perPage }],
+    queryKey: ["listUsers", { page, perPage, searchTerm }],
   });
 }
 

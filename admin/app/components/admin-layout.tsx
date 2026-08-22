@@ -5,8 +5,8 @@ import {
   VideoCameraIcon as VideoCamera,
   ArticleIcon,
 } from "@phosphor-icons/react";
-import { useEffect, type ReactNode } from "react";
-import { NavLink, useLocation } from "react-router";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router";
 
 import { NavUser } from "~/components/nav-user";
 import { ThemeToggle } from "~/components/theme-toggle";
@@ -54,12 +54,67 @@ interface Props {
 export function AdminLayout({ title, children, searchFormAction }: Props) {
   const { pathname } = useLocation();
   const { data: session, isLoading } = useGetSessionQuery();
+  const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [searchHasFocus, setSearchHasFocus] = useState(false);
 
   useEffect(() => {
     if (isLoading || session) return;
     const qs = new URLSearchParams({ ref: location.pathname });
     location.href = `/sign-in?${qs}`;
   }, [isLoading, session]);
+
+  const onSubmit: React.SubmitEventHandler = useCallback(
+    (e) => {
+      e.preventDefault();
+      const searchTerm = inputRef.current?.value;
+      const qs = new URLSearchParams({ q: searchTerm ?? "" });
+      const nextUrl = `${searchFormAction}?${qs}`;
+      navigate(nextUrl);
+    },
+    [searchFormAction, navigate, inputRef],
+  );
+
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!searchFormAction || !inputRef.current) return;
+
+      const hasFocus = document.activeElement === inputRef.current;
+
+      switch (e.key) {
+        case "/": {
+          if (hasFocus) return;
+
+          e.preventDefault();
+          inputRef.current.focus();
+          inputRef.current.select();
+          return;
+        }
+
+        case "Escape": {
+          if (!hasFocus) return;
+
+          e.preventDefault();
+          inputRef.current.blur();
+        }
+      }
+    },
+    [inputRef, searchFormAction],
+  );
+
+  const onSearchInputFocus: React.FocusEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      setSearchHasFocus(document.activeElement === e.currentTarget);
+    },
+    [setSearchHasFocus],
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onKeyDown]);
 
   if (isLoading) {
     return "Loading";
@@ -105,8 +160,15 @@ export function AdminLayout({ title, children, searchFormAction }: Props) {
           <SidebarTrigger />
           <Separator orientation="vertical" className="mx-2" />
           {searchFormAction ? (
-            <form>
-              <Input name="q" placeholder="Search..." />
+            <form onSubmit={onSubmit}>
+              <Input
+                name="q"
+                placeholder={searchHasFocus ? "Search..." : "Press / to search..."}
+                ref={inputRef}
+                onFocus={onSearchInputFocus}
+                onBlur={onSearchInputFocus}
+              />
+              <input type="submit" className="sr-only" />
             </form>
           ) : null}
           <ThemeToggle className="ml-auto" />

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict F8GETZQgMY2PlhoNfsgaUz8UvbHaGMdlXFHsh9tIQAYcif3JZ7DYfYHASvR5vlM
+\restrict jz1p5orP0UmOhCxCzdhsXqYeb23fIuH5bkDBJJWl9pwxdea38kTrbgDvL599rsf
 
 -- Dumped from database version 18.4 (Debian 18.4-1.pgdg12+1)
 -- Dumped by pg_dump version 18.4 (Debian 18.4-1.pgdg12+1)
@@ -116,7 +116,7 @@ Obejrzyj wywiady z Dr Asherem na [naszym kanale](https://www.youtube.com/@Homeos
 
 *   [_Dr Asher Shaikh on German New Medicine, infertility and Spongia_](https://www.youtube.com/watch?v=J4NRGCOdme8)
 
-*   [_Once you hit the bull''s-eye… | Kiedy trafisz w dziesiątkę…_](https://www.youtube.com/watch?v=R9l7CSOMRe4)', 'seminar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'dr-asher-shaikh-seminar', NULL, NULL, 'Marina Club Hotel', 'Hotel Marina Club', 'ul. Szafarnia 10', 'Gdańsk', 'Gdańsk', '80-753', 'PL', '019de49f-d17f-7435-b166-b8e9b3e4430c');
+*   [_Once you hit the bull''s-eye… | Kiedy trafisz w dziesiątkę…_](https://www.youtube.com/watch?v=R9l7CSOMRe4)', 'seminar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'dr-asher-shaikh-seminar', NULL, NULL, 'Marina Club Hotel', 'Hotel Marina Club', 'ul. Szafarnia 10', 'Gdańsk', 'Gdańsk', '80-753', 'PL', '019de49f-d17f-7435-b166-b8e9b3e4430c', '2026-05-02 11:47:25', NULL);
 INSERT INTO public.events VALUES ('019b0c80-a410-7728-ab6b-c1eff529dfd1', 'A Series of Critical Cardiac Cases', 'Seria krytycznych problemów kardiologicznych', '2025-12-13 16:00:00', '2025-12-13 17:30:00', true, 'Dear Homeopathic Friends,
 
 We are happy to invite you to the next Homeo sapiens Academy webinar. Experienced clinician and homeopath Dr. Herman Jeggels from Cape Town, South Africa will discuss homeopathic treatment in advanced circulatory pathology. He will present documented cases of infective endocarditis, complete AV block and heart failure.
@@ -131,7 +131,7 @@ Webinar odbędzie się 13 grudnia 2025 o godzinie 10.00 czasu polskiego.
 
 Wykład będzie tłumaczony konsekutywnie na język polski.
 
-Webinar jest bezpłatny. Odbędzie się na platformie Zoom za pośrednictwem naszej strony internetowej. Wymagana jest rejestracja z użyciem adresu email i ustawienie hasła.', 'webinar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'a-series-of-critical-cardiac-cases', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+Webinar jest bezpłatny. Odbędzie się na platformie Zoom za pośrednictwem naszej strony internetowej. Wymagana jest rejestracja z użyciem adresu email i ustawienie hasła.', 'webinar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'a-series-of-critical-cardiac-cases', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-02 11:47:25', NULL);
 INSERT INTO public.events VALUES ('0199c2f2-528b-7e88-96e3-5e5088333a8c', 'To Perfect the Art of Homeopathy', 'Udoskonalić kunszt homeopatyczny', '2025-05-30 14:00:00', '2025-05-31 08:00:00', true, 'Dr. Sanjay Modi, former professor of Mumbai Homeopathic College. The webinar is organised in honorary cooperation with the Polish Homeopathic Society and the Polish Society of Homeopathic Doctors and Pharmacists.', 'Wykładowca Dr. Sanjay Modi, wieloletni wykładowca Mumbai Homeopathic College.
 
 Seminarium organizowane jest we współpracy z Polskim Towarzystwem Homeopatycznym i Polskim Stowarzyszeniem Homeopatów Lekarzy i Farmaceutów.
@@ -142,7 +142,7 @@ Seminarium będzie również dostępne na żywo on-line na platformie Zoom za po
 
 Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym terminie przewidujemy opcję udostępnienia nagrania, ale tylko dla zarejestrowanych uczestników.
 
-Omówionych zostanie szereg praktycznych problemów klinicznych, różnicowanie leków z grupy Kalium, leki introwertyczne/ekstrawertyczne, prezentacja przypadków klinicznych.', 'seminar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'to-perfect-the-art-of-homeopathy', NULL, NULL, 'Vienna House Easy By Wyndham Cracow', 'Vienna House Easy By Wyndham Kraków', 'ul. Przy Rondzie 2', 'Cracow', 'Kraków', '31-547', 'PL', '019de49f-d3d5-727b-915d-2cd3671cb72f');
+Omówionych zostanie szereg praktycznych problemów klinicznych, różnicowanie leków z grupy Kalium, leki introwertyczne/ekstrawertyczne, prezentacja przypadków klinicznych.', 'seminar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'to-perfect-the-art-of-homeopathy', NULL, NULL, 'Vienna House Easy By Wyndham Cracow', 'Vienna House Easy By Wyndham Kraków', 'ul. Przy Rondzie 2', 'Cracow', 'Kraków', '31-547', 'PL', '019de49f-d3d5-727b-915d-2cd3671cb72f', '2026-05-02 11:47:25', NULL);
 INSERT INTO public.events VALUES ('0199c2fa-7e9d-72f6-ada1-88b5d04d9a58', 'To Perfect the Art of Homeopathy 2', 'Udoskonalić kunszt homeopatyczny 2', '2025-10-24 14:00:00', '2025-10-26 11:30:00', true, 'Dr. Sanjay Modi, former professor of Mumbai Homeopathic College. The webinar is organised in honorary cooperation with the Polish Homeopathic Society and the Polish Society of Homeopathic Doctors and Pharmacists.
 
 October 24-25 2025, Vienna House Easy By Wyndham Cracow ul. Przy Rondzie 2, Kraków, Poland.
@@ -155,12 +155,12 @@ Seminarium organizowane jest we współpracy z Polskim Towarzystwem Homeopatyczn
 
 Seminarium będzie również dostępne na żywo on-line na platformie Zoom za pośrednictwem naszej strony internetowej. Wykłady będą prowadzone w języku angielskim z konsekutywnym tłumaczeniem na polski.
 
-Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym terminie przewidujemy opcję udostępnienia nagrania, ale tylko dla zarejestrowanych uczestników.', 'seminar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'to-perfect-the-art-of-homeopathy-2', NULL, NULL, 'IOR Hotel', 'Hotel IOR', 'ul. Węgorka 20', 'Poznań', 'Poznań', '60-318', 'PL', '019de49f-d612-7339-962b-800168a04bbb');
+Dla osób, które nie będą mogły wziąć udziału w szkoleniu w podanym terminie przewidujemy opcję udostępnienia nagrania, ale tylko dla zarejestrowanych uczestników.', 'seminar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'to-perfect-the-art-of-homeopathy-2', NULL, NULL, 'IOR Hotel', 'Hotel IOR', 'ul. Węgorka 20', 'Poznań', 'Poznań', '60-318', 'PL', '019de49f-d612-7339-962b-800168a04bbb', '2026-05-02 11:47:25', NULL);
 INSERT INTO public.events VALUES ('019bef00-6ef2-7636-9a15-c8cd1e87b997', 'What prevents me from moving on?', 'What prevents me from moving on?', '2026-02-08 15:00:00', '2026-02-08 16:30:00', true, 'We kindly invite you to another free Homeo sapiens webinar. Experienced Homeopath Dr Asher Shaikh will share how he uses German New Medicine to facilitate homeopathic case-taking and remedy choice. Several musculoskeletal problems will be discussed, both theory and case-studies. The webinar will be held in English with consecutive translation to Polish.
 
 Dr Asher Shaikh (India) – a homeopathic doctor with over 25 years of clinical experience. He is the Director of Asher Clinics – a network of 12 clinics in Mumbai, Pune, Dubai, and Nasik – and a mentor in German New Medicine, which he has taught in Dubai, India, Austria, and Israel. He currently serves as a professor at the Homoeopathic Medical College in Nasik and as the Director of Viveda Resort – an innovative holistic health center. He is the former president of the Indian Institute of Homoeopathic Physicians. Dr. Shaikh specializes in reversing autoimmune disorders.', 'Zapraszamy na kolejny darmowy webinar Homeo sapiens. Doświadczony homeopata dr Asher Shaikh opowie o sposobie, w jaki zastosowanie Nowej Germańskiej Medycyny (GNM) wspomaga przy homeopatycznym doborze leków. Podstawą do dyskusji na ten temat będzie omówienie kilku problemów układu mięśniowo-szkieletowego, zarówno teoretycznie, jak i w oparciu o studia przypadków. Webinar będzie prowadzony w języku angielskim z konsekutywnym tłumaczeniem na polski.
 
-Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem klinicznym. Jest dyrektorem Asher Clinics - 12 klinik w Mumbaju, Pune, Dubaju i Nasiku oraz mentorem Nowej Germańskiej Medycyny, którą wykładał w Dubaju, Indiach, Austrii i Izraelu. Pełni funkcję profesora w Homoeopathic Medical College w Nasiku oraz dyrektora Viveda Resort – innowacyjnego ośrodka zdrowia holistycznego. Były przewodniczący Indian Institute of Homoeopathic Physicians. Specjalizuje się w odwracaniu chorób autoimmunologicznych.', 'webinar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'what-prevents-me-from-moving-on', 'Combining German New Medicine and Homeopathy for musculoskeletal problems', 'Zastosowania Nowej Germańskiej Medycyny i homeopatii w dolegliwościach układu ruchu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+Dr Asher Shaikh (Indie) - lekarz homeopata z ponad 25-letnim doświadczeniem klinicznym. Jest dyrektorem Asher Clinics - 12 klinik w Mumbaju, Pune, Dubaju i Nasiku oraz mentorem Nowej Germańskiej Medycyny, którą wykładał w Dubaju, Indiach, Austrii i Izraelu. Pełni funkcję profesora w Homoeopathic Medical College w Nasiku oraz dyrektora Viveda Resort – innowacyjnego ośrodka zdrowia holistycznego. Były przewodniczący Indian Institute of Homoeopathic Physicians. Specjalizuje się w odwracaniu chorób autoimmunologicznych.', 'webinar', '2026-05-02 11:47:25', '2026-05-02 11:47:25', 'what-prevents-me-from-moving-on', 'Combining German New Medicine and Homeopathy for musculoskeletal problems', 'Zastosowania Nowej Germańskiej Medycyny i homeopatii w dolegliwościach układu ruchu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-02 11:47:25', NULL);
 
 
 --
@@ -316,5 +316,5 @@ INSERT INTO public.video_sources VALUES ('019e275e-fda7-7df7-bf68-ddbc64d916c0',
 -- PostgreSQL database dump complete
 --
 
-\unrestrict F8GETZQgMY2PlhoNfsgaUz8UvbHaGMdlXFHsh9tIQAYcif3JZ7DYfYHASvR5vlM
+\unrestrict jz1p5orP0UmOhCxCzdhsXqYeb23fIuH5bkDBJJWl9pwxdea38kTrbgDvL599rsf
 

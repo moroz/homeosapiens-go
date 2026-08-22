@@ -5,7 +5,7 @@ import { DataTable } from "~/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
 import { formatInstant } from "~/lib/time";
 import { PageTitle } from "~/components/page-title";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 interface Props {}
 
@@ -33,12 +33,15 @@ const columns: ColumnDef<User>[] = [
 
 export const Users: React.FC<Props> = () => {
   const { pagination, onPaginationChange, sorting, onSortingChange } = useTableSearchParams(20);
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get("q") ?? "";
 
   const navigate = useNavigate();
 
   const { data } = useListUsersQuery({
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
+    searchTerm,
   });
 
   const onRowClick = useCallback((row: User) => navigate(row.id), [navigate]);
@@ -52,6 +55,8 @@ export const Users: React.FC<Props> = () => {
           data={data?.data ?? []}
           pageCount={data?.pagination.totalPages ?? 1}
           pagination={pagination}
+          sorting={sorting}
+          onSortingChange={onSortingChange}
           onPaginationChange={onPaginationChange}
           onRowClick={onRowClick}
         />
