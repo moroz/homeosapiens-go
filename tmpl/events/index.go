@@ -2,14 +2,13 @@ package events
 
 import (
 	"github.com/moroz/homeosapiens-go/services"
+	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/types"
 	. "maragu.dev/gomponents"
-	. "maragu.dev/gomponents/html"
 )
 
 func EventList(ctx *types.CustomContext, events []*services.EventListDto) Node {
-	return Div(
-		Class("space-y-4"),
+	return components.RowList(
 		Map(events, func(e *services.EventListDto) Node {
 			return EventCard(ctx, e)
 		}),

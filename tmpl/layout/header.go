@@ -14,7 +14,7 @@ func NavLink(href string, text string) Node {
 	return Li(
 		Class("h-full"),
 		A(
-			Class("no-underline inline-block p-3 hover:bg-brand-50 transition-colors text-base rounded-sm"),
+			Class("inline-block rounded-sm p-3 text-base no-underline transition-colors hover:bg-brand-50"),
 			Href(href), Text(text),
 		),
 	)
@@ -26,7 +26,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 	return Group{
 		Nav(Class("grid mobile:hidden"),
 			Ul(
-				Class("flex items-center gap-1 ml-2"),
+				Class("ml-2 flex items-center gap-1"),
 				NavLink("/events", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.events",
 				})),
@@ -42,7 +42,7 @@ func desktopNav(ctx *types.CustomContext) Node {
 			),
 		),
 		Div(
-			Class("z-20 flex items-center gap-1 mobile:hidden ml-auto"),
+			Class("z-20 ml-auto flex items-center gap-1 mobile:hidden"),
 			Iff(ctx.Cart != nil && !ctx.Cart.ProductTotal.Equal(decimal.Zero), func() Node {
 				return A(Href("/cart"), Class("button tertiary z-20 gap-1"),
 					Title(l.MustLocalizeMessage(&i18n.Message{
@@ -127,6 +127,6 @@ func AppHeader(ctx *types.CustomContext) Node {
 		),
 		// Brand gradient replaces the bottom border, so the logo colour is
 		// echoed on every page without tinting the header itself.
-		Div(Class("brand-rule absolute inset-x-0 bottom-0 h-0.5")),
+		Div(Class("absolute inset-x-0 bottom-0 h-0.5 brand-rule")),
 	)
 }

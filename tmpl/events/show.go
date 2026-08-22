@@ -114,79 +114,93 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 		description = event.DescriptionPl
 	}
 
+	subtitle := event.SubtitleEn
+	if lang == "pl" {
+		subtitle = event.SubtitlePl
+	}
+
 	l := ctx.Localizer
 
-	return layout.Layout(ctx, event.TitleEn, Div(
-		Class("card mx-auto"),
-		H2(
-			Class("text-2xl leading-normal font-bold text-primary"),
-			Text(title),
-		),
-		Div(
-			Class("grid"),
-			P(
-				Strong(Class("font-fallback"), Text(l.MustLocalizeMessage(&i18n.Message{
-					ID: "events.starts_at",
-				}))),
-				Text(" "),
-				Time(
-					Text(helpers.FormatDateTime(event.StartsAt, tz, lang)),
+	return layout.PageLayout(ctx, event.TitleEn,
+		components.PageHeader(
+			helpers.TranslateEventType(l, event.EventType),
+			title,
+			Iff(subtitle != nil && *subtitle != "", func() Node {
+				return P(Class("mt-4 max-w-prose text-xl text-slate-600"), Text(*subtitle))
+			}),
+			Div(
+				Class("mt-6 grid gap-1 text-slate-700"),
+				P(
+					Strong(Class("font-fallback"), Text(l.MustLocalizeMessage(&i18n.Message{
+						ID: "events.starts_at",
+					}))),
+					Text(" "),
+					Time(
+						Text(helpers.FormatDateTime(event.StartsAt, tz, lang)),
+					),
+				),
+				P(
+					Strong(Class("font-fallback"), Text(l.MustLocalizeMessage(&i18n.Message{
+						ID: "events.ends_at",
+					}))),
+					Text(" "),
+					Time(
+						Text(helpers.FormatDateTime(event.EndsAt, tz, lang)),
+					),
 				),
 			),
-			P(
-				Strong(Class("font-fallback"), Text(l.MustLocalizeMessage(&i18n.Message{
-					ID: "events.ends_at",
-				}))),
-				Text(" "),
-				Time(
-					Text(helpers.FormatDateTime(event.EndsAt, tz, lang)),
+		),
+		components.PageSection(
+			Div(Class("flex flex-wrap items-center gap-4"),
+				Iff(event.IsFree(), func() Node {
+					return freeEventCTA(&freeEventCTAProps{
+						Event:     event,
+						User:      ctx.User,
+						Localizer: ctx.Localizer,
+					})
+				}),
+				// Attendance to a past event is worthless, so it is neither
+				// registrable nor purchasable once the event is over.
+				If(!event.IsFree() && !event.HasEnded(), components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
+				If(!event.IsFree() && event.HasEnded(), endedEventBadge(l)),
+				joinMeetingButton(l, event),
+				If(!event.IsFree() && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
+				If(
+					event.IsFree() && !event.HasEnded() && event.RegistrationCount > 0,
+					Text(l.MustLocalize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID: "common.events.attendance_count",
+						},
+						TemplateData: map[string]any{
+							"Count": event.RegistrationCount,
+						},
+						PluralCount: event.RegistrationCount,
+					})),
 				),
+				If(event.IsFree() && event.HasEnded() && event.RegistrationCount > 0,
+					Text(l.MustLocalize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID: "common.events.past_event_attendance_count",
+						},
+						TemplateData: map[string]any{
+							"Count": event.RegistrationCount,
+						},
+						PluralCount: event.RegistrationCount,
+					})),
+				),
+				If(event.IsFree() && !event.HasEnded() && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 			),
 		),
-		Div(Class("my-4 flex items-center gap-4"),
-			Iff(event.IsFree(), func() Node {
-				return freeEventCTA(&freeEventCTAProps{
-					Event:     event,
-					User:      ctx.User,
-					Localizer: ctx.Localizer,
-				})
-			}),
-			// Attendance to a past event is worthless, so it is neither
-			// registrable nor purchasable once the event is over.
-			If(!event.IsFree() && !event.HasEnded(), components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
-			If(!event.IsFree() && event.HasEnded(), endedEventBadge(l)),
-			joinMeetingButton(l, event),
-			If(!event.IsFree() && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
-			If(
-				event.IsFree() && !event.HasEnded() && event.RegistrationCount > 0,
-				Text(l.MustLocalize(&i18n.LocalizeConfig{
-					DefaultMessage: &i18n.Message{
-						ID: "common.events.attendance_count",
-					},
-					TemplateData: map[string]any{
-						"Count": event.RegistrationCount,
-					},
-					PluralCount: event.RegistrationCount,
-				})),
+		components.LastPageSection(
+			components.Prose(
+				Iff(description != nil, func() Node {
+					return helpers.RenderMarkdown(*description)
+				}),
 			),
-			If(event.IsFree() && event.HasEnded() && event.RegistrationCount > 0,
-				Text(l.MustLocalize(&i18n.LocalizeConfig{
-					DefaultMessage: &i18n.Message{
-						ID: "common.events.past_event_attendance_count",
-					},
-					TemplateData: map[string]any{
-						"Count": event.RegistrationCount,
-					},
-					PluralCount: event.RegistrationCount,
-				})),
+			Div(
+				Class("mt-12 border-t border-slate-200 pt-6"),
+				components.TextLink("/events", l.MustLocalizeMessage(&i18n.Message{ID: "events.show.back"})),
 			),
-			If(event.IsFree() && !event.HasEnded() && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 		),
-		Div(
-			Class("prose lg:prose-lg mt-4 w-full"),
-			Iff(description != nil, func() Node {
-				return helpers.RenderMarkdown(*description)
-			}),
-		),
-	))
+	)
 }

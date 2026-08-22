@@ -62,13 +62,19 @@ func EventAttendanceBadge(l *i18n.Localizer) Node {
 	)
 }
 
+// HostCard follows the portrait treatment from the event banners: a large
+// rounded portrait with the name on a brand-coloured bar beneath it. The host
+// is the draw for an event, so it stays prominent — dropping the card chrome
+// for the flat pages means losing the shadow and the slate box, not the size.
 func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) Node {
 	salutation := helpers.TranslateSalutation(localizer, host.Salutation)
 
 	return Div(
-		Class("flex h-min w-42 flex-col items-center rounded-sm bg-slate-100 shadow"),
+		// The frame is the same brand-700 as the name plate, so portrait and
+		// name read as one object the way they do on the event banners.
+		Class("w-42 overflow-hidden rounded-xl border border-brand-700 mobile:w-32"),
 		Div(
-			Class("relative aspect-square w-full overflow-hidden rounded-t-sm"),
+			Class("relative aspect-square w-full bg-brand-50"),
 			Iff(host.ProfilePictureUrl != nil, func() Node {
 				url := fmt.Sprintf("%s/%s", config.AssetCdnBaseUrl, *host.ProfilePictureUrl)
 
@@ -79,15 +85,21 @@ func HostCard(localizer *i18n.Localizer, host *queries.ListHostsForEventsRow) No
 				)
 			}),
 		),
-		Footer(
-			Class("flex h-10 w-full items-center justify-center rounded-b-sm border border-t-0 border-primary/20 text-center text-sm text-primary"),
-			Span(
-				Text(salutation),
-				Strong(
-					Text(host.GivenName+" "+host.FamilyName),
-				),
-			),
+		Div(
+			// brand-700, not the banner's brighter orange: this text is 14px, and
+			// brand-600 only reaches 3.9:1 against white.
+			Class("bg-brand-700 px-3 py-2 text-center text-sm leading-tight text-white"),
+			Text(salutation),
+			Strong(Class("font-bold"), Text(host.GivenName+" "+host.FamilyName)),
 		),
+	)
+}
+
+// EventTypeChip labels an event as a seminar or a webinar.
+func EventTypeChip(ctx *types.CustomContext, e *services.EventListDto) Node {
+	return Span(
+		Class("inline-flex rounded-sm border border-brand-300 px-2 py-0.5 text-xs tracking-wider text-primary uppercase"),
+		Text(helpers.TranslateEventType(ctx.Localizer, e.EventType)),
 	)
 }
 
@@ -110,17 +122,23 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 	hasEnded := e.EndsAt.Before(time.Now())
 
 	return Article(
-		Class("card flex justify-between gap-6"),
+		Class("flex justify-between gap-8 border-b border-slate-200 py-8 mobile:gap-6 mobile:py-6"),
+		Div(Class("flex shrink-0 items-start gap-6 mobile:hidden"),
+			Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
+				return HostCard(localizer, host)
+			}),
+		),
 		Header(
 			Class("flex flex-1 flex-col items-start"),
 			Div(
-				Class("mb-2 flex flex-wrap items-center gap-2"),
-				EventLocationBadge(e, localizer, ctx.Language),
-				If(e.EventRegistration != nil, EventAttendanceBadge(localizer)),
-
-				P(
+				Class("mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600"),
+				Span(
+					Class("tabular-nums"),
 					Text(helpers.FormatDateRange(e.StartsAt, e.EndsAt, tz, ctx.Language)),
 				),
+				EventTypeChip(ctx, e),
+				EventLocationBadge(e, localizer, ctx.Language),
+				If(e.EventRegistration != nil, EventAttendanceBadge(localizer)),
 			),
 
 			H3(
@@ -144,8 +162,6 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 			P(
 				Class("text-gray-600 desktop:mb-4"),
-				Text(helpers.TranslateEventType(localizer, e.EventType)),
-				Text(", "),
 				Text(helpers.FormatHosts(localizer, ctx.Language, e.Hosts)),
 			),
 
@@ -173,12 +189,6 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 
 				formatEventPrice(ctx, e),
 			),
-		),
-
-		Div(Class("flex items-center gap-6 mobile:hidden"),
-			Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
-				return HostCard(localizer, host)
-			}),
 		),
 	)
 }

@@ -40,6 +40,25 @@ func Layout(ctx *types.CustomContext, title string, children ...Node) Node {
 	)
 }
 
+// PageLayout is the flat, full-width white shell used by the landing, blog and
+// events pages. Unlike Layout it adds no container of its own: each child is a
+// full-bleed band that supplies its own container, so pages can run edge to
+// edge and separate themselves with hairline rules instead of cards.
+func PageLayout(ctx *types.CustomContext, title string, children ...Node) Node {
+	return RootLayout(ctx, title,
+		Class("flex min-h-screen max-w-full flex-col overflow-x-hidden"),
+		AppHeader(ctx),
+		Main(
+			Class("flex-1 bg-white pt-20"),
+			Iff(len(ctx.Flash) > 0, func() Node {
+				return Div(Class("container mx-auto px-6 pt-6"), components.Flash(ctx.Flash))
+			}),
+			Group(children),
+		),
+		AppFooter(),
+	)
+}
+
 func BareLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 	return RootLayout(ctx, title,
 		Class("flex min-h-screen max-w-full flex-col overflow-x-hidden"),
@@ -89,7 +108,7 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 
 func AppFooter() Node {
 	return Footer(Class("relative h-30 bg-white text-sm text-slate-600 shadow lg:text-base"),
-		Div(Class("brand-rule absolute inset-x-0 top-0 h-0.5")),
+		Div(Class("absolute inset-x-0 top-0 h-0.5 brand-rule")),
 		Div(
 			Class("container mx-auto flex h-full items-center justify-center text-center"),
 			P(

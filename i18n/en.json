@@ -1,10 +1,13 @@
 {
   "blog": {
     "index": {
-      "title": "Blog",
-      "no_posts": "No posts."
+      "eyebrow": "Journal",
+      "no_posts": "No posts.",
+      "standfirst": "Notes, book reviews and reports from the homeopathic practice.",
+      "title": "Blog"
     },
     "show": {
+      "back": "All posts",
       "published_at": "Published at:"
     }
   },
@@ -34,15 +37,11 @@
       "add_to_cart": "Add to cart",
       "added_to_cart": "Added to cart",
       "attendance_badge": "Going",
-      "ended": "Event has ended",
       "attendance_count": {
         "one": "One person is going.",
         "other": "{{ .Count }} people are going."
       },
-      "past_event_attendance_count": {
-        "one": "One person has attended.",
-        "other": "{{ .Count }} people have attended."
-      },
+      "ended": "Event has ended",
       "event_type": {
         "seminar": "Seminar",
         "webinar": "Webinar"
@@ -52,6 +51,10 @@
       "learn_more": "Learn more…",
       "nobody_attending": "Be the first to register!",
       "participation_cost": "Participation cost",
+      "past_event_attendance_count": {
+        "one": "One person has attended.",
+        "other": "{{ .Count }} people have attended."
+      },
       "sign_up": "Register",
       "view_cart": "View cart"
     },
@@ -97,6 +100,26 @@
     }
   },
   "emails": {
+    "event_details": {
+      "date": "Date:",
+      "join_meeting": "Join the meeting",
+      "location": "Location:",
+      "online": "Online event",
+      "view_event": "View event details"
+    },
+    "event_registration_confirmation": {
+      "body": "You have successfully registered for this event. We look forward to seeing you!",
+      "heading": "Registration Confirmed",
+      "subject": "You are registered: {{.Title}} — Homeo sapiens"
+    },
+    "event_reminder": {
+      "body_1h": "This is a reminder that the event you registered for starts within the hour.",
+      "body_24h": "This is a reminder that the event you registered for takes place tomorrow.",
+      "heading_1h": "Your event starts within the hour",
+      "heading_24h": "Your event is tomorrow",
+      "subject_1h": "Starting soon: {{.Title}} — Homeo sapiens",
+      "subject_24h": "Tomorrow: {{.Title}} — Homeo sapiens"
+    },
     "order_confirmation": {
       "body": "Thank you for ordering with Homeo sapiens! We have received your order&nbsp;<strong>#{{.OrderNumber}}</strong> and are awaiting payment.",
       "heading": "Order Confirmation",
@@ -110,9 +133,9 @@
     },
     "order_opening_html": "<p>Dear {{.BillingGivenName.Plaintext}} {{.BillingFamilyName.Plaintext}},</p>",
     "password_reset": {
-      "subject": "Password recovery — Homeo sapiens",
       "body_html": "<p>You are receiving this message because you (or someone pretending to be you) have requested to reset your <strong>Homeo sapiens</strong> password. You can reset your password by clicking on the link below.</p><p>If you did not request this change, please ignore this message.</p>",
-      "cta_text": "Change my password"
+      "cta_text": "Change my password",
+      "subject": "Password recovery — Homeo sapiens"
     },
     "payment_confirmation": {
       "body": "Your payment has been successfully processed. Thank you for your purchase!",
@@ -123,26 +146,6 @@
         "price": "Price"
       },
       "total": "Total"
-    },
-    "event_details": {
-      "date": "Date:",
-      "join_meeting": "Join the meeting",
-      "location": "Location:",
-      "online": "Online event",
-      "view_event": "View event details"
-    },
-    "event_registration_confirmation": {
-      "subject": "You are registered: {{.Title}} — Homeo sapiens",
-      "heading": "Registration Confirmed",
-      "body": "You have successfully registered for this event. We look forward to seeing you!"
-    },
-    "event_reminder": {
-      "subject_24h": "Tomorrow: {{.Title}} — Homeo sapiens",
-      "subject_1h": "Starting soon: {{.Title}} — Homeo sapiens",
-      "heading_24h": "Your event is tomorrow",
-      "heading_1h": "Your event starts within the hour",
-      "body_24h": "This is a reminder that the event you registered for takes place tomorrow.",
-      "body_1h": "This is a reminder that the event you registered for starts within the hour."
     },
     "user_email_verification": {
       "body_html": "<p>You have created a new Homeo sapiens account, or you have changed your email address. To log in, please activate your account by clicking the link below:</p>",
@@ -158,23 +161,53 @@
   },
   "events": {
     "ends_at": "Ends at:",
+    "index": {
+      "eyebrow": "Agenda",
+      "no_events": "No events scheduled at the moment.",
+      "standfirst": "Seminars and webinars with practising clinicians, on site in Poland and on Zoom.",
+      "title": "Events"
+    },
     "join_meeting": "Join the meeting",
+    "show": {
+      "back": "All events"
+    },
     "starts_at": "Starts at:"
   },
   "header": {
     "cart": "View cart",
     "nav": {
+      "blog": "Blog",
       "events": "Events",
       "home": "Home",
       "my_products": "My products",
       "sign_in": "Sign in",
-      "videos": "Watch",
-      "blog": "Blog"
+      "videos": "Watch"
     },
     "user_dropdown": {
       "profile": "Profile",
       "sign_out": "Sign out"
     }
+  },
+  "home": {
+    "about": {
+      "history": "Homeo sapiens was a Polish homeopathy publisher and journal in the 1990s. Founded in 1993, it published through the nineties, then paused.",
+      "label": "About us",
+      "mission": "We've reestablished it as a platform for exchange — open to doctors, naturopaths and professionals practising homeopathy, and to those who don't yet. We share videos, book reviews and a seminar agenda, and keep a Zoom space open for meetings.",
+      "read_blog": "Read the blog",
+      "title": "A journal, reestablished",
+      "watch_recordings": "Watch recordings"
+    },
+    "agenda": {
+      "all_events": "All events",
+      "details": "Details",
+      "label": "Agenda",
+      "title": "Upcoming events"
+    },
+    "browse_events": "Browse events",
+    "explore_library": "Explore the library",
+    "eyebrow": "Similia similibus curentur · Pecunia non olet",
+    "intro": "Live sessions with practising clinicians, and a recording library you keep access to.",
+    "tagline": "Seminars, webinars and recordings on the art of homeopathy."
   },
   "languages": {
     "en": "English",
@@ -219,6 +252,9 @@
     "title": "Profile"
   },
   "sessions": {
+    "delete": {
+      "success": "You have successfully signed out."
+    },
     "new": {
       "email": "Email:",
       "forgot_password": "Forgot password?",
@@ -230,9 +266,6 @@
       "submit": "Submit",
       "unverified_email": "The email address has not been verified.",
       "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>."
-    },
-    "delete": {
-      "success": "You have successfully signed out."
     }
   },
   "user_password_resets": {
@@ -299,8 +332,8 @@
       "video_group_name_html": "<p>Video #{{ .CurrentIndex }} out of {{ .TotalCount }} from series: <a href=\"{{ .GroupURL }}\">{{ .GroupName }}</a></p>"
     },
     "youtube": {
-      "title": "Interviews & Highlights",
       "featuring": "Featuring:",
+      "title": "Interviews & Highlights",
       "watch_on_youtube": "Watch on YouTube"
     }
   }
