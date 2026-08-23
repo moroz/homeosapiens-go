@@ -17,7 +17,7 @@ func RootLayout(ctx *types.CustomContext, title string, children ...Node) Node {
 			Meta(Name("robots"), Content("noindex, nofollow")),
 			TitleEl(Text(title+" | Homeo sapiens")),
 			AssetEntryPoint(ctx),
-			fonts(),
+			// fonts(),
 			Meta(Name("user-timezone"), Content(ctx.Timezone.String())),
 		),
 		Body(Group(children)),
