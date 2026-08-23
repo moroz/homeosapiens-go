@@ -19,22 +19,11 @@ func Eyebrow(text string) Node {
 	)
 }
 
-// PageSection is one full-width band. Use LastPageSection instead for the final band, which drops the
-// bottom rule.
+// PageSection is one full-width band. The bottom rule drops off automatically
+// when it's the final band on a page.
 func PageSection(children ...Node) Node {
 	return El("section",
-		Class("border-b border-slate-200 bg-white"),
-		Div(
-			Class("container mx-auto px-6 py-16"),
-			Group(children),
-		),
-	)
-}
-
-// LastPageSection is PageSection without the bottom rule, for the final band on a page.
-func LastPageSection(children ...Node) Node {
-	return El("section",
-		Class("bg-white"),
+		Class("border-b border-slate-200 bg-white last:border-b-0"),
 		Div(
 			Class("container mx-auto px-6 py-16"),
 			Group(children),

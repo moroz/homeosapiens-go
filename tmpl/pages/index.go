@@ -20,7 +20,7 @@ func Events(ctx *types.CustomContext, eventRows []*services.EventListDto) Node {
 			title,
 			components.Standfirst(l.MustLocalizeMessage(&i18n.Message{ID: "events.index.standfirst"})),
 		),
-		components.LastPageSection(
+		components.PageSection(
 			If(len(eventRows) == 0,
 				components.EmptyState(l.MustLocalizeMessage(&i18n.Message{ID: "events.index.no_events"}))),
 			If(len(eventRows) > 0, events.EventList(ctx, eventRows)),

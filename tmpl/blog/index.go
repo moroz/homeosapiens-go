@@ -41,7 +41,7 @@ func Index(ctx *types.CustomContext, posts []*queries.BlogPost) Node {
 			title,
 			components.Standfirst(l.MustLocalizeMessage(&i18n.Message{ID: "blog.index.standfirst"})),
 		),
-		components.LastPageSection(
+		components.PageSection(
 			If(len(posts) == 0,
 				components.EmptyState(l.MustLocalizeMessage(&i18n.Message{ID: "blog.index.no_posts"}))),
 			If(len(posts) > 0, components.RowList(

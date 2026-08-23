@@ -191,7 +191,7 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 				If(event.IsFree() && !event.HasEnded() && event.RegistrationCount == 0, Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.nobody_attending"}))),
 			),
 		),
-		components.LastPageSection(
+		components.PageSection(
 			components.Prose(
 				Iff(description != nil, func() Node {
 					return helpers.RenderMarkdown(*description)

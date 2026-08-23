@@ -27,7 +27,7 @@ func Show(ctx *types.CustomContext, post *queries.BlogPost) Node {
 				)
 			}),
 		),
-		components.LastPageSection(
+		components.PageSection(
 			components.Prose(
 				Iff(post.Body != nil, func() Node {
 					return helpers.RenderMarkdown(*post.Body)

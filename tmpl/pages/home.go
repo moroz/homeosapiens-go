@@ -120,7 +120,7 @@ func homeEventRow(ctx *types.CustomContext, e *services.EventListDto) Node {
 func aboutSection(ctx *types.CustomContext) Node {
 	l := ctx.Localizer
 
-	return components.LastPageSection(
+	return components.PageSection(
 		components.SectionHeading(
 			l.MustLocalizeMessage(&i18n.Message{ID: "home.about.label"}),
 			l.MustLocalizeMessage(&i18n.Message{ID: "home.about.title"}),
