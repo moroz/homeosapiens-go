@@ -1,3 +1,4 @@
+import "@fontsource-variable/dm-sans/wght.css";
 import "./app.css";
 
 import "vanilla-hamburger/fade-burger.js";
@@ -9,55 +10,55 @@ import "vanilla-hamburger/fade-burger.js";
 // });
 //
 document.querySelectorAll(".user-dropdown").forEach((el) => {
-	const dropdown = el.querySelector(".dropdown");
-	if (!dropdown) return;
-	let timeout: number;
+  const dropdown = el.querySelector(".dropdown");
+  if (!dropdown) return;
+  let timeout: number;
 
-	el.addEventListener("mouseover", () => {
-		clearTimeout(timeout);
-		dropdown.classList.remove("hidden");
-	});
+  el.addEventListener("mouseover", () => {
+    clearTimeout(timeout);
+    dropdown.classList.remove("hidden");
+  });
 
-	el.addEventListener("mouseout", () => {
-		timeout = setTimeout(() => {
-			dropdown.classList.add("hidden");
-		}, 500);
-	});
+  el.addEventListener("mouseout", () => {
+    timeout = setTimeout(() => {
+      dropdown.classList.add("hidden");
+    }, 500);
+  });
 });
 
 async function setTimezone() {
-	const localTz = new Intl.DateTimeFormat().resolvedOptions().timeZone;
-	const storedTz = document.querySelector("meta[name=user-timezone]")?.getAttribute("content");
-	if (localTz === storedTz || !localTz) return;
+  const localTz = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const storedTz = document.querySelector("meta[name=user-timezone]")?.getAttribute("content");
+  if (localTz === storedTz || !localTz) return;
 
-	const qs = new URLSearchParams({ tz: localTz }).toString();
+  const qs = new URLSearchParams({ tz: localTz }).toString();
 
-	fetch(`/api/v1/prefs/timezone?${qs}`, { method: "POST", credentials: "include" });
+  fetch(`/api/v1/prefs/timezone?${qs}`, { method: "POST", credentials: "include" });
 }
 
 setTimezone();
 
 document.querySelector("#hamburger-toggle")?.addEventListener("click", () => {
-	const menu = document.querySelector(".hamburger-menu");
-	if (!menu) return;
+  const menu = document.querySelector(".hamburger-menu");
+  if (!menu) return;
 
-	menu.classList.toggle("open");
+  menu.classList.toggle("open");
 });
 
 document.querySelectorAll(".index-table [data-url]").forEach((row) => {
-	row.addEventListener("click", () => {
-		const url = row.getAttribute("data-url");
-		if (!url) return;
+  row.addEventListener("click", () => {
+    const url = row.getAttribute("data-url");
+    if (!url) return;
 
-		location.href = url;
-	});
+    location.href = url;
+  });
 });
 
 document.querySelectorAll("form[data-confirm]").forEach((form) => {
-	form.addEventListener("submit", (e) => {
-		const text = form.getAttribute("data-confirm")!;
-		if (!confirm(text)) {
-			e.preventDefault();
-		}
-	});
+  form.addEventListener("submit", (e) => {
+    const text = form.getAttribute("data-confirm")!;
+    if (!confirm(text)) {
+      e.preventDefault();
+    }
+  });
 });

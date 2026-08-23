@@ -83,7 +83,7 @@ func fonts() Node {
 			CrossOrigin(""),
 		),
 		Link(
-			Href("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"),
+			Href("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"),
 			Rel("stylesheet"),
 		),
 	}

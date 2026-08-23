@@ -1,5 +1,6 @@
 /* @import "video.js/dist/video-js.css"; */
 /* @import "@videojs/themes/dist/fantasy/index.css"; */
+@import "@fontsource-variable/dm-sans";
 @import "tailwindcss";
 
 @config "../../tailwind.config.js";
@@ -34,7 +35,8 @@
   --color-ember: #ff5d2d;
   --color-magenta: #ff2465;
 
-  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-heading: "DM Sans", "DM Sans Variable", system-ui, sans-serif;
+  --font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
 
   /* 7.6:1 on white — safe for body-size links and headings. */
   --color-primary: var(--color-brand-800);
@@ -87,6 +89,15 @@
 
   a:not([class]) {
     @apply text-primary hover:text-primary-hover underline underline-offset-2 transform-content;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
   }
 }
 
