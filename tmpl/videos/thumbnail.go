@@ -9,15 +9,19 @@ import (
 	"time"
 
 	svgassets "github.com/moroz/homeosapiens-go/assets"
-	. "maragu.dev/gomponents"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
+	"golang.org/x/image/math/fixed"
+	. "maragu.dev/gomponents"
 )
 
 var logoInnerSVG string
 var singleDigitRe = regexp.MustCompile(`\b\d\b`)
 var boldFace map[int]font.Face
 var regularFace map[int]font.Face
+var boldFont *sfnt.Font
+var regularFont *sfnt.Font
 
 func init() {
 	content := svgassets.LogoSVG
@@ -31,14 +35,15 @@ func init() {
 		logoInnerSVG = content[tagEnd:svgEnd]
 	}
 
-	boldFont, err := opentype.Parse(svgassets.IBMPlexSansBold)
+	var err error
+	boldFont, err = opentype.Parse(svgassets.DMSansBold)
 	if err != nil {
-		log.Printf("failed to parse IBM Plex Sans Bold: %v", err)
+		log.Printf("failed to parse DM Sans Bold: %v", err)
 		return
 	}
-	regularFont, err := opentype.Parse(svgassets.IBMPlexSansRegular)
+	regularFont, err = opentype.Parse(svgassets.DMSansRegular)
 	if err != nil {
-		log.Printf("failed to parse IBM Plex Sans Regular: %v", err)
+		log.Printf("failed to parse DM Sans Regular: %v", err)
 		return
 	}
 
@@ -54,6 +59,66 @@ func init() {
 			regularFace[size] = rf
 		}
 	}
+}
+
+// textToPath renders text as an SVG path (glyph outlines), so it displays
+// correctly regardless of whether the consumer of this standalone SVG has
+// the font installed. Baseline is at (x, y) in the same coordinate space as
+// font size.
+func textToPath(f *sfnt.Font, text string, size, x, y int) string {
+	if f == nil {
+		return ""
+	}
+	var buf sfnt.Buffer
+	ppem := fixed.I(size)
+	penX := fixed.I(x)
+	penY := fixed.I(y)
+
+	var sb strings.Builder
+	var prev sfnt.GlyphIndex
+	for i, r := range text {
+		gi, err := f.GlyphIndex(&buf, r)
+		if err != nil || gi == 0 {
+			continue
+		}
+		if i > 0 {
+			if kern, err := f.Kern(&buf, prev, gi, ppem, font.HintingNone); err == nil {
+				penX += kern
+			}
+		}
+		if segs, err := f.LoadGlyph(&buf, gi, ppem, nil); err == nil {
+			appendGlyphPath(&sb, segs, penX, penY)
+		}
+		if adv, err := f.GlyphAdvance(&buf, gi, ppem, font.HintingNone); err == nil {
+			penX += adv
+		}
+		prev = gi
+	}
+	return sb.String()
+}
+
+func appendGlyphPath(sb *strings.Builder, segs sfnt.Segments, offX, offY fixed.Int26_6) {
+	for _, seg := range segs {
+		switch seg.Op {
+		case sfnt.SegmentOpMoveTo:
+			fmt.Fprintf(sb, "M%s,%s", f26(seg.Args[0].X+offX), f26(seg.Args[0].Y+offY))
+		case sfnt.SegmentOpLineTo:
+			fmt.Fprintf(sb, "L%s,%s", f26(seg.Args[0].X+offX), f26(seg.Args[0].Y+offY))
+		case sfnt.SegmentOpQuadTo:
+			fmt.Fprintf(sb, "Q%s,%s %s,%s",
+				f26(seg.Args[0].X+offX), f26(seg.Args[0].Y+offY),
+				f26(seg.Args[1].X+offX), f26(seg.Args[1].Y+offY))
+		case sfnt.SegmentOpCubeTo:
+			fmt.Fprintf(sb, "C%s,%s %s,%s %s,%s",
+				f26(seg.Args[0].X+offX), f26(seg.Args[0].Y+offY),
+				f26(seg.Args[1].X+offX), f26(seg.Args[1].Y+offY),
+				f26(seg.Args[2].X+offX), f26(seg.Args[2].Y+offY))
+		}
+	}
+}
+
+func f26(v fixed.Int26_6) string {
+	return strconv.FormatFloat(float64(v)/64, 'f', 2, 64)
 }
 
 func measureText(f font.Face, text string) int {
@@ -161,21 +226,16 @@ func Thumbnail(baseTitle, host, locale string, date *time.Time, ppURL *string) N
 	hostY := hostTop + hostDateSize
 	dateY := hostY + 4 + hostDateSize
 
-	tspans := make([]Node, len(titleLines))
+	titlePaths := make([]Node, len(titleLines))
 	for i, line := range titleLines {
-		attrs := []Node{Attr("x", px(contentX))}
-		if i > 0 {
-			attrs = append(attrs, Attr("dy", px(titleSize+lineGap)))
-		}
-		tspans[i] = El("tspan", append(attrs, Text(line))...)
+		lineY := titleLine1Y + i*(titleSize+lineGap)
+		titlePaths[i] = El("path", Attr("d", textToPath(boldFont, line, titleSize, contentX, lineY)))
 	}
 
 	dateStr := ""
 	if date != nil {
 		dateStr = formatDate(*date, locale)
 	}
-
-	const fontFamily = `"IBM Plex Sans", system-ui, sans-serif`
 
 	return El("svg",
 		Attr("xmlns", "http://www.w3.org/2000/svg"),
@@ -216,32 +276,24 @@ func Thumbnail(baseTitle, host, locale string, date *time.Time, ppURL *string) N
 			Raw(logoInnerSVG),
 		),
 
-		El("text",
-			Attr("x", px(contentX)), Attr("y", px(titleLine1Y)),
-			Attr("font-size", px(titleSize)), Attr("font-weight", "bold"),
-			Attr("fill", "#0f172a"), Attr("font-family", fontFamily),
-			Group(tspans),
+		El("g",
+			Attr("fill", "#0f172a"),
+			Group(titlePaths),
 		),
 		If(subtitle != "",
-			El("text",
-				Attr("x", px(contentX)), Attr("y", px(subtitleY)),
-				Attr("font-size", px(subSize)),
-				Attr("fill", "#334155"), Attr("font-family", fontFamily),
-				Text(subtitle),
+			El("path",
+				Attr("fill", "#334155"),
+				Attr("d", textToPath(regularFont, subtitle, subSize, contentX, subtitleY)),
 			),
 		),
 
-		El("text",
-			Attr("x", px(contentX)), Attr("y", px(hostY)),
-			Attr("font-size", px(hostDateSize)), Attr("font-weight", "600"),
-			Attr("fill", "#334155"), Attr("font-family", fontFamily),
-			Text(host),
+		El("path",
+			Attr("fill", "#334155"),
+			Attr("d", textToPath(boldFont, host, hostDateSize, contentX, hostY)),
 		),
-		El("text",
-			Attr("x", px(contentX)), Attr("y", px(dateY)),
-			Attr("font-size", px(hostDateSize)), Attr("font-weight", "600"),
-			Attr("fill", "#334155"), Attr("font-family", fontFamily),
-			Text(dateStr),
+		El("path",
+			Attr("fill", "#334155"),
+			Attr("d", textToPath(boldFont, dateStr, hostDateSize, contentX, dateY)),
 		),
 	)
 }
