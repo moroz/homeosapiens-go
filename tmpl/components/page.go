@@ -99,7 +99,7 @@ func Prose(children ...Node) Node {
 // EmptyState is the muted placeholder shown when a listing has no rows.
 func EmptyState(text string) Node {
 	return P(
-		Class("border-t border-slate-200 py-16 text-center text-slate-500"),
+		Class("py-16 text-center text-slate-500"),
 		Text(text),
 	)
 }
