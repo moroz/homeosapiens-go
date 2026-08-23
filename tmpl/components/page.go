@@ -94,7 +94,7 @@ func TextLink(href, label string) Node {
 // this supplies the top one so the first row is closed off too.
 func RowList(children ...Node) Node {
 	return Div(
-		Class("border-t border-slate-200"),
+		Class("border-t border-slate-200 first:border-t-0"),
 		Group(children),
 	)
 }

@@ -122,7 +122,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 	hasEnded := e.EndsAt.Before(time.Now())
 
 	return Article(
-		Class("flex justify-between gap-8 border-b border-slate-200 py-8 mobile:gap-6 mobile:py-6"),
+		Class("flex justify-between gap-8 border-b border-slate-200 py-8 mobile:gap-6 mobile:py-6 last:border-b-0"),
 		Div(Class("flex shrink-0 items-start gap-6 mobile:hidden"),
 			Map(e.Hosts, func(host *queries.ListHostsForEventsRow) Node {
 				return HostCard(localizer, host)
