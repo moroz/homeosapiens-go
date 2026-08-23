@@ -25,7 +25,7 @@ func PageSection(children ...Node) Node {
 	return El("section",
 		Class("border-b border-slate-200 bg-white last:border-b-0"),
 		Div(
-			Class("container mx-auto px-6 py-16"),
+			Class("container mx-auto py-16 px-2"),
 			Group(children),
 		),
 	)
@@ -37,7 +37,7 @@ func PageHeader(eyebrow, title string, children ...Node) Node {
 	return El("section",
 		Class("border-b border-slate-200 bg-white"),
 		Div(
-			Class("container mx-auto px-6 pt-16 pb-10 mobile:pt-10 mobile:pb-8"),
+			Class("container mx-auto px-2 pt-16 pb-10 mobile:pt-10 mobile:pb-8"),
 			Eyebrow(eyebrow),
 			H1(
 				Class("mt-4 max-w-3xl text-4xl leading-[1.1] font-bold tracking-tight text-slate-900 mobile:text-3xl"),
