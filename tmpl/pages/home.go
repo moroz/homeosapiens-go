@@ -31,7 +31,7 @@ func heroSection(ctx *types.CustomContext) Node {
 	return El("section",
 		Class("border-b border-slate-200 bg-white"),
 		Div(
-			Class("container mx-auto px-2 py-24 mobile:py-14"),
+			Class("container mx-auto px-2 py-24 mobile:py-14 mobile:px-5"),
 			Div(
 				Class("max-w-3xl"),
 				components.Eyebrow(l.MustLocalizeMessage(&i18n.Message{ID: "home.eyebrow"})),

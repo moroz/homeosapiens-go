@@ -13,8 +13,8 @@ import (
 // Eyebrow is a small caps label preceded by a short rule in the brand gradient.
 func Eyebrow(text string) Node {
 	return Div(
-		Class("flex items-center gap-3 text-sm font-semibold tracking-[0.22em] text-primary uppercase font-heading"),
-		Span(Class("inline-block h-0.5 w-6 rounded-full brand-rule")),
+		Class("flex items-center gap-3 text-sm font-semibold tracking-[0.1em] text-primary uppercase font-heading"),
+		Span(Class("inline-block h-0.5 w-6 rounded-full brand-rule mobile:hidden")),
 		Text(text),
 	)
 }
@@ -25,7 +25,7 @@ func PageSection(children ...Node) Node {
 	return El("section",
 		Class("border-b border-slate-200 bg-white last:border-b-0"),
 		Div(
-			Class("container mx-auto py-16 px-2"),
+			Class("container mx-auto py-16 px-2 mobile:px-5"),
 			Group(children),
 		),
 	)
@@ -37,7 +37,7 @@ func PageHeader(eyebrow, title string, children ...Node) Node {
 	return El("section",
 		Class("border-b border-slate-200 bg-white"),
 		Div(
-			Class("container mx-auto px-2 pt-16 pb-10 mobile:pt-10 mobile:pb-8"),
+			Class("container mx-auto px-2 pt-16 pb-10 mobile:pt-10 mobile:pb-8 mobile:px-5"),
 			Eyebrow(eyebrow),
 			H1(
 				Class("mt-4 max-w-3xl text-4xl leading-[1.1] font-bold tracking-tight text-slate-900 mobile:text-3xl"),

@@ -150,6 +150,9 @@
     }
   }
 
+  .hamburger-items {
+  }
+
   .alert {
     @apply my-3 rounded-sm border px-4 py-3;
 

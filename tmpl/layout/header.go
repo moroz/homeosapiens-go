@@ -99,10 +99,10 @@ func mobileNav(ctx *types.CustomContext) Node {
 				HamburgerItem("/blog", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.blog",
 				})),
-				HamburgerItem("/videos", l.MustLocalizeMessage(&i18n.Message{
+				HamburgerItem("/watch", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.videos",
 				})),
-				HamburgerItem("/dashboard", l.MustLocalizeMessage(&i18n.Message{
+				HamburgerItem("/videos", l.MustLocalizeMessage(&i18n.Message{
 					ID: "header.nav.my_products",
 				})),
 			),
@@ -112,8 +112,8 @@ func mobileNav(ctx *types.CustomContext) Node {
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("fixed inset-0 z-20 h-20 bg-white shadow-sm backdrop-blur-md font-heading"),
-		Div(Class("container mx-auto flex h-full items-center mobile:px-2"),
+		Class("fixed inset-0 z-20 h-20 bg-white shadow-sm font-heading"),
+		Div(Class("container mx-auto flex h-full items-center mobile:px-2 justify-between"),
 			H1(
 				Class("z-20"),
 				A(
