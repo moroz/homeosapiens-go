@@ -13,7 +13,7 @@ import (
 // Eyebrow is a small caps label preceded by a short rule in the brand gradient.
 func Eyebrow(text string) Node {
 	return Div(
-		Class("flex items-center gap-3 text-xs font-semibold tracking-[0.22em] text-primary uppercase"),
+		Class("flex items-center gap-3 text-sm font-semibold tracking-[0.22em] text-primary uppercase font-heading"),
 		Span(Class("inline-block h-0.5 w-6 rounded-full brand-rule")),
 		Text(text),
 	)
@@ -74,7 +74,7 @@ func SectionHeading(label, title string, trailing ...Node) Node {
 func TextLink(href, label string) Node {
 	return A(
 		Href(href),
-		Class("font-semibold text-primary hover:text-primary-hover"),
+		Class("font-semibold text-primary hover:text-primary-hover font-heading"),
 		Text(label+" →"),
 	)
 }

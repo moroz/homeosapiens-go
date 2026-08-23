@@ -7,28 +7,17 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  /* Brand ramp, sampled from the Homeo sapiens key visuals: the sun logo sits
-     on a pink→orange gradient running #FF2465 → #FF5D2D → #FF8A04. Steps 400-600
-     are those source colors; 700 and up are darkened for text contrast, since
-     nothing lighter than 700 reaches 4.5:1 on white. */
-  --color-brand-50: #fff4ed;
-  --color-brand-100: #ffe7d6;
-  --color-brand-200: #ffccad;
-  --color-brand-300: #ffa678;
-  --color-brand-400: #ff8a04;
-  --color-brand-500: #ff5d2d;
-  --color-brand-600: #f03d0b;
-  --color-brand-700: #c72e07;
-  --color-brand-800: #9e2712;
-  --color-brand-900: #7f2612;
-  --color-brand-950: #451106;
-
-  /* Magenta end of the gradient, used as the secondary accent. */
-  --color-accent-400: #ff5c8d;
-  --color-accent-500: #ff2465;
-  --color-accent-600: #e50b4e;
-  --color-accent-700: #c7104a;
-  --color-accent-800: #a80b3e;
+  --color-brand-50: var(--color-indigo-50);
+  --color-brand-100: var(--color-indigo-100);
+  --color-brand-200: var(--color-indigo-200);
+  --color-brand-300: var(--color-indigo-300);
+  --color-brand-400: var(--color-indigo-400);
+  --color-brand-500: var(--color-indigo-500);
+  --color-brand-600: var(--color-indigo-600);
+  --color-brand-700: var(--color-indigo-700);
+  --color-brand-800: var(--color-indigo-800);
+  --color-brand-900: var(--color-indigo-900);
+  --color-brand-950: var(--color-indigo-950);
 
   /* Raw gradient stops, for decorative surfaces that should read as the logo. */
   --color-flame: #ff8a04;
@@ -79,7 +68,7 @@
 
 /* Thin gradient rule, for section dividers and eyebrow marks. */
 @utility brand-rule {
-  background-image: linear-gradient(90deg, var(--color-magenta), var(--color-flame));
+  background-image: linear-gradient(90deg, var(--color-brand-400), var(--color-brand-700));
 }
 
 @layer base {
@@ -105,7 +94,7 @@
   .button {
     /* brand-700 hover brand-800: darkens on hover because anything lighter
        than 700 drops white text below 4.5:1. */
-    @apply bg-brand-700 hover:bg-brand-800 inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm px-4 py-2 text-center font-bold text-white transition-colors;
+    @apply bg-brand-700 hover:bg-brand-800 inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm px-4 py-2 text-center font-bold text-white transition-colors font-heading;
 
     &.secondary {
       @apply text-primary border-brand-200 bg-brand-50 hover:bg-brand-100 border;

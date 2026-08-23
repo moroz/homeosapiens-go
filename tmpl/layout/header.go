@@ -14,7 +14,7 @@ func NavLink(href string, text string) Node {
 	return Li(
 		Class("h-full"),
 		A(
-			Class("inline-block rounded-sm p-3 text-base no-underline transition-colors hover:bg-brand-50"),
+			Class("inline-block rounded-sm p-3 text-base font-semibold no-underline transition-colors hover:bg-brand-50"),
 			Href(href), Text(text),
 		),
 	)
@@ -112,7 +112,7 @@ func mobileNav(ctx *types.CustomContext) Node {
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("fixed inset-0 z-20 h-20 bg-white shadow-sm backdrop-blur-md"),
+		Class("fixed inset-0 z-20 h-20 bg-white shadow-sm backdrop-blur-md font-heading"),
 		Div(Class("container mx-auto flex h-full items-center mobile:px-2"),
 			H1(
 				Class("z-20"),

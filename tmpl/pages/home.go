@@ -40,7 +40,7 @@ func heroSection(ctx *types.CustomContext) Node {
 					Text("Homeo sapiens"),
 				),
 				P(
-					Class("mt-5 max-w-prose text-2xl leading-snug text-slate-700 mobile:text-xl"),
+					Class("mt-5 max-w-prose text-2xl leading-snug text-slate-700 mobile:text-xl font-heading"),
 					Text(l.MustLocalizeMessage(&i18n.Message{ID: "home.tagline"})),
 				),
 				P(
