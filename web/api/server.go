@@ -22,6 +22,7 @@ type Server struct {
 	*videoGroupServer
 	*userServer
 	*blogPostServer
+	*productServer
 	q  *queries.Queries
 	db queries.DBTX
 }
@@ -32,6 +33,7 @@ func NewServer(db *pgxpool.Pool) *Server {
 		videoGroupServer: NewVideoGroupServer(db),
 		userServer:       NewUserServer(db),
 		blogPostServer:   NewBlogPostServer(db),
+		productServer:    NewProductServer(db),
 		q:                queries.New(db),
 		db:               db,
 	}

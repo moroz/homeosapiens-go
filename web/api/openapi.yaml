@@ -684,6 +684,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrors"
 
+  /products:
+    get:
+      operationId: listProducts
+      summary: List products
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: A page of products, newest first
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedProducts"
+
 components:
   parameters:
     PageParam:
@@ -787,6 +802,52 @@ components:
         pagination:
           $ref: "#/components/schemas/Pagination"
       
+    PaginatedProducts:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    Product:
+      type: object
+      description: A sellable item. Events, books and video groups all point at a product for their pricing.
+      required: [id, productType, titlePl, titleEn, basePrice, basePriceCurrency, insertedAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        productType:
+          $ref: "#/components/schemas/ProductType"
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        basePrice:
+          type: string
+          description: Decimal price string, e.g. "199.00".
+        basePriceCurrency:
+          type: string
+          description: Currency code, e.g. "PLN".
+        insertedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProductType:
+      type: string
+      description: The kind of resource a product grants access to.
+      enum: [event, book, video_group]
+      x-go-type: queries.ProductType
+      x-go-type-import:
+        path: github.com/moroz/homeosapiens-go/db/queries
+
     PaginatedVideoGroups:
       type: object
       required: [data, pagination]

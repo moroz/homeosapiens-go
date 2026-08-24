@@ -12,6 +12,17 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const countProducts = `-- name: CountProducts :one
+select count(*) from products
+`
+
+func (q *Queries) CountProducts(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countProducts)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getProductById = `-- name: GetProductById :one
 select id, product_type, title_pl, title_en, base_price_amount, base_price_currency, inserted_at, updated_at from products where id = $1
 `
@@ -64,6 +75,45 @@ func (q *Queries) InsertProduct(ctx context.Context, arg *InsertProductParams) (
 		&i.UpdatedAt,
 	)
 	return &i, err
+}
+
+const paginateProducts = `-- name: PaginateProducts :many
+select id, product_type, title_pl, title_en, base_price_amount, base_price_currency, inserted_at, updated_at from products p order by p.id desc
+limit ($2::int) offset ((($1::int) - 1) * $2::int)
+`
+
+type PaginateProductsParams struct {
+	Page    int32
+	PerPage int32
+}
+
+func (q *Queries) PaginateProducts(ctx context.Context, arg *PaginateProductsParams) ([]*Product, error) {
+	rows, err := q.db.Query(ctx, paginateProducts, arg.Page, arg.PerPage)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProductType,
+			&i.TitlePl,
+			&i.TitleEn,
+			&i.BasePriceAmount,
+			&i.BasePriceCurrency,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateProductPrice = `-- name: UpdateProductPrice :one
