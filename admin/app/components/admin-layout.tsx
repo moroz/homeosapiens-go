@@ -4,6 +4,7 @@ import {
   UsersIcon as Users,
   VideoCameraIcon as VideoCamera,
   ArticleIcon,
+  TagIcon,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router";
@@ -33,6 +34,7 @@ const NAV_ITEMS = [
   { title: "Blog", to: "/blog-posts", icon: ArticleIcon },
   { title: "Users", to: "/users", icon: Users },
   { title: "Events", to: "/events", icon: CalendarDots },
+  { title: "Products", to: "/products", icon: TagIcon },
 ];
 
 /**
