@@ -13,6 +13,17 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const countOrders = `-- name: CountOrders :one
+select count(*) from orders
+`
+
+func (q *Queries) CountOrders(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countOrders)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getLastOrderID = `-- name: GetLastOrderID :one
 select id from orders order by id desc limit 1
 `
@@ -353,6 +364,59 @@ func (q *Queries) MarkOrderAsPaid(ctx context.Context, id uuid.UUID) (*Order, er
 		&i.PreferredLocale,
 	)
 	return &i, err
+}
+
+const paginateOrders = `-- name: PaginateOrders :many
+select id, user_id, paid_at, cancelled_at, discount_code, grand_total, currency, inserted_at, updated_at, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, stripe_checkout_session_id, order_number, billing_tax_id, preferred_locale from orders o order by o.id desc
+limit ($2::int) offset ((($1::int) - 1) * $2::int)
+`
+
+type PaginateOrdersParams struct {
+	Page    int32
+	PerPage int32
+}
+
+func (q *Queries) PaginateOrders(ctx context.Context, arg *PaginateOrdersParams) ([]*Order, error) {
+	rows, err := q.db.Query(ctx, paginateOrders, arg.Page, arg.PerPage)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Order
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.PaidAt,
+			&i.CancelledAt,
+			&i.DiscountCode,
+			&i.GrandTotal,
+			&i.Currency,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.BillingGivenName,
+			&i.BillingFamilyName,
+			&i.BillingPhone,
+			&i.BillingCity,
+			&i.BillingPostalCode,
+			&i.BillingCountry,
+			&i.Email,
+			&i.BillingAddressLine1,
+			&i.BillingAddressLine2,
+			&i.StripeCheckoutSessionID,
+			&i.OrderNumber,
+			&i.BillingTaxID,
+			&i.PreferredLocale,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const registerBuyerForPaidEvents = `-- name: RegisterBuyerForPaidEvents :many

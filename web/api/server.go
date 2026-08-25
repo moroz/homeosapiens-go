@@ -23,6 +23,7 @@ type Server struct {
 	*userServer
 	*blogPostServer
 	*productServer
+	*orderServer
 	q  *queries.Queries
 	db queries.DBTX
 }
@@ -34,6 +35,7 @@ func NewServer(db *pgxpool.Pool) *Server {
 		userServer:       NewUserServer(db),
 		blogPostServer:   NewBlogPostServer(db),
 		productServer:    NewProductServer(db),
+		orderServer:      NewOrderServer(db),
 		q:                queries.New(db),
 		db:               db,
 	}

@@ -1,6 +1,13 @@
 -- name: ListOrders :many
 select * from orders order by id;
 
+-- name: PaginateOrders :many
+select * from orders o order by o.id desc
+limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
+
+-- name: CountOrders :one
+select count(*) from orders;
+
 -- name: InsertOrder :one
 insert into orders (order_number, user_id, grand_total, currency, billing_given_name_encrypted, billing_family_name_encrypted, billing_phone_encrypted, billing_city_encrypted, billing_postal_code_encrypted, billing_country, email_encrypted, billing_address_line1_encrypted, billing_address_line2_encrypted, billing_tax_id, preferred_locale)
 values (generate_order_number(), $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning *;
