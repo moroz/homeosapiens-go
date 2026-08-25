@@ -12,6 +12,7 @@ import { NewBlogPost, BlogPostDetails, BlogPosts, EditBlogPost } from "~/routes/
 import { Products } from "~/routes/products";
 import { Orders, OrderDetails } from "~/routes/orders";
 import { Hosts, NewHost, EditHost } from "~/routes/hosts";
+import { Videos, EditVideo } from "~/routes/videos";
 import {
   EditEvent,
   EventAttendants,
@@ -26,9 +27,11 @@ export const routes: RouteObject[] = [
     errorElement: <RootErrorBoundary />,
     children: [
       { index: true, element: <VideoGroups /> },
-      { path: "videos", element: <VideoGroups /> },
-      { path: "videos/new", element: <NewVideoGroup /> },
-      { path: "videos/:id/edit", element: <EditVideoGroup /> },
+      { path: "playlists", element: <VideoGroups /> },
+      { path: "playlists/new", element: <NewVideoGroup /> },
+      { path: "playlists/:id/edit", element: <EditVideoGroup /> },
+      { path: "videos", element: <Videos /> },
+      { path: "videos/:id/edit", element: <EditVideo /> },
       { path: "users", element: <Users /> },
       { path: "users/:id", element: <UserDetails /> },
       { path: "events", element: <Events /> },

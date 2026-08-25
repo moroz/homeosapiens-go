@@ -1,15 +1,13 @@
-import { PlusIcon } from "@phosphor-icons/react";
-import { type ColumnDef } from "@tanstack/react-table";
-import { Link, useNavigate } from "react-router";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
 import { DataTable } from "~/components/data-table";
+import { PageTitle } from "~/components/page-title";
 import { Badge } from "~/components/ui/badge";
-import { buttonVariants } from "~/components/ui/button";
-import { useListVideoGroupsQuery, useTableSearchParams, type VideoGroup } from "~/hooks";
-import { formatInstant } from "~/lib/time";
+import { useListVideosQuery, useTableSearchParams, type Video } from "~/hooks";
 
-const columns: ColumnDef<VideoGroup>[] = [
+const columns: ColumnDef<Video>[] = [
   {
     accessorKey: "titleEn",
     header: "Title (EN)",
@@ -35,46 +33,40 @@ const columns: ColumnDef<VideoGroup>[] = [
       </span>
     ),
   },
+  { accessorKey: "provider", header: "Provider", size: 60 },
   {
-    id: "access",
-    header: "Access",
-    accessorKey: "isPremium",
+    accessorKey: "isPublic",
+    header: "Visibility",
     size: 60,
     cell: ({ row }) =>
-      row.original.isPremium ? (
-        <Badge>{`${row.original.price} ${row.original.currency}`}</Badge>
+      row.original.isPublic ? (
+        <Badge variant="secondary">public</Badge>
       ) : (
-        <Badge variant="secondary">free</Badge>
+        <Badge>members only</Badge>
       ),
   },
-  { accessorKey: "videoCount", header: "Videos", size: 50 },
   {
-    id: "insertedAt",
-    header: "Created at",
-    accessorKey: "insertedAt",
-    size: 80,
-    cell: ({ row }) => formatInstant(row.original.insertedAt),
+    accessorKey: "recordedOn",
+    header: "Recorded on",
+    size: 70,
+    cell: ({ row }) => row.original.recordedOn?.slice(0, 10) ?? null,
   },
 ];
 
-export default function VideoGroups() {
+export default function Videos() {
   const navigate = useNavigate();
   const { pagination, onPaginationChange, sorting, onSortingChange } = useTableSearchParams(20);
-  const { data, isPending, isError } = useListVideoGroupsQuery(
+  const { data, isPending, isError } = useListVideosQuery(
     pagination.pageIndex + 1,
     pagination.pageSize,
   );
 
   return (
-    <AdminLayout title="Playlists">
+    <AdminLayout title="Videos">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Playlists</h2>
-          <Link to="/playlists/new" className={buttonVariants()}>
-            <PlusIcon />
-            New series
-          </Link>
-        </div>
+        <header className="flex items-center justify-between">
+          <PageTitle>Videos</PageTitle>
+        </header>
 
         <div className="w-full overflow-hidden">
           <DataTable
@@ -88,7 +80,7 @@ export default function VideoGroups() {
             onSortingChange={onSortingChange}
             isPending={isPending}
             isError={isError}
-            onRowClick={(group) => navigate(`/playlists/${group.id}/edit`)}
+            onRowClick={(video) => navigate(`/videos/${video.id}/edit`)}
           />
         </div>
       </div>

@@ -3,6 +3,8 @@ package types
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/shopspring/decimal"
@@ -117,4 +119,29 @@ func (v *VideoGroupListDTO) IsPremium() bool {
 
 func (v *VideoGroupDetailsDTO) IsPremium() bool {
 	return v.VideoGroup.ProductID != nil
+}
+
+// UpdateVideoInput carries the editable fields of a video. Provider, youtube id,
+// duration and thumbnails are set by the import script and stay read-only here,
+// so an update replaces everything an admin is allowed to touch.
+type UpdateVideoInput struct {
+	TitleEn       string     `json:"titleEn"`
+	TitlePl       string     `json:"titlePl"`
+	Slug          string     `json:"slug"`
+	DescriptionEn *string    `json:"descriptionEn"`
+	DescriptionPl *string    `json:"descriptionPl"`
+	RecordedOn    *time.Time `json:"recordedOn"`
+	IsPublic      bool       `json:"isPublic"`
+	HostID        *uuid.UUID `json:"hostId"`
+}
+
+func (p *UpdateVideoInput) Validate() error {
+	return validation.ValidateStruct(p,
+		validation.Field(&p.TitleEn, validation.Required),
+		validation.Field(&p.TitlePl, validation.Required),
+
+		// Slug uniqueness cannot be checked here without racing another writer;
+		// the service catches the constraint violation instead.
+		validation.Field(&p.Slug, validation.Required, validation.Match(slugRegexp)),
+	)
 }

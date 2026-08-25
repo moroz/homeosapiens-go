@@ -107,6 +107,34 @@ func (q *Queries) GetMinMaxRecordedDatesForVideoGroups(ctx context.Context, vide
 	return items, nil
 }
 
+const getVideoById = `-- name: GetVideoById :one
+select id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en from videos where id = $1
+`
+
+func (q *Queries) GetVideoById(ctx context.Context, id uuid.UUID) (*Video, error) {
+	row := q.db.QueryRow(ctx, getVideoById, id)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.IsPublic,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.Slug,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.DurationSeconds,
+		&i.RecordedOn,
+		&i.HostID,
+		&i.ThumbnailEnID,
+		&i.ThumbnailPlID,
+		&i.YoutubeID,
+		&i.DescriptionPl,
+		&i.DescriptionEn,
+	)
+	return &i, err
+}
+
 const getVideoForUser = `-- name: GetVideoForUser :one
 select v.id, v.provider, v.is_public, v.title_en, v.title_pl, v.slug, v.inserted_at, v.updated_at, v.duration_seconds, v.recorded_on, v.host_id, v.thumbnail_en_id, v.thumbnail_pl_id, v.youtube_id, v.description_pl, v.description_en, a.has_access from videos v
 join video_groups_videos vgv on vgv.video_id = v.id
@@ -767,6 +795,59 @@ type SetVideoGroupProductParams struct {
 func (q *Queries) SetVideoGroupProduct(ctx context.Context, arg *SetVideoGroupProductParams) error {
 	_, err := q.db.Exec(ctx, setVideoGroupProduct, arg.ID, arg.ProductID)
 	return err
+}
+
+const updateVideo = `-- name: UpdateVideo :one
+update videos set title_en = $2, title_pl = $3, slug = $4, description_en = $5, description_pl = $6,
+  recorded_on = $7, is_public = $8, host_id = $9, updated_at = now()
+where id = $1
+returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en
+`
+
+type UpdateVideoParams struct {
+	ID            uuid.UUID
+	TitleEn       string
+	TitlePl       string
+	Slug          string
+	DescriptionEn *string
+	DescriptionPl *string
+	RecordedOn    *time.Time
+	IsPublic      bool
+	HostID        *uuid.UUID
+}
+
+func (q *Queries) UpdateVideo(ctx context.Context, arg *UpdateVideoParams) (*Video, error) {
+	row := q.db.QueryRow(ctx, updateVideo,
+		arg.ID,
+		arg.TitleEn,
+		arg.TitlePl,
+		arg.Slug,
+		arg.DescriptionEn,
+		arg.DescriptionPl,
+		arg.RecordedOn,
+		arg.IsPublic,
+		arg.HostID,
+	)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.IsPublic,
+		&i.TitleEn,
+		&i.TitlePl,
+		&i.Slug,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.DurationSeconds,
+		&i.RecordedOn,
+		&i.HostID,
+		&i.ThumbnailEnID,
+		&i.ThumbnailPlID,
+		&i.YoutubeID,
+		&i.DescriptionPl,
+		&i.DescriptionEn,
+	)
+	return &i, err
 }
 
 const upsertVideoGroup = `-- name: UpsertVideoGroup :one

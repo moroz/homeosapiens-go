@@ -53,7 +53,7 @@ export const EditVideoGroup: React.FC<Props> = () => {
         // Membership and order live behind their own endpoint, because positions
         // are unique per group and are replaced wholesale.
         await replaceVideos.mutateAsync({ id: id!, videoIds: values.videoIds ?? [] });
-        navigate("/videos");
+        navigate("/playlists");
       } catch (err) {
         if (err instanceof ApiError && err.status === 422 && isValidationErrorBody(err.body)) {
           for (const [field, message] of Object.entries(err.body.errors)) {
@@ -77,7 +77,7 @@ export const EditVideoGroup: React.FC<Props> = () => {
       ) : (
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
-            <BackButton href="/videos">Back to playlists</BackButton>
+            <BackButton href="/playlists">Back to playlists</BackButton>
             <PageTitle subtitle="Edit playlist">{group.titleEn}</PageTitle>
             {formError ? (
               <Notification

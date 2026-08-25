@@ -155,6 +155,8 @@ func videoList(videos []*queries.Video) []Video {
 			Slug:       v.Slug,
 			TitleEn:    v.TitleEn,
 			TitlePl:    v.TitlePl,
+			Provider:   v.Provider,
+			IsPublic:   v.IsPublic,
 			RecordedOn: v.RecordedOn,
 		}
 	}

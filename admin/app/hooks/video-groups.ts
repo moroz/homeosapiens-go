@@ -4,7 +4,6 @@ import { api } from "~/lib/api";
 import type { components } from "~/lib/api-types";
 import type { UUID } from "~/lib/interfaces";
 
-export type Video = components["schemas"]["Video"];
 export type VideoGroup = components["schemas"]["VideoGroup"];
 export type VideoGroupInput = components["schemas"]["VideoGroupInput"];
 export type PatchVideoGroupInput = components["schemas"]["VideoGroupPatch"];
@@ -27,17 +26,6 @@ export function useGetVideoGroupQuery(id: string | undefined) {
     enabled: id != null,
     queryFn: async () => {
       const { data } = await api.GET("/video-groups/{id}", { params: { path: { id: id! } } });
-      return data;
-    },
-  });
-}
-
-/** `GET /api/admin/videos` — a page of every video, for picking group members. */
-export function useListVideosQuery(page = 1, perPage = 100) {
-  return useQuery({
-    queryKey: ["listVideos", page, perPage],
-    queryFn: async () => {
-      const { data } = await api.GET("/videos", { params: { query: { page, perPage } } });
       return data;
     },
   });

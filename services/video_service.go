@@ -3,9 +3,12 @@ package services
 import (
 	"cmp"
 	"context"
+	"errors"
 	"slices"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/types"
 )
@@ -209,4 +212,31 @@ func (s *VideoService) ListYoutubeVideos(ctx context.Context) ([]*types.VideoLis
 	}
 
 	return result, nil
+}
+
+// UpdateVideo replaces the editable fields of a video. Slug collisions surface
+// as a validation error on the slug field rather than a 500, matching how blog
+// posts and video groups report the same conflict.
+func (s *VideoService) UpdateVideo(ctx context.Context, id uuid.UUID, params *types.UpdateVideoInput) (*queries.Video, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
+	video, err := queries.New(s.db).UpdateVideo(ctx, &queries.UpdateVideoParams{
+		ID:            id,
+		TitleEn:       params.TitleEn,
+		TitlePl:       params.TitlePl,
+		Slug:          params.Slug,
+		DescriptionEn: params.DescriptionEn,
+		DescriptionPl: params.DescriptionPl,
+		RecordedOn:    params.RecordedOn,
+		IsPublic:      params.IsPublic,
+		HostID:        params.HostID,
+	})
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" && pgErr.ConstraintName == "videos_slug_key" {
+		return nil, validation.Errors{
+			"slug": validation.NewError("unique", "has already been taken"),
+		}
+	}
+	return video, err
 }

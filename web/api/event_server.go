@@ -109,21 +109,27 @@ func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestOb
 
 	out := make([]Event, len(events))
 	for i, e := range events {
+		var hosts *string
+		if e.Hosts != "" {
+			hosts = &e.Hosts
+		}
+
 		out[i] = Event{
-			Id:          e.ID,
-			Slug:        e.Slug,
-			TitleEn:     e.TitleEn,
-			TitlePl:     e.TitlePl,
-			SubtitleEn:  e.SubtitleEn,
-			SubtitlePl:  e.SubtitlePl,
-			EventType:   string(e.EventType),
-			IsVirtual:   e.IsVirtual,
-			MeetingUrl:  e.MeetingUrl,
-			StartsAt:    e.StartsAt,
-			EndsAt:      e.EndsAt,
-			InsertedAt:  e.InsertedAt,
-			UpdatedAt:   e.UpdatedAt,
-			PublishedAt: e.PublishedAt,
+			Id:          e.Event.ID,
+			Slug:        e.Event.Slug,
+			TitleEn:     e.Event.TitleEn,
+			TitlePl:     e.Event.TitlePl,
+			SubtitleEn:  e.Event.SubtitleEn,
+			SubtitlePl:  e.Event.SubtitlePl,
+			EventType:   string(e.Event.EventType),
+			IsVirtual:   e.Event.IsVirtual,
+			MeetingUrl:  e.Event.MeetingUrl,
+			StartsAt:    e.Event.StartsAt,
+			EndsAt:      e.Event.EndsAt,
+			InsertedAt:  e.Event.InsertedAt,
+			UpdatedAt:   e.Event.UpdatedAt,
+			PublishedAt: e.Event.PublishedAt,
+			Hosts:       hosts,
 		}
 	}
 

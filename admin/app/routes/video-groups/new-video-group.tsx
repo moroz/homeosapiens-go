@@ -43,7 +43,7 @@ export default function NewVideoGroup() {
       const group = await createVideoGroup.mutateAsync(toVideoGroupInput(values));
       // Videos can only be attached once the group exists, so creating one lands
       // on its edit screen rather than back on the list.
-      navigate(`/videos/${group.id}/edit`);
+      navigate(`/playlists/${group.id}/edit`);
     } catch (err) {
       if (err instanceof ApiError && err.status === 422 && isValidationErrorBody(err.body)) {
         for (const [field, message] of Object.entries(err.body.errors)) {
@@ -60,7 +60,7 @@ export default function NewVideoGroup() {
     <AdminLayout title="New video series">
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-4">
-          <BackButton href="/videos">Back to list</BackButton>
+          <BackButton href="/playlists">Back to list</BackButton>
           <PageTitle className="mb-0">Create a video series</PageTitle>
           {formError ? (
             <Notification
@@ -77,7 +77,7 @@ export default function NewVideoGroup() {
             <Button type="submit" disabled={createVideoGroup.isPending}>
               {createVideoGroup.isPending ? "Creating…" : "Create series"}
             </Button>
-            <Button type="button" variant="ghost" onClick={() => navigate("/videos")}>
+            <Button type="button" variant="ghost" onClick={() => navigate("/playlists")}>
               Cancel
             </Button>
           </div>

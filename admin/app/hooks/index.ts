@@ -1,6 +1,7 @@
 export * from "./events.js";
 export * from "./hosts.js";
 export * from "./video-groups.js";
+export * from "./videos.js";
 export * from "./use-table-search-params.js";
 export * from "./use-health.js";
 export * from "./use-mobile.js";

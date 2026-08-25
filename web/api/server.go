@@ -25,6 +25,7 @@ type Server struct {
 	*productServer
 	*orderServer
 	*hostServer
+	*videoServer
 	q  *queries.Queries
 	db queries.DBTX
 }
@@ -38,6 +39,7 @@ func NewServer(db *pgxpool.Pool) *Server {
 		productServer:    NewProductServer(db),
 		orderServer:      NewOrderServer(db),
 		hostServer:       NewHostServer(db),
+		videoServer:      NewVideoServer(db),
 		q:                queries.New(db),
 		db:               db,
 	}
@@ -83,35 +85,6 @@ func (s *Server) Handler(baseURL string) http.Handler {
 
 func (s *Server) GetHealth(_ context.Context, _ GetHealthRequestObject) (GetHealthResponseObject, error) {
 	return GetHealth200JSONResponse{Status: "ok"}, nil
-}
-
-func (s *Server) ListVideos(ctx context.Context, params ListVideosRequestObject) (ListVideosResponseObject, error) {
-	page, perPage := resolvePaginationParams(params.Params.Page, params.Params.PerPage)
-
-	videos, err := s.q.PaginateVideos(ctx, &queries.PaginateVideosParams{
-		Page:    page,
-		PerPage: perPage,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	count, err := s.q.CountVideos(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := videoList(videos)
-
-	return ListVideos200JSONResponse{
-		Data: out,
-		Pagination: Pagination{
-			Page:       page,
-			PerPage:    perPage,
-			Total:      count,
-			TotalPages: countPages(count, perPage),
-		},
-	}, nil
 }
 
 func (s *Server) GetSession(ctx context.Context, _ GetSessionRequestObject) (GetSessionResponseObject, error) {

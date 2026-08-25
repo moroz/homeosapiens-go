@@ -92,6 +92,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/videos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single video by primary key */
+        get: operations["getVideo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update a video
+         * @description Every editable field is required, so an update replaces the admin-owned part of the record wholesale.
+         */
+        patch: operations["updateVideo"];
+        trace?: never;
+    };
     "/events": {
         parameters: {
             query?: never;
@@ -660,8 +681,46 @@ export interface components {
             slug: string;
             titlePl: string;
             titleEn: string;
+            provider: components["schemas"]["VideoProvider"];
+            /** @description Whether the video is watchable outside of a paid playlist. */
+            isPublic: boolean;
             /** Format: date-time */
             recordedOn?: string | null;
+        };
+        /**
+         * @description Where the video is streamed from. Set by the import script.
+         * @enum {string}
+         */
+        VideoProvider: "youtube" | "cloudfront";
+        VideoDetails: components["schemas"]["Video"] & {
+            descriptionPl?: string | null;
+            descriptionEn?: string | null;
+            /** Format: uuid */
+            hostId?: string | null;
+            /** @description Read-only, set by the import script. */
+            youtubeId?: string | null;
+            /**
+             * Format: int32
+             * @description Read-only, set by the import script.
+             */
+            durationSeconds?: number | null;
+            /** Format: date-time */
+            insertedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        /** @description Editable fields of a video. Provider, youtube id, duration and thumbnails are owned by the import script and cannot be changed here. */
+        UpdateVideoInput: {
+            titleEn: string;
+            titlePl: string;
+            slug: string;
+            descriptionEn?: string | null;
+            descriptionPl?: string | null;
+            /** Format: date-time */
+            recordedOn?: string | null;
+            isPublic: boolean;
+            /** Format: uuid */
+            hostId?: string | null;
         };
         Event: {
             /** Format: uuid */
@@ -688,6 +747,7 @@ export interface components {
             updatedAt: string;
             /** Format: date-time */
             publishedAt?: string;
+            hosts?: string;
         };
         EventDetails: components["schemas"]["Event"] & {
             descriptionPl?: string | null;
@@ -1015,6 +1075,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedVideos"];
+                };
+            };
+        };
+    };
+    getVideo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested video. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoDetails"];
+                };
+            };
+            /** @description No video found with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateVideo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Video primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVideoInput"];
+            };
+        };
+        responses: {
+            /** @description The updated video. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoDetails"];
+                };
+            };
+            /** @description No video found with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
                 };
             };
         };

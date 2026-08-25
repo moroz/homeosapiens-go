@@ -112,6 +112,63 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedVideos"
 
+  /videos/{id}:
+    get:
+      operationId: getVideo
+      summary: Get a single video by primary key
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The requested video.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoDetails"
+        "404":
+          description: No video found with this ID.
+    patch:
+      operationId: updateVideo
+      summary: Update a video
+      description: >
+        Every editable field is required, so an update replaces the admin-owned
+        part of the record wholesale.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video primary key.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVideoInput"
+      responses:
+        "200":
+          description: The updated video.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoDetails"
+        "404":
+          description: No video found with this ID.
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
   /events:
     get:
       operationId: listEvents
@@ -1274,7 +1331,7 @@ components:
 
     Video:
       type: object
-      required: [id, slug, titlePl, titleEn]
+      required: [id, slug, titlePl, titleEn, provider, isPublic]
       properties:
         id:
           type: string
@@ -1285,9 +1342,85 @@ components:
           type: string
         titleEn:
           type: string
+        provider:
+          $ref: "#/components/schemas/VideoProvider"
+        isPublic:
+          type: boolean
+          description: Whether the video is watchable outside of a paid playlist.
         recordedOn:
           type: string
           format: date-time
+          nullable: true
+
+    VideoProvider:
+      type: string
+      description: Where the video is streamed from. Set by the import script.
+      enum: [youtube, cloudfront]
+      x-go-type: queries.VideoProvider
+      x-go-type-import:
+        path: github.com/moroz/homeosapiens-go/db/queries
+
+    VideoDetails:
+      allOf:
+        - $ref: "#/components/schemas/Video"
+        - type: object
+          description: A video with everything the admin edit form needs.
+          required: [insertedAt, updatedAt]
+          properties:
+            descriptionPl:
+              type: string
+              nullable: true
+            descriptionEn:
+              type: string
+              nullable: true
+            hostId:
+              type: string
+              format: uuid
+              nullable: true
+            youtubeId:
+              type: string
+              nullable: true
+              description: Read-only, set by the import script.
+            durationSeconds:
+              type: integer
+              format: int32
+              nullable: true
+              description: Read-only, set by the import script.
+            insertedAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    UpdateVideoInput:
+      type: object
+      description: >
+        Editable fields of a video. Provider, youtube id, duration and
+        thumbnails are owned by the import script and cannot be changed here.
+      required: [titleEn, titlePl, slug, isPublic]
+      properties:
+        titleEn:
+          type: string
+        titlePl:
+          type: string
+        slug:
+          type: string
+        descriptionEn:
+          type: string
+          nullable: true
+        descriptionPl:
+          type: string
+          nullable: true
+        recordedOn:
+          type: string
+          format: date-time
+          nullable: true
+        isPublic:
+          type: boolean
+        hostId:
+          type: string
+          format: uuid
           nullable: true
 
     Event:
@@ -1333,6 +1466,8 @@ components:
         publishedAt:
           type: string
           format: date-time
+        hosts:
+          type: string
 
     EventDetails:
       allOf:

@@ -9,6 +9,7 @@ import { useListEventsQuery, useTableSearchParams } from "~/hooks";
 import type { components } from "~/lib/api-types";
 import { formatInstant } from "~/lib/time";
 import { Badge } from "~/components/ui/badge";
+import { BooleanBadge } from "~/components/boolean-badge";
 
 type Event = components["schemas"]["Event"];
 
@@ -20,12 +21,18 @@ const columns: ColumnDef<Event>[] = [
   },
   { accessorKey: "titlePl", header: "Title (PL)" },
   {
+    id: "hosts",
+    header: "Hosts",
+    accessorKey: "hosts",
+  },
+  {
     id: "publishedAt",
-    header: "Published at",
-    accessorKey: "publishedAt",
+    header: "Published?",
+    size: 60,
+    accessorFn: (row) => Boolean(row.publishedAt),
     cell: ({ row }) => {
       const ts = row.original.publishedAt;
-      return ts ? formatInstant(ts) : <Badge variant="secondary">draft</Badge>;
+      return <BooleanBadge value={ts} />;
     },
   },
   { accessorKey: "eventType", header: "Type" },

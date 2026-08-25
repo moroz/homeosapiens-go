@@ -14,8 +14,11 @@ where published_at is not null
 order by e.starts_at desc;
 
 -- name: PaginateEvents :many
-select * from events
-order by starts_at desc
+select sqlc.embed(e), string_agg(h.given_name || ' ' || h.family_name, ', ')::text hosts from events e
+left join events_hosts eh on e.id = eh.event_id
+left join hosts h on eh.host_id = h.id
+group by e.id, e.starts_at
+order by e.starts_at desc
 limit (@per_page::int) offset (((@page::int) - 1) * @per_page::int);
 
 -- name: CountEvents :one

@@ -626,8 +626,11 @@ func (q *Queries) ListPublishedEvents(ctx context.Context) ([]*ListPublishedEven
 }
 
 const paginateEvents = `-- name: PaginateEvents :many
-select id, title_en, title_pl, starts_at, ends_at, is_virtual, description_en, description_pl, event_type, inserted_at, updated_at, slug, subtitle_en, subtitle_pl, venue_name_en, venue_name_pl, venue_street, venue_city_en, venue_city_pl, venue_postal_code, venue_country_code, product_id, published_at, meeting_url from events
-order by starts_at desc
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, string_agg(h.given_name || ' ' || h.family_name, ', ')::text hosts from events e
+left join events_hosts eh on e.id = eh.event_id
+left join hosts h on eh.host_id = h.id
+group by e.id, e.starts_at
+order by e.starts_at desc
 limit ($2::int) offset ((($1::int) - 1) * $2::int)
 `
 
@@ -636,40 +639,46 @@ type PaginateEventsParams struct {
 	PerPage int32
 }
 
-func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams) ([]*Event, error) {
+type PaginateEventsRow struct {
+	Event Event
+	Hosts string
+}
+
+func (q *Queries) PaginateEvents(ctx context.Context, arg *PaginateEventsParams) ([]*PaginateEventsRow, error) {
 	rows, err := q.db.Query(ctx, paginateEvents, arg.Page, arg.PerPage)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Event
+	var items []*PaginateEventsRow
 	for rows.Next() {
-		var i Event
+		var i PaginateEventsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.TitleEn,
-			&i.TitlePl,
-			&i.StartsAt,
-			&i.EndsAt,
-			&i.IsVirtual,
-			&i.DescriptionEn,
-			&i.DescriptionPl,
-			&i.EventType,
-			&i.InsertedAt,
-			&i.UpdatedAt,
-			&i.Slug,
-			&i.SubtitleEn,
-			&i.SubtitlePl,
-			&i.VenueNameEn,
-			&i.VenueNamePl,
-			&i.VenueStreet,
-			&i.VenueCityEn,
-			&i.VenueCityPl,
-			&i.VenuePostalCode,
-			&i.VenueCountryCode,
-			&i.ProductID,
-			&i.PublishedAt,
-			&i.MeetingUrl,
+			&i.Event.ID,
+			&i.Event.TitleEn,
+			&i.Event.TitlePl,
+			&i.Event.StartsAt,
+			&i.Event.EndsAt,
+			&i.Event.IsVirtual,
+			&i.Event.DescriptionEn,
+			&i.Event.DescriptionPl,
+			&i.Event.EventType,
+			&i.Event.InsertedAt,
+			&i.Event.UpdatedAt,
+			&i.Event.Slug,
+			&i.Event.SubtitleEn,
+			&i.Event.SubtitlePl,
+			&i.Event.VenueNameEn,
+			&i.Event.VenueNamePl,
+			&i.Event.VenueStreet,
+			&i.Event.VenueCityEn,
+			&i.Event.VenueCityPl,
+			&i.Event.VenuePostalCode,
+			&i.Event.VenueCountryCode,
+			&i.Event.ProductID,
+			&i.Event.PublishedAt,
+			&i.Event.MeetingUrl,
+			&i.Hosts,
 		); err != nil {
 			return nil, err
 		}
