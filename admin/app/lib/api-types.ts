@@ -404,6 +404,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a single order by primary key
+         * @description The full order, including its line items and the decrypted billing address. Everything the admin needs to answer a question about a purchase is on this payload.
+         */
+        get: operations["getOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -481,6 +501,33 @@ export interface components {
             paidAt?: string | null;
             /** Format: date-time */
             cancelledAt?: string | null;
+        };
+        OrderDetails: components["schemas"]["Order"] & {
+            /** Format: uuid */
+            userId: string;
+            phone?: string | null;
+            addressLine1: string;
+            addressLine2?: string | null;
+            city: string;
+            postalCode?: string | null;
+            taxId?: string | null;
+            /** @description Locale the buyer checked out in, e.g. "pl". */
+            preferredLocale: string;
+            stripeCheckoutSessionId?: string | null;
+            lineItems: components["schemas"]["OrderLineItem"][];
+        };
+        /** @description One purchased product, with the title and price frozen at checkout time. */
+        OrderLineItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            productId: string;
+            productTitle: string;
+            /** @description Decimal unit price string, e.g. "199.00". */
+            productPrice: string;
+            productPriceCurrency: string;
+            /** Format: int32 */
+            quantity: number;
         };
         /**
          * @description Derived from the timestamps on the order: cancelled wins over paid, and an order with neither timestamp is still awaiting payment.
@@ -1753,6 +1800,36 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PaginatedOrders"];
                 };
+            };
+        };
+    };
+    getOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Order primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderDetails"];
+                };
+            };
+            /** @description No order found with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

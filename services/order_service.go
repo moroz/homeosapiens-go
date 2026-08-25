@@ -87,7 +87,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, cartId uuid.UUID, user *
 		BillingFamilyName:   sqlcrypter.NewEncryptedBytes(params.BillingFamilyName),
 		BillingPhone:        maybeEncrypt(params.BillingPhone),
 		BillingAddressLine1: sqlcrypter.NewEncryptedBytes(params.BillingAddressLine1),
-		BillingAddressLine2: maybeEncrypt(params.BillingAddressLine1),
+		BillingAddressLine2: maybeEncrypt(params.BillingAddressLine2),
 		BillingCity:         sqlcrypter.NewEncryptedBytes(params.BillingCity),
 		BillingPostalCode:   maybeEncrypt(params.BillingPostalCode),
 		BillingCountry:      params.BillingCountry,

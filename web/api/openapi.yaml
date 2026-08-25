@@ -718,6 +718,32 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedOrders"
 
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Get a single order by primary key
+      description: >
+        The full order, including its line items and the decrypted billing
+        address. Everything the admin needs to answer a question about a
+        purchase is on this payload.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The requested order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDetails"
+        "404":
+          description: No order found with this ID.
+
 components:
   parameters:
     PageParam:
@@ -885,6 +911,65 @@ components:
           type: string
           format: date-time
           nullable: true
+
+    OrderDetails:
+      allOf:
+        - $ref: "#/components/schemas/Order"
+        - type: object
+          description: An order with its line items and full billing address.
+          required: [userId, lineItems, addressLine1, city, preferredLocale]
+          properties:
+            userId:
+              type: string
+              format: uuid
+            phone:
+              type: string
+              nullable: true
+            addressLine1:
+              type: string
+            addressLine2:
+              type: string
+              nullable: true
+            city:
+              type: string
+            postalCode:
+              type: string
+              nullable: true
+            taxId:
+              type: string
+              nullable: true
+            preferredLocale:
+              type: string
+              description: Locale the buyer checked out in, e.g. "pl".
+            stripeCheckoutSessionId:
+              type: string
+              nullable: true
+            lineItems:
+              type: array
+              items:
+                $ref: "#/components/schemas/OrderLineItem"
+
+    OrderLineItem:
+      type: object
+      description: One purchased product, with the title and price frozen at checkout time.
+      required: [id, productId, productTitle, productPrice, productPriceCurrency, quantity]
+      properties:
+        id:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        productTitle:
+          type: string
+        productPrice:
+          type: string
+          description: Decimal unit price string, e.g. "199.00".
+        productPriceCurrency:
+          type: string
+        quantity:
+          type: integer
+          format: int32
 
     OrderStatus:
       type: string

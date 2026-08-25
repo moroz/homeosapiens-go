@@ -1,21 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from "react-router";
 
 import { AdminLayout } from "~/components/admin-layout";
 import { DataTable } from "~/components/data-table";
 import { PageTitle } from "~/components/page-title";
-import { Badge } from "~/components/ui/badge";
-import { useListOrdersQuery, useTableSearchParams, type Order, type OrderStatus } from "~/hooks";
+import { useListOrdersQuery, useTableSearchParams, type Order } from "~/hooks";
 import { formatPrice } from "~/lib/money";
 import { formatInstant } from "~/lib/time";
 
-const STATUS_BADGES: Record<
-  OrderStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" }
-> = {
-  paid: { label: "paid", variant: "default" },
-  pending: { label: "pending", variant: "secondary" },
-  cancelled: { label: "cancelled", variant: "destructive" },
-};
+import { OrderStatusBadge } from "./order-status-badge";
 
 const columns: ColumnDef<Order>[] = [
   {
@@ -47,10 +40,7 @@ const columns: ColumnDef<Order>[] = [
     accessorKey: "status",
     header: "Status",
     size: 60,
-    cell: ({ row }) => {
-      const { label, variant } = STATUS_BADGES[row.original.status];
-      return <Badge variant={variant}>{label}</Badge>;
-    },
+    cell: ({ row }) => <OrderStatusBadge status={row.original.status} />,
   },
   {
     accessorKey: "grandTotal",
@@ -67,6 +57,7 @@ const columns: ColumnDef<Order>[] = [
 ];
 
 export default function Orders() {
+  const navigate = useNavigate();
   const { pagination, onPaginationChange, sorting, onSortingChange } = useTableSearchParams(20);
   const { data, isPending, isError } = useListOrdersQuery(
     pagination.pageIndex + 1,
@@ -92,6 +83,7 @@ export default function Orders() {
             onSortingChange={onSortingChange}
             isPending={isPending}
             isError={isError}
+            onRowClick={(order) => navigate(`/orders/${order.id}`)}
           />
         </div>
       </div>

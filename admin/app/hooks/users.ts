@@ -32,5 +32,6 @@ export function useGetUserQuery(id: UUID) {
       const { data } = await api.GET("/users/{id}", { params: { path: { id } } });
       return data;
     },
+    enabled: Boolean(id),
   });
 }

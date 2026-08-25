@@ -21,9 +21,16 @@ interface DetailsTableFieldProps {
   children: React.ReactNode;
   className?: string;
   copy?: boolean;
+  monospace?: boolean;
 }
 
-export function DetailsTableField({ label, children, className, copy }: DetailsTableFieldProps) {
+export function DetailsTableField({
+  label,
+  children,
+  className,
+  monospace,
+  copy,
+}: DetailsTableFieldProps) {
   const onCopy = useCallback(() => {
     navigator.clipboard.writeText(String(children));
   }, [children]);
@@ -31,7 +38,7 @@ export function DetailsTableField({ label, children, className, copy }: DetailsT
   return (
     <tr>
       <th className="w-48">{label}</th>
-      <td className={className}>
+      <td className={cn(monospace && "font-mono", className)}>
         {children ? (
           <div className="flex items-center gap-3">
             {children}
