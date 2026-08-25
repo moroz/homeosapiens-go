@@ -9,3 +9,4 @@ export * from "./theme.js";
 export * from "./users.js";
 export * from "./blog-posts.js";
 export * from "./products.js";
+export * from "./orders.js";

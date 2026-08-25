@@ -10,6 +10,7 @@ import { MarkdownEditorDialog } from "~/components/markdown-editor";
 import { UserDetails } from "./routes/users/user-details";
 import { NewBlogPost, BlogPostDetails, BlogPosts, EditBlogPost } from "~/routes/blog-posts";
 import { Products } from "~/routes/products";
+import { Orders } from "~/routes/orders";
 import {
   EditEvent,
   EventAttendants,
@@ -31,6 +32,7 @@ export const routes: RouteObject[] = [
       { path: "users/:id", element: <UserDetails /> },
       { path: "events", element: <Events /> },
       { path: "products", element: <Products /> },
+      { path: "orders", element: <Orders /> },
       { path: "blog-posts", element: <BlogPosts /> },
       { path: "blog-posts/new", element: <NewBlogPost /> },
       { path: "blog-posts/:id", element: <BlogPostDetails /> },
