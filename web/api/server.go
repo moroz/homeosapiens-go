@@ -24,6 +24,7 @@ type Server struct {
 	*blogPostServer
 	*productServer
 	*orderServer
+	*hostServer
 	q  *queries.Queries
 	db queries.DBTX
 }
@@ -36,6 +37,7 @@ func NewServer(db *pgxpool.Pool) *Server {
 		blogPostServer:   NewBlogPostServer(db),
 		productServer:    NewProductServer(db),
 		orderServer:      NewOrderServer(db),
+		hostServer:       NewHostServer(db),
 		q:                queries.New(db),
 		db:               db,
 	}
@@ -81,45 +83,6 @@ func (s *Server) Handler(baseURL string) http.Handler {
 
 func (s *Server) GetHealth(_ context.Context, _ GetHealthRequestObject) (GetHealthResponseObject, error) {
 	return GetHealth200JSONResponse{Status: "ok"}, nil
-}
-
-func (s *Server) ListHosts(ctx context.Context, params ListHostsRequestObject) (ListHostsResponseObject, error) {
-	page, perPage := resolvePaginationParams(params.Params.Page, params.Params.PerPage)
-
-	hosts, err := s.q.PaginateHosts(ctx, &queries.PaginateHostsParams{
-		Page:    page,
-		PerPage: perPage,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	count, err := s.q.CountHosts(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]Host, len(hosts))
-	for i, h := range hosts {
-		out[i] = Host{
-			Id:         h.ID,
-			GivenName:  h.GivenName,
-			FamilyName: h.FamilyName,
-			Salutation: h.Salutation,
-			Country:    h.Country,
-		}
-	}
-	result := ListHosts200JSONResponse{
-		Data: out,
-		Pagination: Pagination{
-			Page:       page,
-			PerPage:    perPage,
-			Total:      count,
-			TotalPages: countPages(count, perPage),
-		},
-	}
-
-	return result, nil
 }
 
 func (s *Server) ListVideos(ctx context.Context, params ListVideosRequestObject) (ListVideosResponseObject, error) {

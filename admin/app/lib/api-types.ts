@@ -290,11 +290,37 @@ export interface paths {
         /** List hosts */
         get: operations["listHosts"];
         put?: never;
-        post?: never;
+        /** Create a host */
+        post: operations["createHost"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/hosts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single host by primary key */
+        get: operations["getHost"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete a host
+         * @description Only hosts that are not referenced by any event or video can be deleted; the database rejects the rest.
+         */
+        delete: operations["deleteHost"];
+        options?: never;
+        head?: never;
+        /**
+         * Update a host
+         * @description Every editable field is required, so an update replaces the whole record; there is no partial-update shape for a host.
+         */
+        patch: operations["updateHost"];
         trace?: never;
     };
     "/blog-posts": {
@@ -807,6 +833,15 @@ export interface components {
         Host: {
             /** Format: uuid */
             id: string;
+            /** @description i18n message key, e.g. common.hosts.salutation.dr */
+            salutation?: string | null;
+            givenName: string;
+            familyName: string;
+            /** @description ISO 3166-1 alpha-2 country code */
+            country?: string | null;
+        };
+        /** @description Editable fields of a host, used on create and update. */
+        HostInput: {
             /** @description i18n message key, e.g. common.hosts.salutation.dr */
             salutation?: string | null;
             givenName: string;
@@ -1547,6 +1582,149 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedHosts"];
+                };
+            };
+        };
+    };
+    createHost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostInput"];
+            };
+        };
+        responses: {
+            /** @description The created host */
+            201: {
+                headers: {
+                    /** @description URL of the created host. */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Host"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
+            };
+        };
+    };
+    getHost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Host primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested host. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Host"];
+                };
+            };
+            /** @description No host found with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteHost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Host primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Confirms that the host is gone. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No host found with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The host is still referenced by an event or a video. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateHost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Host primary key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostInput"];
+            };
+        };
+        responses: {
+            /** @description The updated host. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Host"];
+                };
+            };
+            /** @description No host found with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
                 };
             };
         };

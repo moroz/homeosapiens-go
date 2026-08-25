@@ -7,6 +7,8 @@ package queries
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const countHosts = `-- name: CountHosts :one
@@ -18,6 +20,69 @@ func (q *Queries) CountHosts(ctx context.Context) (int64, error) {
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const deleteHost = `-- name: DeleteHost :exec
+delete from hosts where id = $1
+`
+
+func (q *Queries) DeleteHost(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteHost, id)
+	return err
+}
+
+const getHostById = `-- name: GetHostById :one
+select id, salutation, given_name, family_name, profile_picture_id, inserted_at, updated_at, country from hosts where id = $1
+`
+
+func (q *Queries) GetHostById(ctx context.Context, id uuid.UUID) (*Host, error) {
+	row := q.db.QueryRow(ctx, getHostById, id)
+	var i Host
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.ProfilePictureID,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Country,
+	)
+	return &i, err
+}
+
+const insertHost = `-- name: InsertHost :one
+insert into hosts (salutation, given_name, family_name, country)
+values ($1, $2, $3, $4)
+returning id, salutation, given_name, family_name, profile_picture_id, inserted_at, updated_at, country
+`
+
+type InsertHostParams struct {
+	Salutation *string
+	GivenName  string
+	FamilyName string
+	Country    *string
+}
+
+func (q *Queries) InsertHost(ctx context.Context, arg *InsertHostParams) (*Host, error) {
+	row := q.db.QueryRow(ctx, insertHost,
+		arg.Salutation,
+		arg.GivenName,
+		arg.FamilyName,
+		arg.Country,
+	)
+	var i Host
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.ProfilePictureID,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Country,
+	)
+	return &i, err
 }
 
 const listHosts = `-- name: ListHosts :many
@@ -92,4 +157,40 @@ func (q *Queries) PaginateHosts(ctx context.Context, arg *PaginateHostsParams) (
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateHost = `-- name: UpdateHost :one
+update hosts set salutation = $2, given_name = $3, family_name = $4, country = $5, updated_at = now()
+where id = $1
+returning id, salutation, given_name, family_name, profile_picture_id, inserted_at, updated_at, country
+`
+
+type UpdateHostParams struct {
+	ID         uuid.UUID
+	Salutation *string
+	GivenName  string
+	FamilyName string
+	Country    *string
+}
+
+func (q *Queries) UpdateHost(ctx context.Context, arg *UpdateHostParams) (*Host, error) {
+	row := q.db.QueryRow(ctx, updateHost,
+		arg.ID,
+		arg.Salutation,
+		arg.GivenName,
+		arg.FamilyName,
+		arg.Country,
+	)
+	var i Host
+	err := row.Scan(
+		&i.ID,
+		&i.Salutation,
+		&i.GivenName,
+		&i.FamilyName,
+		&i.ProfilePictureID,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Country,
+	)
+	return &i, err
 }

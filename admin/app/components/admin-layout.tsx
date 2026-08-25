@@ -6,6 +6,7 @@ import {
   ArticleIcon,
   TagIcon,
   ReceiptIcon,
+  ChalkboardTeacherIcon,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router";
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
   { title: "Events", to: "/events", icon: CalendarDots },
   { title: "Products", to: "/products", icon: TagIcon },
   { title: "Orders", to: "/orders", icon: ReceiptIcon },
+  { title: "Hosts", to: "/hosts", icon: ChalkboardTeacherIcon },
 ];
 
 /**

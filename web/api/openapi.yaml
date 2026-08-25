@@ -538,6 +538,112 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginatedHosts"
+    post:
+      operationId: createHost
+      summary: Create a host
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HostInput"
+      responses:
+        "201":
+          description: The created host
+          headers:
+            Location:
+              description: URL of the created host.
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Host"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
+  /hosts/{id}:
+    get:
+      operationId: getHost
+      summary: Get a single host by primary key
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Host primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The requested host.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Host"
+        "404":
+          description: No host found with this ID.
+    patch:
+      operationId: updateHost
+      summary: Update a host
+      description: >
+        Every editable field is required, so an update replaces the whole
+        record; there is no partial-update shape for a host.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Host primary key.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HostInput"
+      responses:
+        "200":
+          description: The updated host.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Host"
+        "404":
+          description: No host found with this ID.
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+    delete:
+      operationId: deleteHost
+      summary: Delete a host
+      description: >
+        Only hosts that are not referenced by any event or video can be
+        deleted; the database rejects the rest.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Host primary key.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Confirms that the host is gone.
+        "404":
+          description: No host found with this ID.
+        "409":
+          description: The host is still referenced by an event or a video.
 
   /blog-posts:
     get:
@@ -1528,6 +1634,24 @@ components:
         id:
           type: string
           format: uuid
+        salutation:
+          type: string
+          nullable: true
+          description: i18n message key, e.g. common.hosts.salutation.dr
+        givenName:
+          type: string
+        familyName:
+          type: string
+        country:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code
+
+    HostInput:
+      type: object
+      description: Editable fields of a host, used on create and update.
+      required: [givenName, familyName]
+      properties:
         salutation:
           type: string
           nullable: true

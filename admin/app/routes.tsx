@@ -11,6 +11,7 @@ import { UserDetails } from "./routes/users/user-details";
 import { NewBlogPost, BlogPostDetails, BlogPosts, EditBlogPost } from "~/routes/blog-posts";
 import { Products } from "~/routes/products";
 import { Orders, OrderDetails } from "~/routes/orders";
+import { Hosts, NewHost, EditHost } from "~/routes/hosts";
 import {
   EditEvent,
   EventAttendants,
@@ -34,6 +35,9 @@ export const routes: RouteObject[] = [
       { path: "products", element: <Products /> },
       { path: "orders", element: <Orders /> },
       { path: "orders/:id", element: <OrderDetails /> },
+      { path: "hosts", element: <Hosts /> },
+      { path: "hosts/new", element: <NewHost /> },
+      { path: "hosts/:id/edit", element: <EditHost /> },
       { path: "blog-posts", element: <BlogPosts /> },
       { path: "blog-posts/new", element: <NewBlogPost /> },
       { path: "blog-posts/:id", element: <BlogPostDetails /> },
