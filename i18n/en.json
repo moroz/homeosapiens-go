@@ -321,6 +321,9 @@
     "validation_required": "cannot be blank"
   },
   "videos": {
+    "index": {
+      "premium": "Premium"
+    },
     "paywall": {
       "badge": "Paid",
       "body": "This series is available to buyers only. Buy access to watch every video in it.",

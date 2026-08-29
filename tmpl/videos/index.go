@@ -96,8 +96,11 @@ func VideoGroupList(ctx *types.CustomContext, videoGroups []*types.VideoGroupLis
 						A(
 							Class(class),
 							Href(fmt.Sprintf("/videos/%s", vg.Slug)),
-							Text(title),
-							If(vg.IsPremium() && !vg.HasAccess, PaidBadge(ctx.Localizer)),
+							P(
+								Text(title),
+								If(vg.IsPremium() && !vg.HasAccess, PaidBadge(ctx.Localizer)),
+								If(vg.IsPremium() && vg.HasAccess, CrownIcon("inline")),
+							),
 							If(dateRange != "", Span(Class("text-sm font-normal"), Text(dateRange))),
 						),
 					)

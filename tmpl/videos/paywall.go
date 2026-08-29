@@ -22,6 +22,14 @@ func LockIcon(classes ...string) Node {
 	})
 }
 
+func CrownIcon(classes ...string) Node {
+	return icons.Icon(&icons.IconProps{
+		Name:    "crown",
+		ViewBox: "0 0 640 640",
+		Classes: twmerge.Merge("h-5 w-5", strings.Join(classes, " ")),
+	})
+}
+
 // PaidBadge marks a group the visitor has not bought yet in the series menu.
 func PaidBadge(l *i18n.Localizer) Node {
 	return Span(
