@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict jz1p5orP0UmOhCxCzdhsXqYeb23fIuH5bkDBJJWl9pwxdea38kTrbgDvL599rsf
+\restrict IIqEFcdExZ9jNacvAGf9NbKkRuBayiB6AcdmK5p4thWzJ5bjXTk6aPt2eB6k0yF
 
--- Dumped from database version 18.4 (Debian 18.4-1.pgdg12+1)
--- Dumped by pg_dump version 18.4 (Debian 18.4-1.pgdg12+1)
+-- Dumped from database version 18.4 (Homebrew)
+-- Dumped by pg_dump version 18.4 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -55,6 +55,9 @@ INSERT INTO public.assets VALUES ('019beef9-ad4c-736f-9bb0-965b59ca21ae', 'portr
 INSERT INTO public.products VALUES ('019de49f-d17f-7435-b166-b8e9b3e4430c', 'event', 'Seminarium z drem Asherem Shaikh', 'Dr Asher Shaikh seminar', 560.00, 'PLN', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.products VALUES ('019de49f-d3d5-727b-915d-2cd3671cb72f', 'event', 'Udoskonalić kunszt homeopatyczny', 'To Perfect the Art of Homeopathy', 580.00, 'PLN', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.products VALUES ('019de49f-d612-7339-962b-800168a04bbb', 'event', 'Udoskonalić kunszt homeopatyczny 2', 'To Perfect the Art of Homeopathy 2', 640.00, 'PLN', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
+INSERT INTO public.products VALUES ('01a04f5e-590e-7440-89e1-dc3ea1c1c6a7', 'video_group', 'Seminarium z drem Asherem Shaikh', 'Dr. Asher Shaikh Seminar', 640, 'PLN', '2026-08-29 21:12:58.381801', '2026-08-29 21:12:58.381801');
+INSERT INTO public.products VALUES ('01a04f5f-5713-758d-9f11-7913e9d54cf4', 'video_group', 'Udoskonalić kunszt homeopatyczny 2: Seminarium z drem Sanjayem Modim', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy 2', 640, 'PLN', '2026-08-29 21:14:03.411095', '2026-08-29 21:14:03.411095');
+INSERT INTO public.products VALUES ('01a04f5f-834f-77b3-ac53-8d45649dbff7', 'video_group', 'Udoskonalić kunszt homeopatyczny: Seminarium z drem Sanjayem Modim', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy', 580, 'PLN', '2026-08-29 21:14:14.735349', '2026-08-29 21:14:14.735349');
 
 
 --
@@ -205,11 +208,12 @@ INSERT INTO public.product_prices VALUES ('019de883-cd45-7e67-9698-ba121d093365'
 -- Data for Name: video_groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.video_groups VALUES ('019da123-449c-7038-aae3-303255746cc4', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy', 'Udoskonalić kunszt homeopatyczny: Seminarium z drem Sanjayem Modim', 'dr-sanjay-modi-to-perfect-the-art-of-homeopathy', NULL, '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.video_groups VALUES ('019daf95-04e3-7615-99fc-ba808d1dd589', 'Dr Asher Shaikh Webinar', 'Webinarium z drem Asherem Shaikh', 'dr-asher-shaikh-webinar', NULL, '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.video_groups VALUES ('019daf95-d855-748d-93a9-4c17d0536f2f', 'Dr Sanjay Modi Webinar', 'Webinarium z drem Sanjayem Modim', 'dr-sanjay-modi-webinar', NULL, '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
-INSERT INTO public.video_groups VALUES ('019daf9b-7234-71bb-be93-f9f965d56ac6', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy 2', 'Udoskonalić kunszt homeopatyczny 2: Seminarium z drem Sanjayem Modim', 'dr-sanjay-modi-to-perfect-the-art-of-homeopathy-2', NULL, '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.video_groups VALUES ('019dc005-f4a8-76fb-afdd-2e5caff8fb5a', 'Dr Herman Jeggels Webinar', 'Webinarium z drem Hermanem Jeggelsem', 'dr-herman-jeggels-webinar', NULL, '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
+INSERT INTO public.video_groups VALUES ('01a04f5a-70a0-73d5-8946-732d8c8e4f7e', 'Dr. Asher Shaikh Seminar', 'Seminarium z drem Asherem Shaikh', 'dr-asher-shaikh-seminar', '01a04f5e-590e-7440-89e1-dc3ea1c1c6a7', '2026-08-29 21:08:42.272363', '2026-08-29 21:12:58.381801');
+INSERT INTO public.video_groups VALUES ('019daf9b-7234-71bb-be93-f9f965d56ac6', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy 2', 'Udoskonalić kunszt homeopatyczny 2: Seminarium z drem Sanjayem Modim', 'dr-sanjay-modi-to-perfect-the-art-of-homeopathy-2', '01a04f5f-5713-758d-9f11-7913e9d54cf4', '2026-05-02 11:47:25.116074', '2026-08-29 21:14:03.411095');
+INSERT INTO public.video_groups VALUES ('019da123-449c-7038-aae3-303255746cc4', 'Dr Sanjay Modi: To Perfect the Art of Homeopathy', 'Udoskonalić kunszt homeopatyczny: Seminarium z drem Sanjayem Modim', 'dr-sanjay-modi-to-perfect-the-art-of-homeopathy', '01a04f5f-834f-77b3-ac53-8d45649dbff7', '2026-05-02 11:47:25.116074', '2026-08-29 21:14:14.735349');
 
 
 --
@@ -232,22 +236,34 @@ INSERT INTO public.videos VALUES ('019f5625-c58e-7664-b441-ae2bb0ac248a', 'youtu
 INSERT INTO public.videos VALUES ('019f5625-c58e-76b2-986c-6d9aa73978a7', 'youtube', true, 'Dr V talks about Mandragora — the ''screaming'' remedy', 'Dr V opowiada o Mandragorze — „krzyczącym” leku', 'dr-v-talks-about-mandragora', '2026-07-12 11:45:44', '2026-07-12 11:45:44', 2024, '2024-12-14', NULL, NULL, NULL, 'ORusokoMOLk', 'Dr V (prof. dr Shailendra Vaishampayan, MD (Hom)) dzieli się swoją wiedzą na temat wyjątkowego leku homeopatycznego — Mandragory — od jego starożytnej historii po zastosowanie we współczesnej praktyce homeopatycznej.', 'Dr V (Dr. Professor Shailendra Vaishampayan, MD (Hom)) shares his knowledge about a unique homeopathic remedy — Mandragora — from its ancient history to its use in the modern homeopathic practice.');
 INSERT INTO public.videos VALUES ('019f5625-c58e-76fa-a0a0-bd221bb3b930', 'youtube', true, 'The Best of Sevilla 2024 - Highlights of the 77th LMHI World Homeopathic Congress (pt 2)', 'Najlepsze momenty z Sewilli 2024 - najważniejsze wydarzenia 77. Światowego Kongresu Homeopatii LMHI (cz. 2)', 'best-of-sevilla-2024-highlights-of-the-77th-lmhi-congress-pt-2', '2026-07-12 11:45:44', '2026-07-12 11:45:44', 7257, '2024-11-26', NULL, NULL, NULL, 'vuQJKQ02Blg', 'Prezentacje dr. Mayuresha Mahajana, dr Huang Wei Ling, dr. Didiera Lustiga i dr. Yogesha Honrao.', 'Featuring presentations from Drs Mayuresh Mahajan, Huang Wei Ling, Didier Lustig, Yogesh Honrao.');
 INSERT INTO public.videos VALUES ('019f5625-c58e-773c-802c-ea9833f5ca98', 'youtube', true, 'The Best of Sevilla 2024 - Highlights of the 77th LMHI World Homeopathic Congress (pt 1)', 'Najlepsze momenty z Sewilli 2024 - najważniejsze wydarzenia 77. Światowego Kongresu Homeopatii LMHI (cz. 1)', 'best-of-sevilla-2024-highlights-of-the-77th-lmhi-congress-pt-1', '2026-07-12 11:45:44', '2026-07-12 11:45:44', 5855, '2024-10-30', NULL, NULL, NULL, '-ZyLCmOwQY8', 'Prezentacje dr. Michaela Frassa, dr. Hermana Jeggelsa, dr. Sanjaya Modiego i dr. Shailendry Vaishampayana (dr V).', 'Featuring presentations from Drs Michael Frass, Herman Jeggels, Sanjay Modi, Shailendra Vaishampayan (Dr V).');
+INSERT INTO public.videos VALUES ('01a03ada-02c1-77a3-8ac4-f19289ced5ad', 'cloudfront', false, 'Dr. Asher Shaikh Seminar: Day 1 part 1', 'Seminarium z drem Asherem Shaikh: Dzień 1, część 1', 'dr-asher-shaikh-seminar-day-1-part-1', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 5641, '2026-06-05', '019beef9-4287-714f-982b-2524fdef7063', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.videos VALUES ('01a03ada-02c1-77a3-8ac4-f1916356692a', 'cloudfront', false, 'Dr. Asher Shaikh Seminar: Day 1 part 2', 'Seminarium z drem Asherem Shaikh: Dzień 1, część 2', 'dr-asher-shaikh-seminar-day-1-part-2', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 4800, '2026-06-05', '019beef9-4287-714f-982b-2524fdef7063', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.videos VALUES ('01a03ada-02c1-77a3-8ac4-f190b20efed1', 'cloudfront', false, 'Dr. Asher Shaikh Seminar: Day 1 part 3', 'Seminarium z drem Asherem Shaikh: Dzień 1, część 3', 'dr-asher-shaikh-seminar-day-1-part-3', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 5890, '2026-06-05', '019beef9-4287-714f-982b-2524fdef7063', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.videos VALUES ('01a03ada-02c1-77a3-8ac4-f18f4b8c5fc8', 'cloudfront', false, 'Dr. Asher Shaikh Seminar: Day 2 part 1', 'Seminarium z drem Asherem Shaikh: Dzień 2, część 1', 'dr-asher-shaikh-seminar-day-2-part-1', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 5381, '2026-06-06', '019beef9-4287-714f-982b-2524fdef7063', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.videos VALUES ('01a03ada-02c1-77a3-8ac4-f18eec7160fb', 'cloudfront', false, 'Dr. Asher Shaikh Seminar: Day 2 part 2', 'Seminarium z drem Asherem Shaikh: Dzień 2, część 2', 'dr-asher-shaikh-seminar-day-2-part-2', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 3735, '2026-06-06', '019beef9-4287-714f-982b-2524fdef7063', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.videos VALUES ('01a03ada-02c1-77a3-8ac4-f18d24ac097e', 'cloudfront', false, 'Dr. Asher Shaikh Seminar: Day 2 part 3', 'Seminarium z drem Asherem Shaikh: Dzień 2, część 3', 'dr-asher-shaikh-seminar-day-2-part-3', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 6120, '2026-06-06', '019beef9-4287-714f-982b-2524fdef7063', NULL, NULL, NULL, NULL, NULL);
 
 
 --
 -- Data for Name: video_groups_videos; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.video_groups_videos VALUES ('019de883-cd46-7da6-a99b-9ed5f8dfe413', 0, '019dbfeb-e6f2-7521-b990-119d82b8665f', '019da123-449c-7038-aae3-303255746cc4', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
-INSERT INTO public.video_groups_videos VALUES ('019de883-cd46-7f97-a00d-1d4b29a911eb', 1, '019dbfeb-e5ec-73ae-881a-d76c8582644e', '019da123-449c-7038-aae3-303255746cc4', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
-INSERT INTO public.video_groups_videos VALUES ('019de883-cd46-7fb7-b519-956e9979eb5a', 0, '019a8668-bb4f-7c9c-b9b8-3f274de96566', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
-INSERT INTO public.video_groups_videos VALUES ('019de883-cd46-7fc8-a9a4-7711774a9b95', 1, '019a8ba5-fe29-7af8-bf54-b8d96af38461', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
-INSERT INTO public.video_groups_videos VALUES ('019e26fa-b837-77bc-aae3-2c9d3f23bc61', 2, '019e26f5-94ff-738f-b892-f25c3ceaa231', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
-INSERT INTO public.video_groups_videos VALUES ('019e26fa-d10e-77f8-a289-f962d6edb83f', 3, '019e26f8-414c-7032-b627-77d1107b558d', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
-INSERT INTO public.video_groups_videos VALUES ('019e26fa-e8a2-74a4-9b72-95c327210e76', 4, '019e26f8-a4d3-729b-872e-9d66242969ef', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.video_groups_videos VALUES ('019de883-cd46-7fe3-b5bd-56a742f5a2fc', 0, '019dbfeb-e512-740f-80ea-d8c30a99fa5b', '019daf95-d855-748d-93a9-4c17d0536f2f', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.video_groups_videos VALUES ('019de883-cd46-7ff3-ad87-df0854df1c4e', 0, '019dbfeb-e43a-7324-bb52-65457afc331b', '019daf95-04e3-7615-99fc-ba808d1dd589', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
 INSERT INTO public.video_groups_videos VALUES ('019de883-cd47-7002-9e69-c6ec4ee52c91', 0, '019dbfec-770a-702f-aa5c-e2431a930395', '019dc005-f4a8-76fb-afdd-2e5caff8fb5a', '2026-05-02 11:47:25.116074', '2026-05-02 11:47:25.116074');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5e-5915-7121-b9ec-650bd2b41fa3', 0, '01a03ada-02c1-77a3-8ac4-f19289ced5ad', '01a04f5a-70a0-73d5-8946-732d8c8e4f7e', '2026-08-29 21:12:58.388681', '2026-08-29 21:12:58.388681');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5e-5915-79cb-9fc2-068f0f2b1f24', 1, '01a03ada-02c1-77a3-8ac4-f1916356692a', '01a04f5a-70a0-73d5-8946-732d8c8e4f7e', '2026-08-29 21:12:58.388681', '2026-08-29 21:12:58.388681');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5e-5915-7e56-9164-de10004d7f6a', 2, '01a03ada-02c1-77a3-8ac4-f190b20efed1', '01a04f5a-70a0-73d5-8946-732d8c8e4f7e', '2026-08-29 21:12:58.388681', '2026-08-29 21:12:58.388681');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5e-5916-7285-890d-b9df605d51e2', 3, '01a03ada-02c1-77a3-8ac4-f18f4b8c5fc8', '01a04f5a-70a0-73d5-8946-732d8c8e4f7e', '2026-08-29 21:12:58.388681', '2026-08-29 21:12:58.388681');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5e-5916-76f2-b1e2-26747523a923', 4, '01a03ada-02c1-77a3-8ac4-f18eec7160fb', '01a04f5a-70a0-73d5-8946-732d8c8e4f7e', '2026-08-29 21:12:58.388681', '2026-08-29 21:12:58.388681');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5e-5916-7b3a-8e3e-26e5d8087b5b', 5, '01a03ada-02c1-77a3-8ac4-f18d24ac097e', '01a04f5a-70a0-73d5-8946-732d8c8e4f7e', '2026-08-29 21:12:58.388681', '2026-08-29 21:12:58.388681');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5f-5719-7d01-a0e6-77ef9d93c541', 0, '019a8668-bb4f-7c9c-b9b8-3f274de96566', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-08-29 21:14:03.417385', '2026-08-29 21:14:03.417385');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5f-571a-78bc-a2ba-6d447e6bfbb1', 1, '019a8ba5-fe29-7af8-bf54-b8d96af38461', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-08-29 21:14:03.417385', '2026-08-29 21:14:03.417385');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5f-571a-7b77-b554-e20c2e4deffc', 2, '019e26f5-94ff-738f-b892-f25c3ceaa231', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-08-29 21:14:03.417385', '2026-08-29 21:14:03.417385');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5f-571a-7e27-904c-b3b579c1f74d', 3, '019e26f8-414c-7032-b627-77d1107b558d', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-08-29 21:14:03.417385', '2026-08-29 21:14:03.417385');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5f-571b-707a-8e55-db76e49ece4f', 4, '019e26f8-a4d3-729b-872e-9d66242969ef', '019daf9b-7234-71bb-be93-f9f965d56ac6', '2026-08-29 21:14:03.417385', '2026-08-29 21:14:03.417385');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5f-8354-758d-84f7-971c92f0c1a0', 0, '019dbfeb-e6f2-7521-b990-119d82b8665f', '019da123-449c-7038-aae3-303255746cc4', '2026-08-29 21:14:14.74011', '2026-08-29 21:14:14.74011');
+INSERT INTO public.video_groups_videos VALUES ('01a04f5f-8354-7866-ad8a-02c0f8cfb497', 1, '019dbfeb-e5ec-73ae-881a-d76c8582644e', '019da123-449c-7038-aae3-303255746cc4', '2026-08-29 21:14:14.74011', '2026-08-29 21:14:14.74011');
 
 
 --
@@ -310,11 +326,23 @@ INSERT INTO public.video_sources VALUES ('019e2728-27bd-77aa-90cf-f9b9e3b7ea6b',
 INSERT INTO public.video_sources VALUES ('019e2750-3200-7772-8f4d-c4da489feeac', 'application/vnd.apple.mpegurl', NULL, '019e26f5-94ff-738f-b892-f25c3ceaa231', '/videos/019e26f5-94ff-738f-b892-f25c3ceaa231/hls/index.m3u8', '2026-05-14 16:27:08', '2026-05-14 16:27:08', 0);
 INSERT INTO public.video_sources VALUES ('019e2756-723a-7849-b95c-b0c3f4aa0dcd', 'application/vnd.apple.mpegurl', NULL, '019e26f8-414c-7032-b627-77d1107b558d', '/videos/019e26f8-414c-7032-b627-77d1107b558d/hls/index.m3u8', '2026-05-14 16:27:08', '2026-05-14 16:27:08', 0);
 INSERT INTO public.video_sources VALUES ('019e275e-fda7-7df7-bf68-ddbc64d916c0', 'application/vnd.apple.mpegurl', NULL, '019e26f8-a4d3-729b-872e-9d66242969ef', '/videos/019e26f8-a4d3-729b-872e-9d66242969ef/hls/index.m3u8', '2026-05-14 16:27:08', '2026-05-14 16:27:08', 0);
+INSERT INTO public.video_sources VALUES ('01a04f5a-70cc-73c0-994a-70772f4ec18f', 'application/vnd.apple.mpegurl', NULL, '01a03ada-02c1-77a3-8ac4-f19289ced5ad', '/videos/01a03ada-02c1-77a3-8ac4-f19289ced5ad/hls/index.m3u8', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 0);
+INSERT INTO public.video_sources VALUES ('01a04f5a-70cd-709d-9e17-37f4bfc7d30a', 'video/mp4', 'avc1.640028,mp4a.40.2', '01a03ada-02c1-77a3-8ac4-f19289ced5ad', '/videos/01a03ada-02c1-77a3-8ac4-f19289ced5ad/avc1_1080.mp4', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 1);
+INSERT INTO public.video_sources VALUES ('01a04f5a-70f0-705f-9c32-6dabe8f26c42', 'application/vnd.apple.mpegurl', NULL, '01a03ada-02c1-77a3-8ac4-f1916356692a', '/videos/01a03ada-02c1-77a3-8ac4-f1916356692a/hls/index.m3u8', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 0);
+INSERT INTO public.video_sources VALUES ('01a04f5a-70f0-73f5-b441-fa07b6269182', 'video/mp4', 'avc1.640028,mp4a.40.2', '01a03ada-02c1-77a3-8ac4-f1916356692a', '/videos/01a03ada-02c1-77a3-8ac4-f1916356692a/avc1_1080.mp4', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 1);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7115-7045-a30c-cb9ec6a104bb', 'application/vnd.apple.mpegurl', NULL, '01a03ada-02c1-77a3-8ac4-f190b20efed1', '/videos/01a03ada-02c1-77a3-8ac4-f190b20efed1/hls/index.m3u8', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 0);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7115-7766-93b5-769a74d9bca3', 'video/mp4', 'avc1.640028,mp4a.40.2', '01a03ada-02c1-77a3-8ac4-f190b20efed1', '/videos/01a03ada-02c1-77a3-8ac4-f190b20efed1/avc1_1080.mp4', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 1);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7136-7cb7-a1e2-aa0e21eda3a8', 'application/vnd.apple.mpegurl', NULL, '01a03ada-02c1-77a3-8ac4-f18f4b8c5fc8', '/videos/01a03ada-02c1-77a3-8ac4-f18f4b8c5fc8/hls/index.m3u8', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 0);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7136-7ee6-817a-d7754ad7b84a', 'video/mp4', 'avc1.640028,mp4a.40.2', '01a03ada-02c1-77a3-8ac4-f18f4b8c5fc8', '/videos/01a03ada-02c1-77a3-8ac4-f18f4b8c5fc8/avc1_1080.mp4', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 1);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7154-7287-bd7a-11042d4597cb', 'application/vnd.apple.mpegurl', NULL, '01a03ada-02c1-77a3-8ac4-f18eec7160fb', '/videos/01a03ada-02c1-77a3-8ac4-f18eec7160fb/hls/index.m3u8', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 0);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7154-747a-8cee-4c514c56751a', 'video/mp4', 'avc1.640028,mp4a.40.2', '01a03ada-02c1-77a3-8ac4-f18eec7160fb', '/videos/01a03ada-02c1-77a3-8ac4-f18eec7160fb/avc1_1080.mp4', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 1);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7179-7062-9ec3-05c6ba3a9df6', 'application/vnd.apple.mpegurl', NULL, '01a03ada-02c1-77a3-8ac4-f18d24ac097e', '/videos/01a03ada-02c1-77a3-8ac4-f18d24ac097e/hls/index.m3u8', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 0);
+INSERT INTO public.video_sources VALUES ('01a04f5a-7179-71de-b205-f25e87fd78c1', 'video/mp4', 'avc1.640028,mp4a.40.2', '01a03ada-02c1-77a3-8ac4-f18d24ac097e', '/videos/01a03ada-02c1-77a3-8ac4-f18d24ac097e/avc1_1080.mp4', '2026-08-29 21:08:42', '2026-08-29 21:08:42', 1);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict jz1p5orP0UmOhCxCzdhsXqYeb23fIuH5bkDBJJWl9pwxdea38kTrbgDvL599rsf
+\unrestrict IIqEFcdExZ9jNacvAGf9NbKkRuBayiB6AcdmK5p4thWzJ5bjXTk6aPt2eB6k0yF
 
