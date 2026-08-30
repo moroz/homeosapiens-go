@@ -54,8 +54,10 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	}
 	r.Use(echomiddleware.Recover())
 
+	r.IPExtractor = echo.ExtractIPFromXFFHeader()
+
 	if !config.IsProd {
-		r.IPExtractor = echo.ExtractIPFromXFFHeader()
+		r.IPExtractor = echo.ExtractIPDirect()
 		r.Static("/assets", "assets/public/assets")
 
 		mountAdminSPAProxy(r)
