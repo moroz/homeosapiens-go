@@ -60,9 +60,14 @@ func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*queri
 
 // CreateUser creates a User with the given data. This function is meant for use in seed data and testing, not in the regular user registration flow.
 func (s *UserService) CreateUser(ctx context.Context, params *types.SeedUserParams) (*queries.User, error) {
-	passwordHash, err := argon2id.CreateHash(params.Password, config.ResolveArgon2Params())
-	if err != nil {
-		return nil, err
+	var passwordHash *string
+
+	if params.Password != "" {
+		hash, err := argon2id.CreateHash(params.Password, config.ResolveArgon2Params())
+		if err != nil {
+			return nil, err
+		}
+		passwordHash = &hash
 	}
 
 	var emailConfirmedAt *time.Time
@@ -92,7 +97,7 @@ func (s *UserService) CreateUser(ctx context.Context, params *types.SeedUserPara
 		GivenName:        sqlcrypter.NewEncryptedBytes(params.GivenName),
 		FamilyName:       sqlcrypter.NewEncryptedBytes(params.FamilyName),
 		Country:          &params.Country,
-		PasswordHash:     &passwordHash,
+		PasswordHash:     passwordHash,
 		UserRole:         new(string(params.Role)),
 		EmailConfirmedAt: emailConfirmedAt,
 	})

@@ -31,8 +31,8 @@ func UserPasswordResetController(db queries.DBTX) *userPasswordResetController {
 // New displays a form to the user which can be used to request a password reset token with an email address.
 func (cc *userPasswordResetController) New(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
-
-	return user_password_resets.New(ctx, "", "").Render(c.Response())
+	email := c.Request().URL.Query().Get("email")
+	return user_password_resets.New(ctx, email, "").Render(c.Response())
 }
 
 // Create is the submission handler for the form displayed by New.

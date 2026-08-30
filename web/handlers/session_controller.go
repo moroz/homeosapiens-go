@@ -45,30 +45,49 @@ func (cc *sessionController) New(c *echo.Context) error {
 func (cc *sessionController) Create(c *echo.Context) error {
 	ctx := helpers.GetRequestContext(c)
 
-	email := c.FormValue("email")
+	email := strings.ToLower(c.FormValue("email"))
 	password := c.FormValue("password")
 
 	user, err := cc.userService.AuthenticateUserByEmailPassword(c.Request().Context(), email, password)
-	if err != nil {
-		l := ctx.Localizer
-		var msg string
-		var msgIsHTML bool
-
-		if errors.Is(err, services.ErrUnverifiedEmail) {
-			resendURL := "/email-verifications/new?email=" + url.QueryEscape(email)
-			msg = l.MustLocalize(&i18n.LocalizeConfig{
-				MessageID:    "sessions.new.unverified_email_html",
-				TemplateData: map[string]string{"URL": resendURL},
-			})
-			msgIsHTML = true
-		} else {
-			msg = l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.invalid_email_password_combination"})
-		}
-
-		return sessions.New(ctx, email, msg, msgIsHTML).Render(c.Response())
+	if err == nil {
+		return signUserIn(c, cc.db, user)
 	}
 
-	return signUserIn(c, cc.db, user)
+	l := ctx.Localizer
+	var msg string
+	var msgIsHTML bool
+
+	if errors.Is(err, services.ErrUnverifiedEmail) {
+		resendURL := "/email-verifications/new?email=" + url.QueryEscape(email)
+		msg = l.MustLocalize(&i18n.LocalizeConfig{
+			MessageID:    "sessions.new.unverified_email_html",
+			TemplateData: map[string]string{"URL": resendURL},
+		})
+		msgIsHTML = true
+	} else if errors.Is(err, services.ErrNoPasswordHash) {
+		qs := url.Values{
+			"email": {email},
+		}
+		passwordResetUrl := "/reset-password?" + qs.Encode()
+
+		messageKey := "sessions.new.no_password_hash_html"
+		if strings.HasSuffix(email, "@gmail.com") {
+			messageKey = "sessions.new.no_password_hash_is_gmail_html"
+		}
+
+		msg = l.MustLocalize(&i18n.LocalizeConfig{
+			MessageID: messageKey,
+			TemplateData: map[string]string{
+				"GoogleURL":        "/oauth/google/redirect",
+				"PasswordResetURL": passwordResetUrl,
+			},
+		})
+		msgIsHTML = true
+	} else {
+		msg = l.MustLocalizeMessage(&i18n.Message{ID: "sessions.new.invalid_email_password_combination"})
+	}
+
+	return sessions.New(ctx, email, msg, msgIsHTML).Render(c.Response())
 }
 
 func (cc *sessionController) Delete(c *echo.Context) error {

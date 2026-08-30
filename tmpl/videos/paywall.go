@@ -33,8 +33,15 @@ func CrownIcon(classes ...string) Node {
 // PaidBadge marks a group the visitor has not bought yet in the series menu.
 func PaidBadge(l *i18n.Localizer) Node {
 	return Span(
-		Class("ml-2 inline-flex items-center rounded-sm border border-slate-300 bg-slate-100 px-1.5 py-0.5 text-xs font-semibold text-slate-500"),
+		Class("inline-flex items-center rounded-sm border border-slate-300 bg-slate-100 px-1.5 py-0.5 text-xs font-semibold text-slate-500"),
 		Text(l.MustLocalizeMessage(&i18n.Message{ID: "videos.paywall.badge"})),
+	)
+}
+
+func PremiumBadge(l *i18n.Localizer) Node {
+	return Span(
+		Class("inline-flex items-center rounded-sm border border-amber-300 bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-600"),
+		Text(l.MustLocalizeMessage(&i18n.Message{ID: "videos.index.premium"})),
 	)
 }
 

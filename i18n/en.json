@@ -265,7 +265,9 @@
       "sign_in_with_google": "Sign in with Google",
       "submit": "Submit",
       "unverified_email": "The email address has not been verified.",
-      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>."
+      "unverified_email_html": "The email address has not been verified. <a href=\"{{ .URL }}\">Resend verification email</a>.",
+      "no_password_hash_is_gmail_html": "Your account has been created using the old version of our website. Please set a new password using the <a href=\"{{ .PasswordResetURL }}\">Forgot password</a> form or use <a href=\"{{ .GoogleURL }}\">Sign in with Google</a>.",
+      "no_password_hash_html": "Your account has been created using the old version of our website. Please set a new password using the <a href=\"{{ .PasswordResetURL }}\">Forgot password</a> form."
     }
   },
   "user_password_resets": {

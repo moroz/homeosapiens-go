@@ -270,7 +270,9 @@
       "sign_in_with_google": "Zaloguj się przez Google",
       "submit": "Zaloguj się",
       "unverified_email": "Adres email nie został zweryfikowany.",
-      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>."
+      "unverified_email_html": "Adres email nie został zweryfikowany. <a href=\"{{ .URL }}\">Wyślij ponownie email weryfikacyjny</a>.",
+      "no_password_hash_is_gmail_html": "Twoje konto zostało utworzone przy użyciu starej wersji strony. Ustaw nowe hasło przy użyciu formularza <a href=\"{{ .PasswordResetURL }}\">Zapomniałem/am hasła</a> lub <a href=\"{{ .GoogleURL }}\">zaloguj się przez Google</a>.",
+      "no_password_hash_html": "Twoje konto zostało utworzone przy użyciu starej wersji strony. Ustaw nowe hasło przy użyciu formularza <a href=\"{{ .PasswordResetURL }}\">Zapomniałem/am hasła</a>."
     }
   },
   "user_password_resets": {
@@ -326,6 +328,9 @@
     "validation_required": "pole nie może być puste"
   },
   "videos": {
+    "index": {
+      "premium": "Premium"
+    },
     "paywall": {
       "badge": "Płatne",
       "body": "Ta seria jest dostępna wyłącznie dla osób, które wykupiły do niej dostęp. Kup dostęp, aby obejrzeć wszystkie wideo z tej serii.",
