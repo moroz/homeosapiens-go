@@ -23,17 +23,7 @@ func main() {
 			GivenName:      "Karol",
 			FamilyName:     "Moroz",
 			Country:        "PL",
-			Password:       "foobar",
 			Role:           queries.UserRoleAdministrator,
-			EmailConfirmed: true,
-		},
-		{
-			GivenName:      "Sanjay",
-			FamilyName:     "Modi",
-			Email:          "sanjay.modi@example.com",
-			Country:        "IN",
-			Password:       "foobar",
-			Role:           queries.UserRoleRegular,
 			EmailConfirmed: true,
 		},
 	}
