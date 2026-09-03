@@ -2,7 +2,7 @@
 age = "latest"
 "aqua:axllent/mailpit" = "latest"
 caddy = "latest"
-go = "1.26.5"
+go = "1.27"
 "go:github.com/air-verse/air" = "latest"
 "go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "latest"
 "go:github.com/playwright-community/playwright-go/cmd/playwright" = "latest"
