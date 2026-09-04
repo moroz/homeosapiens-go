@@ -2,6 +2,7 @@ package layout
 
 import (
 	"github.com/moroz/homeosapiens-go/tmpl/components"
+	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
 	"github.com/moroz/homeosapiens-go/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"
@@ -106,11 +107,36 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 	)
 }
 
+const (
+	YoutubeUrl   = "https://www.youtube.com/@Homeosapiens-p7z"
+	InstagramUrl = "https://www.instagram.com/homeosapiens.eu"
+)
+
+// socialLink is an icon-only link to one of our social media profiles. The
+// icons are monochrome so that they take the colour of the surrounding text.
+func socialLink(href, label string, icon Node) Node {
+	return A(
+		Class("text-slate-500 transition-colors hover:text-primary"),
+		Href(href), Target("_blank"), Rel("noopener noreferrer"),
+		Title(label), Aria("label", label),
+		icon,
+	)
+}
+
 func AppFooter() Node {
-	return Footer(Class("relative h-30 bg-white text-sm text-slate-600 shadow lg:text-base"),
+	return Footer(Class("relative bg-white py-8 text-sm text-slate-600 shadow lg:text-base"),
 		Div(Class("absolute inset-x-0 top-0 h-0.5 brand-rule")),
 		Div(
-			Class("container mx-auto flex h-full items-center justify-center text-center"),
+			Class("container mx-auto flex flex-col items-center justify-center gap-4 text-center"),
+			Ul(
+				Class("flex items-center gap-5"),
+				Li(socialLink(YoutubeUrl, "YouTube", icons.Icon(&icons.IconProps{
+					Name: "youtube-mono", ViewBox: "0 0 576 512", Classes: "h-6 w-6",
+				}))),
+				Li(socialLink(InstagramUrl, "Instagram", icons.Icon(&icons.IconProps{
+					Name: "instagram", ViewBox: "0 0 448 512", Classes: "h-6 w-6",
+				}))),
+			),
 			P(
 				Raw("&copy; 2024&ndash;2026 by Wydawnictwo Homeo Sapiens.<br/>All rights reserved."),
 			),
