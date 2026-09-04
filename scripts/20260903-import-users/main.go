@@ -58,7 +58,6 @@ values ($1, $2, $3, $4, $5, $6, $7, $8)
 on conflict (email_hash) do nothing;
 `
 
-// This program decrypts the given age-encrypted CSV file
 func main() {
 	crypterer, err := crypto.NewEncryptionProvider(config.DatabaseEncryptionKey, nil)
 	if err != nil {

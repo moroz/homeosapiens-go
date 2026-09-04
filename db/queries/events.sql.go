@@ -626,7 +626,7 @@ func (q *Queries) ListPublishedEvents(ctx context.Context) ([]*ListPublishedEven
 }
 
 const paginateEvents = `-- name: PaginateEvents :many
-select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, string_agg(h.given_name || ' ' || h.family_name, ', ')::text hosts from events e
+select e.id, e.title_en, e.title_pl, e.starts_at, e.ends_at, e.is_virtual, e.description_en, e.description_pl, e.event_type, e.inserted_at, e.updated_at, e.slug, e.subtitle_en, e.subtitle_pl, e.venue_name_en, e.venue_name_pl, e.venue_street, e.venue_city_en, e.venue_city_pl, e.venue_postal_code, e.venue_country_code, e.product_id, e.published_at, e.meeting_url, coalesce(string_agg(h.given_name || ' ' || h.family_name, ', '), '')::text hosts from events e
 left join events_hosts eh on e.id = eh.event_id
 left join hosts h on eh.host_id = h.id
 group by e.id, e.starts_at

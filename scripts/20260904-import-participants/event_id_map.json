@@ -1,0 +1,61 @@
+{
+  "5177": {
+    "title": "Dr Asher Shaikh Seminar",
+    "event_id": "019c5c9a-c5a4-7518-8317-65ae90516726",
+    "event_product_id": "019de49f-d17f-7435-b166-b8e9b3e4430c",
+    "video_group_id": "01a04f5a-70a0-73d5-8946-732d8c8e4f7e",
+    "video_group_product_id": "01a04f5e-590e-7440-89e1-dc3ea1c1c6a7"
+  },
+  "3101": {
+    "title": "To Perfect the Art of Homeopathy 2",
+    "event_id": "0199c2fa-7e9d-72f6-ada1-88b5d04d9a58",
+    "event_product_id": "019de49f-d612-7339-962b-800168a04bbb",
+    "video_group_id": "019daf9b-7234-71bb-be93-f9f965d56ac6",
+    "video_group_product_id": "01a04f5f-5713-758d-9f11-7913e9d54cf4"
+  },
+  "1753": {
+    "title": "To Perfect the Art of Homeopathy",
+    "event_id": "0199c2f2-528b-7e88-96e3-5e5088333a8c",
+    "event_product_id": "019de49f-d3d5-727b-915d-2cd3671cb72f",
+    "video_group_id": "019da123-449c-7038-aae3-303255746cc4",
+    "video_group_product_id": "01a04f5f-834f-77b3-ac53-8d45649dbff7"
+  },
+  "4403": {
+    "title": "A Series of Critical Cardiac Cases",
+    "event_id": "019b0c80-a410-7728-ab6b-c1eff529dfd1",
+    "video_group_id": "019dc005-f4a8-76fb-afdd-2e5caff8fb5a",
+    "note": "free webinar; playlist is the shared Dr Herman Jeggels webinar group"
+  },
+  "4976": {
+    "title": "What Prevents Me From Moving On?",
+    "event_id": "019bef00-6ef2-7636-9a15-c8cd1e87b997",
+    "video_group_id": "019daf95-04e3-7615-99fc-ba808d1dd589",
+    "note": "free webinar; playlist is the shared Dr Asher Shaikh webinar group"
+  },
+  "1452": {
+    "title": "Dutiful Remedies: Differential Diagnosis",
+    "event_id": "019550ef-1280-7035-b2e2-80f50c49afa5",
+    "video_group_id": "019daf95-d855-748d-93a9-4c17d0536f2f",
+    "note": "free webinar; playlist is the shared Dr Sanjay Modi webinar group"
+  },
+  "6228": {
+    "title": "What Restricts My Movements and My Activity?",
+    "event_id": "019d769e-9e80-7c20-80a2-3f5ae1f35c15",
+    "note": "free webinar; no recording seeded"
+  },
+  "3293": {
+    "title": "Boldness and Daring vs. Terror and Restlessness",
+    "event_id": "0198c6b4-e280-76ce-abad-12a758b17fdb",
+    "note": "free webinar; no recording seeded"
+  },
+  "2375": {
+    "title": "Best of Utrecht",
+    "event_id": "01969fac-6e80-73ee-b069-dae7a1df89e5",
+    "note": "free webinar; no recording seeded"
+  },
+  "1897": {
+    "title": "Polycystic Ovary and Infertility Cases",
+    "event_id": "0195f094-3680-7ad5-bb8f-a30c33ba6571",
+    "note": "free webinar; no recording seeded"
+  }
+}
