@@ -114,6 +114,8 @@ func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestOb
 			hosts = &e.Hosts
 		}
 
+		participantCount := int(e.ParticipantCount)
+
 		out[i] = Event{
 			Id:          e.Event.ID,
 			Slug:        e.Event.Slug,
@@ -130,6 +132,8 @@ func (s *eventServer) ListEvents(ctx context.Context, params ListEventsRequestOb
 			UpdatedAt:   e.Event.UpdatedAt,
 			PublishedAt: e.Event.PublishedAt,
 			Hosts:       hosts,
+
+			ParticipantCount: &participantCount,
 		}
 	}
 

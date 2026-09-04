@@ -92,7 +92,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/UserDetails"
 
         "404":
           description: No user found with this ID.
@@ -1329,6 +1329,77 @@ components:
           type: string
           format: uri
 
+    UserDetails:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          required: [productAccess, eventRegistrations]
+          properties:
+            productAccess:
+              type: array
+              description: Products the user may access, whether bought, granted by an order, or imported.
+              items:
+                $ref: "#/components/schemas/UserProductAccess"
+            eventRegistrations:
+              type: array
+              description: Events the user is signed up for, upcoming ones first.
+              items:
+                $ref: "#/components/schemas/UserEventRegistration"
+
+    UserProductAccess:
+      type: object
+      required: [productId, productType, titlePl, titleEn, grantedAt]
+      properties:
+        productId:
+          type: string
+          format: uuid
+        productType:
+          $ref: "#/components/schemas/ProductType"
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        orderId:
+          type: string
+          format: uuid
+          nullable: true
+          description: The order that granted the access. Null when granted by hand or by an import.
+        grantedByUserId:
+          type: string
+          format: uuid
+          nullable: true
+          description: The administrator who granted the access by hand. Null for purchases and imports.
+        grantedByName:
+          type: string
+          nullable: true
+          description: Full name of the administrator named by grantedByUserId.
+        grantedAt:
+          type: string
+          format: date-time
+
+    UserEventRegistration:
+      type: object
+      required: [eventId, slug, titlePl, titleEn, startsAt, endsAt, registeredAt]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        titlePl:
+          type: string
+        titleEn:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        registeredAt:
+          type: string
+          format: date-time
+
     Video:
       type: object
       required: [id, slug, titlePl, titleEn, provider, isPublic]
@@ -1468,6 +1539,9 @@ components:
           format: date-time
         hosts:
           type: string
+        participantCount:
+          type: integer
+          description: Number of users registered for the event. Only set in list responses.
 
     EventDetails:
       allOf:

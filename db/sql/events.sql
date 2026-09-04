@@ -14,7 +14,9 @@ where published_at is not null
 order by e.starts_at desc;
 
 -- name: PaginateEvents :many
-select sqlc.embed(e), coalesce(string_agg(h.given_name || ' ' || h.family_name, ', '), '')::text hosts from events e
+select sqlc.embed(e), coalesce(string_agg(h.given_name || ' ' || h.family_name, ', '), '')::text hosts,
+(select count(*) from event_registrations er where er.event_id = e.id)::int participant_count
+from events e
 left join events_hosts eh on e.id = eh.event_id
 left join hosts h on eh.host_id = h.id
 group by e.id, e.starts_at

@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"flag"
 	"io"
 	"log"
 	"os"
@@ -42,12 +43,23 @@ returning er.user_id;
 `
 
 const grantProductAccessQuery = `
-insert into user_product_access (user_id, product_id, inserted_at)
-values ($1, $2, coalesce($3, now()))
+insert into user_product_access (user_id, product_id, granted_by_user_id, inserted_at)
+values ($1, $2, $3, coalesce($4, now()))
 on conflict (user_id, product_id) do nothing;
 `
 
+const getAdminIdQuery = `
+select id from users where email_hash = $1 and user_role = 'Administrator';
+`
+
 func main() {
+	grantedBy := flag.String(
+		"granted-by",
+		"",
+		"Email address of the administrator to record as the grantor of product access.",
+	)
+	flag.Parse()
+
 	var mapping map[string]LegacyEvent
 	if err := json.Unmarshal(EventMappingJSON, &mapping); err != nil {
 		log.Fatal(err)
@@ -63,6 +75,19 @@ func main() {
 
 	tx, err := db.Begin(context.Background())
 	defer tx.Rollback(context.Background())
+
+	var grantedByUserId *uuid.UUID
+	if *grantedBy != "" {
+		var id uuid.UUID
+		if err := tx.QueryRow(
+			context.Background(),
+			getAdminIdQuery,
+			crypto.HashEmail(*grantedBy),
+		).Scan(&id); err != nil {
+			log.Fatalf("Failed to find an administrator with email %v: %s", *grantedBy, err)
+		}
+		grantedByUserId = &id
+	}
 
 	for {
 		row, err := reader.Read()
@@ -110,6 +135,7 @@ func main() {
 				grantProductAccessQuery,
 				userId,
 				productId,
+				grantedByUserId,
 				insertedAt,
 			); err != nil {
 				log.Fatalf("Failed to grant access to product %v for user %v: %s", productId, email, err)

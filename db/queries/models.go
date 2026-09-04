@@ -604,6 +604,8 @@ type UserProductAccess struct {
 	ProductID  uuid.UUID
 	OrderID    *uuid.UUID
 	InsertedAt time.Time
+	// The administrator who granted the access by hand. Null for purchases and imports.
+	GrantedByUserID *uuid.UUID
 }
 
 type UserToken struct {

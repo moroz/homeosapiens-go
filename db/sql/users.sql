@@ -62,3 +62,26 @@ update users
 set password_hash = $1, email_confirmed_at = coalesce(email_confirmed_at, now()), updated_at = now()
 where id = $2
 returning *;
+
+-- name: ListUserProductAccess :many
+select p.id, p.product_type, p.title_pl, p.title_en, upa.order_id, upa.inserted_at granted_at,
+gb.id granted_by_user_id, gb.given_name_encrypted granted_by_given_name, gb.family_name_encrypted granted_by_family_name
+from user_product_access upa
+join products p on p.id = upa.product_id
+left join users gb on gb.id = upa.granted_by_user_id
+where upa.user_id = $1
+order by upa.id desc;
+
+-- name: GrantProductAccess :exec
+-- Grants access outside of an order, e.g. by hand from the admin panel or from
+-- an import script. granted_by_user_id records the administrator who did it.
+insert into user_product_access (user_id, product_id, granted_by_user_id, inserted_at)
+values ($1, $2, sqlc.narg(granted_by_user_id), coalesce(sqlc.narg(inserted_at)::timestamp, now()))
+on conflict (user_id, product_id) do nothing;
+
+-- name: ListEventRegistrationsByUserID :many
+select e.id, e.slug, e.title_pl, e.title_en, e.starts_at, e.ends_at, er.inserted_at registered_at
+from event_registrations er
+join events e on e.id = er.event_id
+where er.user_id = $1
+order by e.starts_at desc;

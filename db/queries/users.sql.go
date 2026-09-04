@@ -193,6 +193,31 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) 
 	return &i, err
 }
 
+const grantProductAccess = `-- name: GrantProductAccess :exec
+insert into user_product_access (user_id, product_id, granted_by_user_id, inserted_at)
+values ($1, $2, $3, coalesce($4::timestamp, now()))
+on conflict (user_id, product_id) do nothing
+`
+
+type GrantProductAccessParams struct {
+	UserID          uuid.UUID
+	ProductID       uuid.UUID
+	GrantedByUserID *uuid.UUID
+	InsertedAt      *time.Time
+}
+
+// Grants access outside of an order, e.g. by hand from the admin panel or from
+// an import script. granted_by_user_id records the administrator who did it.
+func (q *Queries) GrantProductAccess(ctx context.Context, arg *GrantProductAccessParams) error {
+	_, err := q.db.Exec(ctx, grantProductAccess,
+		arg.UserID,
+		arg.ProductID,
+		arg.GrantedByUserID,
+		arg.InsertedAt,
+	)
+	return err
+}
+
 const insertUser = `-- name: InsertUser :one
 insert into users (email_encrypted, email_hash, salutation, given_name_encrypted, family_name_encrypted, country, profession, organization, company, password_hash, preferred_locale) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id, salutation, country, profession, organization, company, password_hash, last_login_at, last_login_ip, inserted_at, updated_at, profile_picture, user_role, email_encrypted, email_hash, given_name_encrypted, family_name_encrypted, email_confirmed_at, licence_number_encrypted, preferred_locale, google_oauth_last_used_at, preferred_timezone_encrypted, preferred_timezone_locked
 `
@@ -252,6 +277,104 @@ func (q *Queries) InsertUser(ctx context.Context, arg *InsertUserParams) (*User,
 		&i.PreferredTimezoneLocked,
 	)
 	return &i, err
+}
+
+const listEventRegistrationsByUserID = `-- name: ListEventRegistrationsByUserID :many
+select e.id, e.slug, e.title_pl, e.title_en, e.starts_at, e.ends_at, er.inserted_at registered_at
+from event_registrations er
+join events e on e.id = er.event_id
+where er.user_id = $1
+order by e.starts_at desc
+`
+
+type ListEventRegistrationsByUserIDRow struct {
+	ID           uuid.UUID
+	Slug         string
+	TitlePl      string
+	TitleEn      string
+	StartsAt     time.Time
+	EndsAt       time.Time
+	RegisteredAt time.Time
+}
+
+func (q *Queries) ListEventRegistrationsByUserID(ctx context.Context, userID uuid.UUID) ([]*ListEventRegistrationsByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, listEventRegistrationsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListEventRegistrationsByUserIDRow
+	for rows.Next() {
+		var i ListEventRegistrationsByUserIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Slug,
+			&i.TitlePl,
+			&i.TitleEn,
+			&i.StartsAt,
+			&i.EndsAt,
+			&i.RegisteredAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUserProductAccess = `-- name: ListUserProductAccess :many
+select p.id, p.product_type, p.title_pl, p.title_en, upa.order_id, upa.inserted_at granted_at,
+gb.id granted_by_user_id, gb.given_name_encrypted granted_by_given_name, gb.family_name_encrypted granted_by_family_name
+from user_product_access upa
+join products p on p.id = upa.product_id
+left join users gb on gb.id = upa.granted_by_user_id
+where upa.user_id = $1
+order by upa.id desc
+`
+
+type ListUserProductAccessRow struct {
+	ID                  uuid.UUID
+	ProductType         ProductType
+	TitlePl             string
+	TitleEn             string
+	OrderID             *uuid.UUID
+	GrantedAt           time.Time
+	GrantedByUserID     *uuid.UUID
+	GrantedByGivenName  *sqlcrypter.EncryptedBytes
+	GrantedByFamilyName *sqlcrypter.EncryptedBytes
+}
+
+func (q *Queries) ListUserProductAccess(ctx context.Context, userID uuid.UUID) ([]*ListUserProductAccessRow, error) {
+	rows, err := q.db.Query(ctx, listUserProductAccess, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListUserProductAccessRow
+	for rows.Next() {
+		var i ListUserProductAccessRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProductType,
+			&i.TitlePl,
+			&i.TitleEn,
+			&i.OrderID,
+			&i.GrantedAt,
+			&i.GrantedByUserID,
+			&i.GrantedByGivenName,
+			&i.GrantedByFamilyName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listUsers = `-- name: ListUsers :many
