@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict IIqEFcdExZ9jNacvAGf9NbKkRuBayiB6AcdmK5p4thWzJ5bjXTk6aPt2eB6k0yF
+\restrict UBs30FKgDt45Azk9KEWmf4QArgLZgdnHo6Gb22v3ScGyfH689J57c4fhIdC90yS
 
 -- Dumped from database version 18.4 (Homebrew)
 -- Dumped by pg_dump version 18.4 (Homebrew)
@@ -353,5 +353,5 @@ INSERT INTO public.video_sources VALUES ('01a04f5a-7179-71de-b205-f25e87fd78c1',
 -- PostgreSQL database dump complete
 --
 
-\unrestrict IIqEFcdExZ9jNacvAGf9NbKkRuBayiB6AcdmK5p4thWzJ5bjXTk6aPt2eB6k0yF
+\unrestrict UBs30FKgDt45Azk9KEWmf4QArgLZgdnHo6Gb22v3ScGyfH689J57c4fhIdC90yS
 
