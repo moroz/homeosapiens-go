@@ -675,6 +675,46 @@ export interface components {
             /** Format: uri */
             profilePicture?: string;
         };
+        UserDetails: components["schemas"]["User"] & {
+            /** @description Products the user may access, whether bought, granted by an order, or imported. */
+            productAccess: components["schemas"]["UserProductAccess"][];
+            /** @description Events the user is signed up for, upcoming ones first. */
+            eventRegistrations: components["schemas"]["UserEventRegistration"][];
+        };
+        UserProductAccess: {
+            /** Format: uuid */
+            productId: string;
+            productType: components["schemas"]["ProductType"];
+            titlePl: string;
+            titleEn: string;
+            /**
+             * Format: uuid
+             * @description The order that granted the access. Null when granted by hand or by an import.
+             */
+            orderId?: string | null;
+            /**
+             * Format: uuid
+             * @description The administrator who granted the access by hand. Null for purchases and imports.
+             */
+            grantedByUserId?: string | null;
+            /** @description Full name of the administrator named by grantedByUserId. */
+            grantedByName?: string | null;
+            /** Format: date-time */
+            grantedAt: string;
+        };
+        UserEventRegistration: {
+            /** Format: uuid */
+            eventId: string;
+            slug: string;
+            titlePl: string;
+            titleEn: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: date-time */
+            registeredAt: string;
+        };
         Video: {
             /** Format: uuid */
             id: string;
@@ -748,6 +788,8 @@ export interface components {
             /** Format: date-time */
             publishedAt?: string;
             hosts?: string;
+            /** @description Number of users registered for the event. Only set in list responses. */
+            participantCount?: number;
         };
         EventDetails: components["schemas"]["Event"] & {
             descriptionPl?: string | null;
@@ -1042,7 +1084,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"];
+                    "application/json": components["schemas"]["UserDetails"];
                 };
             };
             /** @description No user found with this ID. */

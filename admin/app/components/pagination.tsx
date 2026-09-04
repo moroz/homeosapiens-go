@@ -5,13 +5,36 @@ interface Props {
   pageIndex: number;
   pageCount: number;
   setPageIndex: (index: number) => void;
+  /** Total number of rows on the server, across all pages. */
+  total?: number;
+  /** Number of rows rendered on the current page. */
+  rowCount?: number;
+  pageSize?: number;
 }
 
-export const Pagination: React.FC<Props> = ({ pageIndex, pageCount, setPageIndex }) => {
+export const Pagination: React.FC<Props> = ({
+  pageIndex,
+  pageCount,
+  setPageIndex,
+  total,
+  rowCount,
+  pageSize,
+}) => {
+  const firstEntry = pageIndex * (pageSize ?? 0) + 1;
+  const lastEntry = firstEntry + (rowCount ?? 0) - 1;
+
   return (
     <div className="flex items-center justify-between">
       <div className="text-sm text-muted-foreground">
-        Page {pageIndex + 1} of {Math.max(pageCount, 1)}
+        {total !== undefined && rowCount ? (
+          <>
+            Entries {firstEntry}&ndash;{lastEntry} of {total}
+          </>
+        ) : (
+          <>
+            Page {pageIndex + 1} of {Math.max(pageCount, 1)}
+          </>
+        )}
       </div>
 
       {pageCount > 1 && (

@@ -80,6 +80,7 @@ export const EventAttendants: React.FC<Props> = () => {
             columns={columns}
             data={attendants?.data ?? []}
             pageCount={attendants?.pagination.totalPages ?? 0}
+            total={attendants?.pagination.total}
             onPaginationChange={onPaginationChange}
             sorting={sorting}
             onSortingChange={onSortingChange}

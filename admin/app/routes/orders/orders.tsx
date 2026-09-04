@@ -77,6 +77,7 @@ export default function Orders() {
             columns={columns}
             data={data?.data ?? []}
             pageCount={data?.pagination.totalPages ?? 0}
+            total={data?.pagination.total}
             pagination={pagination}
             onPaginationChange={onPaginationChange}
             sorting={sorting}

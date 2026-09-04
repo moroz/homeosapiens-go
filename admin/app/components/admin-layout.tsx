@@ -10,7 +10,7 @@ import {
   PlaylistIcon,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router";
+import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router";
 
 import { NavUser } from "~/components/nav-user";
 import { ThemeToggle } from "~/components/theme-toggle";
@@ -61,6 +61,8 @@ interface Props {
 
 export function AdminLayout({ title, children, searchFormAction }: Props) {
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get("q") ?? "";
   const { data: session, isLoading } = useGetSessionQuery();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -172,6 +174,10 @@ export function AdminLayout({ title, children, searchFormAction }: Props) {
               <Input
                 name="q"
                 placeholder={searchHasFocus ? "Search..." : "Press / to search..."}
+                // Uncontrolled, so remount the input whenever the term in the
+                // URL changes, e.g. on back/forward between searches.
+                key={searchTerm}
+                defaultValue={searchTerm}
                 ref={inputRef}
                 onFocus={onSearchInputFocus}
                 onBlur={onSearchInputFocus}

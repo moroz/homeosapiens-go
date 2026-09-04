@@ -44,6 +44,21 @@ const columns: ColumnDef<Event>[] = [
       `${formatInstant(row.original.startsAt)}–${formatInstant(row.original.endsAt)}`,
   },
   {
+    id: "participantCount",
+    header: "Participants",
+    size: 60,
+    accessorKey: "participantCount",
+    cell: ({ row }) => (
+      <Link
+        to={`/events/${row.original.id}/attendants`}
+        className="link"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {row.original.participantCount ?? 0}
+      </Link>
+    ),
+  },
+  {
     id: "insertedAt",
     header: "Created at",
     accessorKey: "insertedAt",
@@ -74,6 +89,7 @@ export default function Events() {
           columns={columns}
           data={data?.data ?? []}
           pageCount={data?.pagination.totalPages ?? 0}
+          total={data?.pagination.total}
           pagination={pagination}
           onPaginationChange={onPaginationChange}
           sorting={sorting}

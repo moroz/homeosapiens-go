@@ -33,6 +33,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   /** Total number of server-side pages. */
   pageCount: number;
+  /** Total number of rows on the server, shown as an entry range. */
+  total?: number;
   pagination: PaginationState;
   onPaginationChange: OnChangeFn<PaginationState>;
   /** Controlled sorting. Falls back to internal state when omitted. */
@@ -49,6 +51,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   pageCount,
+  total,
   pagination,
   onPaginationChange,
   sorting: sortingProp,
@@ -157,6 +160,9 @@ export function DataTable<TData, TValue>({
         pageCount={table.getPageCount()}
         pageIndex={pagination.pageIndex}
         setPageIndex={table.setPageIndex}
+        total={total}
+        rowCount={table.getRowModel().rows.length}
+        pageSize={pagination.pageSize}
       />
     </div>
   );

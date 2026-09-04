@@ -5,7 +5,7 @@ import { DataTable } from "~/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
 import { formatInstant } from "~/lib/time";
 import { PageTitle } from "~/components/page-title";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 
 interface Props {}
 
@@ -37,6 +37,7 @@ export const Users: React.FC<Props> = () => {
   const searchTerm = searchParams.get("q") ?? "";
 
   const navigate = useNavigate();
+  const { search } = useLocation();
 
   const { data } = useListUsersQuery({
     page: pagination.pageIndex + 1,
@@ -44,7 +45,7 @@ export const Users: React.FC<Props> = () => {
     searchTerm,
   });
 
-  const onRowClick = useCallback((row: User) => navigate(row.id), [navigate]);
+  const onRowClick = useCallback((row: User) => navigate(`${row.id}${search}`), [navigate, search]);
 
   return (
     <AdminLayout title="Users" searchFormAction="/users">
@@ -54,6 +55,7 @@ export const Users: React.FC<Props> = () => {
           columns={columns}
           data={data?.data ?? []}
           pageCount={data?.pagination.totalPages ?? 1}
+          total={data?.pagination.total}
           pagination={pagination}
           sorting={sorting}
           onSortingChange={onSortingChange}
