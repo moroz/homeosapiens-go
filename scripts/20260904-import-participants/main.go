@@ -39,12 +39,12 @@ select $1, u.id, coalesce($3, now())
 from users u
 where u.email_hash = $2
 on conflict (event_id, user_id) do update set user_id = excluded.user_id
-returning er.user_id;
+returning er.user_id, er.inserted_at;
 `
 
 const grantProductAccessQuery = `
 insert into user_product_access (user_id, product_id, granted_by_user_id, inserted_at)
-values ($1, $2, $3, coalesce($4, now()))
+values ($1, $2, $3, $4)
 on conflict (user_id, product_id) do nothing;
 `
 
@@ -110,14 +110,19 @@ func main() {
 			}
 		}
 
+		// The registration timestamp comes back from the insert, so that access
+		// granted below carries the same timestamp as the registration itself,
+		// including when the CSV had none and when the registration already
+		// existed with a timestamp of its own.
 		var userId uuid.UUID
+		var registeredAt time.Time
 		err = tx.QueryRow(
 			context.Background(),
 			insertParticipantQuery,
 			event.EventID,
 			crypto.HashEmail(email),
 			insertedAt,
-		).Scan(&userId)
+		).Scan(&userId, &registeredAt)
 
 		if err != nil {
 			log.Fatalf("Failed to insert user %v: %s", email, err)
@@ -136,7 +141,7 @@ func main() {
 				userId,
 				productId,
 				grantedByUserId,
-				insertedAt,
+				registeredAt,
 			); err != nil {
 				log.Fatalf("Failed to grant access to product %v for user %v: %s", productId, email, err)
 			}
