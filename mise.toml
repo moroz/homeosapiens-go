@@ -150,8 +150,11 @@ cd db/seeds
 GOOS=linux GOARCH=amd64 go build .
 """
 
-[tasks.deploy]
-run = "cd scripts/deploy && ansible-playbook -v deploy.yml"
+[tasks."deploy:staging"]
+run = "cd scripts/deploy && ansible-playbook -v deploy.yml --limit staging"
+
+[tasks."deploy:prod"]
+run = "cd scripts/deploy && ansible-playbook -v deploy.yml --limit prod"
 
 [tasks.check]
 run = "go run ."

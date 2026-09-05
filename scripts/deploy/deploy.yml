@@ -24,7 +24,7 @@
         chdir: "{{ code_dir }}"
       environment:
         GOOS: "{{ ansible_facts['system'] | lower }}"
-        GOARCH: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else ansible_facts['architecture'] }}"
+        GOARCH: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'amd64' }}"
 
     - name: Create target directory
       file:

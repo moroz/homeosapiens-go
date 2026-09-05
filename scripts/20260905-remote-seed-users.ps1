@@ -1,8 +1,8 @@
 #!/usr/bin/env pwsh
 
 param(
-    [string]$RemoteHost = "64.176.71.228",
-    [string]$RemoteUser = "deploy"
+  [string]$RemoteHost = "prod.homeosapiens.eu",
+  [string]$RemoteUser = "deploy"
 )
 
 Set-StrictMode -Version Latest
@@ -15,32 +15,32 @@ $participantsSeed = "$env:HOME/working/hs/participants.csv"
 
 function Start-SshTunnel
 {
-    param(
-        [Parameter(Mandatory = $true)]
-        [int]$LocalPort,
+  param(
+    [Parameter(Mandatory = $true)]
+    [int]$LocalPort,
 
-        [Parameter(Mandatory = $true)]
-        [string]$RemoteSSH
-    )
+    [Parameter(Mandatory = $true)]
+    [string]$RemoteSSH
+  )
 
-    $processInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $processInfo.FileName = "ssh"
-    $processInfo.Arguments = "-N -L $($LocalPort):localhost:5432 $RemoteSSH"
-    $processInfo.UseShellExecute = $false
-    $processInfo.RedirectStandardError = $true
-    $processInfo.RedirectStandardOutput = $true
+  $processInfo = New-Object System.Diagnostics.ProcessStartInfo
+  $processInfo.FileName = "ssh"
+  $processInfo.Arguments = "-N -L $($LocalPort):localhost:5432 $RemoteSSH"
+  $processInfo.UseShellExecute = $false
+  $processInfo.RedirectStandardError = $true
+  $processInfo.RedirectStandardOutput = $true
 
-    Write-Host "ssh $($processInfo.Arguments)"
+  Write-Host "ssh $($processInfo.Arguments)"
 
-    $process = New-Object System.Diagnostics.Process
-    $process.StartInfo = $processInfo
+  $process = New-Object System.Diagnostics.Process
+  $process.StartInfo = $processInfo
 
-    if ($process.Start())
-    {
-        Write-Host "SSH tunnel started successfully on port $Port"
-        return $process
-    }
-    return $null
+  if ($process.Start())
+  {
+    Write-Host "SSH tunnel started successfully on port $Port"
+    return $process
+  }
+  return $null
 }
 
 $ENV_FILE="/usr/local/lib/server/homeosapiens.env"

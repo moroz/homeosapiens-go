@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 
 param(
-  [string]$RemoteHost = "64.176.71.228",
+  [string]$RemoteHost = "prod.homeosapiens.eu",
   [string]$RemoteUser = "deploy"
 )
 
