@@ -748,6 +748,21 @@ export interface components {
             insertedAt: string;
             /** Format: date-time */
             updatedAt: string;
+            sources?: components["schemas"]["VideoSource"][];
+        };
+        /** @description A video file or collection of files representing a remote URL that can be used to display a video in the browser. */
+        VideoSource: {
+            /** Format: uuid */
+            id: string;
+            contentType: string;
+            /** Format: uuid */
+            videoId: string;
+            objectKey?: string;
+            priority: number;
+            /** Format: date-time */
+            insertedAt: string;
+            /** Format: date-time */
+            updatedAt?: string;
         };
         /** @description Editable fields of a video. Provider, youtube id, duration and thumbnails are owned by the import script and cannot be changed here. */
         UpdateVideoInput: {

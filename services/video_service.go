@@ -240,3 +240,27 @@ func (s *VideoService) UpdateVideo(ctx context.Context, id uuid.UUID, params *ty
 	}
 	return video, err
 }
+
+func (s *VideoService) GetVideoDetails(ctx context.Context, id uuid.UUID) (*types.VideoDetailsDTO, error) {
+	video, err := queries.New(s.db).GetVideoById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.preloadVideoDetails(ctx, video)
+}
+
+func (s *VideoService) preloadVideoDetails(ctx context.Context, video *queries.Video) (*types.VideoDetailsDTO, error) {
+	result := &types.VideoDetailsDTO{
+		Video:     video,
+		HasAccess: true,
+	}
+
+	sources, err := queries.New(s.db).ListVideoSourcesForVideos(ctx, []uuid.UUID{video.ID})
+	if err != nil {
+		return nil, err
+	}
+
+	result.Sources = sources
+	return result, nil
+}

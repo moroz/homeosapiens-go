@@ -81,7 +81,7 @@ export default function Videos() {
             onSortingChange={onSortingChange}
             isPending={isPending}
             isError={isError}
-            onRowClick={(video) => navigate(`/videos/${video.id}/edit`)}
+            onRowClick={(video) => navigate(`/videos/${video.id}`)}
           />
         </div>
       </div>

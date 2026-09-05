@@ -20,6 +20,7 @@ import {
   EventDetails,
   EnrollStudentDialog,
 } from "~/routes/events";
+import { VideoDetails } from "~/routes/videos/video-details";
 
 export const routes: RouteObject[] = [
   {
@@ -31,6 +32,7 @@ export const routes: RouteObject[] = [
       { path: "playlists/new", element: <NewVideoGroup /> },
       { path: "playlists/:id/edit", element: <EditVideoGroup /> },
       { path: "videos", element: <Videos /> },
+      { path: "videos/:id", element: <VideoDetails /> },
       { path: "videos/:id/edit", element: <EditVideo /> },
       { path: "users", element: <Users /> },
       { path: "users/:id", element: <UserDetails /> },

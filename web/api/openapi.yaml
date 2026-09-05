@@ -1463,6 +1463,34 @@ components:
             updatedAt:
               type: string
               format: date-time
+            sources:
+              type: array
+              items:
+                $ref: "#/components/schemas/VideoSource"
+
+    VideoSource:
+      type: object
+      description: A video file or collection of files representing a remote URL that can be used to display a video in the browser.
+      required: [id, insertedAt, position, contentType, videoId, priority]
+      properties:
+        id:
+          type: string
+          format: uuid
+        contentType:
+          type: string
+        videoId:
+          type: string
+          format: uuid
+        objectKey:
+          type: string
+        priority:
+          type: integer
+        insertedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     UpdateVideoInput:
       type: object

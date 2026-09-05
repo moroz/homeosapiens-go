@@ -41,6 +41,34 @@ func videoDetails(v *queries.Video) VideoDetails {
 	}
 }
 
+// videoDetailsWithSources extends videoDetails with the video's sources,
+// as returned by the GetVideoDetails service call.
+func videoDetailsWithSources(v *types.VideoDetailsDTO) VideoDetails {
+	result := videoDetails(v.Video)
+
+	if len(v.Sources) > 0 {
+		sources := make([]VideoSource, len(v.Sources))
+		for i, s := range v.Sources {
+			sources[i] = videoSource(s)
+		}
+		result.Sources = &sources
+	}
+
+	return result
+}
+
+func videoSource(s *queries.VideoSource) VideoSource {
+	return VideoSource{
+		Id:          s.ID,
+		ContentType: s.ContentType,
+		VideoId:     s.VideoID,
+		ObjectKey:   &s.ObjectKey,
+		Priority:    int(s.Priority),
+		InsertedAt:  s.InsertedAt,
+		UpdatedAt:   &s.UpdatedAt,
+	}
+}
+
 func (s *videoServer) ListVideos(ctx context.Context, params ListVideosRequestObject) (ListVideosResponseObject, error) {
 	page, perPage := resolvePaginationParams(params.Params.Page, params.Params.PerPage)
 
@@ -69,7 +97,7 @@ func (s *videoServer) ListVideos(ctx context.Context, params ListVideosRequestOb
 }
 
 func (s *videoServer) GetVideo(ctx context.Context, request GetVideoRequestObject) (GetVideoResponseObject, error) {
-	v, err := s.q.GetVideoById(ctx, request.Id)
+	v, err := services.NewVideoService(s.db).GetVideoDetails(ctx, request.Id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return GetVideo404Response{}, nil
 	}
@@ -77,7 +105,7 @@ func (s *videoServer) GetVideo(ctx context.Context, request GetVideoRequestObjec
 		return nil, err
 	}
 
-	return GetVideo200JSONResponse(videoDetails(v)), nil
+	return GetVideo200JSONResponse(videoDetailsWithSources(v)), nil
 }
 
 func (s *videoServer) UpdateVideo(ctx context.Context, request UpdateVideoRequestObject) (UpdateVideoResponseObject, error) {

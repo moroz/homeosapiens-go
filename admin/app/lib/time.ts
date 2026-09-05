@@ -23,3 +23,9 @@ export function datetimeLocalValueToISO8601(formValue: string): string {
 export function ISO8601ToDatetimeLocalValue(iso: string): string {
   return Temporal.Instant.from(iso).toZonedDateTimeISO(DEFAULT_TIME_ZONE).toJSON().slice(0, 16);
 }
+
+export function formatDate(iso: string | null | undefined) {
+  if (!iso) return "N/A";
+
+  return Temporal.PlainDate.from(iso.slice(0, 10)).toLocaleString("en-GB");
+}
