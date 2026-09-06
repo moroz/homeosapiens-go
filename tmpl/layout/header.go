@@ -85,9 +85,12 @@ func mobileNav(ctx *types.CustomContext) Node {
 		Class("z-10 not-mobile:hidden"),
 		hamburgerTrigger(),
 		Nav(
-			Class("hamburger-menu pt-20"),
+			Class("hamburger-menu pt-[65px]"),
 			// Fake header for shadow
-			Div(Class("absolute top-0 right-0 left-0 h-20 border-b bg-white shadow")),
+			Div(
+				Class("absolute top-0 right-0 left-0 h-[65px] bg-white shadow"),
+				Div(Class("absolute inset-x-0 bottom-0 h-0.5 brand-rule")),
+			),
 			Ul(
 				Class("hamburger-items my-4 space-y-1"),
 				HamburgerItem("/", l.MustLocalizeMessage(&i18n.Message{
@@ -106,13 +109,42 @@ func mobileNav(ctx *types.CustomContext) Node {
 					ID: "header.nav.my_products",
 				})),
 			),
+			If(ctx.User == nil, Ul(
+				Class("hamburger-items space-y-1 border-t border-slate-200 pt-1"),
+				HamburgerItem("/sign-in", l.MustLocalizeMessage(&i18n.Message{
+					ID: "header.nav.sign_in",
+				})),
+			)),
+			Iff(ctx.User != nil, func() Node {
+				title := ctx.User.GivenName.Plaintext() + " " + ctx.User.FamilyName.Plaintext()
+
+				return Ul(
+					Class("hamburger-items space-y-1 border-t border-slate-200 pt-1"),
+					Li(
+						Class("flex h-12 w-full items-center justify-center gap-2 text-center text-lg font-semibold text-primary"),
+						components.Avatar(ctx.User),
+						Text(title),
+					),
+					HamburgerItem("/profile", l.MustLocalizeMessage(&i18n.Message{
+						ID: "header.user_dropdown.profile",
+					})),
+					Li(
+						components.SignOutButton(
+							Class("flex h-12 w-full items-center justify-center text-center text-lg font-semibold text-primary hover:bg-brand-50"),
+							Text(l.MustLocalizeMessage(&i18n.Message{
+								ID: "header.user_dropdown.sign_out",
+							})),
+						),
+					),
+				)
+			}),
 		),
 	)
 }
 
 func AppHeader(ctx *types.CustomContext) Node {
 	return Header(
-		Class("fixed inset-0 z-20 h-20 bg-white shadow-sm font-heading"),
+		Class("fixed inset-0 z-20 h-20 mobile:h-[65px] bg-white shadow-sm font-heading"),
 		Div(Class("container mx-auto flex h-full items-center mobile:px-2 justify-between"),
 			H1(
 				Class("z-20"),

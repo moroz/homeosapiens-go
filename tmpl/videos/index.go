@@ -111,7 +111,7 @@ func VideoGroupList(ctx *types.CustomContext, videoGroups []*types.VideoGroupLis
 func Index(ctx *types.CustomContext, videoGroups []*types.VideoGroupListDTO, activeGroup *types.VideoGroupDetailsDTO) Node {
 	return layout.BareLayout(ctx, "Videos",
 		Div(
-			Class("card mx-auto grid grid-cols-[1fr_3fr] gap-8 lg:w-7xl mt-6 desktop:pl-4"),
+			Class("card mx-auto grid grid-cols-[1fr_3fr] mobile:grid-cols-1 gap-8 mobile:gap-6 lg:w-7xl mt-6 desktop:pl-4 mobile:px-4"),
 			VideoGroupList(ctx, videoGroups, activeGroup),
 			Main(
 				Iff(activeGroup != nil, func() Node {
