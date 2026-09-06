@@ -2,6 +2,7 @@ package videos
 
 import (
 	"fmt"
+	stdhtml "html"
 	"strings"
 
 	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
@@ -49,11 +50,23 @@ func Youtube(ctx *types.CustomContext, videos []*types.VideoListDTO) Node {
 						),
 						Footer(
 							Class("video-card-body"),
+							Iff(video.RecordedOn != nil, func() Node {
+								return Time(
+									Class("video-card-date"),
+									DateTime(video.RecordedOn.Format("2006-01-02")),
+									Text(helpers.FormatDate(*video.RecordedOn, ctx.Language)),
+								)
+							}),
 							H4(Class("video-card-title text-lg"), helpers.RenderMarkdown(title)),
 							Iff(len(video.Hosts) != 0, func() Node {
 								names := make([]string, len(video.Hosts))
 								for i, h := range video.Hosts {
-									names[i] = fmt.Sprintf("%s&nbsp;%s", h.GivenName, h.FamilyName)
+									salutation := strings.TrimSpace(helpers.TranslateSalutation(l, h.Salutation))
+									if salutation != "" {
+										salutation += "&nbsp;"
+									}
+									names[i] = fmt.Sprintf("%s%s&nbsp;%s", salutation,
+										stdhtml.EscapeString(h.GivenName), stdhtml.EscapeString(h.FamilyName))
 								}
 
 								return P(

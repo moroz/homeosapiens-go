@@ -64,6 +64,9 @@
       "salutation": {
         "dr": {
           "other": "dr"
+        },
+        "prof": {
+          "other": "prof."
         }
       }
     },

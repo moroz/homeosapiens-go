@@ -271,6 +271,10 @@
     @apply leading-snug font-semibold text-slate-800;
   }
 
+  .video-card-date {
+    @apply -mb-2 text-sm text-slate-500 tabular-nums;
+  }
+
   .duration-badge {
     @apply absolute right-2 bottom-2 inline-block rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums;
   }

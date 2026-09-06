@@ -60,7 +60,8 @@
     },
     "hosts": {
       "salutation": {
-        "dr": "Dr."
+        "dr": "Dr.",
+        "prof": "Prof."
       }
     },
     "users": {
