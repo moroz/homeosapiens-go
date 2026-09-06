@@ -103,7 +103,8 @@ var SMTPPassword = RequireInProduction("SMTP_PASSWORD", "smtppassword")
 var SMTPSender = RequireInProduction("SMTP_SENDER", "Homeo sapiens <no-reply@homeosapiens.eu>")
 var SMTPReplyTo = RequireInProduction("SMTP_REPLY_TO", "Homeo sapiens <homeo.zoom@gmail.com>")
 
-const AssetCdnBaseUrl = "https://d3n1g0yg3ja4p3.cloudfront.net"
+var AssetCdnBaseUrl = RequireInProduction("ASSET_CDN_BASE_URL", "https://d3n1g0yg3ja4p3.cloudfront.net")
+
 const SessionCookieName = "_hs_session"
 
 const OAuth2SessionKey = "auth_state"
