@@ -799,7 +799,7 @@ func (q *Queries) SetVideoGroupProduct(ctx context.Context, arg *SetVideoGroupPr
 
 const updateVideo = `-- name: UpdateVideo :one
 update videos set title_en = $2, title_pl = $3, slug = $4, description_en = $5, description_pl = $6,
-  recorded_on = $7, is_public = $8, host_id = $9, updated_at = now()
+  recorded_on = $7, is_public = $8, host_id = $9, youtube_id = $10, updated_at = now()
 where id = $1
 returning id, provider, is_public, title_en, title_pl, slug, inserted_at, updated_at, duration_seconds, recorded_on, host_id, thumbnail_en_id, thumbnail_pl_id, youtube_id, description_pl, description_en
 `
@@ -814,6 +814,7 @@ type UpdateVideoParams struct {
 	RecordedOn    *time.Time
 	IsPublic      bool
 	HostID        *uuid.UUID
+	YoutubeID     *string
 }
 
 func (q *Queries) UpdateVideo(ctx context.Context, arg *UpdateVideoParams) (*Video, error) {
@@ -827,6 +828,7 @@ func (q *Queries) UpdateVideo(ctx context.Context, arg *UpdateVideoParams) (*Vid
 		arg.RecordedOn,
 		arg.IsPublic,
 		arg.HostID,
+		arg.YoutubeID,
 	)
 	var i Video
 	err := row.Scan(

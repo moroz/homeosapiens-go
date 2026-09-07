@@ -1,10 +1,12 @@
 import React from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useGetVideoQuery } from "~/hooks";
 import { AdminLayout } from "~/components/admin-layout";
 import { PageTitle } from "~/components/page-title";
 import { BackButton } from "~/components/back-button";
 import { DetailsTable, DetailsTableField as Field } from "~/components/ui/details-table";
+import { buttonVariants } from "~/components/ui/button";
+import { PencilIcon } from "@phosphor-icons/react";
 import Markdown from "react-markdown";
 import { formatDate } from "~/lib/time";
 
@@ -23,7 +25,13 @@ export const VideoDetails: React.FC<Props> = () => {
         <p>Not found</p>
       ) : (
         <div className=" grid gap-4">
-          <PageTitle subtitle="Video details">{video.titleEn}</PageTitle>
+          <div className="flex items-start justify-between">
+            <PageTitle subtitle="Video details">{video.titleEn}</PageTitle>
+            <Link to={`/videos/${video.id}/edit`} className={buttonVariants({ variant: "outline" })}>
+              <PencilIcon className="w-5" />
+              Edit
+            </Link>
+          </div>
           <DetailsTable>
             <Field label="ID" copy monospace>
               {video.id}

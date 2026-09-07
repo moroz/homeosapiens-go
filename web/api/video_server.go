@@ -120,6 +120,7 @@ func (s *videoServer) UpdateVideo(ctx context.Context, request UpdateVideoReques
 		RecordedOn:    p.RecordedOn,
 		IsPublic:      p.IsPublic,
 		HostID:        p.HostId,
+		YoutubeID:     p.YoutubeId,
 	})
 	if errors.Is(err, sql.ErrNoRows) {
 		return UpdateVideo404Response{}, nil

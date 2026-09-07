@@ -121,9 +121,11 @@ func (v *VideoGroupDetailsDTO) IsPremium() bool {
 	return v.VideoGroup.ProductID != nil
 }
 
-// UpdateVideoInput carries the editable fields of a video. Provider, youtube id,
-// duration and thumbnails are set by the import script and stay read-only here,
-// so an update replaces everything an admin is allowed to touch.
+// UpdateVideoInput carries the editable fields of a video. Provider, duration and
+// thumbnails are set by the import script and stay read-only here. YoutubeID is
+// only meaningful for youtube-provider videos; the DB's check constraint rejects
+// clearing it there or setting it on a cloudfront video, and the service maps that
+// into a validation error.
 type UpdateVideoInput struct {
 	TitleEn       string     `json:"titleEn"`
 	TitlePl       string     `json:"titlePl"`
@@ -133,6 +135,7 @@ type UpdateVideoInput struct {
 	RecordedOn    *time.Time `json:"recordedOn"`
 	IsPublic      bool       `json:"isPublic"`
 	HostID        *uuid.UUID `json:"hostId"`
+	YoutubeID     *string    `json:"youtubeId"`
 }
 
 func (p *UpdateVideoInput) Validate() error {

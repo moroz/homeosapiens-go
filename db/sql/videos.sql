@@ -124,6 +124,6 @@ select * from videos where id = $1;
 
 -- name: UpdateVideo :one
 update videos set title_en = $2, title_pl = $3, slug = $4, description_en = $5, description_pl = $6,
-  recorded_on = $7, is_public = $8, host_id = $9, updated_at = now()
+  recorded_on = $7, is_public = $8, host_id = $9, youtube_id = $10, updated_at = now()
 where id = $1
 returning *;

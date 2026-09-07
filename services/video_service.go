@@ -214,9 +214,10 @@ func (s *VideoService) ListYoutubeVideos(ctx context.Context) ([]*types.VideoLis
 	return result, nil
 }
 
-// UpdateVideo replaces the editable fields of a video. Slug collisions surface
-// as a validation error on the slug field rather than a 500, matching how blog
-// posts and video groups report the same conflict.
+// UpdateVideo replaces the editable fields of a video. Slug collisions and an
+// invalid youtubeId (blank on a youtube video, or set on a cloudfront one) surface
+// as a validation error on the offending field rather than a 500, matching how blog
+// posts and video groups report the same kind of conflict.
 func (s *VideoService) UpdateVideo(ctx context.Context, id uuid.UUID, params *types.UpdateVideoInput) (*queries.Video, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
@@ -232,10 +233,18 @@ func (s *VideoService) UpdateVideo(ctx context.Context, id uuid.UUID, params *ty
 		RecordedOn:    params.RecordedOn,
 		IsPublic:      params.IsPublic,
 		HostID:        params.HostID,
+		YoutubeID:     params.YoutubeID,
 	})
-	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" && pgErr.ConstraintName == "videos_slug_key" {
-		return nil, validation.Errors{
-			"slug": validation.NewError("unique", "has already been taken"),
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
+		if pgErr.Code == "23505" && pgErr.ConstraintName == "videos_slug_key" {
+			return nil, validation.Errors{
+				"slug": validation.NewError("unique", "has already been taken"),
+			}
+		}
+		if pgErr.Code == "23514" && pgErr.ConstraintName == "videos_youtube_id_must_be_set_for_yt_videos" {
+			return nil, validation.Errors{
+				"youtubeId": validation.NewError("required", "is required for YouTube videos"),
+			}
 		}
 	}
 	return video, err

@@ -1,8 +1,10 @@
 package services_test
 
 import (
+	"errors"
 	"testing"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
@@ -137,4 +139,69 @@ func TestVideoService_GetVideoGroupDetails_Paywall(t *testing.T) {
 	details, err = srv.GetVideoGroupDetails(ctx, user.ID, &group.Slug, nil)
 	require.NoError(t, err)
 	assert.True(t, details.HasAccess)
+}
+
+// The YouTube ID column is only meaningful for youtube-provider videos; the DB's
+// check constraint enforces that, and the service must turn a violation into a
+// field-level validation error instead of bubbling up a raw Postgres error.
+func TestVideoService_UpdateVideo_YoutubeId(t *testing.T) {
+	ctx := t.Context()
+	db, err := initDB(ctx)
+	require.NoError(t, err)
+
+	srv := services.NewVideoService(db)
+
+	baseParams := func(v *queries.Video) *types.UpdateVideoInput {
+		return &types.UpdateVideoInput{
+			TitleEn: v.TitleEn,
+			TitlePl: v.TitlePl,
+			Slug:    v.Slug,
+		}
+	}
+
+	t.Run("leaves youtube_id nil on a cloudfront video", func(t *testing.T) {
+		video, err := mocks.Video(db, ctx)
+		require.NoError(t, err)
+		require.Equal(t, queries.VideoProviderCloudfront, video.Provider)
+
+		updated, err := srv.UpdateVideo(ctx, video.ID, baseParams(video))
+		require.NoError(t, err)
+		assert.Nil(t, updated.YoutubeID)
+	})
+
+	t.Run("updates youtube_id on a youtube video", func(t *testing.T) {
+		// mocks.Video / InsertVideo have no youtube_id column, so a youtube
+		// video fixture needs a raw insert. The slug is randomized so reruns
+		// against a persistent test DB don't collide with a leftover row.
+		var videoID uuid.UUID
+		err := db.QueryRow(
+			ctx,
+			`insert into videos (provider, title_en, title_pl, slug, youtube_id)
+			 values ('youtube', 'YT video', 'Wideo YT', $1, 'oldId12345') returning id`,
+			"yt-video-"+uuid.NewString(),
+		).Scan(&videoID)
+		require.NoError(t, err)
+
+		video, err := queries.New(db).GetVideoById(ctx, videoID)
+		require.NoError(t, err)
+
+		params := baseParams(video)
+		newID := "newId67890"
+		params.YoutubeID = &newID
+
+		updated, err := srv.UpdateVideo(ctx, video.ID, params)
+		require.NoError(t, err)
+		require.NotNil(t, updated.YoutubeID)
+		assert.Equal(t, newID, *updated.YoutubeID)
+
+		t.Run("rejects clearing youtube_id", func(t *testing.T) {
+			params := baseParams(video)
+			params.YoutubeID = nil
+
+			_, err := srv.UpdateVideo(ctx, video.ID, params)
+			verrs, ok := errors.AsType[validation.Errors](err)
+			require.True(t, ok, "expected validation.Errors, got %v", err)
+			assert.Error(t, verrs["youtubeId"])
+		})
+	})
 }

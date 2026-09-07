@@ -15,6 +15,7 @@ import { formatInstant } from "~/lib/time";
 import { FormFields } from "./form-fields";
 import {
   formatDuration,
+  sourceLabel,
   toDateInputValue,
   toUpdateVideoInput,
   type VideoFormValues,
@@ -35,6 +36,7 @@ export const EditVideo: React.FC<Props> = () => {
       recordedOn: "",
       isPublic: false,
       hostId: "",
+      youtubeId: "",
     },
   });
   const mutation = useUpdateVideoMutation();
@@ -53,6 +55,7 @@ export const EditVideo: React.FC<Props> = () => {
       recordedOn: toDateInputValue(video.recordedOn),
       isPublic: video.isPublic,
       hostId: video.hostId ?? "",
+      youtubeId: video.youtubeId ?? "",
     });
   }, [video, isPending, form]);
 
@@ -96,7 +99,7 @@ export const EditVideo: React.FC<Props> = () => {
               </Notification>
             ) : null}
 
-            <FormFields />
+            <FormFields provider={video.provider} />
 
             <div className="flex gap-2">
               <Button type="submit" disabled={mutation.isPending}>
@@ -104,20 +107,33 @@ export const EditVideo: React.FC<Props> = () => {
               </Button>
             </div>
 
-            {/* Owned by the import script, shown so the record can be matched
-                against its source without leaving the page. */}
+            {/* Owned by the import script (aside from the YouTube ID, editable
+                above), shown so the record can be matched against its source
+                without leaving the page. */}
             <section className="grid max-w-2xl gap-2">
-              <h3 className="text-lg font-semibold">Source</h3>
+              <h3 className="text-lg font-semibold">Metadata</h3>
               <DetailsTable>
                 <Field label="Provider">{video.provider}</Field>
-                <Field label="YouTube ID" copy>
-                  {video.youtubeId}
-                </Field>
                 <Field label="Duration">{formatDuration(video.durationSeconds)}</Field>
                 <Field label="Created at">{formatInstant(video.insertedAt)}</Field>
                 <Field label="Updated at">{formatInstant(video.updatedAt)}</Field>
               </DetailsTable>
             </section>
+
+            {/* video_sources rows, distinct from the metadata above: this is
+                what the player actually streams from. */}
+            {video.provider === "cloudfront" && (video.sources ?? []).length > 0 ? (
+              <section className="grid max-w-2xl gap-2">
+                <h3 className="text-lg font-semibold">Sources</h3>
+                <DetailsTable>
+                  {(video.sources ?? []).map((source) => (
+                    <Field key={source.id} label={sourceLabel(source.contentType)} copy monospace>
+                      {source.objectKey}
+                    </Field>
+                  ))}
+                </DetailsTable>
+              </section>
+            ) : null}
           </form>
         </FormProvider>
       )}

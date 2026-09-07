@@ -7,10 +7,14 @@ import { Field } from "~/components/ui/field";
 import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
-import { useListHostsQuery } from "~/hooks";
-import type { VideoFormValues } from "./interfaces";
+import { useListHostsQuery, type VideoProvider } from "~/hooks";
+import { parseYoutubeId, type VideoFormValues } from "./interfaces";
 
-export const FormFields: React.FC = () => {
+interface Props {
+  provider: VideoProvider;
+}
+
+export const FormFields: React.FC<Props> = ({ provider }) => {
   const {
     formState: { errors },
     register,
@@ -53,6 +57,18 @@ export const FormFields: React.FC = () => {
         />
         <InputField label="Recorded on" type="date" errors={errors} {...register("recordedOn")} />
       </InputGroup>
+
+      {provider === "youtube" ? (
+        <InputGroup className="max-w-2xl">
+          <InputField
+            label="YouTube ID"
+            className="font-mono"
+            placeholder="Paste a YouTube URL or video ID"
+            errors={errors}
+            {...register("youtubeId", { required: "Required", setValueAs: parseYoutubeId })}
+          />
+        </InputGroup>
+      ) : null}
 
       <InputGroup className="max-w-2xl">
         <Select

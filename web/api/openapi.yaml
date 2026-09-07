@@ -1451,7 +1451,7 @@ components:
             youtubeId:
               type: string
               nullable: true
-              description: Read-only, set by the import script.
+              description: The video's YouTube ID. Editable for youtube-provider videos.
             durationSeconds:
               type: integer
               format: int32
@@ -1495,8 +1495,10 @@ components:
     UpdateVideoInput:
       type: object
       description: >
-        Editable fields of a video. Provider, youtube id, duration and
-        thumbnails are owned by the import script and cannot be changed here.
+        Editable fields of a video. Provider, duration and thumbnails are
+        owned by the import script and cannot be changed here. youtubeId is
+        only meaningful for youtube-provider videos; the server rejects
+        clearing it on those or setting it on a cloudfront video.
       required: [titleEn, titlePl, slug, isPublic]
       properties:
         titleEn:
@@ -1520,6 +1522,9 @@ components:
         hostId:
           type: string
           format: uuid
+          nullable: true
+        youtubeId:
+          type: string
           nullable: true
 
     Event:

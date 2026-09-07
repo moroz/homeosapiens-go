@@ -737,7 +737,7 @@ export interface components {
             descriptionEn?: string | null;
             /** Format: uuid */
             hostId?: string | null;
-            /** @description Read-only, set by the import script. */
+            /** @description The video's YouTube ID. Editable for youtube-provider videos. */
             youtubeId?: string | null;
             /**
              * Format: int32
@@ -764,7 +764,7 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
         };
-        /** @description Editable fields of a video. Provider, youtube id, duration and thumbnails are owned by the import script and cannot be changed here. */
+        /** @description Editable fields of a video. Provider, duration and thumbnails are owned by the import script and cannot be changed here. youtubeId is only meaningful for youtube-provider videos; the server rejects clearing it on those or setting it on a cloudfront video. */
         UpdateVideoInput: {
             titleEn: string;
             titlePl: string;
@@ -776,6 +776,7 @@ export interface components {
             isPublic: boolean;
             /** Format: uuid */
             hostId?: string | null;
+            youtubeId?: string | null;
         };
         Event: {
             /** Format: uuid */
