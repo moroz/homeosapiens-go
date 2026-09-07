@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"net/netip"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -11,6 +12,15 @@ import (
 	"github.com/moroz/homeosapiens-go/types"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
+
+// formatIP renders a nullable IP column as the string the API reports.
+func formatIP(ip *netip.Addr) *string {
+	if ip == nil {
+		return nil
+	}
+	s := ip.String()
+	return &s
+}
 
 type userServer struct {
 	db *pgxpool.Pool
@@ -49,6 +59,8 @@ func (s *userServer) ListUsers(ctx context.Context, params ListUsersRequestObjec
 			PreferredLocale:  string(e.PreferredLocale),
 			Role:             UserRole(e.UserRole),
 			ProfilePicture:   e.ProfilePicture,
+			LastLoginAt:      e.LastLoginAt,
+			LastLoginIp:      formatIP(e.LastLoginIp),
 		}
 	}
 
@@ -125,6 +137,8 @@ func (s *userServer) GetUser(ctx context.Context, params GetUserRequestObject) (
 		PreferredLocale:    string(user.PreferredLocale),
 		ProfilePicture:     user.ProfilePicture,
 		Role:               UserDetailsRole(user.UserRole),
+		LastLoginAt:        user.LastLoginAt,
+		LastLoginIp:        formatIP(user.LastLoginIp),
 		ProductAccess:      productAccess,
 		EventRegistrations: eventRegistrations,
 	}, nil

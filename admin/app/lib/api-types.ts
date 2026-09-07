@@ -674,6 +674,10 @@ export interface components {
             insertedAt: string;
             /** Format: uri */
             profilePicture?: string;
+            /** Format: date-time */
+            lastLoginAt?: string | null;
+            /** @description The IP address the user last signed in from. */
+            lastLoginIp?: string | null;
         };
         UserDetails: components["schemas"]["User"] & {
             /** @description Products the user may access, whether bought, granted by an order, or imported. */

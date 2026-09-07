@@ -29,6 +29,12 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }) =>
       row.original.emailConfirmedAt ? formatInstant(row.original.emailConfirmedAt) : "Not verified",
   },
+  {
+    header: "Last login",
+    accessorKey: "lastLoginAt",
+    cell: ({ row }) =>
+      row.original.lastLoginAt ? formatInstant(row.original.lastLoginAt) : "Never",
+  },
 ];
 
 export const Users: React.FC<Props> = () => {

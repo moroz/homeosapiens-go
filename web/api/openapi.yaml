@@ -1328,6 +1328,14 @@ components:
         profilePicture:
           type: string
           format: uri
+        lastLoginAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastLoginIp:
+          type: string
+          nullable: true
+          description: The IP address the user last signed in from.
 
     UserDetails:
       allOf:

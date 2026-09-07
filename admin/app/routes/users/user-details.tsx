@@ -55,6 +55,12 @@ export const UserDetails: React.FC<Props> = () => {
                 ? formatInstant(user.emailConfirmedAt)
                 : "Not verified"}
             </Field>
+            <Field label="Last login at">
+              {user.lastLoginAt ? formatInstant(user.lastLoginAt) : "Never"}
+            </Field>
+            <Field label="Last login IP" monospace copy>
+              {user.lastLoginIp}
+            </Field>
           </DetailsTable>
 
           <section className="grid gap-2">
