@@ -3,7 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/shopspring/decimal"
 )
@@ -23,7 +24,7 @@ func NewCartService(db queries.DBTX) *CartService {
 
 func (s *CartService) AddProductToCart(ctx context.Context, cartID *uuid.UUID, productID uuid.UUID) (*queries.CartLineItem, error) {
 	if cartID == nil {
-		cartID = new(uuid.Must(uuid.NewV7()))
+		cartID = new(uuid.NewV7())
 	}
 
 	item, err := queries.New(s.db).InsertCartLineItem(ctx, &queries.InsertCartLineItemParams{

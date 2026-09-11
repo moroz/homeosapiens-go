@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/google/uuid"
+	"uuid"
 )
 
 type CreateVideoGroupParams struct {

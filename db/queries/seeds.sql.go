@@ -9,8 +9,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"uuid"
 )
 
 const upsertAsset = `-- name: UpsertAsset :one

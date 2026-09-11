@@ -1,7 +1,8 @@
 package components
 
 import (
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "maragu.dev/gomponents"

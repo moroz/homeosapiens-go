@@ -3,7 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/types"
 )

@@ -9,8 +9,8 @@ import (
 	"context"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"uuid"
 )
 
 const countOrders = `-- name: CountOrders :one

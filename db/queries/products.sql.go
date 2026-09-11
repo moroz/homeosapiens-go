@@ -8,8 +8,8 @@ package queries
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"uuid"
 )
 
 const countProducts = `-- name: CountProducts :one

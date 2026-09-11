@@ -6,8 +6,9 @@ import (
 	"errors"
 	"fmt"
 
+	"uuid"
+
 	"github.com/bincyber/go-sqlcrypter"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/db/queries"

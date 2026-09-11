@@ -8,9 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"uuid"
+
 	"github.com/alexedwards/argon2id"
 	"github.com/bincyber/go-sqlcrypter"
-	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/crypto"

@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/moroz/homeosapiens-go/db/queries"

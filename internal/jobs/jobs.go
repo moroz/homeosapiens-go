@@ -1,6 +1,6 @@
 package jobs
 
-import "github.com/google/uuid"
+import "uuid"
 
 type OrderEmailType int
 

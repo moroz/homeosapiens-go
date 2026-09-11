@@ -11,7 +11,7 @@ import (
 	"time"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
-	"github.com/google/uuid"
+	"uuid"
 )
 
 const countUsers = `-- name: CountUsers :one

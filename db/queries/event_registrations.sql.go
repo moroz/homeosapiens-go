@@ -10,7 +10,7 @@ import (
 	"time"
 
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
-	"github.com/google/uuid"
+	"uuid"
 )
 
 const claimEventRegistrationsForReminder1h = `-- name: ClaimEventRegistrationsForReminder1h :many

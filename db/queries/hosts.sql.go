@@ -8,7 +8,7 @@ package queries
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 const countHosts = `-- name: CountHosts :one
