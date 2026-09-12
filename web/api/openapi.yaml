@@ -907,6 +907,29 @@ paths:
         "404":
           description: No order found with this ID.
 
+  /assets:
+    post:
+      operationId: uploadAsset
+      summary: Uploads a file
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadAssetInput"
+      responses:
+        "201":
+          description: "Asset successfully uploaded"
+          content:
+            applications/json:
+              schema:
+                $ref: "#/components/schemas/AssetDetails"
+        "422":
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrors"
+
 components:
   parameters:
     PageParam:
@@ -2022,3 +2045,26 @@ components:
         body:
           type: string
           nullable: true
+
+    UploadAssetInput:
+      type: object
+      required: [file, filename]
+      properties:
+        file:
+          type: string
+          format: binary
+
+    AssetDetails:
+      type: object
+      required: [id, objectKey, insertedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        objectKey:
+          type: string
+        originalFilename:
+          type: string
+        insertedAt:
+          type: string
+          format: date-time

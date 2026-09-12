@@ -26,6 +26,7 @@ type Server struct {
 	*orderServer
 	*hostServer
 	*videoServer
+	*assetServer
 	q  *queries.Queries
 	db queries.DBTX
 }
@@ -40,6 +41,7 @@ func NewServer(db *pgxpool.Pool) *Server {
 		orderServer:      NewOrderServer(db),
 		hostServer:       NewHostServer(db),
 		videoServer:      NewVideoServer(db),
+		assetServer:      NewAssetServer(db),
 		q:                queries.New(db),
 		db:               db,
 	}

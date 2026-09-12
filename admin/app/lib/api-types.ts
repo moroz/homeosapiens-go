@@ -471,6 +471,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Uploads a file */
+        post: operations["uploadAsset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -997,6 +1014,18 @@ export interface components {
             slug: string;
             language: string;
             body?: string | null;
+        };
+        UploadAssetInput: {
+            /** Format: binary */
+            file: string;
+        };
+        AssetDetails: {
+            /** Format: uuid */
+            id: string;
+            objectKey: string;
+            originalFilename?: string;
+            /** Format: date-time */
+            insertedAt: string;
         };
     };
     responses: never;
@@ -2203,6 +2232,39 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    uploadAsset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["UploadAssetInput"];
+            };
+        };
+        responses: {
+            /** @description Asset successfully uploaded */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "applications/json": components["schemas"]["AssetDetails"];
+                };
+            };
+            /** @description Validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrors"];
+                };
             };
         };
     };

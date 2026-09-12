@@ -11,6 +11,29 @@ import (
 	"uuid"
 )
 
+const insertAsset = `-- name: InsertAsset :one
+insert into assets (object_key, original_filename) values ($1, $2) returning id, object_key, original_filename, inserted_at, updated_at, scaled
+`
+
+type InsertAssetParams struct {
+	ObjectKey        *string
+	OriginalFilename *string
+}
+
+func (q *Queries) InsertAsset(ctx context.Context, arg *InsertAssetParams) (*Asset, error) {
+	row := q.db.QueryRow(ctx, insertAsset, arg.ObjectKey, arg.OriginalFilename)
+	var i Asset
+	err := row.Scan(
+		&i.ID,
+		&i.ObjectKey,
+		&i.OriginalFilename,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+		&i.Scaled,
+	)
+	return &i, err
+}
+
 const listAssetsByIDs = `-- name: ListAssetsByIDs :many
 select id, object_key, original_filename, inserted_at, updated_at, scaled from assets where id = any($1::uuid[]) order by id
 `
