@@ -1005,11 +1005,11 @@ components:
       properties:
         data:
           type: array
-          items: 
+          items:
             $ref: "#/components/schemas/EventAttendant"
         pagination:
           $ref: "#/components/schemas/Pagination"
-      
+
     PaginatedOrders:
       type: object
       required: [data, pagination]
@@ -1115,7 +1115,15 @@ components:
     OrderLineItem:
       type: object
       description: One purchased product, with the title and price frozen at checkout time.
-      required: [id, productId, productTitle, productPrice, productPriceCurrency, quantity]
+      required:
+        [
+          id,
+          productId,
+          productTitle,
+          productPrice,
+          productPriceCurrency,
+          quantity,
+        ]
       properties:
         id:
           type: string
@@ -1155,7 +1163,17 @@ components:
     Product:
       type: object
       description: A sellable item. Events, books and video groups all point at a product for their pricing.
-      required: [id, productType, titlePl, titleEn, basePrice, basePriceCurrency, insertedAt, updatedAt]
+      required:
+        [
+          id,
+          productType,
+          titlePl,
+          titleEn,
+          basePrice,
+          basePriceCurrency,
+          insertedAt,
+          updatedAt,
+        ]
       properties:
         id:
           type: string
@@ -1201,7 +1219,17 @@ components:
     VideoGroup:
       type: object
       description: A series of videos. A group with a price is only watchable by users who bought it.
-      required: [id, slug, titlePl, titleEn, isPremium, videoCount, insertedAt, updatedAt]
+      required:
+        [
+          id,
+          slug,
+          titlePl,
+          titleEn,
+          isPremium,
+          videoCount,
+          insertedAt,
+          updatedAt,
+        ]
       properties:
         id:
           type: string
@@ -1300,7 +1328,8 @@ components:
 
     User:
       type: object
-      required: [id, email, givenName, familyName, role, preferredLocale, insertedAt]
+      required:
+        [id, email, givenName, familyName, role, preferredLocale, insertedAt]
       properties:
         id:
           type: string
@@ -1387,7 +1416,8 @@ components:
 
     UserEventRegistration:
       type: object
-      required: [eventId, slug, titlePl, titleEn, startsAt, endsAt, registeredAt]
+      required:
+        [eventId, slug, titlePl, titleEn, startsAt, endsAt, registeredAt]
       properties:
         eventId:
           type: string
@@ -1537,7 +1567,19 @@ components:
 
     Event:
       type: object
-      required: [id, slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, insertedAt, updatedAt]
+      required:
+        [
+          id,
+          slug,
+          titlePl,
+          titleEn,
+          eventType,
+          isVirtual,
+          startsAt,
+          endsAt,
+          insertedAt,
+          updatedAt,
+        ]
       properties:
         id:
           type: string
@@ -1679,7 +1721,17 @@ components:
     EventInput:
       type: object
       description: Editable fields of an event, used for both create and update. Server-managed fields (id, insertedAt, updatedAt) are ignored.
-      required: [slug, titlePl, titleEn, eventType, isVirtual, startsAt, endsAt, hostIds]
+      required:
+        [
+          slug,
+          titlePl,
+          titleEn,
+          eventType,
+          isVirtual,
+          startsAt,
+          endsAt,
+          hostIds,
+        ]
       properties:
         slug:
           type: string
