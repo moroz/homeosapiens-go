@@ -4,8 +4,9 @@ import (
 	"errors"
 	"testing"
 
+	"uuid"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
@@ -178,7 +179,7 @@ func TestVideoService_UpdateVideo_YoutubeId(t *testing.T) {
 			ctx,
 			`insert into videos (provider, title_en, title_pl, slug, youtube_id)
 			 values ('youtube', 'YT video', 'Wideo YT', $1, 'oldId12345') returning id`,
-			"yt-video-"+uuid.NewString(),
+			"yt-video-"+uuid.New().String(),
 		).Scan(&videoID)
 		require.NoError(t, err)
 

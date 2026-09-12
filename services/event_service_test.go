@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"uuid"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
@@ -291,7 +292,7 @@ func TestEventService_UpdateEvent(t *testing.T) {
 
 		for name, hostIds := range map[string][]uuid.UUID{
 			"duplicate": {host.ID, host.ID},
-			"unknown":   {uuid.Must(uuid.NewV7())},
+			"unknown":   {uuid.NewV7()},
 		} {
 			t.Run(name, func(t *testing.T) {
 				_, err := srv.UpdateEvent(ctx, event.ID, &types.PatchEventInput{

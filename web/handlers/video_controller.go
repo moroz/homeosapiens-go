@@ -12,9 +12,10 @@ import (
 	"net/http"
 	"sync"
 
+	"uuid"
+
 	_ "golang.org/x/image/webp"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"

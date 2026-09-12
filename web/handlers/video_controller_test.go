@@ -6,7 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services/mocks"
@@ -54,7 +55,7 @@ func TestVideoController_Show_Paywall(t *testing.T) {
 
 	const objectKey = "videos/secret-master.m3u8"
 	_, err = queries.New(db).UpsertVideoSource(ctx, &queries.UpsertVideoSourceParams{
-		ID:          uuid.Must(uuid.NewV7()),
+		ID:          uuid.NewV7(),
 		VideoID:     video.ID,
 		ContentType: "application/x-mpegURL",
 		ObjectKey:   objectKey,

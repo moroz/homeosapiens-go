@@ -11,7 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -268,7 +269,7 @@ func TestEventServer_GetEvent(t *testing.T) {
 	})
 
 	t.Run("returns 404 for an unknown id", func(t *testing.T) {
-		assert.IsType(t, api.GetEvent404Response{}, get(uuid.Must(uuid.NewV7())))
+		assert.IsType(t, api.GetEvent404Response{}, get(uuid.NewV7()))
 	})
 }
 
@@ -624,7 +625,7 @@ func TestEventServer_UpdateEvent(t *testing.T) {
 			"negative price":     {types.PatchEventInput{Price: types.Some(decimal.NewFromInt(-1))}, "price"},
 			"bad currency":       {types.PatchEventInput{Currency: types.Some("USD")}, "currency"},
 			"duplicate hostIds":  {types.PatchEventInput{HostIds: types.Some([]uuid.UUID{other.ID, other.ID})}, "hostIds"},
-			"unknown host":       {types.PatchEventInput{HostIds: types.Some([]uuid.UUID{uuid.Must(uuid.NewV7())})}, "hostIds"},
+			"unknown host":       {types.PatchEventInput{HostIds: types.Some([]uuid.UUID{uuid.NewV7()})}, "hostIds"},
 			"price without cur.": {types.PatchEventInput{Price: types.Some(decimal.NewFromInt(250))}, "currency"},
 			"blank venue name":   {types.PatchEventInput{VenueNameEn: types.Some("  ")}, "venueNameEn"},
 			"bad country code":   {types.PatchEventInput{VenueCountryCode: types.Some("POL")}, "venueCountryCode"},
@@ -641,7 +642,7 @@ func TestEventServer_UpdateEvent(t *testing.T) {
 	})
 
 	t.Run("returns 404 for an unknown id", func(t *testing.T) {
-		resp := update(t, uuid.Must(uuid.NewV7()), &types.PatchEventInput{
+		resp := update(t, uuid.NewV7(), &types.PatchEventInput{
 			TitleEn: types.Some("Does not matter"),
 		})
 		assert.IsType(t, api.UpdateEvent404Response{}, resp)
@@ -709,7 +710,7 @@ func TestEventServer_PublishEvent(t *testing.T) {
 	})
 
 	t.Run("returns 404 for an unknown id", func(t *testing.T) {
-		assert.IsType(t, api.PublishEvent404Response{}, publish(t, uuid.Must(uuid.NewV7())))
+		assert.IsType(t, api.PublishEvent404Response{}, publish(t, uuid.NewV7()))
 	})
 }
 
@@ -781,7 +782,7 @@ func TestEventServer_UnpublishEvent(t *testing.T) {
 	})
 
 	t.Run("returns 404 for an unknown id", func(t *testing.T) {
-		assert.IsType(t, api.UnpublishEvent404Response{}, unpublish(t, uuid.Must(uuid.NewV7())))
+		assert.IsType(t, api.UnpublishEvent404Response{}, unpublish(t, uuid.NewV7()))
 	})
 }
 
@@ -868,7 +869,7 @@ func TestEventServer_DeleteEvent(t *testing.T) {
 	})
 
 	t.Run("returns 404 for an unknown id", func(t *testing.T) {
-		assert.IsType(t, api.DeleteEvent404Response{}, del(t, uuid.Must(uuid.NewV7())))
+		assert.IsType(t, api.DeleteEvent404Response{}, del(t, uuid.NewV7()))
 	})
 
 	t.Run("a second delete of the same event is a 404", func(t *testing.T) {
@@ -928,7 +929,7 @@ func TestEventServer_HTTP(t *testing.T) {
 	})
 
 	t.Run("GET /events/{id} with an unknown id", func(t *testing.T) {
-		resp, err := http.Get(fmt.Sprintf("%s/events/%s", server.URL, uuid.Must(uuid.NewV7())))
+		resp, err := http.Get(fmt.Sprintf("%s/events/%s", server.URL, uuid.NewV7()))
 		require.NoError(t, err)
 		defer resp.Body.Close()
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode)

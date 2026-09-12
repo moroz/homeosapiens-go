@@ -5,8 +5,9 @@ import (
 	"errors"
 	"testing"
 
+	"uuid"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
@@ -107,7 +108,7 @@ func TestBlogService_PublishBlogPost(t *testing.T) {
 	})
 
 	t.Run("returns sql.ErrNoRows for an unknown ID", func(t *testing.T) {
-		_, err := srv.PublishBlogPost(ctx, uuid.Must(uuid.NewV7()))
+		_, err := srv.PublishBlogPost(ctx, uuid.NewV7())
 		assert.ErrorIs(t, err, sql.ErrNoRows)
 	})
 }
@@ -147,7 +148,7 @@ func TestBlogService_UnpublishBlogPost(t *testing.T) {
 	})
 
 	t.Run("returns sql.ErrNoRows for an unknown ID", func(t *testing.T) {
-		_, err := srv.UnpublishBlogPost(ctx, uuid.Must(uuid.NewV7()))
+		_, err := srv.UnpublishBlogPost(ctx, uuid.NewV7())
 		assert.ErrorIs(t, err, sql.ErrNoRows)
 	})
 }

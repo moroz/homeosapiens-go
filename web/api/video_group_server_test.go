@@ -3,7 +3,8 @@ package api_test
 import (
 	"testing"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services/mocks"
 	"github.com/moroz/homeosapiens-go/types"

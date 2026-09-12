@@ -1,8 +1,9 @@
 package orders
 
 import (
+	"uuid"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/internal/countries"
 	"github.com/moroz/homeosapiens-go/internal/phone"
 	"github.com/moroz/homeosapiens-go/services"

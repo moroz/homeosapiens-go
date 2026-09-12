@@ -10,8 +10,9 @@ import (
 	"testing"
 	"time"
 
+	"uuid"
+
 	"github.com/PuerkitoBio/goquery"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -94,7 +95,7 @@ func TestCartFlow(t *testing.T) {
 	})
 
 	t.Run("cart view", func(t *testing.T) {
-		cartId := uuid.Must(uuid.NewV7())
+		cartId := uuid.NewV7()
 		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, paidEventId)
 		require.NoError(t, err)
 
@@ -144,7 +145,7 @@ func TestCartFlow(t *testing.T) {
 	})
 
 	t.Run("placing order creates an order and a user", func(t *testing.T) {
-		cartId := uuid.Must(uuid.NewV7())
+		cartId := uuid.NewV7()
 		_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, paidEventId)
 		require.NoError(t, err)
 
@@ -227,7 +228,7 @@ func TestCartRejectsEndedEvents(t *testing.T) {
 	})
 
 	t.Run("POST /orders refuses a cart holding an event that has ended", func(t *testing.T) {
-		cartId := uuid.Must(uuid.NewV7())
+		cartId := uuid.NewV7()
 		_, err = db.Exec(ctx, "insert into cart_line_items (cart_id, product_id) select $1, e.product_id from events e where e.id = $2", cartId, endedEvent.ID)
 		require.NoError(t, err)
 

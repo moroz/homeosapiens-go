@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"uuid"
+
 	sqlcrypter "github.com/bincyber/go-sqlcrypter"
-	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	projI18n "github.com/moroz/homeosapiens-go/i18n"
 	emailtmpl "github.com/moroz/homeosapiens-go/tmpl/email"

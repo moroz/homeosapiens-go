@@ -9,7 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
-	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 type assetServer struct {
@@ -78,7 +77,7 @@ func (s *assetServer) UploadAsset(ctx context.Context, request UploadAssetReques
 	}
 
 	return UploadAsset201JSONResponse{
-		Id:               openapi_types.UUID(asset.ID),
+		Id:               asset.ID,
 		InsertedAt:       asset.InsertedAt,
 		ObjectKey:        *asset.ObjectKey,
 		OriginalFilename: asset.OriginalFilename,

@@ -3,7 +3,7 @@ package types
 import (
 	"encoding/gob"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 func init() {

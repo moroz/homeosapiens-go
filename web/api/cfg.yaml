@@ -10,3 +10,11 @@ generate:
   std-http-server: true
   strict-server: true
   embedded-spec: true
+output-options:
+  type-mapping:
+    string:
+      formats:
+        uuid:
+          type: uuid.UUID
+additional-imports:
+  - package: uuid

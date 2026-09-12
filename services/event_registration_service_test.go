@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"uuid"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/google/uuid"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/services/mocks"
@@ -84,7 +85,7 @@ func TestEventRegistrationService_AdminCreateEventRegistration(t *testing.T) {
 		require.NoError(t, err)
 
 		_, err = srv.AdminCreateEventRegistration(ctx, &types.EnrollStudentForEventInput{
-			EventID: uuid.Must(uuid.NewV7()),
+			EventID: uuid.NewV7(),
 			UserID:  user.ID,
 		})
 		assert.Error(t, err)
@@ -96,7 +97,7 @@ func TestEventRegistrationService_AdminCreateEventRegistration(t *testing.T) {
 
 		_, err = srv.AdminCreateEventRegistration(ctx, &types.EnrollStudentForEventInput{
 			EventID: event.ID,
-			UserID:  uuid.Must(uuid.NewV7()),
+			UserID:  uuid.NewV7(),
 		})
 		assert.Error(t, err)
 	})

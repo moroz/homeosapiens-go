@@ -4,7 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/internal/jobs"
 	"github.com/moroz/homeosapiens-go/services"
@@ -40,7 +41,7 @@ func TestOrderService_CreateOrder(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	cartId := uuid.Must(uuid.NewV7())
+	cartId := uuid.NewV7()
 	_, err = db.Exec(ctx, "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartId, product.ID)
 	require.NoError(t, err)
 
@@ -116,7 +117,7 @@ func TestOrderService_MarkOrderPaidByCheckoutSessionID(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	cartId := uuid.Must(uuid.NewV7())
+	cartId := uuid.NewV7()
 	_, err = db.Exec(t.Context(), "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartId, product.ID)
 	require.NoError(t, err)
 

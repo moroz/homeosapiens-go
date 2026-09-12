@@ -6,7 +6,8 @@ import (
 	"encoding/hex"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/homeosapiens-go/config"
 	"github.com/moroz/homeosapiens-go/db/queries"
@@ -66,7 +67,7 @@ func Product(db queries.DBTX, ctx context.Context, overrides ...func(params *que
 
 func Host(db queries.DBTX, ctx context.Context, overrides ...func(params *queries.UpsertHostParams)) (*queries.Host, error) {
 	params := &queries.UpsertHostParams{
-		ID:         uuid.Must(uuid.NewV7()),
+		ID:         uuid.NewV7(),
 		GivenName:  "Jane",
 		FamilyName: "Doe",
 	}
@@ -83,7 +84,7 @@ func Event(db queries.DBTX, ctx context.Context, overrides ...func(params *queri
 	_, _ = rand.Read(unique)
 
 	params := &queries.UpsertEventParams{
-		ID:            uuid.Must(uuid.NewV7()),
+		ID:            uuid.NewV7(),
 		EventType:     queries.EventTypeSeminar,
 		TitleEn:       "Some event",
 		TitlePl:       "Some event",
@@ -187,7 +188,7 @@ func EventRegistration(db queries.DBTX, ctx context.Context, event *queries.Even
 // Cart creates cart line items for a fresh cart and returns its id. Pass the
 // product ids the cart should contain (one line item each, quantity 1).
 func Cart(db queries.DBTX, ctx context.Context, productIDs ...uuid.UUID) (uuid.UUID, error) {
-	cartID := uuid.Must(uuid.NewV7())
+	cartID := uuid.NewV7()
 	for _, pid := range productIDs {
 		_, err := db.Exec(ctx, "insert into cart_line_items (cart_id, product_id) values ($1, $2)", cartID, pid)
 		if err != nil {

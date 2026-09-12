@@ -15,9 +15,10 @@ import (
 	"net/http"
 	"os"
 
+	"uuid"
+
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
@@ -121,7 +122,7 @@ func processAndUpload(ctx context.Context, client *s3.Client, key string) (strin
 		return "", fmt.Errorf("encode: %w", err)
 	}
 
-	newKey := fmt.Sprintf("portraits/%s.jpg", uuid.Must(uuid.NewV7()))
+	newKey := fmt.Sprintf("portraits/%s.jpg", uuid.NewV7())
 	b := bucket
 	ct := "image/jpeg"
 	cc := "public, max-age=31536000, immutable"

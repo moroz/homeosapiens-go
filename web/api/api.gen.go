@@ -20,6 +20,8 @@ import (
 	"strings"
 	"time"
 
+	"uuid"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/types"
@@ -86,17 +88,17 @@ func (e UserDetailsRole) Valid() bool {
 
 // AssetDetails defines model for AssetDetails.
 type AssetDetails struct {
-	Id               openapi_types.UUID `json:"id"`
-	InsertedAt       time.Time          `json:"insertedAt"`
-	ObjectKey        string             `json:"objectKey"`
-	OriginalFilename *string            `json:"originalFilename,omitempty"`
+	Id               uuid.UUID `json:"id"`
+	InsertedAt       time.Time `json:"insertedAt"`
+	ObjectKey        string    `json:"objectKey"`
+	OriginalFilename *string   `json:"originalFilename,omitempty"`
 }
 
 // BlogPost defines model for BlogPost.
 type BlogPost struct {
-	Body       *string            `json:"body,omitempty"`
-	Id         openapi_types.UUID `json:"id"`
-	InsertedAt time.Time          `json:"insertedAt"`
+	Body       *string   `json:"body,omitempty"`
+	Id         uuid.UUID `json:"id"`
+	InsertedAt time.Time `json:"insertedAt"`
 
 	// Language Locale code, e.g. pl or en
 	Language    string     `json:"language"`
@@ -119,12 +121,12 @@ type EnrollStudentForEventInput = types.EnrollStudentForEventInput
 
 // Event defines model for Event.
 type Event struct {
-	EndsAt     time.Time          `json:"endsAt"`
-	EventType  string             `json:"eventType"`
-	Hosts      *string            `json:"hosts,omitempty"`
-	Id         openapi_types.UUID `json:"id"`
-	InsertedAt time.Time          `json:"insertedAt"`
-	IsVirtual  bool               `json:"isVirtual"`
+	EndsAt     time.Time `json:"endsAt"`
+	EventType  string    `json:"eventType"`
+	Hosts      *string   `json:"hosts,omitempty"`
+	Id         uuid.UUID `json:"id"`
+	InsertedAt time.Time `json:"insertedAt"`
+	IsVirtual  bool      `json:"isVirtual"`
 
 	// MeetingUrl Join link for a virtual meeting, sent out with registration confirmations and reminders.
 	MeetingUrl *string `json:"meetingUrl,omitempty"`
@@ -146,25 +148,25 @@ type EventAttendant struct {
 	Email       openapi_types.Email `json:"email"`
 	FamilyName  string              `json:"familyName"`
 	GivenName   string              `json:"givenName"`
-	Id          openapi_types.UUID  `json:"id"`
+	Id          uuid.UUID           `json:"id"`
 	InsertedAt  time.Time           `json:"insertedAt"`
-	OrderId     *openapi_types.UUID `json:"orderId,omitempty"`
+	OrderId     *uuid.UUID          `json:"orderId,omitempty"`
 	OrderNumber *string             `json:"orderNumber,omitempty"`
 }
 
 // EventDetails defines model for EventDetails.
 type EventDetails struct {
 	// Currency Currency code. Null when free.
-	Currency      *string            `json:"currency,omitempty"`
-	DescriptionEn *string            `json:"descriptionEn,omitempty"`
-	DescriptionPl *string            `json:"descriptionPl,omitempty"`
-	EndsAt        time.Time          `json:"endsAt"`
-	EventType     string             `json:"eventType"`
-	Hosts         []Host             `json:"hosts"`
-	Id            openapi_types.UUID `json:"id"`
-	InsertedAt    time.Time          `json:"insertedAt"`
-	IsFree        bool               `json:"isFree"`
-	IsVirtual     bool               `json:"isVirtual"`
+	Currency      *string   `json:"currency,omitempty"`
+	DescriptionEn *string   `json:"descriptionEn,omitempty"`
+	DescriptionPl *string   `json:"descriptionPl,omitempty"`
+	EndsAt        time.Time `json:"endsAt"`
+	EventType     string    `json:"eventType"`
+	Hosts         []Host    `json:"hosts"`
+	Id            uuid.UUID `json:"id"`
+	InsertedAt    time.Time `json:"insertedAt"`
+	IsFree        bool      `json:"isFree"`
+	IsVirtual     bool      `json:"isVirtual"`
 
 	// MeetingUrl Join link for a virtual meeting, sent out with registration confirmations and reminders.
 	MeetingUrl *string `json:"meetingUrl,omitempty"`
@@ -203,8 +205,8 @@ type EventInput struct {
 	EventType     string    `json:"eventType"`
 
 	// HostIds IDs of hosts associated with the event.
-	HostIds   []openapi_types.UUID `json:"hostIds"`
-	IsVirtual bool                 `json:"isVirtual"`
+	HostIds   []uuid.UUID `json:"hostIds"`
+	IsVirtual bool        `json:"isVirtual"`
 
 	// MeetingUrl Join link for a virtual meeting, sent out with registration confirmations and reminders.
 	MeetingUrl *string `json:"meetingUrl,omitempty"`
@@ -230,10 +232,10 @@ type EventInput struct {
 
 // EventRegistration An EventRegistration represents an enrolment of a user for an event.
 type EventRegistration struct {
-	EventId    openapi_types.UUID `json:"eventId"`
-	Id         openapi_types.UUID `json:"id"`
-	InsertedAt time.Time          `json:"insertedAt"`
-	UserId     openapi_types.UUID `json:"userId"`
+	EventId    uuid.UUID `json:"eventId"`
+	Id         uuid.UUID `json:"id"`
+	InsertedAt time.Time `json:"insertedAt"`
+	UserId     uuid.UUID `json:"userId"`
 }
 
 // Health defines model for Health.
@@ -245,10 +247,10 @@ type Health struct {
 // Host defines model for Host.
 type Host struct {
 	// Country ISO 3166-1 alpha-2 country code
-	Country    *string            `json:"country,omitempty"`
-	FamilyName string             `json:"familyName"`
-	GivenName  string             `json:"givenName"`
-	Id         openapi_types.UUID `json:"id"`
+	Country    *string   `json:"country,omitempty"`
+	FamilyName string    `json:"familyName"`
+	GivenName  string    `json:"givenName"`
+	Id         uuid.UUID `json:"id"`
 
 	// Salutation i18n message key, e.g. common.hosts.salutation.dr
 	Salutation *string `json:"salutation,omitempty"`
@@ -271,7 +273,7 @@ type ListEligibleUsersForEventRow struct {
 	Enrolled   bool                `json:"enrolled"`
 	FamilyName string              `json:"familyName"`
 	GivenName  string              `json:"givenName"`
-	Id         openapi_types.UUID  `json:"id"`
+	Id         uuid.UUID           `json:"id"`
 }
 
 // Order A single purchase. Line items are omitted from the list representation.
@@ -290,9 +292,9 @@ type Order struct {
 	GivenName string `json:"givenName"`
 
 	// GrandTotal Decimal total string, e.g. "199.00".
-	GrandTotal string             `json:"grandTotal"`
-	Id         openapi_types.UUID `json:"id"`
-	InsertedAt time.Time          `json:"insertedAt"`
+	GrandTotal string    `json:"grandTotal"`
+	Id         uuid.UUID `json:"id"`
+	InsertedAt time.Time `json:"insertedAt"`
 
 	// OrderNumber Human-facing order number, generated by the database.
 	OrderNumber string     `json:"orderNumber"`
@@ -321,10 +323,10 @@ type OrderDetails struct {
 	GivenName string `json:"givenName"`
 
 	// GrandTotal Decimal total string, e.g. "199.00".
-	GrandTotal string             `json:"grandTotal"`
-	Id         openapi_types.UUID `json:"id"`
-	InsertedAt time.Time          `json:"insertedAt"`
-	LineItems  []OrderLineItem    `json:"lineItems"`
+	GrandTotal string          `json:"grandTotal"`
+	Id         uuid.UUID       `json:"id"`
+	InsertedAt time.Time       `json:"insertedAt"`
+	LineItems  []OrderLineItem `json:"lineItems"`
 
 	// OrderNumber Human-facing order number, generated by the database.
 	OrderNumber string     `json:"orderNumber"`
@@ -336,16 +338,16 @@ type OrderDetails struct {
 	PreferredLocale string `json:"preferredLocale"`
 
 	// Status Derived from the timestamps on the order: cancelled wins over paid, and an order with neither timestamp is still awaiting payment.
-	Status                  OrderStatus        `json:"status"`
-	StripeCheckoutSessionId *string            `json:"stripeCheckoutSessionId,omitempty"`
-	TaxId                   *string            `json:"taxId,omitempty"`
-	UserId                  openapi_types.UUID `json:"userId"`
+	Status                  OrderStatus `json:"status"`
+	StripeCheckoutSessionId *string     `json:"stripeCheckoutSessionId,omitempty"`
+	TaxId                   *string     `json:"taxId,omitempty"`
+	UserId                  uuid.UUID   `json:"userId"`
 }
 
 // OrderLineItem One purchased product, with the title and price frozen at checkout time.
 type OrderLineItem struct {
-	Id        openapi_types.UUID `json:"id"`
-	ProductId openapi_types.UUID `json:"productId"`
+	Id        uuid.UUID `json:"id"`
+	ProductId uuid.UUID `json:"productId"`
 
 	// ProductPrice Decimal unit price string, e.g. "199.00".
 	ProductPrice         string `json:"productPrice"`
@@ -445,9 +447,9 @@ type Product struct {
 	BasePrice string `json:"basePrice"`
 
 	// BasePriceCurrency Currency code, e.g. "PLN".
-	BasePriceCurrency string             `json:"basePriceCurrency"`
-	Id                openapi_types.UUID `json:"id"`
-	InsertedAt        time.Time          `json:"insertedAt"`
+	BasePriceCurrency string    `json:"basePriceCurrency"`
+	Id                uuid.UUID `json:"id"`
+	InsertedAt        time.Time `json:"insertedAt"`
 
 	// ProductType The kind of resource a product grants access to.
 	ProductType ProductType `json:"productType"`
@@ -469,15 +471,15 @@ type UpdateBlogPostInput struct {
 
 // UpdateVideoInput Editable fields of a video. Provider, duration and thumbnails are owned by the import script and cannot be changed here. youtubeId is only meaningful for youtube-provider videos; the server rejects clearing it on those or setting it on a cloudfront video.
 type UpdateVideoInput struct {
-	DescriptionEn *string             `json:"descriptionEn,omitempty"`
-	DescriptionPl *string             `json:"descriptionPl,omitempty"`
-	HostId        *openapi_types.UUID `json:"hostId,omitempty"`
-	IsPublic      bool                `json:"isPublic"`
-	RecordedOn    *time.Time          `json:"recordedOn,omitempty"`
-	Slug          string              `json:"slug"`
-	TitleEn       string              `json:"titleEn"`
-	TitlePl       string              `json:"titlePl"`
-	YoutubeId     *string             `json:"youtubeId,omitempty"`
+	DescriptionEn *string    `json:"descriptionEn,omitempty"`
+	DescriptionPl *string    `json:"descriptionPl,omitempty"`
+	HostId        *uuid.UUID `json:"hostId,omitempty"`
+	IsPublic      bool       `json:"isPublic"`
+	RecordedOn    *time.Time `json:"recordedOn,omitempty"`
+	Slug          string     `json:"slug"`
+	TitleEn       string     `json:"titleEn"`
+	TitlePl       string     `json:"titlePl"`
+	YoutubeId     *string    `json:"youtubeId,omitempty"`
 }
 
 // UploadAssetInput defines model for UploadAssetInput.
@@ -491,7 +493,7 @@ type User struct {
 	EmailConfirmedAt *time.Time          `json:"emailConfirmedAt,omitempty"`
 	FamilyName       string              `json:"familyName"`
 	GivenName        string              `json:"givenName"`
-	Id               openapi_types.UUID  `json:"id"`
+	Id               uuid.UUID           `json:"id"`
 	InsertedAt       time.Time           `json:"insertedAt"`
 	LastLoginAt      *time.Time          `json:"lastLoginAt,omitempty"`
 
@@ -516,7 +518,7 @@ type UserDetails struct {
 	EventRegistrations []UserEventRegistration `json:"eventRegistrations"`
 	FamilyName         string                  `json:"familyName"`
 	GivenName          string                  `json:"givenName"`
-	Id                 openapi_types.UUID      `json:"id"`
+	Id                 uuid.UUID               `json:"id"`
 	InsertedAt         time.Time               `json:"insertedAt"`
 	LastLoginAt        *time.Time              `json:"lastLoginAt,omitempty"`
 
@@ -537,13 +539,13 @@ type UserDetailsRole string
 
 // UserEventRegistration defines model for UserEventRegistration.
 type UserEventRegistration struct {
-	EndsAt       time.Time          `json:"endsAt"`
-	EventId      openapi_types.UUID `json:"eventId"`
-	RegisteredAt time.Time          `json:"registeredAt"`
-	Slug         string             `json:"slug"`
-	StartsAt     time.Time          `json:"startsAt"`
-	TitleEn      string             `json:"titleEn"`
-	TitlePl      string             `json:"titlePl"`
+	EndsAt       time.Time `json:"endsAt"`
+	EventId      uuid.UUID `json:"eventId"`
+	RegisteredAt time.Time `json:"registeredAt"`
+	Slug         string    `json:"slug"`
+	StartsAt     time.Time `json:"startsAt"`
+	TitleEn      string    `json:"titleEn"`
+	TitlePl      string    `json:"titlePl"`
 }
 
 // UserProductAccess defines model for UserProductAccess.
@@ -554,11 +556,11 @@ type UserProductAccess struct {
 	GrantedByName *string `json:"grantedByName,omitempty"`
 
 	// GrantedByUserId The administrator who granted the access by hand. Null for purchases and imports.
-	GrantedByUserId *openapi_types.UUID `json:"grantedByUserId,omitempty"`
+	GrantedByUserId *uuid.UUID `json:"grantedByUserId,omitempty"`
 
 	// OrderId The order that granted the access. Null when granted by hand or by an import.
-	OrderId   *openapi_types.UUID `json:"orderId,omitempty"`
-	ProductId openapi_types.UUID  `json:"productId"`
+	OrderId   *uuid.UUID `json:"orderId,omitempty"`
+	ProductId uuid.UUID  `json:"productId"`
 
 	// ProductType The kind of resource a product grants access to.
 	ProductType ProductType `json:"productType"`
@@ -573,7 +575,7 @@ type ValidationErrors struct {
 
 // Video defines model for Video.
 type Video struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 
 	// IsPublic Whether the video is watchable outside of a paid playlist.
 	IsPublic bool `json:"isPublic"`
@@ -592,10 +594,10 @@ type VideoDetails struct {
 	DescriptionPl *string `json:"descriptionPl,omitempty"`
 
 	// DurationSeconds Read-only, set by the import script.
-	DurationSeconds *int32              `json:"durationSeconds,omitempty"`
-	HostId          *openapi_types.UUID `json:"hostId,omitempty"`
-	Id              openapi_types.UUID  `json:"id"`
-	InsertedAt      time.Time           `json:"insertedAt"`
+	DurationSeconds *int32     `json:"durationSeconds,omitempty"`
+	HostId          *uuid.UUID `json:"hostId,omitempty"`
+	Id              uuid.UUID  `json:"id"`
+	InsertedAt      time.Time  `json:"insertedAt"`
 
 	// IsPublic Whether the video is watchable outside of a paid playlist.
 	IsPublic bool `json:"isPublic"`
@@ -616,9 +618,9 @@ type VideoDetails struct {
 // VideoGroup A series of videos. A group with a price is only watchable by users who bought it.
 type VideoGroup struct {
 	// Currency Currency code. Null when the group is free.
-	Currency   *string            `json:"currency,omitempty"`
-	Id         openapi_types.UUID `json:"id"`
-	InsertedAt time.Time          `json:"insertedAt"`
+	Currency   *string   `json:"currency,omitempty"`
+	Id         uuid.UUID `json:"id"`
+	InsertedAt time.Time `json:"insertedAt"`
 
 	// IsPremium Whether the group is behind the paywall, i.e. has a product.
 	IsPremium bool `json:"isPremium"`
@@ -650,7 +652,7 @@ type VideoGroupPatch = types.PatchVideoGroupInput
 // VideoGroupVideosInput defines model for VideoGroupVideosInput.
 type VideoGroupVideosInput struct {
 	// VideoIds IDs of the videos in the group, in playback order. Replaces the existing set wholesale.
-	VideoIds []openapi_types.UUID `json:"videoIds"`
+	VideoIds []uuid.UUID `json:"videoIds"`
 }
 
 // VideoProvider Where the video is streamed from. Set by the import script.
@@ -658,13 +660,13 @@ type VideoProvider = queries.VideoProvider
 
 // VideoSource A video file or collection of files representing a remote URL that can be used to display a video in the browser.
 type VideoSource struct {
-	ContentType string             `json:"contentType"`
-	Id          openapi_types.UUID `json:"id"`
-	InsertedAt  time.Time          `json:"insertedAt"`
-	ObjectKey   *string            `json:"objectKey,omitempty"`
-	Priority    int                `json:"priority"`
-	UpdatedAt   *time.Time         `json:"updatedAt,omitempty"`
-	VideoId     openapi_types.UUID `json:"videoId"`
+	ContentType string     `json:"contentType"`
+	Id          uuid.UUID  `json:"id"`
+	InsertedAt  time.Time  `json:"insertedAt"`
+	ObjectKey   *string    `json:"objectKey,omitempty"`
+	Priority    int        `json:"priority"`
+	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
+	VideoId     uuid.UUID  `json:"videoId"`
 }
 
 // PageParam defines model for PageParam.
@@ -803,16 +805,16 @@ type ServerInterface interface {
 	CreateBlogPost(w http.ResponseWriter, r *http.Request)
 
 	// (GET /blog-posts/{id})
-	GetBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	GetBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 
 	// (PATCH /blog-posts/{id})
-	UpdateBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	UpdateBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 
 	// (POST /blog-posts/{id}/publish)
-	PublishBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	PublishBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 
 	// (POST /blog-posts/{id}/unpublish)
-	UnpublishBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	UnpublishBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// EnrollStudentForEvent Registers a user for an event
 	// (POST /event-registrations)
 	EnrollStudentForEvent(w http.ResponseWriter, r *http.Request)
@@ -824,25 +826,25 @@ type ServerInterface interface {
 	CreateEvent(w http.ResponseWriter, r *http.Request)
 	// DeleteEvent Delete an event
 	// (DELETE /events/{id})
-	DeleteEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	DeleteEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// GetEvent Get a single event by primary key
 	// (GET /events/{id})
-	GetEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	GetEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// UpdateEvent Update an event
 	// (PATCH /events/{id})
-	UpdateEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	UpdateEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// ListEventAttendants List users signed up for the event.
 	// (GET /events/{id}/attendants)
-	ListEventAttendants(w http.ResponseWriter, r *http.Request, id openapi_types.UUID, params ListEventAttendantsParams)
+	ListEventAttendants(w http.ResponseWriter, r *http.Request, id uuid.UUID, params ListEventAttendantsParams)
 	// ListEligibleUsersForEvent List users alongside enrolment status for an event
 	// (GET /events/{id}/eligible-users)
-	ListEligibleUsersForEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID, params ListEligibleUsersForEventParams)
+	ListEligibleUsersForEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID, params ListEligibleUsersForEventParams)
 	// PublishEvent Mark an event as published.
 	// (POST /events/{id}/publish)
-	PublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	PublishEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// UnpublishEvent Take an event off the public listing.
 	// (POST /events/{id}/unpublish)
-	UnpublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	UnpublishEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// GetHealth Liveness probe
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
@@ -854,19 +856,19 @@ type ServerInterface interface {
 	CreateHost(w http.ResponseWriter, r *http.Request)
 	// DeleteHost Delete a host
 	// (DELETE /hosts/{id})
-	DeleteHost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	DeleteHost(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// GetHost Get a single host by primary key
 	// (GET /hosts/{id})
-	GetHost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	GetHost(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// UpdateHost Update a host
 	// (PATCH /hosts/{id})
-	UpdateHost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	UpdateHost(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// ListOrders List orders
 	// (GET /orders)
 	ListOrders(w http.ResponseWriter, r *http.Request, params ListOrdersParams)
 	// GetOrder Get a single order by primary key
 	// (GET /orders/{id})
-	GetOrder(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	GetOrder(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// ListProducts List products
 	// (GET /products)
 	ListProducts(w http.ResponseWriter, r *http.Request, params ListProductsParams)
@@ -878,7 +880,7 @@ type ServerInterface interface {
 	ListUsers(w http.ResponseWriter, r *http.Request, params ListUsersParams)
 	// GetUser Get user data
 	// (GET /users/{id})
-	GetUser(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	GetUser(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// ListVideoGroups List video groups
 	// (GET /video-groups)
 	ListVideoGroups(w http.ResponseWriter, r *http.Request, params ListVideoGroupsParams)
@@ -887,25 +889,25 @@ type ServerInterface interface {
 	CreateVideoGroup(w http.ResponseWriter, r *http.Request)
 	// GetVideoGroup Get a single video group by primary key
 	// (GET /video-groups/{id})
-	GetVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	GetVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// UpdateVideoGroup Update a video group
 	// (PATCH /video-groups/{id})
-	UpdateVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	UpdateVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// ListVideosInVideoGroup List the videos of a group, in playback order
 	// (GET /video-groups/{id}/videos)
-	ListVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	ListVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// ReplaceVideosInVideoGroup Replace the videos of a group
 	// (PUT /video-groups/{id}/videos)
-	ReplaceVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	ReplaceVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// ListVideos List videos
 	// (GET /videos)
 	ListVideos(w http.ResponseWriter, r *http.Request, params ListVideosParams)
 	// GetVideo Get a single video by primary key
 	// (GET /videos/{id})
-	GetVideo(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	GetVideo(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 	// UpdateVideo Update a video
 	// (PATCH /videos/{id})
-	UpdateVideo(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	UpdateVideo(w http.ResponseWriter, r *http.Request, id uuid.UUID)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -966,7 +968,7 @@ func (siw *ServerInterfaceWrapper) GetBlogPost(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -992,7 +994,7 @@ func (siw *ServerInterfaceWrapper) UpdateBlogPost(w http.ResponseWriter, r *http
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1018,7 +1020,7 @@ func (siw *ServerInterfaceWrapper) PublishBlogPost(w http.ResponseWriter, r *htt
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1044,7 +1046,7 @@ func (siw *ServerInterfaceWrapper) UnpublishBlogPost(w http.ResponseWriter, r *h
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1144,7 +1146,7 @@ func (siw *ServerInterfaceWrapper) DeleteEvent(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1170,7 +1172,7 @@ func (siw *ServerInterfaceWrapper) GetEvent(w http.ResponseWriter, r *http.Reque
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1196,7 +1198,7 @@ func (siw *ServerInterfaceWrapper) UpdateEvent(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1222,7 +1224,7 @@ func (siw *ServerInterfaceWrapper) ListEventAttendants(w http.ResponseWriter, r 
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1277,7 +1279,7 @@ func (siw *ServerInterfaceWrapper) ListEligibleUsersForEvent(w http.ResponseWrit
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1319,7 +1321,7 @@ func (siw *ServerInterfaceWrapper) PublishEvent(w http.ResponseWriter, r *http.R
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1345,7 +1347,7 @@ func (siw *ServerInterfaceWrapper) UnpublishEvent(w http.ResponseWriter, r *http
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1445,7 +1447,7 @@ func (siw *ServerInterfaceWrapper) DeleteHost(w http.ResponseWriter, r *http.Req
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1471,7 +1473,7 @@ func (siw *ServerInterfaceWrapper) GetHost(w http.ResponseWriter, r *http.Reques
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1497,7 +1499,7 @@ func (siw *ServerInterfaceWrapper) UpdateHost(w http.ResponseWriter, r *http.Req
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1569,7 +1571,7 @@ func (siw *ServerInterfaceWrapper) GetOrder(w http.ResponseWriter, r *http.Reque
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1714,7 +1716,7 @@ func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Reques
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1800,7 +1802,7 @@ func (siw *ServerInterfaceWrapper) GetVideoGroup(w http.ResponseWriter, r *http.
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1826,7 +1828,7 @@ func (siw *ServerInterfaceWrapper) UpdateVideoGroup(w http.ResponseWriter, r *ht
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1852,7 +1854,7 @@ func (siw *ServerInterfaceWrapper) ListVideosInVideoGroup(w http.ResponseWriter,
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1878,7 +1880,7 @@ func (siw *ServerInterfaceWrapper) ReplaceVideosInVideoGroup(w http.ResponseWrit
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1950,7 +1952,7 @@ func (siw *ServerInterfaceWrapper) GetVideo(w http.ResponseWriter, r *http.Reque
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -1976,7 +1978,7 @@ func (siw *ServerInterfaceWrapper) UpdateVideo(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id uuid.UUID
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: true})
 	if err != nil {
@@ -2261,7 +2263,7 @@ func (response CreateBlogPost422JSONResponse) VisitCreateBlogPostResponse(w http
 }
 
 type GetBlogPostRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type GetBlogPostResponseObject interface {
@@ -2291,7 +2293,7 @@ func (response GetBlogPost404Response) VisitGetBlogPostResponse(w http.ResponseW
 }
 
 type UpdateBlogPostRequestObject struct {
-	Id   openapi_types.UUID `json:"id"`
+	Id   uuid.UUID `json:"id"`
 	Body *UpdateBlogPostJSONRequestBody
 }
 
@@ -2336,7 +2338,7 @@ func (response UpdateBlogPost422JSONResponse) VisitUpdateBlogPostResponse(w http
 }
 
 type PublishBlogPostRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type PublishBlogPostResponseObject interface {
@@ -2374,7 +2376,7 @@ func (response PublishBlogPost422JSONResponse) VisitPublishBlogPostResponse(w ht
 }
 
 type UnpublishBlogPostRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type UnpublishBlogPostResponseObject interface {
@@ -2524,7 +2526,7 @@ func (response CreateEvent422JSONResponse) VisitCreateEventResponse(w http.Respo
 }
 
 type DeleteEventRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type DeleteEventResponseObject interface {
@@ -2562,7 +2564,7 @@ func (response DeleteEvent409JSONResponse) VisitDeleteEventResponse(w http.Respo
 }
 
 type GetEventRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type GetEventResponseObject interface {
@@ -2592,7 +2594,7 @@ func (response GetEvent404Response) VisitGetEventResponse(w http.ResponseWriter)
 }
 
 type UpdateEventRequestObject struct {
-	Id   openapi_types.UUID `json:"id"`
+	Id   uuid.UUID `json:"id"`
 	Body *UpdateEventJSONRequestBody
 }
 
@@ -2637,7 +2639,7 @@ func (response UpdateEvent422JSONResponse) VisitUpdateEventResponse(w http.Respo
 }
 
 type ListEventAttendantsRequestObject struct {
-	Id     openapi_types.UUID `json:"id"`
+	Id     uuid.UUID `json:"id"`
 	Params ListEventAttendantsParams
 }
 
@@ -2668,7 +2670,7 @@ func (response ListEventAttendants404Response) VisitListEventAttendantsResponse(
 }
 
 type ListEligibleUsersForEventRequestObject struct {
-	Id     openapi_types.UUID `json:"id"`
+	Id     uuid.UUID `json:"id"`
 	Params ListEligibleUsersForEventParams
 }
 
@@ -2691,7 +2693,7 @@ func (response ListEligibleUsersForEvent200JSONResponse) VisitListEligibleUsersF
 }
 
 type PublishEventRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type PublishEventResponseObject interface {
@@ -2729,7 +2731,7 @@ func (response PublishEvent422JSONResponse) VisitPublishEventResponse(w http.Res
 }
 
 type UnpublishEventRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type UnpublishEventResponseObject interface {
@@ -2842,7 +2844,7 @@ func (response CreateHost422JSONResponse) VisitCreateHostResponse(w http.Respons
 }
 
 type DeleteHostRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type DeleteHostResponseObject interface {
@@ -2874,7 +2876,7 @@ func (response DeleteHost409Response) VisitDeleteHostResponse(w http.ResponseWri
 }
 
 type GetHostRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type GetHostResponseObject interface {
@@ -2904,7 +2906,7 @@ func (response GetHost404Response) VisitGetHostResponse(w http.ResponseWriter) e
 }
 
 type UpdateHostRequestObject struct {
-	Id   openapi_types.UUID `json:"id"`
+	Id   uuid.UUID `json:"id"`
 	Body *UpdateHostJSONRequestBody
 }
 
@@ -2971,7 +2973,7 @@ func (response ListOrders200JSONResponse) VisitListOrdersResponse(w http.Respons
 }
 
 type GetOrderRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type GetOrderResponseObject interface {
@@ -3074,7 +3076,7 @@ func (response ListUsers200JSONResponse) VisitListUsersResponse(w http.ResponseW
 }
 
 type GetUserRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type GetUserResponseObject interface {
@@ -3172,7 +3174,7 @@ func (response CreateVideoGroup422JSONResponse) VisitCreateVideoGroupResponse(w 
 }
 
 type GetVideoGroupRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type GetVideoGroupResponseObject interface {
@@ -3202,7 +3204,7 @@ func (response GetVideoGroup404Response) VisitGetVideoGroupResponse(w http.Respo
 }
 
 type UpdateVideoGroupRequestObject struct {
-	Id   openapi_types.UUID `json:"id"`
+	Id   uuid.UUID `json:"id"`
 	Body *UpdateVideoGroupJSONRequestBody
 }
 
@@ -3247,7 +3249,7 @@ func (response UpdateVideoGroup422JSONResponse) VisitUpdateVideoGroupResponse(w 
 }
 
 type ListVideosInVideoGroupRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type ListVideosInVideoGroupResponseObject interface {
@@ -3277,7 +3279,7 @@ func (response ListVideosInVideoGroup404Response) VisitListVideosInVideoGroupRes
 }
 
 type ReplaceVideosInVideoGroupRequestObject struct {
-	Id   openapi_types.UUID `json:"id"`
+	Id   uuid.UUID `json:"id"`
 	Body *ReplaceVideosInVideoGroupJSONRequestBody
 }
 
@@ -3344,7 +3346,7 @@ func (response ListVideos200JSONResponse) VisitListVideosResponse(w http.Respons
 }
 
 type GetVideoRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id uuid.UUID `json:"id"`
 }
 
 type GetVideoResponseObject interface {
@@ -3374,7 +3376,7 @@ func (response GetVideo404Response) VisitGetVideoResponse(w http.ResponseWriter)
 }
 
 type UpdateVideoRequestObject struct {
-	Id   openapi_types.UUID `json:"id"`
+	Id   uuid.UUID `json:"id"`
 	Body *UpdateVideoJSONRequestBody
 }
 
@@ -3662,7 +3664,7 @@ func (sh *strictHandler) CreateBlogPost(w http.ResponseWriter, r *http.Request) 
 }
 
 // GetBlogPost operation middleware
-func (sh *strictHandler) GetBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) GetBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request GetBlogPostRequestObject
 
 	request.Id = id
@@ -3688,7 +3690,7 @@ func (sh *strictHandler) GetBlogPost(w http.ResponseWriter, r *http.Request, id 
 }
 
 // UpdateBlogPost operation middleware
-func (sh *strictHandler) UpdateBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) UpdateBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request UpdateBlogPostRequestObject
 
 	request.Id = id
@@ -3721,7 +3723,7 @@ func (sh *strictHandler) UpdateBlogPost(w http.ResponseWriter, r *http.Request, 
 }
 
 // PublishBlogPost operation middleware
-func (sh *strictHandler) PublishBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) PublishBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request PublishBlogPostRequestObject
 
 	request.Id = id
@@ -3747,7 +3749,7 @@ func (sh *strictHandler) PublishBlogPost(w http.ResponseWriter, r *http.Request,
 }
 
 // UnpublishBlogPost operation middleware
-func (sh *strictHandler) UnpublishBlogPost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) UnpublishBlogPost(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request UnpublishBlogPostRequestObject
 
 	request.Id = id
@@ -3861,7 +3863,7 @@ func (sh *strictHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteEvent operation middleware
-func (sh *strictHandler) DeleteEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) DeleteEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request DeleteEventRequestObject
 
 	request.Id = id
@@ -3887,7 +3889,7 @@ func (sh *strictHandler) DeleteEvent(w http.ResponseWriter, r *http.Request, id 
 }
 
 // GetEvent operation middleware
-func (sh *strictHandler) GetEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) GetEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request GetEventRequestObject
 
 	request.Id = id
@@ -3913,7 +3915,7 @@ func (sh *strictHandler) GetEvent(w http.ResponseWriter, r *http.Request, id ope
 }
 
 // UpdateEvent operation middleware
-func (sh *strictHandler) UpdateEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) UpdateEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request UpdateEventRequestObject
 
 	request.Id = id
@@ -3946,7 +3948,7 @@ func (sh *strictHandler) UpdateEvent(w http.ResponseWriter, r *http.Request, id 
 }
 
 // ListEventAttendants operation middleware
-func (sh *strictHandler) ListEventAttendants(w http.ResponseWriter, r *http.Request, id openapi_types.UUID, params ListEventAttendantsParams) {
+func (sh *strictHandler) ListEventAttendants(w http.ResponseWriter, r *http.Request, id uuid.UUID, params ListEventAttendantsParams) {
 	var request ListEventAttendantsRequestObject
 
 	request.Id = id
@@ -3973,7 +3975,7 @@ func (sh *strictHandler) ListEventAttendants(w http.ResponseWriter, r *http.Requ
 }
 
 // ListEligibleUsersForEvent operation middleware
-func (sh *strictHandler) ListEligibleUsersForEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID, params ListEligibleUsersForEventParams) {
+func (sh *strictHandler) ListEligibleUsersForEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID, params ListEligibleUsersForEventParams) {
 	var request ListEligibleUsersForEventRequestObject
 
 	request.Id = id
@@ -4000,7 +4002,7 @@ func (sh *strictHandler) ListEligibleUsersForEvent(w http.ResponseWriter, r *htt
 }
 
 // PublishEvent operation middleware
-func (sh *strictHandler) PublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) PublishEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request PublishEventRequestObject
 
 	request.Id = id
@@ -4026,7 +4028,7 @@ func (sh *strictHandler) PublishEvent(w http.ResponseWriter, r *http.Request, id
 }
 
 // UnpublishEvent operation middleware
-func (sh *strictHandler) UnpublishEvent(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) UnpublishEvent(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request UnpublishEventRequestObject
 
 	request.Id = id
@@ -4133,7 +4135,7 @@ func (sh *strictHandler) CreateHost(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteHost operation middleware
-func (sh *strictHandler) DeleteHost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) DeleteHost(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request DeleteHostRequestObject
 
 	request.Id = id
@@ -4159,7 +4161,7 @@ func (sh *strictHandler) DeleteHost(w http.ResponseWriter, r *http.Request, id o
 }
 
 // GetHost operation middleware
-func (sh *strictHandler) GetHost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) GetHost(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request GetHostRequestObject
 
 	request.Id = id
@@ -4185,7 +4187,7 @@ func (sh *strictHandler) GetHost(w http.ResponseWriter, r *http.Request, id open
 }
 
 // UpdateHost operation middleware
-func (sh *strictHandler) UpdateHost(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) UpdateHost(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request UpdateHostRequestObject
 
 	request.Id = id
@@ -4244,7 +4246,7 @@ func (sh *strictHandler) ListOrders(w http.ResponseWriter, r *http.Request, para
 }
 
 // GetOrder operation middleware
-func (sh *strictHandler) GetOrder(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) GetOrder(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request GetOrderRequestObject
 
 	request.Id = id
@@ -4346,7 +4348,7 @@ func (sh *strictHandler) ListUsers(w http.ResponseWriter, r *http.Request, param
 }
 
 // GetUser operation middleware
-func (sh *strictHandler) GetUser(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) GetUser(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request GetUserRequestObject
 
 	request.Id = id
@@ -4429,7 +4431,7 @@ func (sh *strictHandler) CreateVideoGroup(w http.ResponseWriter, r *http.Request
 }
 
 // GetVideoGroup operation middleware
-func (sh *strictHandler) GetVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) GetVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request GetVideoGroupRequestObject
 
 	request.Id = id
@@ -4455,7 +4457,7 @@ func (sh *strictHandler) GetVideoGroup(w http.ResponseWriter, r *http.Request, i
 }
 
 // UpdateVideoGroup operation middleware
-func (sh *strictHandler) UpdateVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) UpdateVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request UpdateVideoGroupRequestObject
 
 	request.Id = id
@@ -4488,7 +4490,7 @@ func (sh *strictHandler) UpdateVideoGroup(w http.ResponseWriter, r *http.Request
 }
 
 // ListVideosInVideoGroup operation middleware
-func (sh *strictHandler) ListVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) ListVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request ListVideosInVideoGroupRequestObject
 
 	request.Id = id
@@ -4514,7 +4516,7 @@ func (sh *strictHandler) ListVideosInVideoGroup(w http.ResponseWriter, r *http.R
 }
 
 // ReplaceVideosInVideoGroup operation middleware
-func (sh *strictHandler) ReplaceVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) ReplaceVideosInVideoGroup(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request ReplaceVideosInVideoGroupRequestObject
 
 	request.Id = id
@@ -4573,7 +4575,7 @@ func (sh *strictHandler) ListVideos(w http.ResponseWriter, r *http.Request, para
 }
 
 // GetVideo operation middleware
-func (sh *strictHandler) GetVideo(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) GetVideo(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request GetVideoRequestObject
 
 	request.Id = id
@@ -4599,7 +4601,7 @@ func (sh *strictHandler) GetVideo(w http.ResponseWriter, r *http.Request, id ope
 }
 
 // UpdateVideo operation middleware
-func (sh *strictHandler) UpdateVideo(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (sh *strictHandler) UpdateVideo(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	var request UpdateVideoRequestObject
 
 	request.Id = id
