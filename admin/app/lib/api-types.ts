@@ -2254,7 +2254,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "applications/json": components["schemas"]["AssetDetails"];
+                    "application/json": components["schemas"]["AssetDetails"];
                 };
             };
             /** @description Validation failed. */

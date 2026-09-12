@@ -104,6 +104,7 @@ var SMTPSender = RequireInProduction("SMTP_SENDER", "Homeo sapiens <no-reply@hom
 var SMTPReplyTo = RequireInProduction("SMTP_REPLY_TO", "Homeo sapiens <homeo.zoom@gmail.com>")
 
 var AssetCdnBaseUrl = RequireInProduction("ASSET_CDN_BASE_URL", "https://d3n1g0yg3ja4p3.cloudfront.net")
+var AssetBucketName = RequireInProduction("ASSET_BUCKET_NAME", "homeosapiens-staging-assets")
 
 const SessionCookieName = "_hs_session"
 

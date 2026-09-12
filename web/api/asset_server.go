@@ -6,15 +6,17 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"github.com/moroz/homeosapiens-go/db/queries"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/moroz/homeosapiens-go/services"
 	"github.com/moroz/homeosapiens-go/types"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 type assetServer struct {
-	db queries.DBTX
+	db *pgxpool.Pool
 }
 
-func NewAssetServer(db queries.DBTX) *assetServer {
+func NewAssetServer(db *pgxpool.Pool) *assetServer {
 	return &assetServer{db}
 }
 
@@ -60,8 +62,25 @@ func (s *assetServer) UploadAsset(ctx context.Context, request UploadAssetReques
 		return nil, err
 	}
 
-	input, err := getFileFromMultipartForm(form)
+	srv, err := services.NewAssetService(s.db)
+	if err != nil {
+		return nil, err
+	}
 
-	//TODO implement me
-	panic("implement me")
+	input, err := getFileFromMultipartForm(form)
+	if err != nil {
+		return nil, err
+	}
+
+	asset, err := srv.UploadAsset(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return UploadAsset201JSONResponse{
+		Id:               openapi_types.UUID(asset.ID),
+		InsertedAt:       asset.InsertedAt,
+		ObjectKey:        *asset.ObjectKey,
+		OriginalFilename: asset.OriginalFilename,
+	}, nil
 }

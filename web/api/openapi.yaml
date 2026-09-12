@@ -920,7 +920,7 @@ paths:
         "201":
           description: "Asset successfully uploaded"
           content:
-            applications/json:
+            application/json:
               schema:
                 $ref: "#/components/schemas/AssetDetails"
         "422":

@@ -186,9 +186,6 @@ func Router(db *pgxpool.Pool, store *sessions.Store, stripeClient services.Strip
 	// /admin/* namespace to the Vite dev server so HMR works. In prod, Caddy
 	// serves the built dist/ directly and never reaches Go.
 	if !config.IsProd {
-	}
-
-	if !config.IsProd {
 		email := handlers.EmailController(db)
 		r.GET("/dev/email/order", email.OrderConfirmation)
 		r.GET("/dev/email/payment", email.PaymentConfirmation)

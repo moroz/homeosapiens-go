@@ -12,16 +12,17 @@ import (
 )
 
 const insertAsset = `-- name: InsertAsset :one
-insert into assets (object_key, original_filename) values ($1, $2) returning id, object_key, original_filename, inserted_at, updated_at, scaled
+insert into assets (id, object_key, original_filename) values ($1, $2, $3) returning id, object_key, original_filename, inserted_at, updated_at, scaled
 `
 
 type InsertAssetParams struct {
+	ID               uuid.UUID
 	ObjectKey        *string
 	OriginalFilename *string
 }
 
 func (q *Queries) InsertAsset(ctx context.Context, arg *InsertAssetParams) (*Asset, error) {
-	row := q.db.QueryRow(ctx, insertAsset, arg.ObjectKey, arg.OriginalFilename)
+	row := q.db.QueryRow(ctx, insertAsset, arg.ID, arg.ObjectKey, arg.OriginalFilename)
 	var i Asset
 	err := row.Scan(
 		&i.ID,
