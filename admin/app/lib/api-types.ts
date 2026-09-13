@@ -695,6 +695,15 @@ export interface components {
             lastLoginAt?: string | null;
             /** @description The IP address the user last signed in from. */
             lastLoginIp?: string | null;
+            /** @description ISO 3166-1 alpha-2 country code */
+            country?: string | null;
+            /**
+             * Format: date-time
+             * @description When the user last signed in with Google OAuth2. Null when they never did.
+             */
+            googleOauthLastUsedAt?: string | null;
+            /** @description Whether the user has a password set. False for accounts that only sign in with Google OAuth2. */
+            hasPassword: boolean;
         };
         UserDetails: components["schemas"]["User"] & {
             /** @description Products the user may access, whether bought, granted by an order, or imported. */

@@ -1352,7 +1352,16 @@ components:
     User:
       type: object
       required:
-        [id, email, givenName, familyName, role, preferredLocale, insertedAt]
+        [
+          id,
+          email,
+          givenName,
+          familyName,
+          role,
+          preferredLocale,
+          insertedAt,
+          hasPassword,
+        ]
       properties:
         id:
           type: string
@@ -1388,6 +1397,18 @@ components:
           type: string
           nullable: true
           description: The IP address the user last signed in from.
+        country:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code
+        googleOauthLastUsedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the user last signed in with Google OAuth2. Null when they never did.
+        hasPassword:
+          type: boolean
+          description: Whether the user has a password set. False for accounts that only sign in with Google OAuth2.
 
     UserDetails:
       allOf:

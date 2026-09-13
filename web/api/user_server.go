@@ -22,6 +22,11 @@ func formatIP(ip *netip.Addr) *string {
 	return &s
 }
 
+// hasPassword reports whether a user can sign in with a password at all.
+func hasPassword(hash *string) bool {
+	return hash != nil && *hash != ""
+}
+
 type userServer struct {
 	db *pgxpool.Pool
 }
@@ -61,6 +66,10 @@ func (s *userServer) ListUsers(ctx context.Context, params ListUsersRequestObjec
 			ProfilePicture:   e.ProfilePicture,
 			LastLoginAt:      e.LastLoginAt,
 			LastLoginIp:      formatIP(e.LastLoginIp),
+			Country:          e.Country,
+
+			GoogleOauthLastUsedAt: e.GoogleOauthLastUsedAt,
+			HasPassword:           hasPassword(e.PasswordHash),
 		}
 	}
 
@@ -139,7 +148,11 @@ func (s *userServer) GetUser(ctx context.Context, params GetUserRequestObject) (
 		Role:               UserDetailsRole(user.UserRole),
 		LastLoginAt:        user.LastLoginAt,
 		LastLoginIp:        formatIP(user.LastLoginIp),
+		Country:            user.Country,
 		ProductAccess:      productAccess,
 		EventRegistrations: eventRegistrations,
+
+		GoogleOauthLastUsedAt: user.GoogleOauthLastUsedAt,
+		HasPassword:           hasPassword(user.PasswordHash),
 	}, nil
 }

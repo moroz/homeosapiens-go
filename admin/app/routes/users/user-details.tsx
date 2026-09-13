@@ -17,8 +17,11 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { formatInstant } from "~/lib/time";
+import { BooleanBadge } from "~/components/boolean-badge";
 
 interface Props {}
+
+const regionNames = new Intl.DisplayNames("en", { type: "region" });
 
 export const UserDetails: React.FC<Props> = () => {
   const { id } = useParams();
@@ -60,6 +63,17 @@ export const UserDetails: React.FC<Props> = () => {
             </Field>
             <Field label="Last login IP" monospace copy>
               {user.lastLoginIp}
+            </Field>
+            <Field label="Country">
+              {user.country ? regionNames.of(user.country) : null}
+            </Field>
+            <Field label="Last Google sign in">
+              {user.googleOauthLastUsedAt
+                ? formatInstant(user.googleOauthLastUsedAt)
+                : "Never"}
+            </Field>
+            <Field label="Password set">
+              <BooleanBadge value={user.hasPassword} />
             </Field>
           </DetailsTable>
 
