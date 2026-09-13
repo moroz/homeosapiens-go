@@ -6,13 +6,14 @@ require (
 	github.com/Oudwins/tailwind-merge-go v0.2.2
 	github.com/PuerkitoBio/goquery v1.12.0
 	github.com/alexedwards/argon2id v1.0.0
+	github.com/aws/aws-sdk-go-v2/config v1.33.4
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
 	github.com/bincyber/go-sqlcrypter v0.3.0
 	github.com/d1str0/pkcs7 v0.0.0-20200424205038-d65c16a5759a
 	github.com/getkin/kin-openapi v0.142.0
 	github.com/go-http-utils/etag v0.0.0-20161124023236-513ea8f21eb1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/gomarkdown/markdown v0.0.0-20260614204949-e08cff860f76
-	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/labstack/echo/v5 v5.3.0
 	github.com/moroz/securecookie v0.0.0-20250207075547-a6abdbe4e5e4
@@ -44,7 +45,6 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.47.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.20 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.33.4 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.20.4 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.0 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.3 // indirect
@@ -54,7 +54,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.11.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.20.3 // indirect
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/signin v1.10.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.38.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.43.0 // indirect
@@ -70,9 +69,9 @@ require (
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
 	github.com/go-openapi/swag/jsonname v0.25.5 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.18 // indirect
 	github.com/googleapis/gax-go/v2 v2.23.0 // indirect
-	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
