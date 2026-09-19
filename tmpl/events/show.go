@@ -2,8 +2,8 @@ package events
 
 import (
 	"fmt"
+	"time"
 
-	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/db/queries"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/helpers"
@@ -14,18 +14,13 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-const EventRegistrationButtonBaseClasses = "inline-flex button bg-slate-100 text-slate-900 gap-1 font-semibold hover:bg-slate-200"
-const EventRegistrationButtonNotGoingClasses = "bg-slate-100 text-slate-900 hover:bg-slate-200"
-const EventRegistrationButtonGoingClasses = "bg-primary/10 text-primary hover:bg-primary/20"
-
 // ananymousEventRegistrationButtonLink displays a faux button that redirects the user to the login page if they want to register for an event. If they are already signed in, the GET handler registers the user for the event.
 func ananymousEventRegistrationButtonLink(l *i18n.Localizer, event *types.EventDetailsDto) Node {
 	return A(
 		Href(fmt.Sprintf("/events/%s/register", event.ID)),
-		Class(twmerge.Merge(EventRegistrationButtonBaseClasses, EventRegistrationButtonNotGoingClasses)),
-		EventAttendanceIcon(false),
+		Class("button"),
 		Text(l.MustLocalizeMessage(&i18n.Message{
-			ID: "common.events.attendance_badge",
+			ID: "common.events.register",
 		})),
 	)
 }
@@ -48,10 +43,18 @@ func endedEventBadge(l *i18n.Localizer) Node {
 	)
 }
 
+// isEventDay reports whether today, in the viewer's timezone, is on or after
+// the calendar day the event starts. Ended events are excluded by the caller.
+func isEventDay(event *types.EventDetailsDto, tz *time.Location) bool {
+	ny, nm, nd := time.Now().In(tz).Date()
+	sy, sm, sd := event.StartsAt.In(tz).Date()
+	return time.Date(ny, nm, nd, 0, 0, 0, 0, time.UTC).Compare(time.Date(sy, sm, sd, 0, 0, 0, 0, time.UTC)) >= 0
+}
+
 // joinMeetingButton links to the virtual meeting. It is only rendered for users
 // who are registered for the event, so the link is not handed out publicly.
-func joinMeetingButton(l *i18n.Localizer, event *types.EventDetailsDto) Node {
-	if event.EventRegistration == nil || event.MeetingUrl == nil || event.HasEnded() {
+func joinMeetingButton(l *i18n.Localizer, tz *time.Location, event *types.EventDetailsDto) Node {
+	if event.EventRegistration == nil || event.MeetingUrl == nil || event.HasEnded() || !isEventDay(event, tz) {
 		return nil
 	}
 
@@ -78,24 +81,53 @@ func freeEventCTA(props *freeEventCTAProps) Node {
 	event := props.Event
 	l := props.Localizer
 
-	classes := EventRegistrationButtonNotGoingClasses
-	if event.EventRegistration != nil {
-		classes = EventRegistrationButtonGoingClasses
+	if event.EventRegistration == nil {
+		return Form(
+			Action(fmt.Sprintf("/event_registrations/%s", event.ID)),
+			Method("POST"),
+			Button(
+				Class("button"),
+				Type("submit"),
+				Text(l.MustLocalizeMessage(&i18n.Message{
+					ID: "common.events.register",
+				})),
+			),
+		)
 	}
 
-	return Form(
-		Action(fmt.Sprintf("/event_registrations/%s", event.ID)),
-		Method("POST"),
-		If(event.EventRegistration != nil, Input(Type("hidden"), Name("_method"), Value("DELETE"))),
-		Button(
-			Class(
-				twmerge.Merge(EventRegistrationButtonBaseClasses, classes),
-			),
-			Type("submit"),
-			EventAttendanceIcon(event.EventRegistration != nil),
+	return Div(
+		Class("grid justify-items-start gap-3"),
+		P(
 			Text(l.MustLocalizeMessage(&i18n.Message{
-				ID: "common.events.attendance_badge",
+				ID: "common.events.registered_notice",
 			})),
+			Iff(event.RegistrationCount > 1, func() Node {
+				others := event.RegistrationCount - 1
+				return Text(" " + l.MustLocalize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID: "common.events.attendance_count_others",
+					},
+					TemplateData: map[string]any{"Count": others},
+					PluralCount:  others,
+				}))
+			}),
+		),
+		Form(
+			Action(fmt.Sprintf("/event_registrations/%s", event.ID)),
+			Method("POST"),
+			Input(Type("hidden"), Name("_method"), Value("DELETE")),
+			Button(
+				Class("button bg-slate-100 text-slate-900 hover:bg-slate-200"),
+				Type("submit"),
+				SVG(
+					Class("h-4 w-4 fill-current"),
+					Attr("viewBox", "0 0 640 640"),
+					El("use", Href("/assets/xmark.svg#icon")),
+				),
+				Text(l.MustLocalizeMessage(&i18n.Message{
+					ID: "common.events.cancel_registration",
+				})),
+			),
 		),
 	)
 }
@@ -149,9 +181,7 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 					),
 				),
 			),
-		),
-		components.PageSection(
-			Div(Class("flex flex-wrap items-center gap-4"),
+			Div(Class("mt-6 flex flex-wrap items-center gap-4"),
 				Iff(event.IsFree(), func() Node {
 					return freeEventCTA(&freeEventCTAProps{
 						Event:     event,
@@ -163,10 +193,10 @@ func Show(ctx *types.CustomContext, event *types.EventDetailsDto) Node {
 				// registrable nor purchasable once the event is over.
 				If(!event.IsFree() && !event.HasEnded(), components.AddToCartButton(ctx.Localizer, event.Event.ID, event.CountInCart)),
 				If(!event.IsFree() && event.HasEnded(), endedEventBadge(l)),
-				joinMeetingButton(l, event),
+				joinMeetingButton(l, tz, event),
 				If(!event.IsFree() && event.CountInCart > 0, A(Href("/cart"), Class("font-semibold underline"), Text(l.MustLocalizeMessage(&i18n.Message{ID: "common.events.view_cart"})))),
 				If(
-					event.IsFree() && !event.HasEnded() && event.RegistrationCount > 0,
+					event.IsFree() && !event.HasEnded() && event.RegistrationCount > 0 && event.EventRegistration == nil,
 					Text(l.MustLocalize(&i18n.LocalizeConfig{
 						DefaultMessage: &i18n.Message{
 							ID: "common.events.attendance_count",

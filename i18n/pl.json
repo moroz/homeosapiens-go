@@ -42,6 +42,12 @@
         "many": "{{ .Count }} osób weźmie udział.",
         "one": "Jedna osoba weźmie udział."
       },
+      "attendance_count_others": {
+        "few": "{{ .Count }} inne osoby wezmą udział.",
+        "many": "{{ .Count }} innych osób weźmie udział.",
+        "one": "Jedna inna osoba weźmie udział."
+      },
+      "cancel_registration": "Odwołaj rejestrację",
       "ended": "Wydarzenie zakończone",
       "event_type": {
         "seminar": "Seminarium",
@@ -57,6 +63,8 @@
         "many": "{{ .Count }} osób wzięło udział.",
         "one": "Jedna osoba wzięła udział."
       },
+      "register": "Zarejestruj się",
+      "registered_notice": "Jesteś zarejestrowany/a na to wydarzenie.",
       "sign_up": "Rejestracja",
       "view_cart": "Przejdź do koszyka"
     },

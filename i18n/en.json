@@ -41,6 +41,11 @@
         "one": "One person is going.",
         "other": "{{ .Count }} people are going."
       },
+      "attendance_count_others": {
+        "one": "One other person is going.",
+        "other": "{{ .Count }} other people are going."
+      },
+      "cancel_registration": "Cancel registration",
       "ended": "Event has ended",
       "event_type": {
         "seminar": "Seminar",
@@ -55,6 +60,8 @@
         "one": "One person has attended.",
         "other": "{{ .Count }} people have attended."
       },
+      "register": "Register",
+      "registered_notice": "You are registered for this event.",
       "sign_up": "Register",
       "view_cart": "View cart"
     },
