@@ -66,7 +66,7 @@ func RequireAuthenticatedUser(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		qs := url.Values{
-			"ref": {ctx.RequestUrl.String()},
+			"ref": {ctx.RequestUrl.RequestURI()},
 		}
 		ctx.PutFlash("danger", "You need to sign in to access this page.")
 		if err := ctx.SaveSession(c.Response()); err != nil {

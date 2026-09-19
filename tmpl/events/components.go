@@ -171,7 +171,7 @@ func EventCard(ctx *types.CustomContext, e *services.EventListDto) Node {
 			Div(
 				Class("mt-auto flex w-full items-center gap-4 mobile:grid"),
 				If(!hasEnded && isFree && e.EventRegistration == nil, A(
-					Href(eventUrl+"/register"),
+					Href(fmt.Sprintf("/events/%s/register", e.ListPublishedEventsRow.ID)),
 					Class("button px-6 mobile:w-full"),
 					Text(localizer.MustLocalizeMessage(&i18n.Message{
 						ID: "common.events.sign_up",

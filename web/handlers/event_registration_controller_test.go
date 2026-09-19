@@ -216,6 +216,11 @@ func TestEventRegistrationController(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, http.StatusSeeOther, resp.StatusCode)
 			assert.Contains(t, resp.Header.Get("Location"), "/sign-in")
+
+			// The return URL must be a local path, or it is rejected after login.
+			loc, err := url.Parse(resp.Header.Get("Location"))
+			assert.NoError(t, err)
+			assert.Equal(t, fmt.Sprintf("/events/%s/register", event.ID), loc.Query().Get("ref"))
 		})
 
 		t.Run("DELETE /event_registrations/:event_id redirects to sign-in", func(t *testing.T) {
