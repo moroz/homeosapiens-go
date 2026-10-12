@@ -1,0 +1,105 @@
+---
+# Builds a release locally (scripts/deploy/build-release.sh, as for the old boxes)
+# and deploys it to the shared server, where github.com/moroz/shared-infrastructure
+# has set up the homeosapiens user, service, database and environment. The service
+# runs "goose up" from the release's migrations/ before it starts. Caddy serves
+# assets/ and the admin panel in admin/ straight from the release.
+
+- name: Build and deploy homeosapiens
+  hosts: all
+  become: true
+  tags: deploy
+
+  vars:
+    app_name: homeosapiens
+    app_port: 5000
+    domain: homeosapiens.eu
+    app_base_dir: "/usr/local/lib/{{ app_name }}"
+    release_timestamp: "{{ ansible_facts['date_time'].iso8601_basic_short }}"
+    target_dir: "{{ app_base_dir }}/releases/{{ release_timestamp }}"
+    code_dir: ".."
+
+  tasks:
+    - name: Build the release
+      delegate_to: localhost
+      become: false
+      run_once: true
+      ansible.builtin.command:
+        cmd: scripts/deploy/build-release.sh
+        chdir: "{{ code_dir }}"
+      environment:
+        GOOS: "{{ ansible_facts['system'] | lower }}"
+        GOARCH: "{{ {'x86_64': 'amd64', 'amd64': 'amd64', 'aarch64': 'arm64', 'arm64': 'arm64'}[ansible_facts['architecture']] }}"
+        CGO_ENABLED: "0"
+
+    - name: Create the release directory
+      ansible.builtin.file:
+        path: "{{ target_dir }}"
+        state: directory
+        owner: "{{ ansible_user | default('deploy') }}"
+        group: "{{ app_name }}"
+        mode: "0751"
+
+    - name: Unpack the release
+      ansible.builtin.unarchive:
+        src: "{{ code_dir }}/rel/release.tar.gz"
+        dest: "{{ target_dir }}"
+        owner: "{{ ansible_user | default('deploy') }}"
+        group: "{{ app_name }}"
+
+    - name: Make the release current
+      ansible.builtin.file:
+        src: "{{ target_dir }}"
+        dest: "{{ app_base_dir }}/current"
+        state: link
+        force: true
+
+    - name: Restart homeosapiens
+      ansible.builtin.service:
+        name: "{{ app_name }}"
+        state: restarted
+
+    - name: Check that homeosapiens is up
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ app_port }}/"
+        status_code: [200]
+      register: health
+      until: health is succeeded
+      retries: 10
+      delay: 2
+
+    # Through Caddy on this server, whichever server the name points at: the
+    # public site's entry script and styles, and the admin panel at a deep link,
+    # which must get this release's index.html, and the script that names.
+    - name: Check that Caddy serves the release's files
+      vars:
+        entry: "{{ (lookup('file', code_dir + '/rel/assets/.vite/manifest.json') | from_json)['index.html'] }}"
+        admin_script: "{{ lookup('file', code_dir + '/rel/admin/index.html') | regex_search('/admin/assets/[^\"]+\\.js') }}"
+      ansible.builtin.command:
+        cmd: >-
+          curl -fsS -o /dev/null --resolve {{ domain }}:443:127.0.0.1
+          https://{{ domain }}{{ item }}
+      loop: "{{ ['/' ~ entry.file] + (entry.css | default([]) | map('regex_replace', '^', '/') | list) + ['/admin/events', admin_script] }}"
+      changed_when: false
+
+- name: Remove old releases
+  hosts: all
+  become: true
+  tags: clean
+
+  vars:
+    app_base_dir: /usr/local/lib/homeosapiens
+    keep_releases: 5
+
+  tasks:
+    - name: List the releases
+      ansible.builtin.find:
+        paths: "{{ app_base_dir }}/releases"
+        file_type: directory
+      register: releases
+
+    - name: Delete all but the newest releases
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ (releases.files | map(attribute='path') | sort(reverse=True))[keep_releases:] }}"
