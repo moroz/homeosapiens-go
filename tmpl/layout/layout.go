@@ -1,6 +1,7 @@
 package layout
 
 import (
+	twmerge "github.com/Oudwins/tailwind-merge-go"
 	"github.com/moroz/homeosapiens-go/tmpl/components"
 	"github.com/moroz/homeosapiens-go/tmpl/components/icons"
 	"github.com/moroz/homeosapiens-go/types"
@@ -90,7 +91,7 @@ func fonts() Node {
 	}
 }
 
-func LanguageSwitcher(ctx *types.CustomContext) Node {
+func LanguageSwitcher(ctx *types.CustomContext, classes ...string) Node {
 	l := ctx.Localizer
 	otherLocale := "en"
 	if ctx.Language == "en" {
@@ -100,7 +101,7 @@ func LanguageSwitcher(ctx *types.CustomContext) Node {
 	baseUrl := ctx.RequestUrl.Path
 
 	return A(
-		Class("button tertiary gap-1 uppercase"),
+		Class(twmerge.Merge("button tertiary gap-1 uppercase", twmerge.Merge(classes...))),
 		Href(baseUrl+"?lang="+otherLocale), Title(tooltip), Aria("label", tooltip),
 		SVG(Class("h-5 w-5 fill-current"), Attr("viewBox", "0 0 640 640"), El("use", Href("/assets/language.svg#icon"))),
 		Text(ctx.Language),
