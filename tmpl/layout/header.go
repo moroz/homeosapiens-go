@@ -82,7 +82,9 @@ func mobileNav(ctx *types.CustomContext) Node {
 	//user := ctx.Value(config.CurrentUserContextName).(*queries.User)
 
 	return Div(
-		Class("z-10 not-mobile:hidden"),
+		Class("z-10 flex items-center not-mobile:hidden"),
+		// Kept above the open hamburger menu, like the trigger itself.
+		Div(Class("relative z-10"), LanguageSwitcher(ctx, "px-2")),
 		hamburgerTrigger(),
 		Nav(
 			Class("hamburger-menu pt-[65px]"),
