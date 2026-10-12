@@ -153,17 +153,10 @@ cd db/seeds
 GOOS=linux GOARCH=amd64 go build .
 """
 
-[tasks."deploy:staging"]
-run = "cd scripts/deploy && ansible-playbook -v deploy.yml --limit staging"
-
 [tasks.deploy]
 description = "Builds a release and deploys it to the shared server"
 dir = "deploy"
 run = "ansible-playbook deploy.yml"
-
-# The old box, until homeosapiens.eu points at the shared server
-[tasks."deploy:prod"]
-run = "cd scripts/deploy && ansible-playbook -v deploy.yml --limit prod"
 
 [tasks.check]
 run = "go run ."

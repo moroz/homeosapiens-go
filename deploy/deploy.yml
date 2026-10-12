@@ -1,5 +1,5 @@
 ---
-# Builds a release locally (scripts/deploy/build-release.sh, as for the old boxes)
+# Builds a release locally (scripts/deploy/build-release.sh)
 # and deploys it to the shared server, where github.com/moroz/shared-infrastructure
 # has set up the homeosapiens user, service, database and environment. The service
 # runs "goose up" from the release's migrations/ before it starts. Caddy serves
